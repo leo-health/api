@@ -1,0 +1,68 @@
+FORMAT: 1A
+
+# Leo v1
+This is a live document that captures the Leo *v1* api that will power the iOS app.
+
+# Group Conversations
+Conversation related resources of the **LEO API**
+
+## Conversations Collection [/conversations]
+### List all Conversations [GET]
++ Response 200 (application/json)
+    + Header
+
+            X-My-Header: The Value
+
+    + Body
+
+            [{
+              "id": 1, "title": "Jogging in park"
+            }, {
+            "id": 2, "title": "Pick-up posters from post-office"
+            }]
+
+## Individual Conversation [/conversations/{id}]
+### List conversation messages [GET]
++ Response 200 (application/json)
+
+    + Header
+
+            X-My-Header: The Value
+
+    + Body
+
+            [{
+              "message_id": 1, "sender_id": 12, "receiver_id": 18, "type": "text", "body": "What allergies does Chris have?"
+            }, {
+              "message_id": 2, "sender_id": 18, "receiver_id": 12, "type": "text", "body": "Chris is allergic to peanuts and cashew nuts""
+            }]
+
+## Notes collection [/notes]
+### Create a Note [POST]
++ Request (application/json)
+
+        { "title": "Buy cheese and bread for breakfast." }
+
++ Response 201 (application/json)
+
+        { "id": 3, "title": "Buy cheese and bread for breakfast." }
+
+## Note [/notes/{id}]
+A single Note object with all its details
+
++ Parameters
+    + id (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
+
+### Retrieve a Note [GET]
++ Response 200 (application/json)
+
+    + Header
+
+            X-My-Header: The Value
+
+    + Body
+
+            { "id": 2, "title": "Pick-up posters from post-office" }
+
+### Remove a Note [DELETE]
++ Response 204
