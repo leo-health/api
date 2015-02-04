@@ -3,6 +3,212 @@ FORMAT: 1A
 # Leo v1
 This is a live document that captures the Leo *v1* api that will power the iOS app.
 
+# Group Login
+
+## Login endpoint  [/v1/login]
+### Login to application [POST]
++ Request (application/json)
+
+        { "email": "danish@leohealth.com", "password" : "l0gm31n_please" }
+
++ Response 201 (application/json)
+
+    + Body
+
+            { "token" : "A09FG3vsak",
+               "user" : { "id": "12", "name" : "Ben Siscovick", "email" : "ben@leohealth.com", "dob" : "1980-04-18", "gender" : "male"  }
+            }
+
+
+## Reset password endpoint [/v1/login/resetpassword]
+### Request password reset [POST]
++ Request (application/json)
+
+        { "email": "danish@leohealth.com" }
+
++ Response 204
+
+# Group Registration
+
+## Users collection [/v1/users]
+### Create a new user, parent or child [POST]
++ Request (application/json)
+        
+        {
+            "name" : "Ben Siscovick", 
+            "email" : "ben@leohealth.com",
+            "dob" : "1980-04-18",
+            "gender" : "male",
+        }
+
++ Response 201 
+
+    + Body
+
+            Location: https://leohealth.com/v1/users/12
+
+
+## User invite endpoint [/v1/users/invite]
+### Invite a user successfully [POST]
++ Request (application/json)
+    
+        {
+            "name" : "Nayan Jain",
+            "email" : "nayan@leohealth.com",
+            "role" : "guardian"
+        }
+
++ Response 201
+
+    + Body
+
+            Location: https://leohealth.com/v1/users/13
+
+# Group Dashboard Cards
+
+## Cards collection [/v1/cards/]
+### List all cards [GET]
++ Request (application/json)
+
+        {
+             “user_id” : “12” 
+        }
+
++ Response 200
+
+    + Body
+
+            [
+                {
+                    “type” : “upcoming_visit”, // types: upcoming_visit, visit_summary, form_requested, form_filled, chat_notification
+                    “time” : “2015-02-15T14:00:00.00Z”, 
+                    “visit” : { 
+                        “patient” : “..”, 
+                        “physician” : “..”
+                        }
+                }, 
+                {
+                    “type” : “chat_notification”,
+                    “time” : “2015-02-03T15:10:29.494Z”,
+                    “chat” : {
+                        message: {
+                            “sender” : “Ben”,
+                            “body” : “Livi has a fever, what should I do?”,
+                            “time” :  “2015-02-03T14:59:29.494Z”
+                        },
+                        message: {
+                            “sender” : “Dr. Leo”,
+                            “body” : “This is the third time this month. Why don’t you come in for a sick visit?”,
+                            “time” :  “2015-02-03T15:10:29.494Z”
+                        }
+                    }
+                }, 
+                {
+                    “type” : “form_filled”,
+                    “time” : “2015-02-03T15:10:29.494Z”,
+                    “form” : { .. }
+                }
+            ]
+
+
+# Group Visits
+## Visits Collection [/v1/visits]
+
+### List all visits for a user [GET]
++ Request (application/json)
+
+        {
+            "user_id" : "12"
+        }
+
++ Response 200
+
+    + Body
+
+            [
+                {
+                    “id” : 213,
+                    “type” : “well_visit”,
+                    “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+                    “patient” : { … }
+                    “visit_time” : “2015-02-03T14:59:29.494Z”,
+                    “created_at” : 2015-02-03T14:59:29.494Z”,
+                    “updated_at” : “2015-02-03T14:59:29.494Z”,
+                    “duration” : “30”,
+                    “status” : “pending”    // [pending, completed, cancelled]
+                },
+                {
+                    “id” : 214,
+                    “type” : sick_visit,
+                    “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+                    “patient” : { … }
+                    “visit_time” : “2015-02-03T14:59:29.494Z”,
+                    “created_at” : 2015-02-03T14:59:29.494Z”,
+                    “updated_at” : “2015-02-03T14:59:29.494Z”,
+                    “duration” : “30”,
+                    “status” : completed    // [pending, completed, cancelled]
+                },
+                {
+                    “id” : 215,
+                    “type” : “well_visit”,
+                    “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+                    “patient” : { … }
+                    “visit_time” : “2015-02-03T14:59:29.494Z”,
+                    “created_at” : 2015-02-03T14:59:29.494Z”,
+                    “updated_at” : “2015-02-03T14:59:29.494Z”,
+                    “duration” : “30”,
+                    “status” : cancelled    // [pending, completed, cancelled]
+                }
+            ]
+
+### Create a new visit [POST]
++ Request (application/json)
+
+        {
+            “type” : “well_visit”,
+            “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+            “patient” : { … }
+            “visit_time” : “2015-02-03T14:59:29.494Z”,
+            “created_at” : 2015-02-03T14:59:29.494Z”,
+            “updated_at” : “2015-02-03T14:59:29.494Z”,
+            “duration” : “30”,
+            “status” : “pending”    // [pending, completed, cancelled]
+        }
+
++ Response 201
+
+    + Body
+
+            Location: https://leohealth.com/v1/visits/76
+
+## Individual visit [/v1/visits/{id}]
+
+### Update a visit [PUT]
++ Request (application/json)
+
+        {
+            "status" : "completed"
+        }
+
++ Response 201
+        
+        {
+            “id” : 213,
+            “type” : “well_visit”,
+            “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+            “patient” : { … }
+            “visit_time” : “2015-02-03T14:59:29.494Z”,
+            “created_at” : 2015-02-03T14:59:29.494Z”,
+            “updated_at” : “2015-02-03T14:59:29.494Z”,
+            “duration” : “30”,
+            “status” : "completed"    // [pending, completed, cancelled]
+        }
+
+### Delete a visit [DELETE]
++ Response 204
+
+
+
 # Group Conversations
 Conversation related resources of the **LEO API**
 
