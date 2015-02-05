@@ -207,6 +207,93 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 ### Delete a visit [DELETE]
 + Response 204
 
+# Group Forms
+
+## Forms collection [/v1/forms]
+
+### Get all forms belonging to a user [GET]
++ Request (application/json)
+
+        {
+            "user_id" : "12"
+        }
+
++ Response 200
+
+    + Body
+
+            [
+                { “id” : “1”, “user_id” : “12”, “patient_id” : “15”, “status” : “pending”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
+                { “id” : “2”, “user_id” : “12”, “patient_id” : “14”, “status” : “completed”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
+                { “id” : “3”, “user_id” : “12”, “patient_id” : “15”, “status” : “unprocessable”, “reason” : “image blurry”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
+            ]
+
+### Create a new form [POST]
++ Request (multipart/form-data; boundary=---BOUNDARY)
+
+    + Part
+        + Headers
+
+                Content-Disposition: form-data; name="json"
+
+        + Body 
+
+                { "user_id" : "12", "patient_id" : "15" }
+
+    + Part
+        + Headers
+
+                Content-Disposition: form-data; name="image"; filename="filename.jpg"
+
+        + Body 
+
+                data
+
+## Individual form [/v1/forms/{id}]
+
+### Get a specific form [GET]
++ Request (application/json)
+    
++ Response 200
+
+    + Body
+
+            {
+                “id” : “3”, 
+                “user_id” : “12”, 
+                “patient_id” : “13”, 
+                “status” : “unprocessable”, 
+                “reason” : “image blurry”, 
+                “created_at” : “2015-02-05T09:12:324Z”,
+                “updated_at” : “2015-02-05T09:12:324Z”,
+                “image_url” : “https://….” }
+            }
+
+### Update a specific form [POST]
++ Request (application/json)
+    
+        {   "status" : "completed" }
+    
++ Response 200
+
+    + Body
+
+            {
+                “id” : “3”, 
+                “user_id” : “12”, 
+                “patient_id” : “13”, 
+                “status” : "completed”, 
+                “reason” : “image blurry”, 
+                “created_at” : “2015-02-05T09:12:324Z”,
+                “updated_at” : “2015-02-05T09:12:324Z”,
+                “image_url” : “https://….” }
+            }
+
+
+### Delete a specific form [DELETE]
++ Request (application/json)
+    
++ Response 204
 
 
 # Group Conversations
