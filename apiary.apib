@@ -16,7 +16,14 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
     + Body
 
             { "token" : "A09FG3vsak",
-               "user" : { "id": "12", "name" : "Ben Siscovick", "email" : "ben@leohealth.com", "dob" : "1980-04-18", "gender" : "male"  }
+               "user" : { "id": 12, 
+               "first_name" : "Ben",  
+               "last_name" : "Siscovick",
+               "middle_initial" : "",
+               "title" : "",
+               "email" : "ben@leohealth.com", 
+               "dob" : "1980-04-18T05:00:00.000Z", 
+               "sex" : "M"  }
             }
 
 
@@ -28,17 +35,20 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 
 + Response 204
 
-# Group Registration
+# Group Registration & User information
 
 ## Users collection [/v1/users]
 ### Create a new user, parent or child [POST]
 + Request (application/json)
         
         {
-            "name" : "Ben Siscovick", 
+            "first_name" : "Ben",  
+           "last_name" : "Siscovick",
+           "middle_initial" : "",
+           "title" : "",
             "email" : "ben@leohealth.com",
-            "dob" : "1980-04-18",
-            "gender" : "male",
+            "dob" : "1980-04-18T05:00:00.000Z",
+            "sex" : "M",
         }
 
 + Response 201 
@@ -48,12 +58,17 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
             Location: https://leohealth.com/v1/users/12
 
 
+### Get all users by practice and/or user_type
+
 ## User invite endpoint [/v1/users/invite]
 ### Invite a user successfully [POST]
 + Request (application/json)
     
         {
-            "name" : "Nayan Jain",
+            "first_name" : "Nayan",  
+            "last_name" : "Jain",
+            "middle_initial" : "",
+            "title" : "",
             "email" : "nayan@leohealth.com",
             "role" : "guardian"
         }
@@ -71,7 +86,7 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 + Request (application/json)
 
         {
-             “user_id” : “12” 
+             “user_id” : 12 
         }
 
 + Response 200
@@ -81,7 +96,7 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
             [
                 {
                     “type” : “upcoming_visit”, // types: upcoming_visit, visit_summary, form_requested, form_filled, chat_notification
-                    “time” : “2015-02-15T14:00:00.00Z”, 
+                    “time” : “2015-02-15T14:00:00.000Z”, 
                     “visit” : { 
                         “patient” : “..”, 
                         “physician” : “..”
@@ -118,7 +133,7 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 + Request (application/json)
 
         {
-            "user_id" : "12"
+            "user_id" : 12
         }
 
 + Response 200
@@ -129,34 +144,55 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
                 {
                     “id” : 213,
                     “type” : “well_visit”,
-                    “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+                    “physician” : { “id” : 1, 
+                                    "first_name" : "Om",  
+                                    "last_name" : "Lala",
+                                    "middle_initial" : "",
+                                    "title" : "Dr.",
+                                    “avatar_url” : “https://…”, 
+                                    “practice_id” : 1 
+                                  },
                     “patient” : { … }
                     “visit_time” : “2015-02-03T14:59:29.494Z”,
                     “created_at” : 2015-02-03T14:59:29.494Z”,
                     “updated_at” : “2015-02-03T14:59:29.494Z”,
-                    “duration” : “30”,
+                    “duration” : 30,        // in minutes
                     “status” : “pending”    // [pending, completed, cancelled]
                 },
                 {
                     “id” : 214,
                     “type” : sick_visit,
-                    “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+                    “physician” : { “id” : 1, 
+                                    "first_name" : "Om",  
+                                    "last_name" : "Lala",
+                                    "middle_initial" : "",
+                                    "title" : "Dr.",
+                                    “avatar_url” : “https://…”, 
+                                    “practice_id” : 1 
+                                  },
                     “patient” : { … }
                     “visit_time” : “2015-02-03T14:59:29.494Z”,
                     “created_at” : 2015-02-03T14:59:29.494Z”,
                     “updated_at” : “2015-02-03T14:59:29.494Z”,
-                    “duration” : “30”,
+                    “duration” : 30,        // in minutes
                     “status” : completed    // [pending, completed, cancelled]
                 },
                 {
                     “id” : 215,
                     “type” : “well_visit”,
-                    “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+                    “physician” : { “id” : 1, 
+                                    "first_name" : "Om",  
+                                    "last_name" : "Lala",
+                                    "middle_initial" : "",
+                                    "title" : "Dr.",
+                                    “avatar_url” : “https://…”, 
+                                    “practice_id” : 1 
+                                  },
                     “patient” : { … }
                     “visit_time” : “2015-02-03T14:59:29.494Z”,
                     “created_at” : 2015-02-03T14:59:29.494Z”,
                     “updated_at” : “2015-02-03T14:59:29.494Z”,
-                    “duration” : “30”,
+                    “duration” : 30,        // in minutes
                     “status” : cancelled    // [pending, completed, cancelled]
                 }
             ]
@@ -166,12 +202,12 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 
         {
             “type” : “well_visit”,
-            “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
+            “physician_id” : 1
             “patient” : { … }
             “visit_time” : “2015-02-03T14:59:29.494Z”,
             “created_at” : 2015-02-03T14:59:29.494Z”,
             “updated_at” : “2015-02-03T14:59:29.494Z”,
-            “duration” : “30”,
+            “duration” : 30,
             “status” : “pending”    // [pending, completed, cancelled]
         }
 
@@ -191,21 +227,44 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
         }
 
 + Response 201
+
+    + Body
         
-        {
-            “id” : 213,
-            “type” : “well_visit”,
-            “physician” : { “id” : “1”, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : “1” },
-            “patient” : { … }
-            “visit_time” : “2015-02-03T14:59:29.494Z”,
-            “created_at” : 2015-02-03T14:59:29.494Z”,
-            “updated_at” : “2015-02-03T14:59:29.494Z”,
-            “duration” : “30”,
-            “status” : "completed"    // [pending, completed, cancelled]
-        }
+            {
+                “id” : 213,
+                “type” : “well_visit”,
+                “physician” : { “id” : 1, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : 1 },
+                “patient” : { … }
+                “visit_time” : “2015-02-03T14:59:29.494Z”,
+                “created_at” : 2015-02-03T14:59:29.494Z”,
+                “updated_at” : “2015-02-03T14:59:29.494Z”,
+                “duration” : 30,
+                “status” : "completed"    // [pending, completed, cancelled]
+            }
 
 ### Delete a visit [DELETE]
 + Response 204
+
+
+
+/v1/physicians          [GET]
+form-data   { “user_id” : 12, “practice_id” : 1 }
+response    [
+            { “id” : 1, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : 1 },
+{ “id” : 2, “name” : “Dr. Gregory House”, “avatar_url” : “https://…”, “practice_id” : 1 },
+...
+]
+/v1/physicians/availabilities   [GET]
+form-data   { “user_id” : 12, “physician_id” : 2, “start_date” : “2015-02-01”, “end_date” : “2015-02-08”, “visit_type” : “sick_visit”, “patient_id” : 13 }
+response    [
+            { “date” : “2015-02-1”, “time” : “13:00” },
+            { “date” : “2015-02-1”, “time” : “13:30” },
+            { “date” : “2015-02-1”, “time” : “14:00” },
+            { “date” : “2015-02-1”, “time” : “16:30” },
+            { “date” : “2015-02-2”, “time” : “9:00” },
+            { “date” : “2015-02-2”, “time” : “9:30” },
+            ….
+]
 
 # Group Forms
 
@@ -215,7 +274,7 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 + Request (application/json)
 
         {
-            "user_id" : "12"
+            "user_id" : 12
         }
 
 + Response 200
@@ -223,9 +282,9 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
     + Body
 
             [
-                { “id” : “1”, “user_id” : “12”, “patient_id” : “15”, “status” : “pending”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
-                { “id” : “2”, “user_id” : “12”, “patient_id” : “14”, “status” : “completed”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
-                { “id” : “3”, “user_id” : “12”, “patient_id” : “15”, “status” : “unprocessable”, “reason” : “image blurry”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
+                { “id” : 1, “user_id” : 12, “patient_id” : 15, “status” : “pending”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
+                { “id” : 2, “user_id” : 12, “patient_id” : 14, “status” : “completed”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
+                { “id” : 3, “user_id” : 12, “patient_id” : 15, “status” : “unprocessable”, “reason” : “image blurry”, “created_at” : “2015-02-05T09:12:324Z”, “updated_at” : “2015-02-05T09:12:324Z” },
             ]
 
 ### Create a new form [POST]
@@ -238,7 +297,7 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 
         + Body 
 
-                { "user_id" : "12", "patient_id" : "15" }
+                { "user_id" : 12, "patient_id" : 15 }
 
     + Part
         + Headers
@@ -259,9 +318,9 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
     + Body
 
             {
-                “id” : “3”, 
-                “user_id” : “12”, 
-                “patient_id” : “13”, 
+                “id” : 3, 
+                “user_id” : 12, 
+                “patient_id” : 13, 
                 “status” : “unprocessable”, 
                 “reason” : “image blurry”, 
                 “created_at” : “2015-02-05T09:12:324Z”,
@@ -279,9 +338,9 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
     + Body
 
             {
-                “id” : “3”, 
-                “user_id” : “12”, 
-                “patient_id” : “13”, 
+                “id” : 3, 
+                “user_id” : 12, 
+                “patient_id” : 13, 
                 “status” : "completed”, 
                 “reason” : “image blurry”, 
                 “created_at” : “2015-02-05T09:12:324Z”,
