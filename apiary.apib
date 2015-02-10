@@ -15,15 +15,18 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 
     + Body
 
-            { "token" : "A09FG3vsak",
-               "user" : { "id": 12, 
-               "first_name" : "Ben",  
-               "last_name" : "Siscovick",
-               "middle_initial" : "",
-               "title" : "",
-               "email" : "ben@leohealth.com", 
-               "dob" : "1980-04-18T05:00:00.000Z", 
-               "sex" : "M"  }
+            { 
+                "token"     : "A09FG3vsak",
+                "user"      : { "id": 12, 
+                "first_name": "Ben",  
+                "last_name" : "Siscovick",
+                "middle_initial" : "",
+                "title"     : "",
+                "email"     : "ben@leohealth.com", 
+                "dob"       : "1980-04-18T05:00:00.000Z", 
+                "sex"       : "M",
+                "user_type" :
+                 }
             }
 
 
@@ -42,13 +45,14 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 + Request (application/json)
         
         {
-            "first_name" : "Ben",  
-           "last_name" : "Siscovick",
+            "first_name"    : "Ben",  
+           "last_name"      : "Siscovick",
            "middle_initial" : "",
-           "title" : "",
-            "email" : "ben@leohealth.com",
-            "dob" : "1980-04-18T05:00:00.000Z",
-            "sex" : "M",
+           "title"          : "",
+            "email"         : "ben@leohealth.com",
+            "dob"           : "1980-04-18T05:00:00.000Z",
+            "sex"           : "M",
+            "user_type"     : "parent"
         }
 
 + Response 201 
@@ -58,7 +62,86 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
             Location: https://leohealth.com/v1/users/12
 
 
-### Get all users by practice and/or user_type
+### Get all users by practice and/or user_type [GET]
+
++ Request (application/json)
+
+        {
+            "practice_id"   : 1,
+            "user_type"     : "physician"
+        }
+
++ Response 201 (application/json)
+
+    + Body
+
+            [
+                {    
+                    “id”            : 1, 
+                    "first_name"    : "Om",  
+                    "last_name"     : "Lala",
+                    "middle_initial": "",
+                    "title"         : "Dr.",
+                    “avatar_url”    : “https://…”, 
+                    “practice_id”   : 1,
+                    "user_type"     : "physician",
+                    "gender"        : "M",
+                    "dob"           : "1982-05-12T05:00:000z"
+                },
+                {    
+                    “id”            : 2, 
+                    "first_name"    : "Gregory",  
+                    "last_name"     : "House",
+                    "middle_initial": "",
+                    "title"         : "Dr.",
+                    “avatar_url”    : “https://…”, 
+                    “practice_id”   : 1,
+                    "user_type"     : "physician",
+                    "gender"        : "M",
+                    "dob"           : "1960-05-12T05:00:000z"
+                },
+                {    
+                    “id”            : 3, 
+                    "first_name"    : "Remy",  
+                    "last_name"     : "Hadley",
+                    "middle_initial": "",
+                    "title"         : "Dr.",
+                    “avatar_url”    : “https://…”, 
+                    “practice_id”   : 1,
+                    "user_type"     : "physician",
+                    "gender"        : "M",
+                    "dob"           : "1984-05-12T05:00:000z"
+                }
+            ]
+
+## Physician availabilities [/v1/users/{id}/availabilities]
+### Get availabilities for a physician [GET]
+
++ Request (application/json)
+
+        {
+            "start_date"    : "2015-02-01T05:00:00.000Z",
+            "end_date"      : "2015-02-08T05:00:00.000Z",
+            "visit_type"    : "sick_viist",
+            "patient_id"    : 13
+
+        }
+
+
++ Response 201 (application/json)   
+
+    + Body
+    
+            [
+            { “date” : “2015-02-1”, “time” : “13:00” },
+            { “date” : “2015-02-1”, “time” : “13:30” },
+            { “date” : “2015-02-1”, “time” : “14:00” },
+            { “date” : “2015-02-1”, “time” : “16:30” },
+            { “date” : “2015-02-2”, “time” : “9:00” },
+            { “date” : “2015-02-2”, “time” : “9:30” },
+            ….
+            ]
+
 
 ## User invite endpoint [/v1/users/invite]
 ### Invite a user successfully [POST]
@@ -144,13 +227,17 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
                 {
                     “id” : 213,
                     “type” : “well_visit”,
-                    “physician” : { “id” : 1, 
-                                    "first_name" : "Om",  
-                                    "last_name" : "Lala",
-                                    "middle_initial" : "",
-                                    "title" : "Dr.",
-                                    “avatar_url” : “https://…”, 
-                                    “practice_id” : 1 
+                    “physician” : { 
+                                    “id”            : 1, 
+                                    "first_name"    : "Om",  
+                                    "last_name"     : "Lala",
+                                    "middle_initial": "",
+                                    "title"         : "Dr.",
+                                    “avatar_url”    : “https://…”, 
+                                    “practice_id”   : 1,
+                                    "user_type"     : "physician",
+                                    "gender"        : "M",
+                                    "dob"           : "1982-05-12T05:00:000z"
                                   },
                     “patient” : { … }
                     “visit_time” : “2015-02-03T14:59:29.494Z”,
@@ -162,13 +249,17 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
                 {
                     “id” : 214,
                     “type” : sick_visit,
-                    “physician” : { “id” : 1, 
-                                    "first_name" : "Om",  
-                                    "last_name" : "Lala",
-                                    "middle_initial" : "",
-                                    "title" : "Dr.",
-                                    “avatar_url” : “https://…”, 
-                                    “practice_id” : 1 
+                    “physician” : { 
+                                    “id”            : 1, 
+                                    "first_name"    : "Om",  
+                                    "last_name"     : "Lala",
+                                    "middle_initial": "",
+                                    "title"         : "Dr.",
+                                    “avatar_url”    : “https://…”, 
+                                    “practice_id”   : 1,
+                                    "user_type"     : "physician",
+                                    "gender"        : "M",
+                                    "dob"           : "1982-05-12T05:00:000z"
                                   },
                     “patient” : { … }
                     “visit_time” : “2015-02-03T14:59:29.494Z”,
@@ -180,13 +271,17 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
                 {
                     “id” : 215,
                     “type” : “well_visit”,
-                    “physician” : { “id” : 1, 
-                                    "first_name" : "Om",  
-                                    "last_name" : "Lala",
-                                    "middle_initial" : "",
-                                    "title" : "Dr.",
-                                    “avatar_url” : “https://…”, 
-                                    “practice_id” : 1 
+                    “physician” : { 
+                                    “id”            : 1, 
+                                    "first_name"    : "Om",  
+                                    "last_name"     : "Lala",
+                                    "middle_initial": "",
+                                    "title"         : "Dr.",
+                                    “avatar_url”    : “https://…”, 
+                                    “practice_id”   : 1,
+                                    "user_type"     : "physician",
+                                    "gender"        : "M",
+                                    "dob"           : "1982-05-12T05:00:000z"
                                   },
                     “patient” : { … }
                     “visit_time” : “2015-02-03T14:59:29.494Z”,
@@ -246,26 +341,6 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 + Response 204
 
 
-
-/v1/physicians          [GET]
-form-data   { “user_id” : 12, “practice_id” : 1 }
-response    [
-            { “id” : 1, “name” : “Dr. Om Lala”, “avatar_url” : “https://…”, “practice_id” : 1 },
-{ “id” : 2, “name” : “Dr. Gregory House”, “avatar_url” : “https://…”, “practice_id” : 1 },
-...
-]
-/v1/physicians/availabilities   [GET]
-form-data   { “user_id” : 12, “physician_id” : 2, “start_date” : “2015-02-01”, “end_date” : “2015-02-08”, “visit_type” : “sick_visit”, “patient_id” : 13 }
-response    [
-            { “date” : “2015-02-1”, “time” : “13:00” },
-            { “date” : “2015-02-1”, “time” : “13:30” },
-            { “date” : “2015-02-1”, “time” : “14:00” },
-            { “date” : “2015-02-1”, “time” : “16:30” },
-            { “date” : “2015-02-2”, “time” : “9:00” },
-            { “date” : “2015-02-2”, “time” : “9:30” },
-            ….
-]
-
 # Group Forms
 
 ## Forms collection [/v1/forms]
@@ -290,23 +365,30 @@ response    [
 ### Create a new form [POST]
 + Request (multipart/form-data; boundary=---BOUNDARY)
 
-    + Part
-        + Headers
+        + Part
+            + Headers
 
                 Content-Disposition: form-data; name="json"
 
-        + Body 
+            + Body 
 
                 { "user_id" : 12, "patient_id" : 15 }
 
-    + Part
-        + Headers
+        + Part
+            + Headers
 
                 Content-Disposition: form-data; name="image"; filename="filename.jpg"
 
-        + Body 
+            + Body 
 
                 data
+                
++ Response 200
+
+    + Body
+
+            Location: https://leohealth.com/v1/forms/4
+
 
 ## Individual form [/v1/forms/{id}]
 
