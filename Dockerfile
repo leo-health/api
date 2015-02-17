@@ -16,25 +16,24 @@ ADD config/nginx.conf /etc/nginx/sites-enabled/default
 #(required) Install Rails App
 ADD Gemfile /app/Gemfile
 ADD Gemfile.lock /app/Gemfile.lock
-RUN bundle install --without development test
-RUN mkdir tmp
-RUN mkdir tmp/pids
-ADD . /app
-
-# Rails App directory
-WORKDIR /app
-
 # Add default unicorn config
 ADD unicorn.rb /app/config/unicorn.rb
 
 # Add default foreman config
 ADD Procfile /app/Procfile
 
-ENV RAILS_ENV production
+RUN mkdir tmp
+RUN mkdir tmp/pids
 
 # Reroute log files for nginx requests and errors
 RUN ln -sf /dev/stdout /var/log/access_nginx.log
 RUN ln -sf /dev/stderr /var/log/error_nginx.log
+
+RUN bundle install --without development test
+ADD . /app
+# Rails App directory
+WORKDIR /app
+ENV RAILS_ENV production
 
 #(required) nginx port number
 EXPOSE 80
