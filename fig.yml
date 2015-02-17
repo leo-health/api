@@ -13,7 +13,7 @@ web:
   - db
 
 nginx:
-  image: nginx
+  image: .
   command: /usr/sbin/nginx -c /etc/nginx/nginx.conf
   volumes:
   - ./log:/var/log
