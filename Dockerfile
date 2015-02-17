@@ -37,4 +37,4 @@ ENV RAILS_ENV production
 #(required) nginx port number
 EXPOSE 80
 
-CMD bundle exec rake assets:precompile && foreman start -f Procfile
+# CMD bundle exec rake assets:precompile && foreman start -f Procfile
