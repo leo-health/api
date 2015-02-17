@@ -22,8 +22,8 @@ ADD unicorn.rb /app/config/unicorn.rb
 # Add default foreman config
 ADD Procfile /app/Procfile
 
-RUN mkdir tmp
-RUN mkdir tmp/pids
+RUN mkdir /tmp
+RUN mkdir /tmp/pids
 
 # Reroute log files for nginx requests and errors
 RUN ln -sf /dev/stdout /var/log/access_nginx.log
