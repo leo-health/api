@@ -3,14 +3,14 @@ db:
   ports:
   - "5432"
 
- web:
-   build: .
-   command: bundle exec unicorn -c config/unicorn.rb
-   volumes:
-   - ./log/:/var/log
-   - ./tmp/pids:/app/tmp
-   links:
-   - db
+web:
+  build: .
+  command: bundle exec unicorn -c config/unicorn.rb
+  volumes:
+  - ./log/:/var/log
+  - ./tmp/pids:/app/tmp
+  links:
+  - db
 
 nginx:
   image: nginx
