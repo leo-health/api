@@ -11,7 +11,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" > /etc/
 
 # Add default nginx config
 ADD config/nginx.conf /etc/nginx/sites-enabled/default
-ADD unicorn.rb config/unicorn.rb
+# ADD unicorn.rb config/unicorn.rb
 
 #(required) Install Rails App
 ADD Gemfile /app/Gemfile
@@ -25,7 +25,7 @@ ADD . /app
 WORKDIR /app
 
 # Add default unicorn config
-# ADD unicorn.rb /app/config/unicorn.rb
+ADD unicorn.rb /app/config/unicorn.rb
 
 # Add default foreman config
 ADD Procfile /app/Procfile
