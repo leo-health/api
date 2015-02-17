@@ -2,11 +2,11 @@ app_dir = "/app"
  
 working_directory app_dir
  
-pid "#{app_dir}/tmp/unicorn.pid"
+pid "/tmp/unicorn.pid"
  
 stderr_path "/var/log/unicorn.stderr.log"
 stdout_path "/var/log/unicorn.stdout.log"
  
 worker_processes 1
-listen "#{app_dir}/tmp/unicorn.sock", :backlog => 64
+listen "/tmp/unicorn.sock", :backlog => 64
 timeout 30
