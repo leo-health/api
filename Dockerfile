@@ -22,8 +22,7 @@ ADD unicorn.rb /app/config/unicorn.rb
 # Add default foreman config
 ADD Procfile /app/Procfile
 
-RUN mkdir /tmp
-RUN mkdir /tmp/pids
+RUN mkdir -p /tmp/pids
 
 # Reroute log files for nginx requests and errors
 RUN ln -sf /dev/stdout /var/log/access_nginx.log
@@ -38,4 +37,4 @@ ENV RAILS_ENV production
 #(required) nginx port number
 EXPOSE 80
 
-# CMD bundle exec rake assets:precompile && foreman start -f Procfile
+CMD bundle exec rake assets:precompile && foreman start -f Procfile
