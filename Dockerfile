@@ -18,8 +18,8 @@ ADD . /app
 ADD config/nginx.conf /etc/nginx/sites-enabled/default
 
 # Reroute log files for nginx requests and errors
-RUN ln -sf /dev/stdout /var/log/nginx/access.log
-RUN ln -sf /dev/stderr /var/log/nginx/error.log
+RUN ln -sf /dev/stdout /var/log/access_nginx.log
+RUN ln -sf /dev/stderr /var/log/error_nginx.log
 
 #(required) nginx port number
 EXPOSE 80

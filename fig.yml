@@ -5,9 +5,10 @@ db:
 
  web:
    build: .
-   command: bundle exec rake assets:precompile && bundle exec unicorn -c config/unicorn.rb
+   command: bundle exec unicorn -c config/unicorn.rb
    volumes:
-   - .:/log
+   - ./log/:/var/log
+   - ./tmp/pids:/app/tmp
    links:
    - db
 
@@ -15,7 +16,7 @@ nginx:
   image: nginx
   command: /usr/sbin/nginx -c /etc/nginx/nginx.conf
   volumes:
-  - .:/log
+  - ./log:/var/log
   ports:
   - "80:80"
   links:
