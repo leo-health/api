@@ -13,6 +13,8 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" > /etc/
 ADD Gemfile /app/Gemfile
 ADD Gemfile.lock /app/Gemfile.lock
 RUN bundle install --without development test
+RUN mkdir tmp
+RUN mkdir tmp/pids
 ADD . /app
 
 ADD config/nginx.conf /etc/nginx/sites-enabled/default

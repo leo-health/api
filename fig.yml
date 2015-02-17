@@ -1,5 +1,5 @@
 db:
-  image: postgres
+  build: .
   ports:
   - "5432"
 
