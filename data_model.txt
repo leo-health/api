@@ -1,0 +1,117 @@
+User
+
+leo_users
+parent_id
+first
+last
+middle
+e-mail
+pwd hash
+salt
+created ts
+login ts
+reset token
+children
+
+patients (children)
+patient_id
+athena_id
+first
+last
+middle
+e-mail
+contact
+created ts
+login ts
+parent_id
+gender
+favorite_color
+
+messages
+message_id
+to
+from
+sent ts
+read
+read ts
+body
+type
+
+todos
+need to define all todos
+
+events
+name
+start ts
+end ts
+description
+link
+
+notifications
+notification_id
+child_id
+
+appointments
+appointment_id
+start ts
+end ts
+reason
+physician_id
+
+forms
+form_id
+name
+filetype
+status
+submitted ts
+signed ts
+
+ccda
+(relevant sections)
+pull from Athena
+
+payments
+
+third party
+
+insurance
+pull from Athena
+
+
+Rx
+not for version 1
+
+physicians
+physician_id
+npi
+first
+last
+middle
+gender
+contact
+credentials 
+universities
+specialty
+
+support
+support_id
+first
+last
+middle
+gender
+contact
+credentials
+universities
+type
+
+invites
+read 
+
+
+
+other metrics
+time to follow up 
+readmissions
+checkin, check out, patient journey fields
+% of ed admissions
+% population that is vaccinated on schedule
