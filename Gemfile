@@ -31,20 +31,46 @@ gem 'devise_invitable'
 gem 'grape'
 gem 'haml-rails', '~> 0.8'
 gem 'hashie_rails'
+gem 'rolify'
 
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
+	gem 'factory_girl_rails'
+	gem 'guard'
+  gem 'guard-rspec'
+  gem 'guard-cucumber'
+  gem 'guard-livereload'
+  gem 'guard-spork'
+  # gem 'guard-brakeman'
+  gem 'launchy'
+	gem 'quiet_assets'
+  gem 'rspec-rails'
+  gem 'spork'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
+end
+
+group :development do
+	gem 'annotate'
+	gem 'better_errors'
+  gem 'binding_of_caller'
+	# gem 'brakeman'
+  gem 'bullet'
+  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'byebug'
+  
+  gem 'rails-footnotes'
+  gem 'rails_layout'
+  
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
+end
 
-  
+group :test do 
+
 end
 
 group :production do
