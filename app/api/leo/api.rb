@@ -35,7 +35,6 @@ module Leo
         authenticated
         error!('Forbidden', 403) unless current_user
       end
-
     end
 
     resource :users do 
