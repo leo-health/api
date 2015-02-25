@@ -31,8 +31,7 @@
 #  invited_by_id          :integer
 #  invited_by_type        :string
 #  invitations_count      :integer          default("0")
-#  customer_type          :integer
-#  staff_type             :integer
+#  authentication_token   :string
 #
 
 class User < ActiveRecord::Base
@@ -58,5 +57,7 @@ class User < ActiveRecord::Base
   			guardian: 23
   		}
 
-  
+  def reset_authentication_token
+  	u.update_attribute(:authentication_token, nil)
+  end
 end
