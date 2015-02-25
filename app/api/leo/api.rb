@@ -4,7 +4,7 @@ module Leo
     format :json
     prefix :api
 
-    rescue_from :all, :backtrace => true
+    # rescue_from :all, :backtrace => true
     #error_formatter :json, API::ErrorFormatter
 
     #before do

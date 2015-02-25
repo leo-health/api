@@ -32,6 +32,7 @@ gem 'grape'
 gem 'haml-rails', '~> 0.8'
 gem 'hashie_rails'
 gem 'rolify'
+gem 'simple_token_authentication', '~> 1.0'
 
 
 # Use Capistrano for deployment

@@ -37,6 +37,7 @@
 
 class User < ActiveRecord::Base
   rolify
+  acts_as_token_authenticatable
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :invitable, :database_authenticatable, :registerable,
@@ -57,6 +58,5 @@ class User < ActiveRecord::Base
   			guardian: 23
   		}
 
-
-
+  
 end
