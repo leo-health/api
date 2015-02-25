@@ -5,3 +5,9 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
+
+User::ROLES.each do |role, id|
+	Role.update_or_create_by_id_and_name(id, role) do |r|
+		r.save
+	end
+end

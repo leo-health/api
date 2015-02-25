@@ -25,7 +25,8 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
                 "email"     : "ben@leohealth.com", 
                 "dob"       : "1980-04-18T05:00:00.000Z", 
                 "sex"       : "M",
-                "user_type" :
+                "user_type" : "parent",
+                "family_id" : 1
                  }
             }
 
@@ -52,7 +53,9 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
             "email"         : "ben@leohealth.com",
             "dob"           : "1980-04-18T05:00:00.000Z",
             "sex"           : "M",
-            "user_type"     : "parent"
+            "phone"         : "+1-646-284-4501",
+            "user_type"     : "parent",
+            "family_id"     : "1"
         }
 
 + Response 201 
@@ -114,6 +117,7 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
                 }
             ]
 
+
 ## Physician availabilities [/v1/users/{id}/availabilities]
 ### Get availabilities for a physician [GET]
 
@@ -161,6 +165,34 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
     + Body
 
             Location: https://leohealth.com/v1/users/13
+
+# Group Payment Methods
+## Payment Methods Collection [/v1/payment_methods/]
+### List all payment methods [GET]
++ Request (application/json)
+        {
+            "family_id" : 1
+        }
+
++ Response 200
+    
+    + Body
+            [
+                // TODO: Needs to be flushed out
+            ]
+
+### Create a new payment method [POST]
+
++ Request (application/json)
+        {
+            "card_number"   :   "4196502318422301",
+            "expiration"    :   "03/18",
+            "cvc"           :   "234",
+            "image"         :   "" // TODO : Figure out how to send card image and whether that will be stored or processed exclusively on client side
+
+        }
+
+
 
 # Group Dashboard Cards
 
