@@ -47,6 +47,8 @@ group :development, :test do
   gem 'guard-spork'
   # gem 'guard-brakeman'
   gem 'launchy'
+  gem 'letter_opener'
+	gem 'letter_opener_web', '~> 1.2.0'
 	gem 'quiet_assets'
   gem 'rspec-rails'
   gem 'spork'

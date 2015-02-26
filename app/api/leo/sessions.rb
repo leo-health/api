@@ -116,7 +116,7 @@ module Leo
 
 					# The new_password and new_password confirmation don't match
 					if new_password != new_password_confirmation
-						error!{error_code: 404, error_message: "New Password and New Password Confirmation don't match."}
+						error!({error_code: 404, error_message: "New Password and New Password Confirmation don't match."})
 						return
 					else
 						user.reset_password!(new_password, new_password_confirmation)

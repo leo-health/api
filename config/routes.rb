@@ -31,12 +31,16 @@
 
 Rails.application.routes.draw do
   get 'regisrations/create'
-
   get 'regisrations/sign_up'
 
   devise_for :users, :controllers => {registrations: 'registrations', sessions: 'sessions'}
   mount Leo::API => '/'
   #mount Leo::Sessions => '/s'
+
+  if Rails.env.development?
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
+  
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
