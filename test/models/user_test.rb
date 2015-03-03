@@ -31,8 +31,7 @@
 #  invited_by_id          :integer
 #  invited_by_type        :string
 #  invitations_count      :integer          default("0")
-#  customer_type          :integer
-#  staff_type             :integer
+#  authentication_token   :string
 #
 
 require 'test_helper'

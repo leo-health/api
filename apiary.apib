@@ -5,7 +5,7 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 
 # Group Login
 
-## Login endpoint  [/v1/login]
+## Login endpoint  [/v1/sessions]
 ### Login to application [POST]
 + Request (application/json)
 
@@ -17,25 +17,38 @@ This is a live document that captures the Leo *v1* api that will power the iOS a
 
             { 
                 "token"     : "A09FG3vsak",
-                "user"      : { "id": 12, 
-                "first_name": "Ben",  
-                "last_name" : "Siscovick",
-                "middle_initial" : "",
-                "title"     : "",
-                "email"     : "ben@leohealth.com", 
-                "dob"       : "1980-04-18T05:00:00.000Z", 
-                "sex"       : "M",
-                "user_type" : "parent",
-                "family_id" : 1
-                 }
+                "user"      : { 
+                				"id": 12, 
+				                "first_name": "Ben",  
+				                "last_name" : "Siscovick",
+				                "middle_initial" : "",
+				                "title"     : "",
+				                "email"     : "ben@leohealth.com", 
+				                "dob"       : "1980-04-18T05:00:00.000Z", 
+				                "sex"       : "M",
+				                "user_type" : "parent",
+				                "family_id" : 1
+                 			}
             }
 
 
-## Reset password endpoint [/v1/login/resetpassword]
+## Reset password endpoint [/v1/sessions/password]
 ### Request password reset [POST]
 + Request (application/json)
 
         { "email": "danish@leohealth.com" }
+
++ Response 204
+
+### Update password [PUT]
++ Request (application/json)
+
+		{ 
+			"email": "danish@leohealth.com", 
+			"old_password": "please11",
+			"new_password": "please22",
+			"confirm_new_password": "please22"
+		}
 
 + Response 204
 
