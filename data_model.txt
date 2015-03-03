@@ -56,7 +56,7 @@ appointment_id
 start ts
 end ts
 reason
-physician_id
+provider_id
 
 forms
 form_id
@@ -81,8 +81,8 @@ pull from Athena
 Rx
 not for version 1
 
-physicians
-physician_id
+providers
+provider_id
 npi
 first
 last
