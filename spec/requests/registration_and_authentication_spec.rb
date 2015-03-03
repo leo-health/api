@@ -45,6 +45,17 @@ describe 'User login & registration when a user exists', trans_off: true do
 		post '/api/v1/users', @user_params, format: :json
 		expect(response).to have_http_status(400)
 		expect_json({status: 'fail'})
-		
 	end
+
+	it 'should let you request a password reset when a user exists' do
+		@login_params = { email: 'danish@leohealth.com' }
+		post '/api/v1/sessions/password', @login_params, format: :json
+		puts "Response: #{response.header} #{response.body}"
+		expect(response).to have_http_status(200)
+		expect_json({status: 'success'})
+	end
+
+	it 'should let you request a passowrd reset even when a user doesn\'t exist' do
+	end
+
 end
