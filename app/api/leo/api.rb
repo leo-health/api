@@ -1,11 +1,13 @@
+require 'grape'
+
 module Leo
   class API < Grape::API
     version 'v1', using: :path, vendor: 'leo-health'
     format :json
     prefix :api
 
-    # rescue_from :all, :backtrace => true
-    #error_formatter :json, API::ErrorFormatter
+    rescue_from :all, :backtrace => true
+    # error_formatter :json, API::ErrorFormatter
 
     #before do
     # error!("401 Unauthorized", 401) unless authenticated
@@ -56,9 +58,19 @@ module Leo
         requires :password,   type: String, desc: "Password"
         # requires :password_confirmation, type: String, desc: "Password again"
         requires :dob,        type: String, desc: "Date of Birth"
-        requires :role,       type: Integer,desc: "Role Id"
       end
       post do
+        if User.where(email: params[:email]).count > 0
+          error!({error_code: 400, error_message: "A user with that email already exists"}, 400)
+          return
+        end
+
+
+        dob = Chronic.try(:parse, params[:dob])
+        if dob.nil?
+          error!({error_code: 400, error_message: "Invalid dob format"},400)
+          return
+        end
         User.create!(
         {
           first_name:   params[:first_name],
@@ -66,8 +78,8 @@ module Leo
           email:        params[:email],
           password:     params[:password],
           # password_confirmation: params[:password_confirmation],
-          # dob:          DateTime.new(params[:dob]),
-          role:         params[:role]
+          dob:          dob,
+          # role:         params[:role]
         })
       end
     end

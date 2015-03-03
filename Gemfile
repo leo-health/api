@@ -26,12 +26,14 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-gem 'devise'
-gem 'devise_invitable'
-gem 'grape'
-gem 'haml-rails', '~> 0.8'
+# gem 'rails_12factor'
+gem 'chronic'               # Clever parsing of dates (also NLP date formats)
+gem 'devise'                # Authentication 
+gem 'devise_invitable'      # Inviting users
+gem 'grape'                 # Our API base
+gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie_rails'
-gem 'rolify'
+gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
 
 
@@ -39,10 +41,11 @@ gem 'simple_token_authentication', '~> 1.0'
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
+  gem 'airborne'  # Allow easily testing json responses
 	gem 'factory_girl_rails'
 	gem 'guard'
   gem 'guard-rspec'
-  gem 'guard-cucumber'
+  # gem 'guard-cucumber'
   gem 'guard-livereload'
   gem 'guard-spork'
   # gem 'guard-brakeman'
@@ -52,10 +55,12 @@ group :development, :test do
 	gem 'quiet_assets'
   gem 'pry'
   gem 'pry-rails'
+  gem 'rb-fsevent' if `uname` =~ /Darwin/
   gem 'rspec-rails'
   gem 'spork'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
+  gem 'spring-commands-rspec'
 end
 
 group :development do
@@ -66,7 +71,6 @@ group :development do
   gem 'bullet'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
-  
   gem 'rails-footnotes'
   gem 'rails_layout'
   
@@ -75,7 +79,7 @@ group :development do
 end
 
 group :test do 
-  gem 'cucumber-rails', :require => false
+  # gem 'cucumber-rails', :require => false
   gem 'database_cleaner'
 end
 

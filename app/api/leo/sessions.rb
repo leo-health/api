@@ -4,7 +4,7 @@ module Leo
 		format :json
 		prefix :api
 
-		# rescue_from :all, :backtrace => true
+		rescue_from :all, :backtrace => true
 		resource :sessions do
 
 			desc "Authenticate user and return user object / access token"
