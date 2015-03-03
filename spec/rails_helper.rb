@@ -33,14 +33,26 @@ RSpec.configure do |config|
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
-  config.use_transactional_fixtures = true
+  # config.use_transactional_fixtures = true
+  config.use_transactional_fixtures = false 
 
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)
   end
+  config.before type: :request do
+    DatabaseCleaner.strategy = :truncation
+  end
+   
+  config.after type: :request  do
+    DatabaseCleaner.strategy = :transaction
+  end
 
   config.before(:each) do
-    DatabaseCleaner.strategy = :transaction
+    # if group.metadata[:trans_off]
+      DatabaseCleaner.strategy = :truncation
+    # else      
+    #   DatabaseCleaner.strategy = :transaction
+    # end
   end
 
   config.before(:each, :js => true) do

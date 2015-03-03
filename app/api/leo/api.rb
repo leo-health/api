@@ -1,12 +1,29 @@
 require 'grape'
 
 module Leo
+  module JSendSuccessFormatter
+      def self.call object, env
+        { :status => 'ok', :data => object }.to_json
+      end
+    end
+    module JSendErrorFormatter
+      def self.call message, backtrace, options, env
+        # This uses convention that a error! with a Hash param is a jsend "fail", otherwise we present an "error"
+        if message.is_a?(Hash)
+          { :status => 'fail', :data => message }.to_json
+        else
+          { :status => 'error', :message => message }.to_json
+        end
+      end
+    end
   class API < Grape::API
     version 'v1', using: :path, vendor: 'leo-health'
     format :json
     prefix :api
 
     rescue_from :all, :backtrace => true
+    formatter :json, JSendSuccessFormatter
+    error_formatter :json, JSendErrorFormatter
     # error_formatter :json, API::ErrorFormatter
 
     #before do
@@ -39,108 +56,9 @@ module Leo
       end
     end
 
-    resource :users do 
-      desc "Return a user"
-      params do 
-        requires :id, type: Integer, desc: "User id"
-      end
-      route_param :id do 
-        get do
-          User.find(params[:id])
-        end
-      end
 
-      desc "Create a user"
-      params do
-        requires :first_name, type: String, desc: "First Name"
-        requires :last_name,  type: String, desc: "Last Name"
-        requires :email,      type: String, desc: "Email"
-        requires :password,   type: String, desc: "Password"
-        # requires :password_confirmation, type: String, desc: "Password again"
-        requires :dob,        type: String, desc: "Date of Birth"
-      end
-      post do
-        if User.where(email: params[:email]).count > 0
-          error!({error_code: 400, error_message: "A user with that email already exists"}, 400)
-          return
-        end
-
-
-        dob = Chronic.try(:parse, params[:dob])
-        if dob.nil?
-          error!({error_code: 400, error_message: "Invalid dob format"},400)
-          return
-        end
-        User.create!(
-        {
-          first_name:   params[:first_name],
-          last_name:    params[:last_name],
-          email:        params[:email],
-          password:     params[:password],
-          # password_confirmation: params[:password_confirmation],
-          dob:          dob,
-          # role:         params[:role]
-        })
-      end
-    end
-
-
-    resource :statuses do
-      desc "Return a public timeline."
-      get :public_timeline do
-        Status.limit(20)
-      end
-
-      desc "Return a personal timeline."
-      get :home_timeline do
-        authenticate!
-        current_user.statuses.limit(20)
-      end
-
-      desc "Return a status."
-      params do
-        requires :id, type: Integer, desc: "Status id."
-      end
-      route_param :id do
-        get do
-          Status.find(params[:id])
-        end
-      end
-
-      desc "Create a status."
-      params do
-        requires :status, type: String, desc: "Your status."
-      end
-      post do
-        authenticate!
-        Status.create!({
-          user: current_user,
-          text: params[:status]
-        })
-      end
-
-      desc "Update a status."
-      params do
-        requires :id, type: String, desc: "Status ID."
-        requires :status, type: String, desc: "Your status."
-      end
-      put ':id' do
-        authenticate!
-        current_user.statuses.find(params[:id]).update({
-          user: current_user,
-          text: params[:status]
-        })
-      end
-
-      desc "Delete a status."
-      params do
-        requires :id, type: String, desc: "Status ID."
-      end
-      delete ':id' do
-        authenticate!
-        current_user.statuses.find(params[:id]).destroy
-      end
-    end
     mount Sessions
+    mount Users
+    mount Statuses
   end
 end

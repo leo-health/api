@@ -5,6 +5,10 @@ module Leo
 		prefix :api
 
 		rescue_from :all, :backtrace => true
+		formatter :json, JSendSuccessFormatter
+  	error_formatter :json, JSendErrorFormatter
+		default_error_status 400
+
 		resource :sessions do
 
 			desc "Authenticate user and return user object / access token"
@@ -37,7 +41,7 @@ module Leo
 
 					user.ensure_authentication_token
 					user.save
-					{status: 'ok', token: user.authentication_token}.to_json
+					{token: user.authentication_token}
 				end
 			end
 
