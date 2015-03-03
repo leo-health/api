@@ -34,32 +34,61 @@
 #  authentication_token   :string
 #
 
-class User < ActiveRecord::Base
-  rolify
-  acts_as_token_authenticatable
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :invitable, :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable
+FactoryGirl.define do
+  factory :user do
+  	first_name 	'Danish'
+  	last_name 	'Munir'
+  	dob 				{ 29.years.ago }
+  	sex					'M'
+  	email				'danish@leohealth.com'
+    password    'fake_pass'
+    password_confirmation    'fake_pass'
+    association :family, factory: :family
 
-  validates :first_name, :last_name, :email,  presence: true
+  	trait :father do
+  		first_name 	'Phil'
+  		last_name		'Dunphy'
+  		dob 				{ 48.years.ago }
+  		sex					'M'
+  		email				'phil.dunphy@gmail.com'
+      after(:create) { |u| u.add_role :parent }
+  	end
 
-  ROLES = {
-  			# Admin is 1
-  			admin: 1,
-  			# Leo users are 10-19
-  			physician: 11,
-  			clinical_staff: 12,
-  			other_staff: 13,
-  			# Leo customers are 20-29
-  			parent: 21,
-  			child: 22,
-  			guardian: 23
-  		}
+  	trait :mother do
+  		first_name	'Claire'
+  		last_name		'Dunphy'
+  		dob 				{ 45.years.ago }
+  		sex					'F'
+  		email 			'claire.dunphy@gmail.com'
+      after(:create) { |u| u.add_role :parent }
+  	end
 
-  belongs_to :family
+  	trait :first_child do
+  		first_name 	'Haley'
+  		last_name		'Dunphy'
+  		dob 				{ 19.years.ago }
+  		sex 				'F'
+  		email 			'haley.dunphy@gmail.com'
+      after(:create) { |u| u.add_role :child }
+  	end
 
-  def reset_authentication_token
-  	u.update_attribute(:authentication_token, nil)
+  	trait :middle_child do 
+  		first_name 	'Alex'
+  		last_name		'Dunphy'
+  		dob 				{ 17.years.ago }
+  		sex 				'F'
+  		email 			'alex.dunphy@gmail.com'
+      after(:create) { |u| u.add_role :child }
+  	end
+
+  	trait :last_child do
+  		first_name	'Luke'
+  		last_name 	'Dunphy'
+  		dob 				{ 15.years.ago }
+  		sex 				'F'
+  		email 			'luke.dunphy@gmail.com'
+  		family
+      after(:create) { |u| u.add_role :child }
+  	end
   end
-end
+ end

@@ -50,6 +50,8 @@ group :development, :test do
   gem 'letter_opener'
 	gem 'letter_opener_web', '~> 1.2.0'
 	gem 'quiet_assets'
+  gem 'pry'
+  gem 'pry-rails'
   gem 'rspec-rails'
   gem 'spork'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
@@ -73,7 +75,8 @@ group :development do
 end
 
 group :test do 
-
+  gem 'cucumber-rails', :require => false
+  gem 'database_cleaner'
 end
 
 group :production do
