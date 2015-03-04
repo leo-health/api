@@ -85,6 +85,7 @@ end
 group :production do
 	# Use Unicorn as the app server
 	gem 'pg'
+	gem 'rails_12factor'
 	gem 'unicorn'
 
 end
