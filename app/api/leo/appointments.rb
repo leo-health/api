@@ -47,7 +47,7 @@ module Leo
       		error!({error_code: 422, error_message: "The appointment date or time is not valid"}, 422)	
       		return
       	end
-      	if duration < Appointment::MIN_DURATION or duration > Appointment ::MAX_DURARTION
+      	if duration < Appointment::MIN_DURATION or duration > Appointment::MAX_DURARTION
       		error!({error_code: 422, error_message: "The appointment duration is not valid"}, 422)	
       		return
       	end

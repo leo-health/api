@@ -1,7 +1,12 @@
 class Appointment < ActiveRecord::Base
 
+	MAX_DURARTION = 40
+	MIN_DURARTION = 10
+
+	
 	def for_user(user)
 		if user.has_role :parent
+			Appointment.all
 		elsif user.has_role :guardian
 			#TODO: Implement
 		elsif user.has_role :child
