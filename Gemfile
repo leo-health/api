@@ -29,9 +29,11 @@ gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'devise'                # Authentication 
 gem 'devise_invitable'      # Inviting users
 gem 'grape'                 # Our API base
+gem 'grape-entity'
+gem 'grape-swagger'					# Document the grape api
+gem 'grape-swagger-rails'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie_rails'
-gem 'rails_12factor'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
 
@@ -84,6 +86,7 @@ end
 group :production do
 	# Use Unicorn as the app server
 	gem 'pg'
+	gem 'rails_12factor'
 	gem 'unicorn'
 end
 
