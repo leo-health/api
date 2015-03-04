@@ -33,7 +33,6 @@ gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie_rails'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
-gem 'sqlite3'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
@@ -71,7 +70,7 @@ group :development do
   gem 'byebug'
   gem 'rails-footnotes'
   gem 'rails_layout'
-  
+  gem 'sqlite3'
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
 end
