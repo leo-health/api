@@ -87,7 +87,6 @@ module Leo
 	    		else # Everything checks out. Send the user a 
 	    			user.send_reset_password_instructions
 	    			# user.save TODO: Think about whether resetting the auth token makes sense when requesting password reset
-	    			{ status: 'ok' }
 	    		end
 	    	end
 

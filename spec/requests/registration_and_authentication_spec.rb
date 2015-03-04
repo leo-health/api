@@ -20,7 +20,7 @@ describe 'User registration & login when a user doesn\'t exist', trans_off: true
 	end
 end
 
-describe 'User login & registration when a user exists', trans_off: true do
+describe 'User login & registration (when a user exists) -', trans_off: true do
 	before(:each) do 
 		FactoryGirl.create(:user)
 	end
@@ -47,15 +47,18 @@ describe 'User login & registration when a user exists', trans_off: true do
 		expect_json({status: 'fail'})
 	end
 
-	it 'should let you request a password reset when a user exists' do
+	it 'should let you request a password reset' do
 		@login_params = { email: 'danish@leohealth.com' }
 		post '/api/v1/sessions/password', @login_params, format: :json
-		puts "Response: #{response.header} #{response.body}"
-		expect(response).to have_http_status(200)
-		expect_json({status: 'success'})
+		expect(response).to have_http_status(201)
+		expect_json({status: 'ok'})
 	end
 
 	it 'should let you request a passowrd reset even when a user doesn\'t exist' do
+		@login_params = { email: 'dtmunir@gmail.com' }
+		post '/api/v1/sessions/password', @login_params, format: :json
+		expect(response).to have_http_status(201)
+		expect_json({status: 'ok'})
 	end
 
 end

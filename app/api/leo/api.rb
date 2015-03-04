@@ -1,4 +1,5 @@
 require 'grape'
+require 'grape-swagger'
 
 module Leo
   module JSendSuccessFormatter
@@ -10,9 +11,9 @@ module Leo
       def self.call message, backtrace, options, env
         # This uses convention that a error! with a Hash param is a jsend "fail", otherwise we present an "error"
         if message.is_a?(Hash)
-          { :status => 'fail', :data => message }.to_json
+          { :status => 'fail', :data => message, backtrace: backtrace }.to_json
         else
-          { :status => 'error', :message => message }.to_json
+          { :status => 'error', :message => message, backtrace: backtrace }.to_json
         end
       end
     end
@@ -24,11 +25,15 @@ module Leo
     rescue_from :all, :backtrace => true
     formatter :json, JSendSuccessFormatter
     error_formatter :json, JSendErrorFormatter
-    # error_formatter :json, API::ErrorFormatter
+    default_error_status 400
 
     #before do
     # error!("401 Unauthorized", 401) unless authenticated
     #end
+    before do
+      header['Access-Control-Allow-Origin'] = '*'
+      header['Access-Control-Request-Method'] = '*'
+    end
 
 
     helpers do
@@ -56,9 +61,15 @@ module Leo
       end
     end
 
+    get do
+      {message: "Welcome to the Leo API"}
+    end
 
+    mount Appointments
     mount Sessions
-    mount Users
     mount Statuses
+    mount Users
+
+    add_swagger_documentation
   end
 end

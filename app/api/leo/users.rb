@@ -4,20 +4,27 @@ module Leo
 		format :json
 		prefix :api
 
-		rescue_from :all, :backtrace => true
+		#rescue_from :all, :backtrace => true
 		formatter :json, JSendSuccessFormatter
   	error_formatter :json, JSendErrorFormatter
-		default_error_status 400
 
     resource :users do 
+      
       desc "Return a user"
       params do 
         requires :id, type: Integer, desc: "User id"
       end
       route_param :id do 
         get do
+          authenticated_user
           User.find(params[:id])
         end
+      end
+
+      desc "Get available users"
+      get do
+        authenticated_user
+        { users: User.for_user(current_user) }
       end
 
       desc "Create a user"

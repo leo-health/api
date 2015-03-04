@@ -62,4 +62,23 @@ class User < ActiveRecord::Base
   def reset_authentication_token
   	u.update_attribute(:authentication_token, nil)
   end
+
+  def self.for_user(user)
+    # TODO. Think through this and design better
+    if user.has_role? :parent
+      user.family.members
+    elsif user.has_role? :guardian
+      user.family.members
+    elsif user.has_role? :child
+      [user]
+    elsif user.has_role? :physician
+      #TODO: Implement
+    elsif user.has_role? :clinical_staff
+      #TODO: Implement
+    elsif user.has_role? :other_staff
+      #TODO: Implement
+    elsif user.has_role? :admin
+      User.all
+    end
+  end
 end

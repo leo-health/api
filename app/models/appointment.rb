@@ -4,20 +4,20 @@ class Appointment < ActiveRecord::Base
 	MIN_DURARTION = 10
 
 	
-	def for_user(user)
-		if user.has_role :parent
+	def self.for_user(user)
+		if user.has_role? :parent
 			Appointment.all
-		elsif user.has_role :guardian
+		elsif user.has_role? :guardian
 			#TODO: Implement
-		elsif user.has_role :child
+		elsif user.has_role? :child
 			#TODO: Implement
-		elsif user.has_role :physician
+		elsif user.has_role? :physician
 			#TODO: Implement
-		elsif user.has_role :clinical_staff
+		elsif user.has_role? :clinical_staff
 			#TODO: Implement
-		elsif user.has_role :other_staff
+		elsif user.has_role? :other_staff
 			#TODO: Implement
-		elsif user.has_role :admin
+		elsif user.has_role? :admin
 			#TODO: Implement
 		end
 	end

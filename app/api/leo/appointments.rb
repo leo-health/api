@@ -10,6 +10,10 @@ module Leo
 		default_error_status 400
 
     resource :appointments do 
+    	before do
+    		authenticated_user
+    	end
+
     	desc "Return all relevant appointments for current user"
       get do
         Appointment.for_user(current_user)
@@ -21,7 +25,7 @@ module Leo
       end
       route_param :id do 
         get do
-          Appointment.find(params[:id])
+          {appointments: Appointment.find(params[:id])}
         end
       end
 

@@ -35,7 +35,7 @@ Rails.application.routes.draw do
 
   devise_for :users, :controllers => {registrations: 'registrations', sessions: 'sessions'}
   mount Leo::API => '/'
-  #mount Leo::Sessions => '/s'
+  mount GrapeSwaggerRails::Engine => '/swagger'
 
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
