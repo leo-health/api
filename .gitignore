@@ -47,3 +47,4 @@ node_modules
 .lock-wscript
 
 vendor/bundle/
+.DS_Store
