@@ -88,5 +88,5 @@ group :production do
 	gem 'unicorn'
 end
 group :test, :darwin do
-  gem 'rb-fsevent'
+  #gem 'rb-fsevent'
 end
