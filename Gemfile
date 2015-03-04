@@ -53,7 +53,6 @@ group :development, :test do
 	gem 'quiet_assets'
   gem 'pry'
   gem 'pry-rails'
-  gem 'rb-fsevent' if `uname` =~ /Darwin/
   gem 'rspec-rails'
   gem 'spork'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
@@ -87,5 +86,7 @@ group :production do
 	gem 'pg'
 	gem 'rails_12factor'
 	gem 'unicorn'
-
+end
+group :development, :test, :darwin do
+  gem 'rb-fsevent'
 end
