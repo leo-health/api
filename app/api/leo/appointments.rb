@@ -10,6 +10,11 @@ module Leo
 		default_error_status 400
 
     resource :appointments do 
+    	desc "Return all relevant appointments for current user"
+      get do
+        Appointment.for_user(current_user)
+      end
+
       desc "Return an appointment"
       params do 
         requires :id, type: Integer, desc: "User id"
