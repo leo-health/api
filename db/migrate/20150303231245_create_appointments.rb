@@ -11,7 +11,7 @@ class CreateAppointments < ActiveRecord::Migration
       t.integer :rescheduled_appointment_id, index: true
       t.integer :duration, null: false
       t.date :appointment_date, index: true, null: false
-      t.column :appointment_start_time, 'time with zone', null: false
+      t.time :appointment_start_time, null: false
       t.boolean :frozenyn
       t.string :leo_appointment_type, index: true
       t.integer :athena_appointment_type_id, index: true
