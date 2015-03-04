@@ -11,7 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150303153931) do
+ActiveRecord::Schema.define(version: 20150303231245) do
+
+  create_table "appointments", force: :cascade do |t|
+    t.string   "appointment_status"
+    t.string   "athena_appointment_type"
+    t.integer  "leo_provider_id"
+    t.integer  "athena_provider_id"
+    t.integer  "leo_patient_id"
+    t.integer  "athena_patient_id"
+    t.integer  "booked_by_user_id"
+    t.integer  "rescheduled_appointment_id"
+    t.integer  "duration"
+    t.date     "appointment_date"
+    t.time     "appointment_start_time"
+    t.boolean  "frozenyn"
+    t.string   "leo_appointment_type"
+    t.integer  "athena_appointment_type_id"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
