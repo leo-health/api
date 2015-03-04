@@ -41,12 +41,12 @@ gem 'simple_token_authentication', '~> 1.0'
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
 	gem 'factory_girl_rails'
-	gem 'guard'
-  gem 'guard-rspec'
-  # gem 'guard-cucumber'
-  gem 'guard-livereload'
-  gem 'guard-spork'
-  # gem 'guard-brakeman'
+	#gem 'guard'
+  #gem 'guard-rspec'
+  ## gem 'guard-cucumber'
+  #gem 'guard-livereload'
+  #gem 'guard-spork'
+  ## gem 'guard-brakeman'
   gem 'launchy'
   gem 'letter_opener'
 	gem 'letter_opener_web', '~> 1.2.0'
@@ -87,3 +87,5 @@ group :production do
 	gem 'rails_12factor'
 	gem 'unicorn'
 end
+
+ruby '2.2.0'
