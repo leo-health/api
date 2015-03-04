@@ -87,6 +87,3 @@ group :production do
 	gem 'rails_12factor'
 	gem 'unicorn'
 end
-group :test, :darwin do
-  #gem 'rb-fsevent'
-end
