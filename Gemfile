@@ -33,7 +33,7 @@ gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie_rails'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
-
+gem 'sqlite3'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

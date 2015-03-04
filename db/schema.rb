@@ -16,21 +16,33 @@ ActiveRecord::Schema.define(version: 20150303231245) do
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status"
     t.string   "athena_appointment_type"
-    t.integer  "leo_provider_id"
+    t.integer  "leo_provider_id",            null: false
     t.integer  "athena_provider_id"
-    t.integer  "leo_patient_id"
+    t.integer  "leo_patient_id",             null: false
     t.integer  "athena_patient_id"
-    t.integer  "booked_by_user_id"
+    t.integer  "booked_by_user_id",          null: false
     t.integer  "rescheduled_appointment_id"
-    t.integer  "duration"
-    t.date     "appointment_date"
-    t.time     "appointment_start_time"
+    t.integer  "duration",                   null: false
+    t.date     "appointment_date",           null: false
+    t.time     "appointment_start_time",     null: false
     t.boolean  "frozenyn"
     t.string   "leo_appointment_type"
     t.integer  "athena_appointment_type_id"
+    t.integer  "family_id",                  null: false
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
   end
+
+  add_index "appointments", ["appointment_date"], name: "index_appointments_on_appointment_date"
+  add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id"
+  add_index "appointments", ["athena_patient_id"], name: "index_appointments_on_athena_patient_id"
+  add_index "appointments", ["athena_provider_id"], name: "index_appointments_on_athena_provider_id"
+  add_index "appointments", ["booked_by_user_id"], name: "index_appointments_on_booked_by_user_id"
+  add_index "appointments", ["family_id"], name: "index_appointments_on_family_id"
+  add_index "appointments", ["leo_appointment_type"], name: "index_appointments_on_leo_appointment_type"
+  add_index "appointments", ["leo_patient_id"], name: "index_appointments_on_leo_patient_id"
+  add_index "appointments", ["leo_provider_id"], name: "index_appointments_on_leo_provider_id"
+  add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id"
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
