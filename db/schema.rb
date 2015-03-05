@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150303231245) do
+ActiveRecord::Schema.define(version: 20150305194922) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status"
@@ -44,9 +44,36 @@ ActiveRecord::Schema.define(version: 20150303231245) do
   add_index "appointments", ["leo_provider_id"], name: "index_appointments_on_leo_provider_id"
   add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id"
 
+  create_table "conversations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "conversations_participants", force: :cascade do |t|
+    t.integer "conversation_id_id"
+    t.integer "participant_id_id"
+    t.string  "participant_role"
+  end
+
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.integer  "sender_id"
+    t.integer  "conversation_id"
+    t.text     "body"
+    t.string   "message_type"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  create_table "read_receipts", force: :cascade do |t|
+    t.integer  "message_id"
+    t.string   "participant_id"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
   end
 
   create_table "roles", force: :cascade do |t|
