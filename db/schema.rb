@@ -49,9 +49,9 @@ ActiveRecord::Schema.define(version: 20150305194922) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "conversations_participants", force: :cascade do |t|
-    t.integer "conversation_id_id"
-    t.integer "participant_id_id"
+  create_table "conversations_participants", id: false, force: :cascade do |t|
+    t.integer "conversation_id"
+    t.integer "participant_id"
     t.string  "participant_role"
   end
 

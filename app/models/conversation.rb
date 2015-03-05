@@ -9,5 +9,6 @@
 
 class Conversation < ActiveRecord::Base
 	has_many :messages
-	has_many :participants, class: 'User'
+	has_and_belongs_to_many :participants, class_name: 'User', join_table: 'conversations_participants', association_foreign_key: 'participant_id'
+
 end
