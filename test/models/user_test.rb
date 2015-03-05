@@ -9,7 +9,6 @@
 #  last_name              :string           default(""), not null
 #  dob                    :datetime
 #  sex                    :string
-#  role                   :integer          not null
 #  practice_id            :integer
 #  email                  :string           default(""), not null
 #  encrypted_password     :string           default("")
@@ -32,6 +31,7 @@
 #  invited_by_type        :string
 #  invitations_count      :integer          default("0")
 #  authentication_token   :string
+#  family_id              :integer
 #
 
 require 'test_helper'

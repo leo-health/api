@@ -70,6 +70,9 @@ module Leo
     mount Statuses
     mount Users
 
-    add_swagger_documentation
+    add_swagger_documentation(
+      base_path: "/api",
+      hide_documentation_path: true
+    )
   end
 end
