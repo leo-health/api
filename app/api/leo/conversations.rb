@@ -97,6 +97,27 @@ module Leo
 					present conversation.messages, with: Leo::Entities::MessageEntity
 				end
 
+				desc "Create a message"
+				params do
+					requires :sender_id, type: Integer, desc: "Id for the message sender"
+					requires :body, type: String, desc: "Message contents"
+				post do
+					sender_id = params[:sender_id]
+					sender = User.find_by_id(sender_id)
+					if sender_id.nil? or sender.nil? or sender_id != current_user.id
+						error({error_code: 422, error_message: "The sender does not exist or you don't have permission to create a message for that sender"}, 422)
+						return
+					end
+
+					body = params[:body]
+					if body.nil? or body.strip!.length == 0
+						error({error_code: 422, error_message: "The message body can not be empty."}, 422)
+						return
+					end
+					message = Conversation.messages.create(sender_id: sender_id, body: body)
+					present message, with: Leo::Entities::MessageEntity
+				end
+
 				desc "Return an message"
 				# get "/messages/{id}"
 				params do 
