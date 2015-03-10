@@ -11,6 +11,18 @@ class Conversation < ActiveRecord::Base
 	has_many :messages
 	has_and_belongs_to_many :participants, class_name: 'User', join_table: 'conversations_participants', association_foreign_key: 'participant_id'
 
+	after_initialize :load_initial_participants
+
+	def load_initial_participants
+		# TODO: Add a default admin staff
+		# self.particpants << User.find_staff_for_user/family/child
+
+		# TODO: Add a default physician
+		# self.participants << User.find_physician_for_user/family/child
+
+		# self.save
+	end
+
 
 
 	def self.for_user(user)
