@@ -24,7 +24,7 @@ describe 'User login & registration (when a user exists) -', trans_off: true do
 	before(:each) do 
 		FactoryGirl.create(:user)
 	end
-	it 'should allow you to sign in with for a user with valid credentials' do
+	it 'should allow you to sign in for a user with valid credentials' do
 		@login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
 		post '/api/v1/sessions', @login_params, format: :json
 		expect(response).to have_http_status(201)

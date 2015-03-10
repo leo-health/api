@@ -6,7 +6,7 @@ module Leo
 
 		rescue_from :all, :backtrace => true
 		formatter :json, JSendSuccessFormatter
-  	error_formatter :json, JSendErrorFormatter
+		error_formatter :json, JSendErrorFormatter
 		default_error_status 400
 
 		resource :sessions do
@@ -38,7 +38,6 @@ module Leo
 				#	error!({error_code: 404, error_message: "Invalid Email or Password."},401)
 				#	return
 				else  # Everything checks out. Log them in
-
 					user.ensure_authentication_token
 					user.save
 					{token: user.authentication_token}
@@ -59,60 +58,60 @@ module Leo
 					return
 				else # Everything checks out. Reset their authentication token
 					user.reset_authentication_token
-	       #{status: 'ok'}
-	      end
-	    end
+				 #{status: 'ok'}
+				end
+			end
 
-	    resource :password do
+			resource :password do
 
-	    	desc "Reset password"
-	    	params do 
-	    		requires :email, type: String, desc: "User email for account to reset password"
-	    	end
+				desc "Reset password"
+				params do 
+					requires :email, type: String, desc: "User email for account to reset password"
+				end
 
-	    	post do 
-	    		email = params[:email]
+				post do 
+					email = params[:email]
 
-	    		# A blank value was submitted for one of the paramaters
-	    		if email.nil?
-	    			error!({error_code: 404, error_message: "Invalid email."}, 401)
-	    			return
-	    		end
+					# A blank value was submitted for one of the paramaters
+					if email.nil?
+						error!({error_code: 404, error_message: "Invalid email."}, 401)
+						return
+					end
 
-	    		user = User.where(email: email.downcase).first
+					user = User.where(email: email.downcase).first
 
-	    		# The user doesn't exist
-	    		if user.nil?
-	    			return
-	    		else # Everything checks out. Send the user a 
-	    			user.send_reset_password_instructions
-	    			# user.save TODO: Think about whether resetting the auth token makes sense when requesting password reset
-	    		end
-	    	end
+					# The user doesn't exist
+					if user.nil?
+						return
+					else # Everything checks out. Send the user a 
+						user.send_reset_password_instructions
+						# user.save TODO: Think about whether resetting the auth token makes sense when requesting password reset
+					end
+				end
 
-	    	desc "Change password"
-	    	params do
-	    		requires :email, type: String, desc: "User email for account to change password"
-	    		requires :old_password, type: String, desc: "The old password to confirm this user has the right to change passwords"
-	    		requires :new_password, type: String, desc: "The new password to replace the old one with"
-	    		requires :new_password_confirmation, type: String, desc: "The new password, again to ensure no mistakes"
-	    	end
+				desc "Change password"
+				params do
+					requires :email, type: String, desc: "User email for account to change password"
+					requires :old_password, type: String, desc: "The old password to confirm this user has the right to change passwords"
+					requires :new_password, type: String, desc: "The new password to replace the old one with"
+					requires :new_password_confirmation, type: String, desc: "The new password, again to ensure no mistakes"
+				end
 
-	    	put do
-	    		email = params[:email]
-	    		old_password = params[:old_password]
-	    		new_password = params[:new_password]
-	    		new_password_confirmation = params[:new_password_confirmation]
+				put do
+					email = params[:email]
+					old_password = params[:old_password]
+					new_password = params[:new_password]
+					new_password_confirmation = params[:new_password_confirmation]
 
-	    		# A blank value was submitted for one of the paramaters
-	    		if email.nil? or old_password.nil? or new_password.nil? or new_password_confirmation.nil?
-	    			error!({error_code: 404, error_message: "Invalid email or password."})
-	    			return
-	    		end
+					# A blank value was submitted for one of the paramaters
+					if email.nil? or old_password.nil? or new_password.nil? or new_password_confirmation.nil?
+						error!({error_code: 404, error_message: "Invalid email or password."})
+						return
+					end
 
-	    		user = User.where(email: email.downcase).first
-	    		# The user doesn't exist, or the password for the user is not valid
-	    		if user.nil? or !user.valid_password?(password)
+					user = User.where(email: email.downcase).first
+					# The user doesn't exist, or the password for the user is not valid
+					if user.nil? or !user.valid_password?(password)
 						error!({error_code: 404, error_message: "Invalid Email or Password."},401)
 						return
 					end
@@ -126,7 +125,7 @@ module Leo
 						{ status: 'ok' }
 					end
 				end
-	    end
-	  end
+			end
+		end
 	end
 end
