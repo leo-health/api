@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150310164111) do
+ActiveRecord::Schema.define(version: 20150310201136) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status"
@@ -55,11 +55,17 @@ ActiveRecord::Schema.define(version: 20150310164111) do
     t.integer "child_id"
   end
 
+  add_index "conversations_children", ["child_id", "conversation_id"], name: "conversations_participants_cid_convid", unique: true
+  add_index "conversations_children", ["conversation_id", "child_id"], name: "conversations_participants_convid_cid", unique: true
+
   create_table "conversations_participants", id: false, force: :cascade do |t|
     t.integer "conversation_id"
     t.integer "participant_id"
     t.string  "participant_role"
   end
+
+  add_index "conversations_participants", ["conversation_id", "participant_id"], name: "conversations_participants_convid_pid", unique: true
+  add_index "conversations_participants", ["participant_id", "conversation_id"], name: "conversations_participants_pid_convid", unique: true
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false

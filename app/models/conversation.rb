@@ -9,8 +9,8 @@
 
 class Conversation < ActiveRecord::Base
 	has_many :messages
-	has_and_belongs_to_many :participants, class_name: 'User', join_table: 'conversations_participants', association_foreign_key: 'participant_id'
-	has_and_belongs_to_many :children, class_name: 'User', join_table: 'conversations_children', association_foreign_key: 'child_id'
+	has_and_belongs_to_many :participants, -> {uniq}, class_name: 'User', join_table: 'conversations_participants', association_foreign_key: 'participant_id'
+	has_and_belongs_to_many :children, -> {uniq}, class_name: 'User', join_table: 'conversations_children', association_foreign_key: 'child_id'
 
 
 	after_initialize :load_initial_participants
