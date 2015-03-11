@@ -57,6 +57,8 @@ class User < ActiveRecord::Base
   			guardian: 23
   		}
 
+  # GET /roles
+
   belongs_to :family
   has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
   has_and_belongs_to_many :conversations, foreign_key: 'child_id', join_table: 'conversations_children'

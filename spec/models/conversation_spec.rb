@@ -9,6 +9,19 @@
 
 require 'rails_helper'
 
-RSpec.describe Conversation, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Conversation, type: :model do
+	subject { FactoryGirl.create(:conversation_with_participants) }
+		# puts "\n\nConversation: #{subject.to_json}"
+		# puts "Children: #{subject.children} #{subject.children.count}"
+		# puts "Participants: #{subject.participants} #{subject.participants.count}"
+
+	describe "conversation relationships" do	
+		it "has 2 parent participants" do
+			expect(subject.participants.count).to eq(2)
+		end
+
+		it "has one child" do
+			expect(subject.children.count).to eq(1)
+		end
+	end
 end

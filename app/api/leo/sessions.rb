@@ -40,7 +40,7 @@ module Leo
 				else  # Everything checks out. Log them in
 					user.ensure_authentication_token
 					user.save
-					{token: user.authentication_token}
+					{token: user.authentication_token, user: user}
 				end
 			end
 

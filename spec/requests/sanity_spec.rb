@@ -4,8 +4,19 @@ def print_response
 	puts "\nResponse"
 	puts "--------"
 	puts response.to_a
-	puts "Header: #{response.header}"
-	puts "Body: #{response.body}"
+	if response.status >=400 and response.status < 500
+		parsed = JSON.parse(response.body)
+		puts "--------"
+		msg = parsed["message"]
+		if msg.nil? or msg.strip.length == 0
+			puts "Body: #{response.body}"
+		else
+			puts "Error: #{msg}"
+		end
+	else	
+		puts "Header: #{response.header}"
+		puts "Body: #{response.body}"
+	end
 end
 
 describe 'Ensure site is up and running, and basic endpoints are working' do

@@ -101,6 +101,7 @@ module Leo
 				params do
 					requires :sender_id, type: Integer, desc: "Id for the message sender"
 					requires :body, type: String, desc: "Message contents"
+				end
 				post do
 					sender_id = params[:sender_id]
 					sender = User.find_by_id(sender_id)
@@ -118,7 +119,7 @@ module Leo
 					present message, with: Leo::Entities::MessageEntity
 				end
 
-				desc "Return an message"
+				desc "Return a message"
 				# get "/messages/{id}"
 				params do 
 					requires :id, type: Integer, desc: "User id"
