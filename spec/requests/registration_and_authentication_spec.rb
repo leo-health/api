@@ -1,7 +1,7 @@
 require 'airborne'
 # require 'FactoryGirl'
 
-describe 'User registration & login when a user doesn\'t exist', trans_off: true do
+describe 'User registration & login when a user doesn\'t exist -', trans_off: true do
 	it 'should not allow you to sign in when a user doesn\'t exist' do
 		@login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
 		post '/api/v1/sessions', @login_params, format: :json
@@ -13,6 +13,7 @@ describe 'User registration & login when a user doesn\'t exist', trans_off: true
 	end
 
 	it 'should allow creation of a user with valid parameters' do
+		create(:role, :parent)
 		@user_params = FactoryGirl.attributes_for :user 
 		@user_params[:role] = :parent
 		post '/api/v1/users', @user_params, format: :json
@@ -36,17 +37,17 @@ describe 'User registration & login (when a user exists) -', trans_off: true do
 	it 'should not allow you to sign in for a user with invalid credentials' do
 		@login_params = { email: 'danish@leohealth.com' }
 		post '/api/v1/sessions', @login_params, format: :json
-		expect(response).to have_http_status(400)
+		expect(response).to have_http_status(422)
 		expect_json({status: 'error'})
-		expect_json_types({message: :string})
 	end
 
 	it 'should not allow you to create a user with the same email' do
+		create(:role, :parent)
 		@user_params = FactoryGirl.attributes_for :user 
 		@user_params[:role] = :parent
 		post '/api/v1/users', @user_params, format: :json
 		expect(response).to have_http_status(422)
-		expect_json({status: 'fail'})
+		expect_json({status: 'error'})
 	end
 
 	it 'should let you request a password reset' do

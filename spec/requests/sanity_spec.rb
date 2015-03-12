@@ -1,13 +1,13 @@
 require 'airborne'
 
 def print_response
-	puts "\nResponse"
+	puts "\nResponse (#{caller[0]})"
 	puts "--------"
 	puts response.to_a
 	if response.status >=400 and response.status < 500
 		parsed = JSON.parse(response.body)
 		puts "--------"
-		msg = parsed["message"]
+		msg = parsed["message"] if parsed.has_key? "message"
 		if msg.nil? or msg.strip.length == 0
 			puts "Body: #{response.body}"
 		else

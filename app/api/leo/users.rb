@@ -1,4 +1,5 @@
 module Leo
+
 	module Entities
 		class UserEntity < Grape::Entity
 			expose :id
@@ -62,19 +63,13 @@ module Leo
 			params do
 				requires :first_name, type: String, desc: "First Name"
 				requires :last_name,  type: String, desc: "Last Name"
-				requires :email,      type: String, desc: "Email"
+				requires :email,      type: String, desc: "Email", user_unique: true
 				requires :password,   type: String, desc: "Password"
-				requires :role,				type: String, desc: "Role for the user. Get list from /roles"
+				requires :role,				type: String, desc: "Role for the user. Get list from /roles", role_exists: true
 				requires :dob,        type: String, desc: "Date of Birth"
 
 			end
 			post do
-				if User.where(email: params[:email].downcase).count > 0
-					error!({error_code: 422, error_message: "A user with that email already exists"}, 422)
-					return
-				end
-
-
 				dob = Chronic.try(:parse, params[:dob])
 				if dob.nil?
 					error!({error_code: 422, error_message: "Invalid dob format"},422)
@@ -82,11 +77,6 @@ module Leo
 				end
 
 				role = Role.where(name: params[:role])
-				if params[:role].nil? or role.nil?
-					error!({error_code: 422, error_message: "Invalid role."}, 422)
-					return
-				end
-
 				family = Family.create! 
 
 				user = User.create!(
@@ -103,5 +93,42 @@ module Leo
 			end
 		end
 
+		desc "Invite a parent"
+		params do
+			requires :first_name, type: String, desc: "First Name"
+			requires :last_name,  type: String, desc: "Last Name"
+			requires :email,      type: String, desc: "Email", user_unique: true
+			requires :family_id,	type: Integer, desc: "Family Id for the new user"
+			optional :dob,        type: String, desc: "Date of Birth"
+
+		end
+		namespace :invite do 
+			post do
+				puts "BAZOOKE IN INVITE"
+				dob = Chronic.try(:parse, params[:dob])
+				if params[:dob].strip.length > 0 and dob.nil?
+					error!({error_code: 422, error_message: "Invalid dob format"},422)
+					return
+				end
+
+				family = Family.find_by_id(params[:family_id])
+				if family.nil? or family_id != current_user.family_id
+					error!({error_code: 422, error_message: "Invalid family"},422)
+					return
+				end
+
+				user = User.create!(
+				{
+					first_name:   params[:first_name],
+					last_name:    params[:last_name],
+					email:        params[:email],
+					password:     params[:password],
+					dob:          dob,
+					family_id: 		family.id
+				})
+				user.add_role :parent
+				present :user, user, with: Leo::Entities::UserEntity
+			end
+		end
 	end
 end
