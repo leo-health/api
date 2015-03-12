@@ -35,6 +35,7 @@ gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie_rails'
+gem 'rack-cors'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
 
