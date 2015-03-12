@@ -13,6 +13,16 @@ def print_response
 		else
 			puts "Error: #{msg}"
 		end
+	elsif response.status == 500
+		puts "--------"
+		parsed = JSON.parse(response.body)
+		puts "Status: #{parsed["status"]}"
+		puts "Message: #{parsed["message"]}"
+		puts "Backtrace:"
+		parsed["backtrace"].each do |bt|
+			puts "\t #{bt}"
+		end
+
 	else	
 		puts "Header: #{response.header}"
 		puts "Body: #{response.body}"

@@ -87,7 +87,7 @@ FactoryGirl.define do
   		dob 				{ 15.years.ago.to_s }
   		sex 				'F'
   		email 			'luke.dunphy@gmail.com'
-  		family
+  		# family
       after(:create) { |u| u.add_role :child }
   	end
   end

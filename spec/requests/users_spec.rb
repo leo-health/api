@@ -5,16 +5,22 @@ describe 'Creating families and managing users when authenticated', trans_off: t
 		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 1)
 	end
 
+	it 'should allow you to get a list of roles' do
+    create(:role, :parent)
+		get '/api/v1/roles', format: :json
+		expect_json({data: {roles: [{id: 21, name: "parent"}]}})
+	end
+
+
 	it 'should allow you to create a parent when not signed in' do
 		@post_data = FactoryGirl.attributes_for(:user, :father)
+		@post_data[:role] = :parent
 		post '/api/v1/users', @post_data, format: :json
-		# print_response
 		parsed = JSON.parse(response.body)
 		user = parsed["data"]["user"]
 		expect(response).to have_http_status(201)
 		puts "Users_spec"
-		print_response
-		expect_json_types({data: {user: {first_name: @post_data[:first_name], last_name: @post_data[:last_name], family_id: 1 }}})
+		expect_json({data: {user: {first_name: @post_data[:first_name], last_name: @post_data[:last_name], family_id: 1 }}})
 		
 	end
 
