@@ -47,6 +47,7 @@ describe 'Ensure no data leaks -' do
 		# Use the auth token (which we already know) to make an authenticated request
 		@get_params = { access_token: 'yAZ_3VHjVzt8uoi7uD7z'}
 		get '/api/v1/users', @get_params, format: :json
+
 		expect(response).to have_http_status(200)
 		expect_json_types({data: {users: :array}})
 	end

@@ -16,7 +16,7 @@ describe 'User registration & login when a user doesn\'t exist', trans_off: true
 		@user_params = FactoryGirl.attributes_for :user 
 		post '/api/v1/users', @user_params, format: :json
 		expect(response).to have_http_status(201)
-		expect_json({data: {first_name: 'Danish', last_name: 'Munir', email: 'danish@leohealth.com'} })
+		expect_json({data: {user: {first_name: 'Danish', last_name: 'Munir', email: 'danish@leohealth.com'} }})
 	end
 end
 

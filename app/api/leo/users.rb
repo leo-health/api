@@ -1,12 +1,30 @@
 module Leo
+	module Entities
+		class UserEntity < Grape::Entity
+			expose :id
+			expose :title
+			expose :first_name
+			expose :middle_initial
+			expose :last_name
+			expose :dob
+			expose :sex
+			expose :practice_id
+			expose :family_id
+			expose :email
+		end	
+	end
+
 	class Users < Grape::API
 		version 'v1', using: :path, vendor: 'leo-health'
 		format :json
 		prefix :api
 
+    include Grape::Kaminari
+
 		#rescue_from :all, :backtrace => true
 		formatter :json, JSendSuccessFormatter
 		error_formatter :json, JSendErrorFormatter
+
 
 		resource :users do 
 			
@@ -22,9 +40,10 @@ module Leo
 			end
 
 			desc "Get available users"
+			paginate per_page: 20
 			get do
 				authenticated_user
-				{ users: User.for_user(current_user) }
+				present :users, paginate(User.for_user(current_user))
 			end
 
 			desc "Create a user"
@@ -49,7 +68,8 @@ module Leo
 					error!({error_code: 400, error_message: "Invalid dob format"},400)
 					return
 				end
-				User.create!(
+
+				user = User.create!(
 				{
 					first_name:   params[:first_name],
 					last_name:    params[:last_name],
@@ -59,6 +79,7 @@ module Leo
 					dob:          dob,
 					# role:         params[:role]
 				})
+				present :user, user, with: Leo::Entities::UserEntity
 			end
 		end
 
