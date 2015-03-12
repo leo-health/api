@@ -1,6 +1,23 @@
 require 'grape'
 require 'grape-swagger'
 
+class UserUnique < Grape::Validations::Base
+  def validate_param!(attr_name, params)
+    unless User.where(email: params[attr_name].downcase).count == 0
+      raise Grape::Exceptions::Validation, params: [@scope.full_name(attr_name)], message: "must be unique"
+    end
+  end
+end
+
+class RoleExists < Grape::Validations::Base
+  def validate_param!(attr_name, params)
+    if Role.where(name: params[attr_name].downcase).count == 0
+      raise Grape::Exceptions::Validation, params: [@scope.full_name(attr_name)], message: "must be a valid role"
+    end
+  end
+end
+
+
 module Leo
   module JSendSuccessFormatter
     def self.call object, env
@@ -29,6 +46,14 @@ module Leo
     formatter :json, JSendSuccessFormatter
     error_formatter :json, JSendErrorFormatter
     default_error_status 400
+    rescue_from Grape::Exceptions::ValidationErrors do |e|
+      data = e.map { |k,v| { 
+        params: k, 
+        messages: (v.class.name == "Grape::Exceptions::Validation" ? v.to_s :  v.map(&:to_s)) } 
+      }
+      resp = {status: 'error', data: data }
+      rack_response resp.to_json, 422
+    end
 
     #before do
     # error!("401 Unauthorized", 401) unless authenticated
