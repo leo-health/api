@@ -30,6 +30,7 @@ gem 'devise'                # Authentication
 gem 'devise_invitable'      # Inviting users
 gem 'grape'                 # Our API base
 gem 'grape-entity'
+gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates

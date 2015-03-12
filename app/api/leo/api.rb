@@ -23,6 +23,8 @@ module Leo
     format :json
     prefix :api
 
+    include Grape::Kaminari
+
     rescue_from :all, :backtrace => true
     formatter :json, JSendSuccessFormatter
     error_formatter :json, JSendErrorFormatter
@@ -41,7 +43,7 @@ module Leo
       #def current_user
       #  @current_user ||= User.authorize!(env)
       #end
-
+      
       def authenticate!
         error!('401 Unauthorized', 401) unless current_user
       end
@@ -60,6 +62,8 @@ module Leo
         authenticated
         error!('Forbidden', 403) unless current_user
       end
+
+      
     end
 
     get do
