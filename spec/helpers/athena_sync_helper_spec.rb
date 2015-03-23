@@ -42,20 +42,27 @@ RSpec.describe AthenaSyncHelper, type: :helper do
   describe "Athena Sync Helper - " do
     it "get a list of appointmenttypes" do
       res = AthenaSyncHelper.get_appointmenttypes(practiceid: 195900, limit: 5)
+      Rails.logger.debug(res.to_json)
     end
 
     it "get a list of patientappointmentreasons" do
-      res = AthenaSyncHelper.get_appointmentreasons(practiceid: 195900, departmentid: 145, providerid: 1, limit: 5)
+      res = AthenaSyncHelper.get_appointmentreasons(practiceid: 195900, departmentid: 145, 
+        providerid: 1, limit: 5)
+      Rails.logger.debug(res.to_json)
     end
 
     it "get a list of open slots" do
-      res = AthenaSyncHelper.get_open_appointments(practice_id: 195900, department_id: 0, 
-        start_time: DateTime.new(1920, 1, 1), end_time: DateTime.new(2020, 1, 1))
+      res = AthenaSyncHelper.get_open_appointments(practiceid: 195900, departmentid: 1, appointmenttypeid: 1,
+        bypassscheduletimechecks: true, ignoreschedulablepermission: true, showfrozenslots: true)
+
+      Rails.logger.debug(res.to_json)
     end
 
     it "get a list of booked slots" do
-      res = AthenaSyncHelper.get_booked_appointments(practice_id: 195900, department_id: 1, 
-        start_time: DateTime.new(1920, 1, 1), end_time: DateTime.new(2020, 1, 1))
+      res = AthenaSyncHelper.get_booked_appointments(practiceid: 195900, departmentid: 1, 
+        startdate: "01/01/1920", enddate: "01/01/2020", showcancelled: true,
+        ignorerestrictions: true)
+      Rails.logger.debug(res.to_json)
     end
   end
 end

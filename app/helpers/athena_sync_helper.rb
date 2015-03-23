@@ -4,7 +4,7 @@ module AthenaSyncHelper
   @@version = ENV["ATHENA_VERSION"]
   @@key = ENV["ATHENA_KEY"]
   @@secret = ENV["ATHENA_SECRET"]
-  @@practice_id_default = ENV["ATHENA_PRACTICE_ID"]
+  @@practiceid_default = ENV["ATHENA_PRACTICE_ID"]
 
   #for some reason, gzip encoding returns invalid blocks in failure cases
   #todo: needs more investigation
@@ -31,7 +31,7 @@ module AthenaSyncHelper
     return entries
   end
 
-  def self.get_appointmenttypes(practiceid: practice_id_default, hidegeneric: false, 
+  def self.get_appointmenttypes(practiceid: practiceid_default, hidegeneric: false, 
     hidenongeneric: false, hidenonpatient: true, hidetemplatetypeonly: true, limit: nil)
 
     params = {}
@@ -47,7 +47,7 @@ module AthenaSyncHelper
 
 #existingpatient
 #newpatient
-  def self.get_appointmentreasons(practiceid: practice_id_default, departmentid: , 
+  def self.get_appointmentreasons(practiceid: practiceid_default, departmentid: , 
     providerid: , limit: nil)
 
     params = {}
@@ -59,21 +59,21 @@ module AthenaSyncHelper
       headers: @@common_headers, field: :patientappointmentreasons, limit: limit)
   end
 
-  def self.get_open_appointments(practice_id: practice_id_default, 
-    appointmenttypeid: nil, bypassscheduletimechecks: true, departmentid:, enddate:,
-    ignoreschedulablepermission: false, providerid:, reasonid: -1, showfrozenslots: false,
-    startdate: ,limit: 1000)
+  def self.get_open_appointments(practiceid: practiceid_default, 
+    appointmenttypeid: nil, bypassscheduletimechecks: true, departmentid:, enddate: nil,
+    ignoreschedulablepermission: false, providerid: nil, reasonid: nil, showfrozenslots: false,
+    startdate: nil, limit: 1000)
 
     params = {}
     params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
     params[:bypassscheduletimechecks] = bypassscheduletimechecks
-    params[:department_id] = department_id
-    params[:enddate] = enddate
+    params[:departmentid] = departmentid
+    params[:enddate] = enddate if enddate
     params[:ignoreschedulablepermission] = ignoreschedulablepermission
-    params[:providerid] = providerid
-    params[:reasonid] = reasonid
+    params[:providerid] = providerid if providerid
+    params[:reasonid] = reasonid if reasonid
     params[:showfrozenslots] = showfrozenslots
-    params[:startdate] = startdate
+    params[:startdate] = startdate if startdate
 
     return get_paged(
       practiceid: practiceid, url: "/appointments/open", params: params, 
@@ -81,11 +81,11 @@ module AthenaSyncHelper
   end
 
   #Specifies a provider, department, and date/time for a new appointment slot. 
-  def self.post_open_appointment(practice_id: practice_id_default, 
+  def self.post_open_appointment(practiceid: practiceid_default, 
     appointmentdate: , appointmenttime:, appointmenttypeid: nil, departmentid: ,
     providerid: , reasonid: nil)
 
-    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practiceid)
 
     params = {}
     params[:appointmentdate] = appointmentdate
@@ -105,10 +105,10 @@ module AthenaSyncHelper
     return res.value['appointmentids']
   end
 
-  def self.get_appointment(practice_id: practice_id_default, 
+  def self.get_appointment(practiceid: practiceid_default, 
     appointmentid: , showinsurance: false)
 
-    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practiceid)
 
     params = {}
     params[:showinsurance] = showinsurance
@@ -124,13 +124,13 @@ module AthenaSyncHelper
   end
 
   #Books an appointment slot for a specified patient.
-  def self.put_appointment(practice_id: practice_id_default, appointmentid: ,
+  def self.put_appointment(practiceid: practiceid_default, appointmentid: ,
     appointmenttypeid: nil, bookingnote: nil, departmentid: , ignoreschedulablepermission: false,
     insurancecompany: nil, insurancegroupid: nil, insuranceidnumber: nil, insurancenote: nil,
     insurancephone: nil, insuranceplanname: nil, insurancepolicyholder: nil, nopatientcase: false,
     patientid: , patientrelationshiptopolicyholder: nil, reasonid: nil)
 
-    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practiceid)
 
     params = {}
     params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
@@ -160,9 +160,9 @@ module AthenaSyncHelper
   end
 
   #Deletes an open appointment. Only open appointments can be deleted
-  def self.delete_appointment(practice_id: practice_id_default, appointmentid: )
+  def self.delete_appointment(practiceid: practiceid_default, appointmentid: )
 
-    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practiceid)
 
     params = {}
 
@@ -177,10 +177,10 @@ module AthenaSyncHelper
   end
 
   #Cancels a scheduled appointment
-  def self.put_cancel_appointment(practice_id: practice_id_default, appointmentid: ,
+  def self.put_cancel_appointment(practiceid: practiceid_default, appointmentid: ,
     cancellationreason: nil, ignoreschedulablepermission: false, nopatientcase: false, patientid: )
 
-    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practiceid)
 
     params = {}
     params[:cancellationreason] = cancellationreason if cancellationreason
@@ -197,17 +197,17 @@ module AthenaSyncHelper
     return res.value
   end
 
-  def self.get_booked_appointments(practice_id: practice_id_default, 
+  def self.get_booked_appointments(practiceid: practiceid_default, 
     appointmenttypeid: nil, departmentid: , enddate: , endlastmodified: nil,
     ignorerestrictions: false, patientid: nil, providerid: nil, scheduledenddate: nil,
     scheduledstartdate: nil, showcancelled: false, showclaimdetail: false, showcopay: true,
-    showinsurance: false, showpatientdetail: false, startdate:, startlastmodified:, 
+    showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil, 
     limit: 1000)
-    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practiceid)
 
     params = {}
     params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
-    params[:departmentid] = department_id
+    params[:departmentid] = departmentid
     params[:enddate] = enddate
     params[:endlastmodified] = endlastmodified if endlastmodified
     params[:ignorerestrictions] = ignorerestrictions
@@ -221,7 +221,7 @@ module AthenaSyncHelper
     params[:showinsurance] = showinsurance
     params[:showpatientdetail] = showpatientdetail
     params[:startdate] = startdate
-    params[:startlastmodified] = startlastmodified
+    params[:startlastmodified] = startlastmodified if startlastmodified
 
     return get_paged(
       practiceid: practiceid, url: "/appointments/booked", params: params, 

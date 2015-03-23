@@ -75,7 +75,6 @@ module AthenahealthAPI
     # * +practiceid+ - the practice ID to be used in constructing URLs
     #
     def initialize(version, key, secret, practiceid=nil)
-      Rails.logger.error "**********************************"
       uri = URI.parse('https://api.athenahealth.com/')
       @connection = Net::HTTP.new(uri.host, uri.port)
       @connection.use_ssl = true
@@ -162,6 +161,9 @@ module AthenahealthAPI
       }
       request['authorization'] = "Bearer #{@token}"
       
+      Rails.logger.debug("request path: #{request.path}")
+      Rails.logger.debug("request body: #{request.body}") if request.body
+
       response = @connection.request(request)
 
       if response.code == '401' && !secondcall
