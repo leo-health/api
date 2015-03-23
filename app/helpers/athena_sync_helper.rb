@@ -129,6 +129,72 @@ module AthenaSyncHelper
     insurancecompany: nil, insurancegroupid: nil, insuranceidnumber: nil, insurancenote: nil,
     insurancephone: nil, insuranceplanname: nil, insurancepolicyholder: nil, nopatientcase: false,
     patientid: , patientrelationshiptopolicyholder: nil, reasonid: nil)
+
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+
+    params = {}
+    params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
+    params[:bookingnote] = bookingnote if bookingnote
+    params[:departmentid] = departmentid
+    params[:ignoreschedulablepermission] = ignoreschedulablepermission
+    params[:insurancecompany] = insurancecompany if insurancecompany
+    params[:insurancegroupid] = insurancegroupid if insurancegroupid
+    params[:insuranceidnumber] = insuranceidnumber if insuranceidnumber
+    params[:insurancenote] = insurancenote if insurancenote
+    params[:insurancephone] = insurancephone if insurancephone
+    params[:insuranceplanname] = insuranceplanname if insuranceplanname
+    params[:insurancepolicyholder] = insurancepolicyholder if insurancepolicyholder
+    params[:nopatientcase] = nopatientcase
+    params[:patientid] = patientid
+    params[:patientrelationshiptopolicyholder] = patientrelationshiptopolicyholder if patientrelationshiptopolicyholder
+    params[:reasonid] = reasonid if reasonid
+
+    res = connection.PUT("appointments/#{appointmentid}", params, @@common_headers)
+
+    if res.code != "200" || res.value.class != Array
+      Rails.logger.error "AthenaSyncHelper: invalid response #{res.to_json}"
+      return nil
+    end
+
+    return res.value[0]
+  end
+
+  #Deletes an open appointment. Only open appointments can be deleted
+  def self.delete_appointment(practice_id: practice_id_default, appointmentid: )
+
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+
+    params = {}
+
+    res = connection.DELETE("appointments/#{appointmentid}", params, @@common_headers)
+
+    if res.code != "200" || res.value.class != Array
+      Rails.logger.error "AthenaSyncHelper: invalid response #{res.to_json}"
+      return nil
+    end
+
+    return res.value[0]
+  end
+
+  #Cancels a scheduled appointment
+  def self.put_cancel_appointment(practice_id: practice_id_default, appointmentid: ,
+    cancellationreason: nil, ignoreschedulablepermission: false, nopatientcase: false, patientid: )
+
+    connection = AthenahealthAPI::Connection.new(@@version, @@key, @@secret, practice_id)
+
+    params = {}
+    params[:cancellationreason] = cancellationreason if cancellationreason
+    params[:ignoreschedulablepermission] = ignoreschedulablepermission
+    params[:patientid] = patientid
+
+    res = connection.PUT("appointments/#{appointmentid}/cancel", params, @@common_headers)
+
+    if res.code != "200" || res.value.class != Array
+      Rails.logger.error "AthenaSyncHelper: invalid response #{res.to_json}"
+      return nil
+    end
+
+    return res.value
   end
 
   def self.get_booked_appointments(practice_id: practice_id_default, 

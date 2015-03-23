@@ -45,7 +45,7 @@ RSpec.describe AthenaSyncHelper, type: :helper do
     end
 
     it "get a list of patientappointmentreasons" do
-      res = AthenaSyncHelper.get_patientappointmentreasons(practiceid: 195900, departmentid: 145, providerid: 1, limit: 5)
+      res = AthenaSyncHelper.get_appointmentreasons(practiceid: 195900, departmentid: 145, providerid: 1, limit: 5)
     end
 
     it "get a list of open slots" do
