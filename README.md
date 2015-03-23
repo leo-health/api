@@ -29,5 +29,6 @@ This is the core api for the leo-health services.
 Instructions for installing Compose
 ```bash
  curl -L https://github.com/docker/compose/releases/download/1.1.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+ 
  chmod +x /usr/local/bin/docker-compose
  ```
