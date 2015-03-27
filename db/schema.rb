@@ -11,30 +11,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150310201136) do
+ActiveRecord::Schema.define(version: 20150327172630) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status"
     t.string   "athena_appointment_type"
-    t.integer  "leo_provider_id",            null: false
+    t.integer  "leo_provider_id",                            null: false
     t.integer  "athena_provider_id"
-    t.integer  "leo_patient_id",             null: false
+    t.integer  "leo_patient_id",                             null: false
     t.integer  "athena_patient_id"
-    t.integer  "booked_by_user_id",          null: false
+    t.integer  "booked_by_user_id",                          null: false
     t.integer  "rescheduled_appointment_id"
-    t.integer  "duration",                   null: false
-    t.date     "appointment_date",           null: false
-    t.time     "appointment_start_time",     null: false
+    t.integer  "duration",                                   null: false
+    t.date     "appointment_date",                           null: false
+    t.time     "appointment_start_time",                     null: false
     t.boolean  "frozenyn"
     t.string   "leo_appointment_type"
     t.integer  "athena_appointment_type_id"
-    t.integer  "family_id",                  null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.integer  "family_id",                                  null: false
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+    t.integer  "athena_id",                  default: 0,     null: false
+    t.boolean  "cancelled",                  default: false, null: false
   end
 
   add_index "appointments", ["appointment_date"], name: "index_appointments_on_appointment_date"
   add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id"
+  add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id"
   add_index "appointments", ["athena_patient_id"], name: "index_appointments_on_athena_patient_id"
   add_index "appointments", ["athena_provider_id"], name: "index_appointments_on_athena_provider_id"
   add_index "appointments", ["booked_by_user_id"], name: "index_appointments_on_booked_by_user_id"
@@ -99,25 +102,17 @@ ActiveRecord::Schema.define(version: 20150310201136) do
   add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
   add_index "roles", ["name"], name: "index_roles_on_name"
 
-  create_table "taggings", force: :cascade do |t|
-    t.integer  "tag_id"
-    t.integer  "taggable_id"
-    t.string   "taggable_type"
-    t.integer  "tagger_id"
-    t.string   "tagger_type"
-    t.string   "context",       limit: 128
-    t.datetime "created_at"
+  create_table "sync_tasks", force: :cascade do |t|
+    t.integer  "sync_id",    default: 0, null: false
+    t.integer  "source",                 null: false
+    t.integer  "type",                   null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
-  add_index "taggings", ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true
-  add_index "taggings", ["taggable_id", "taggable_type", "context"], name: "index_taggings_on_taggable_id_and_taggable_type_and_context"
-
-  create_table "tags", force: :cascade do |t|
-    t.string  "name"
-    t.integer "taggings_count", default: 0
-  end
-
-  add_index "tags", ["name"], name: "index_tags_on_name", unique: true
+  add_index "sync_tasks", ["source"], name: "index_sync_tasks_on_source"
+  add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id"
+  add_index "sync_tasks", ["type"], name: "index_sync_tasks_on_type"
 
   create_table "users", force: :cascade do |t|
     t.string   "title",                  default: ""

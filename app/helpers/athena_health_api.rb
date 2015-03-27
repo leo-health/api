@@ -24,17 +24,6 @@ require 'json'
 # Connection -- Connects to the API and performs HTTP requests
 #
 module AthenahealthAPI
-  
-  class RequestResult
-    attr_accessor :code
-    attr_accessor :value
-
-    def initialize(code, value=nil)
-        @code = code
-        @value = value
-    end
-  end
-
   # This class abstracts away the HTTP connection and basic authentication from API calls.
   #
   # When an object of this class is initialized, it attempts to authenticate to the specified
@@ -58,12 +47,12 @@ module AthenahealthAPI
   # * +PUT+ - Perform an HTTP PUT request
   # * +DELETE+ - Perform an HTTP DELETE request
   class Connection
+    @@debug = false
+    @@last_token = nil
+
     attr_accessor :version
     attr_accessor :practiceid
-    
-    # The current access token.
-    attr_reader :token
-    
+
     # Connects to the host, and authenticates to the specified API version using key and secret.
     #
     # ==== Positional arguments
@@ -98,6 +87,9 @@ module AthenahealthAPI
       @key = key
       @secret = secret
       @practiceid = practiceid
+
+      #try using last token.  If refresh is required, it will be performed on second try
+      @token = @@last_token
     end
     
     # Authenticates to the API by following the steps of basic authentication.  The URL to use is
@@ -115,23 +107,14 @@ module AthenahealthAPI
       request.basic_auth(@key, @secret)
       request.set_form_data({'grant_type' => 'client_credentials'})
       
+      Rails.logger.info("#{request.method} #{request.path}")
+
       response = @connection.request(request)
 
-      if response.code != "200"
-        return RequestResult.new(response.code, response.body)
-      end
+      raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
 
-      begin
-        authorization = JSON.parse(response.body)
-
-      rescue JSON::ParserError => e
-        Rails.logger.error "Athena authentication failed: #{e}"
-        return RequestResult.new(response.code, response.body)
-      end
-
-      @token = authorization['access_token']
-
-      return RequestResult.new(response.code, response.body)
+      authorization = JSON.parse(response.body)
+      @@last_token = @token = authorization['access_token']
     end
     
     # Joins together URI paths so we can use it in API calls.  Trims extra slashes from arguments,
@@ -146,12 +129,7 @@ module AthenahealthAPI
     # Sets the request body, headers (including auth header) and JSON decodes the response.  If we
     # get a 401 Not Authorized, re-authenticate and try again.
     def call(request, body, headers, secondcall=false)
-      unless @token
-        auth_res = authenticate
-        if auth_res.code != "200"
-          return auth_res
-        end
-      end
+      authenticate unless @token
 
       request.set_form_data(body)
       
@@ -161,24 +139,21 @@ module AthenahealthAPI
       }
       request['authorization'] = "Bearer #{@token}"
       
-      Rails.logger.debug("request path: #{request.path}")
-      Rails.logger.debug("request body: #{request.body}") if request.body
+      Rails.logger.info("#{request.method} #{request.path}")
+      Rails.logger.info("request body: #{request.body}") if @@debug
 
       response = @connection.request(request)
+
+      Rails.logger.info("response code: #{response.code}") if @@debug
+      Rails.logger.info("response body: #{response.body}") if @@debug
 
       if response.code == '401' && !secondcall
         #force re-authentication by nulling out @token
         @token = nil
-
         return call(request, body, headers, secondcall=true)
       end
 
-      begin
-        return RequestResult.new(response.code, JSON.parse(response.body))
-
-      rescue JSON::ParserError => e
-          return RequestResult.new(response.code, response.body)
-      end
+      return response
     end
     
     # Perform an HTTP GET request and return a hash of the API response.

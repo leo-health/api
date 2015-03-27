@@ -23,6 +23,10 @@
 #
 
 class Appointment < ActiveRecord::Base
+	# callbacks for generating sync tasks
+	# todo
+
+
 
 	def self.MAX_DURATION
 		40
@@ -30,7 +34,6 @@ class Appointment < ActiveRecord::Base
 	def self.MIN_DURATION
 		10
 	end
-
 	
 	
 	def self.for_family(family)
