@@ -23,7 +23,7 @@ require 'json'
 # Classes:
 # Connection -- Connects to the API and performs HTTP requests
 #
-module AthenahealthAPI
+module AthenaHealthAPI
   # This class abstracts away the HTTP connection and basic authentication from API calls.
   #
   # When an object of this class is initialized, it attempts to authenticate to the specified
@@ -50,8 +50,8 @@ module AthenahealthAPI
     @@debug = false
     @@last_token = nil
 
-    attr_accessor :version
-    attr_accessor :practiceid
+    attr_reader :version
+    attr_reader :practiceid
 
     # Connects to the host, and authenticates to the specified API version using key and secret.
     #

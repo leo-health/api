@@ -11,32 +11,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150327172630) do
+ActiveRecord::Schema.define(version: 20150329173226) do
 
   create_table "appointments", force: :cascade do |t|
-    t.string   "appointment_status"
+    t.string   "appointment_status",         default: "o", null: false
     t.string   "athena_appointment_type"
-    t.integer  "leo_provider_id",                            null: false
-    t.integer  "athena_provider_id"
-    t.integer  "leo_patient_id",                             null: false
-    t.integer  "athena_patient_id"
-    t.integer  "booked_by_user_id",                          null: false
+    t.integer  "leo_provider_id",                          null: false
+    t.integer  "athena_provider_id",         default: 0,   null: false
+    t.integer  "leo_patient_id",                           null: false
+    t.integer  "athena_patient_id",          default: 0,   null: false
+    t.integer  "booked_by_user_id",                        null: false
     t.integer  "rescheduled_appointment_id"
-    t.integer  "duration",                                   null: false
-    t.date     "appointment_date",                           null: false
-    t.time     "appointment_start_time",                     null: false
+    t.integer  "duration",                                 null: false
+    t.date     "appointment_date",                         null: false
+    t.time     "appointment_start_time",                   null: false
     t.boolean  "frozenyn"
     t.string   "leo_appointment_type"
-    t.integer  "athena_appointment_type_id"
-    t.integer  "family_id",                                  null: false
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
-    t.integer  "athena_id",                  default: 0,     null: false
-    t.boolean  "cancelled",                  default: false, null: false
+    t.integer  "athena_appointment_type_id", default: 0,   null: false
+    t.integer  "family_id",                                null: false
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
+    t.integer  "athena_id",                  default: 0,   null: false
+    t.integer  "athena_department_id",       default: 0,   null: false
   end
 
   add_index "appointments", ["appointment_date"], name: "index_appointments_on_appointment_date"
   add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id"
+  add_index "appointments", ["athena_department_id"], name: "index_appointments_on_athena_department_id"
   add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id"
   add_index "appointments", ["athena_patient_id"], name: "index_appointments_on_athena_patient_id"
   add_index "appointments", ["athena_provider_id"], name: "index_appointments_on_athena_provider_id"
@@ -103,16 +104,16 @@ ActiveRecord::Schema.define(version: 20150327172630) do
   add_index "roles", ["name"], name: "index_roles_on_name"
 
   create_table "sync_tasks", force: :cascade do |t|
-    t.integer  "sync_id",    default: 0, null: false
-    t.integer  "source",                 null: false
-    t.integer  "type",                   null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.integer  "sync_id",     default: 0, null: false
+    t.integer  "sync_source", default: 0, null: false
+    t.integer  "sync_type",               null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
   end
 
-  add_index "sync_tasks", ["source"], name: "index_sync_tasks_on_source"
   add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id"
-  add_index "sync_tasks", ["type"], name: "index_sync_tasks_on_type"
+  add_index "sync_tasks", ["sync_source"], name: "index_sync_tasks_on_sync_source"
+  add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type"
 
   create_table "users", force: :cascade do |t|
     t.string   "title",                  default: ""

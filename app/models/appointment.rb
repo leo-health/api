@@ -26,6 +26,34 @@ class Appointment < ActiveRecord::Base
 	# callbacks for generating sync tasks
 	# todo
 
+  #helpers for booked status
+  def cancelled?
+    return appointment_status == "x"
+  end
+
+  def future?
+    return appointment_status == "f"
+  end
+
+  def open?
+    return appointment_status == "o"
+  end
+
+  def checked_in?
+    return appointment_status == "2"
+  end
+
+  def checked_out?
+    return appointment_status == "3"
+  end
+
+  def charge_entered?
+    return appointment_status == "4"
+  end
+
+  def booked?
+    return future? || checked_in? || checked_out? || charge_entered?
+  end
 
 
 	def self.MAX_DURATION
