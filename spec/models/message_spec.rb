@@ -12,6 +12,7 @@
 #  escalated_to         :integer
 #  resolve_requested_at :datetime
 #  resolved_approved_at :datetime
+#  escalated_at         :datetime
 #
 
 require 'rails_helper'
