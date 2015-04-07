@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150407205644) do
+ActiveRecord::Schema.define(version: 20150407210411) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status"
@@ -49,6 +49,9 @@ ActiveRecord::Schema.define(version: 20150407205644) do
     t.datetime "updated_at",           null: false
     t.integer  "family_id"
     t.datetime "last_message_created"
+    t.boolean  "archived"
+    t.datetime "archived_at"
+    t.integer  "archived_by"
   end
 
   create_table "conversations_participants", id: false, force: :cascade do |t|
@@ -70,8 +73,11 @@ ActiveRecord::Schema.define(version: 20150407205644) do
     t.integer  "conversation_id"
     t.text     "body"
     t.string   "message_type"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.integer  "escalated_to"
+    t.datetime "resolve_requested_at"
+    t.datetime "resolved_approved_at"
   end
 
   create_table "read_receipts", force: :cascade do |t|

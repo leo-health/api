@@ -2,10 +2,14 @@
 #
 # Table name: conversations
 #
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  family_id  :integer
+#  id                   :integer          not null, primary key
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  family_id            :integer
+#  last_message_created :datetime
+#  archived             :boolean
+#  archived_at          :datetime
+#  archived_by          :integer
 #
 
 class Conversation < ActiveRecord::Base
