@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150310201136) do
+ActiveRecord::Schema.define(version: 20150407205644) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status"
@@ -45,18 +45,11 @@ ActiveRecord::Schema.define(version: 20150310201136) do
   add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id"
 
   create_table "conversations", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
     t.integer  "family_id"
+    t.datetime "last_message_created"
   end
-
-  create_table "conversations_children", id: false, force: :cascade do |t|
-    t.integer "conversation_id"
-    t.integer "child_id"
-  end
-
-  add_index "conversations_children", ["child_id", "conversation_id"], name: "conversations_participants_cid_convid", unique: true
-  add_index "conversations_children", ["conversation_id", "child_id"], name: "conversations_participants_convid_cid", unique: true
 
   create_table "conversations_participants", id: false, force: :cascade do |t|
     t.integer "conversation_id"
