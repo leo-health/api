@@ -67,6 +67,8 @@ class User < ActiveRecord::Base
   	u.update_attribute(:authentication_token, nil)
   end
 
+  # Class variables, methods and properties to help better filter and retrieve records
+
   def self.for_user(user)
     # TODO. Think through this and design better
     if user.has_role? :parent
@@ -85,4 +87,12 @@ class User < ActiveRecord::Base
       User.all
     end
   end
+
+  # Helper methods to render attributes in a more friednly way
+
+  def primary_role
+    self.roles.first.name
+  end
+
+
 end

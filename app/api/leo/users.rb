@@ -12,6 +12,7 @@ module Leo
 			expose :practice_id
 			expose :family_id
 			expose :email
+			expose :primary_role
 		end	
 
 		class RoleEntity < Grape::Entity
@@ -41,17 +42,6 @@ module Leo
 
 		resource :users do 
 			
-			desc "Return a user"
-			params do 
-				requires :id, type: Integer, desc: "User id"
-			end
-			route_param :id do 
-				get do
-					authenticated_user
-					User.find(params[:id])
-				end
-			end
-
 			desc "Get available users"
 			paginate per_page: 20
 			get do
@@ -91,6 +81,18 @@ module Leo
 				user.roles << role
 				present :user, user, with: Leo::Entities::UserEntity
 			end
+
+			desc "Return a user"
+			params do 
+				requires :id, type: Integer, desc: "User id"
+			end
+			route_param :id do 
+				get do
+					authenticated_user
+					User.find(params[:id])
+				end
+			end
+
 		end
 
 		desc "Invite a parent"

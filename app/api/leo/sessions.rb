@@ -40,7 +40,8 @@ module Leo
 				else  # Everything checks out. Log them in
 					user.ensure_authentication_token
 					user.save
-					{token: user.authentication_token, user: user}
+					present :token, user.authentication_token
+					present	:user, user, with: Leo::Entities::UserEntity
 				end
 			end
 
