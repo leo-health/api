@@ -9,14 +9,15 @@
 #  last_message_created :datetime
 #  archived             :boolean
 #  archived_at          :datetime
-#  archived_by          :integer
+#  archived_by_id       :integer
 #
 
 class Conversation < ActiveRecord::Base
   has_many :messages
   has_and_belongs_to_many :participants, -> {uniq}, class_name: 'User', join_table: 'conversations_participants', association_foreign_key: 'participant_id'
   # has_and_belongs_to_many :children, -> {uniq}, class_name: 'User', join_table: 'conversations_children', association_foreign_key: 'child_id'
-
+  belongs_to :family
+  belongs_to :archived_by, class_name: 'User'
 
   after_initialize :load_initial_participants
 

@@ -9,7 +9,7 @@
 #  last_message_created :datetime
 #  archived             :boolean
 #  archived_at          :datetime
-#  archived_by          :integer
+#  archived_by_id       :integer
 #
 
 FactoryGirl.define do

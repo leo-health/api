@@ -5,15 +5,26 @@ module Leo
       expose :sender_id, documentation: {type: "integer", desc: "The Leo id of the sender." }
       expose :conversation_id,  documentation: {type: "integer", desc: "The conversation id." }
       expose :body, documentation: {type: "string", desc: "The message body." }
-      expose :message_type, documentation: {type: "string", desc: "The message type" }
+      expose :message_type, documentation: {type: "string", desc: "The message type." }
       expose :created_at
+      expose :escalated_to, documentation: {type: "object", desc: "The physician who the message has been escalated to." }
+      expose :escalated_at
+      expose :resolved_requested_at
+      expose :resolved_approved_at
     end
     class ConversationParticipantEntity < Grape::Entity 
+
     end
 
     class ConversationEntity < Grape::Entity
       expose :id
-      expose :participants
+      expose :participants #, with: Leo::Entities::ConversationParticipantEntity
+      expose :created_at
+      expose :family
+      expose :last_message_created
+      expose :archived
+      expose :archived_at
+      expose :archived_by
     end
   end
 end
@@ -43,7 +54,7 @@ module Leo
       desc "Create a conversation for a given user"
       params do
         requires :user_id, type: Integer, desc: "User id"
-        requires :child_ids, type: Array[Integer], desc: "Ids of the children the conversation is about"
+        # requires :child_ids, type: Array[Integer], desc: "Ids of the children the conversation is about"
       end
 
       post do
@@ -58,21 +69,22 @@ module Leo
           error!({error_code: 422, error_message: "Could not create a conversation for the specified user. Make sure the user exists."}, 422)
         end
 
-        children = []
-        params[:child_ids].each do |child_id|
-          child = User.find_by_id(child_id)
-          if child.nil? or child.family_id != user.family_id
-            error!({error_code: 403, error_message: "You don't have permission to create a conversation with 1 or more of the children provided."}, 403)
-            return
-          end
-          children << child
-        end
+        # children = []
+        # params[:child_ids].each do |child_id|
+        #   child = User.find_by_id(child_id)
+        #   if child.nil? or child.family_id != user.family_id
+        #     error!({error_code: 403, error_message: "You don't have permission to create a conversation with 1 or more of the children provided."}, 403)
+        #     return
+        #   end
+        #   children << child
+        # end
 
         # Create a conversation and add this user to it
         conversation = Conversation.create!
-        conversation.participants << user
+        conversation.family = user.family
+        conversation.participants << user.family.parents
         ## Add the children
-        conversation.children << children
+        # conversation.children << children
         conversation.save
         present conversation, with: Leo::Entities::ConversationEntity
       end
