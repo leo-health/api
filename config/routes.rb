@@ -25,8 +25,19 @@
 #                          PATCH  /users/invitation(.:format)        devise/invitations#update
 #                          PUT    /users/invitation(.:format)        devise/invitations#update
 #                  leo_api        /                                  Leo::API
-#             leo_sessions        /sessions                          Leo::Sessions
+#      grape_swagger_rails        /swagger                           GrapeSwaggerRails::Engine
+#        letter_opener_web        /letter_opener                     LetterOpenerWeb::Engine
 #                     root GET    /                                  home#index
+#
+# Routes for GrapeSwaggerRails::Engine:
+#   root GET  /           grape_swagger_rails/application#index
+#
+# Routes for LetterOpenerWeb::Engine:
+# clear_letters DELETE /clear(.:format)                 letter_opener_web/letters#clear
+# delete_letter DELETE /:id/delete(.:format)            letter_opener_web/letters#destroy
+#       letters GET    /                                letter_opener_web/letters#index
+#        letter GET    /:id(/:style)(.:format)          letter_opener_web/letters#show
+#               GET    /:id/attachments/:file(.:format) letter_opener_web/letters#attachment
 #
 
 Rails.application.routes.draw do
