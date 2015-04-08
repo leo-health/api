@@ -38,6 +38,7 @@ gem 'hashie_rails'
 gem 'rack-cors'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
+gem 'delayed_job_active_record'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

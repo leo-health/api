@@ -9,7 +9,7 @@ module AthenaHealthApiHelper
   #2=checked in
   #3=checked out
   #4=charge entered (i.e. a past appointment).
-  class AthenaStuct
+  class AthenaStruct
     def initialize(args)
       args.each do |k,v|
         add_field(k,v)
@@ -23,6 +23,14 @@ module AthenaHealthApiHelper
 
     def booked?
       return future? || checked_in? || checked_out? || charge_entered?
+    end
+
+    def pre_checked_in?
+      return future? || open? || cancelled?
+    end
+
+    def post_checked_in?
+      return !pre_checked_in
     end
 
     def cancelled?
@@ -63,7 +71,7 @@ module AthenaHealthApiHelper
     end
 
     # obtain information on an athena appointment
-    # returns an instance of AthenaStuct, nil of not found
+    # returns an instance of AthenaStruct, nil of not found
     # raises exceptions if anything goes wrong
     def get_appointment(practiceid: @@practiceid_default, 
       appointmentid: , showinsurance: false)
@@ -78,7 +86,7 @@ module AthenaHealthApiHelper
 
       raise "response.code #{reponse.code}" unless response.code.to_i == 200
 
-      return AthenaStuct.new(JSON.parse(response.body)[0])
+      return AthenaStruct.new(JSON.parse(response.body)[0])
     end
 
     # delete an open appointment
@@ -164,6 +172,26 @@ module AthenaHealthApiHelper
       raise "response.code #{reponse.code}" unless response.code.to_i == 200
     end
 
+    # cancel a booked appointment
+    # A booked appointment must already exist.
+    # raises exceptions if anything goes wrong in the process
+    def reschedule_appointment(appointmentid: ,
+      ignoreschedulablepermission: true, newappointmentid: , nopatientcase: false, patientid: ,
+      reasonid: nil, reschedulereason: nil)
+
+      params = {}
+      params[:ignoreschedulablepermission] = ignoreschedulablepermission
+      params[:newappointmentid] = newappointmentid
+      params[:nopatientcase] = nopatientcase
+      params[:patientid] = patientid
+      params[:reasonid] = reasonid if reasonid
+      params[:reschedulereason] = reschedulereason if reschedulereason
+
+      response = @connection.PUT("appointments/#{appointmentid}/reschedule", params, @@common_headers)
+
+      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+    end
+
     # freezes/unfreezes an appointment
     def freeze_appointment(appointmentid:, freeze: true)
 
@@ -190,7 +218,7 @@ module AthenaHealthApiHelper
     end
 
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
-    # returns an array of AthenaStucts
+    # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     def get_paged(url: , params: , headers: , field: , offset: 0, limit: 5000)
       raise "limit #{limit} is higher then max allowed 5000." if limit > 5000
@@ -208,7 +236,7 @@ module AthenaHealthApiHelper
       entries = []
 
       parsed[field.to_s].each do | val |
-        entries.push AthenaStuct.new val
+        entries.push AthenaStruct.new val
       end
 
       #add following pages of results
@@ -223,7 +251,7 @@ module AthenaHealthApiHelper
     end
 
     # get a list of available appointment types
-    # returns an array of AthenaStucts
+    # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     def get_appointment_types(hidegeneric: false, 
       hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 5000)
@@ -240,7 +268,7 @@ module AthenaHealthApiHelper
     end
 
     # get a list of available appointment reasons
-    # returns an array of AthenaStucts
+    # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     # todo: do we need separate calls for existing vs new patients
     def get_appointment_reasons(departmentid: , 
@@ -256,7 +284,7 @@ module AthenaHealthApiHelper
     end
 
     # get a list of open appointments
-    # returns an array of AthenaStucts
+    # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     def get_open_appointments(
       appointmenttypeid: nil, bypassscheduletimechecks: true, departmentid:, enddate: nil,
@@ -280,7 +308,7 @@ module AthenaHealthApiHelper
     end
 
     # get a list of booked appointments
-    # returns an array of AthenaStucts
+    # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     def get_booked_appointments(
       appointmenttypeid: nil, departmentid: , enddate: , endlastmodified: nil,
@@ -315,236 +343,38 @@ module AthenaHealthApiHelper
 
   class MockConnector
     @@appointment_types_default = [{
-        "shortname": "ALLG",
-        "name": "Allergy Test",
-        "duration": "30",
-        "patientdisplayname": "Allergy Test",
+        "shortname": "A20",
+        "name": "ANY 20",
+        "duration": "20",
+        "patientdisplayname": "ANY 20",
+        "appointmenttypeid": "1",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "true"
+    }, {
+        "shortname": "WC",
+        "name": "WELL CHILD",
+        "duration": "40",
+        "patientdisplayname": "WELL CHILD",
         "appointmenttypeid": "21",
         "generic": "false",
         "patient": "true",
         "templatetypeonly": "false"
     }, {
-        "shortname": "ANY5",
-        "name": "Any 15",
-        "duration": "15",
-        "patientdisplayname": "Any 15",
-        "appointmenttypeid": "82",
-        "generic": "true",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "666",
-        "name": "Cardiology",
-        "duration": "45",
-        "patientdisplayname": "Cardiology",
-        "appointmenttypeid": "182",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "CONS",
-        "name": "Consult",
-        "duration": "30",
-        "patientdisplayname": "Consultation Visit",
-        "appointmenttypeid": "62",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "EST",
-        "name": "Established",
-        "duration": "15",
-        "patientdisplayname": "Established Visit",
-        "appointmenttypeid": "42",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "JTST",
-        "name": "Jchase test",
-        "duration": "30",
-        "patientdisplayname": "Jchase test",
-        "appointmenttypeid": "342",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "LTST",
-        "name": "Lab Testing",
-        "duration": "5",
-        "patientdisplayname": "Lab Testing",
-        "appointmenttypeid": "302",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "LAB",
-        "name": "Lab Work",
-        "duration": "15",
-        "patientdisplayname": "Lab Work",
-        "appointmenttypeid": "5",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "MAWV",
-        "name": "Medicare Annual Wellness Visit",
-        "duration": "15",
-        "patientdisplayname": "Medicare Annual Wellness Visit",
-        "appointmenttypeid": "282",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "NE",
-        "name": "New Evaluation",
-        "duration": "60",
-        "patientdisplayname": "New Evaluation",
-        "appointmenttypeid": "242",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "nob",
-        "name": "New OB",
-        "duration": "30",
-        "patientdisplayname": "New OB",
-        "appointmenttypeid": "262",
-        "generic": "true",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "NP",
-        "name": "New Patient Appointment",
-        "duration": "30",
-        "patientdisplayname": "New Patient Appointment",
-        "appointmenttypeid": "8",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "OPEN",
-        "name": "OPEN",
-        "duration": "15",
-        "patientdisplayname": "OPEN",
-        "appointmenttypeid": "22",
-        "generic": "true",
-        "patient": "true",
-        "templatetypeonly": "true"
-    }, {
-        "shortname": "OV",
-        "name": "Office Visit",
-        "duration": "40",
-        "patientdisplayname": "Office Visit",
-        "appointmenttypeid": "2",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "PE",
-        "name": "PHYSICAL",
-        "duration": "15",
-        "patientdisplayname": "PHYSICAL",
+        "shortname": "PROB",
+        "name": "PROBLEM",
+        "duration": "20",
+        "patientdisplayname": "PROBLEM",
         "appointmenttypeid": "23",
         "generic": "false",
         "patient": "true",
         "templatetypeonly": "false"
     }, {
-        "shortname": "PHYS",
-        "name": "Physical Exam",
-        "duration": "30",
-        "patientdisplayname": "Physical Exam Visit",
-        "appointmenttypeid": "4",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "RCDT",
-        "name": "ReminderCall Default",
-        "duration": "30",
-        "patientdisplayname": "ReminderCall Default",
-        "appointmenttypeid": "202",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "CSK",
-        "name": "Sea Sickness",
-        "duration": "15",
-        "patientdisplayname": "Sea Sickness",
-        "appointmenttypeid": "102",
-        "generic": "true",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "SURG",
-        "name": "Surgery",
-        "duration": "60",
-        "patientdisplayname": "Surgery (time is not correct)",
-        "appointmenttypeid": "6",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "WST",
-        "name": "WebScheduleTest",
-        "duration": "15",
-        "patientdisplayname": "New Patient Web Schedule",
-        "appointmenttypeid": "362",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "WF1",
-        "name": "Weigh Forward 1",
-        "duration": "30",
-        "patientdisplayname": "Weigh Forward 1",
-        "appointmenttypeid": "122",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "WF2",
-        "name": "Weigh Forward 2",
-        "duration": "15",
-        "patientdisplayname": "Weigh Forward 2",
-        "appointmenttypeid": "123",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "WF3",
-        "name": "Weigh Forward 3",
-        "duration": "15",
-        "patientdisplayname": "Weigh Forward 3",
-        "appointmenttypeid": "124",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "WFA",
-        "name": "Weigh Forward Any",
-        "duration": "15",
-        "patientdisplayname": "Weigh Forward Any",
-        "appointmenttypeid": "142",
-        "generic": "true",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "hlth",
-        "name": "health history",
-        "duration": "45",
-        "patientdisplayname": "health history",
-        "appointmenttypeid": "162",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "ta",
-        "name": "test appt",
+        "shortname": "VANU",
+        "name": "VACCINE\/NURSE ONLY",
         "duration": "20",
-        "patientdisplayname": "test appt",
-        "appointmenttypeid": "322",
+        "patientdisplayname": "VACCINE\/NURSE ONLY",
+        "appointmenttypeid": "22",
         "generic": "false",
         "patient": "true",
         "templatetypeonly": "false"
@@ -554,7 +384,7 @@ module AthenaHealthApiHelper
       entries = []
 
       parsed.each do | val |
-        entries.push AthenaStuct.new val
+        entries.push AthenaStruct.new val
       end
 
       return entries
@@ -593,9 +423,15 @@ module AthenaHealthApiHelper
       appointmentdate: , appointmenttime:, appointmenttypeid: nil, departmentid: ,
       providerid: , reasonid: nil)
 
+      #validate params
+      Date.strptime(appointmentdate, "%m/%d/%Y")
+      DateTime.strptime(appointmenttime, "%H:%M")
+      raise "Invalid departmentid: #{departmentid}" if departmentid.to_i <= 0
+      raise "Invalid providerid: #{providerid}" if providerid.to_i <= 0
+
       id = next_id()
 
-      @appointments.push AthenaStuct.new({ 
+      @appointments.push AthenaStruct.new({ 
         :appointmentid => next_id(), 
         :date => appointmentdate,
         :starttime => appointmenttime,
@@ -615,6 +451,9 @@ module AthenaHealthApiHelper
       insurancephone: nil, insuranceplanname: nil, insurancepolicyholder: nil, nopatientcase: false,
       patientid: , patientrelationshiptopolicyholder: nil, reasonid: nil)
 
+      #validate params
+      raise "Invalid patientid: #{patientid}" if patientid.to_i <= 0
+
       appt = get_appointment(appointmentid: appointmentid)
       raise "Could not find appointment id=#{appointmentid}" if appt.nil?
       raise "Appointment appt=#{appt.to_json} is not open" unless appt.open?
@@ -625,6 +464,9 @@ module AthenaHealthApiHelper
 
     def cancel_appointment(appointmentid: ,
       cancellationreason: nil, ignoreschedulablepermission: true, nopatientcase: false, patientid: )
+
+      #validate params
+      raise "Invalid patientid: #{patientid}" if patientid.to_i <= 0
 
       appt = get_appointment(appointmentid: appointmentid)
       raise "Could not find appointment id=#{appointmentid}" if appt.nil?
@@ -662,6 +504,10 @@ module AthenaHealthApiHelper
       ignoreschedulablepermission: true, providerid: nil, reasonid: nil, showfrozenslots: false,
       startdate: nil, limit: 5000)
 
+      #validate params
+      raise "Invalid departmentid: #{departmentid}" if departmentid.to_i <= 0
+      raise "Invalid departmentid: #{providerid}" if providerid && providerid.to_i <= 0
+
       return @appointments.select { |appt| appt.open? && (showfrozenslots || !appt.frozenyn)}
     end
 
@@ -671,6 +517,12 @@ module AthenaHealthApiHelper
       scheduledstartdate: nil, showcancelled: true, showclaimdetail: false, showcopay: true,
       showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil, 
       limit: 5000)
+
+      #validate params
+      raise "Invalid departmentid: #{departmentid}" if departmentid.to_i <= 0
+      raise "Invalid departmentid: #{providerid}" if providerid && providerid.to_i <= 0
+
+      #todo: add time filtering
 
       return @appointments.select { |appt| appt.booked? }
     end
