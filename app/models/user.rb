@@ -61,11 +61,14 @@ class User < ActiveRecord::Base
 
   belongs_to :family
   has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
-  has_and_belongs_to_many :conversations, foreign_key: 'child_id', join_table: 'conversations_children'
+  # has_and_belongs_to_many :conversations, foreign_key: 'child_id', join_table: 'conversations_children'
+  has_many :escalations, foreign_key: 'escalated_to_id'
 
   def reset_authentication_token
   	u.update_attribute(:authentication_token, nil)
   end
+
+  # Class variables, methods and properties to help better filter and retrieve records
 
   def self.for_user(user)
     # TODO. Think through this and design better
@@ -85,4 +88,12 @@ class User < ActiveRecord::Base
       User.all
     end
   end
+
+  # Helper methods to render attributes in a more friednly way
+
+  def primary_role
+    self.roles.first.name
+  end
+
+
 end

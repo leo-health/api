@@ -49,18 +49,14 @@ ActiveRecord::Schema.define(version: 20150407212630) do
   add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id"
 
   create_table "conversations", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
     t.integer  "family_id"
+    t.datetime "last_message_created"
+    t.boolean  "archived"
+    t.datetime "archived_at"
+    t.integer  "archived_by_id"
   end
-
-  create_table "conversations_children", id: false, force: :cascade do |t|
-    t.integer "conversation_id"
-    t.integer "child_id"
-  end
-
-  add_index "conversations_children", ["child_id", "conversation_id"], name: "conversations_participants_cid_convid", unique: true
-  add_index "conversations_children", ["conversation_id", "child_id"], name: "conversations_participants_convid_cid", unique: true
 
   create_table "conversations_participants", id: false, force: :cascade do |t|
     t.integer "conversation_id"
@@ -97,8 +93,12 @@ ActiveRecord::Schema.define(version: 20150407212630) do
     t.integer  "conversation_id"
     t.text     "body"
     t.string   "message_type"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.integer  "escalated_to_id"
+    t.datetime "resolved_requested_at"
+    t.datetime "resolved_approved_at"
+    t.datetime "escalated_at"
   end
 
   create_table "read_receipts", force: :cascade do |t|
