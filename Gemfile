@@ -34,11 +34,14 @@ gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
-gem 'hashie_rails'
+#gem 'hashie_rails'
+gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
 gem 'delayed_job_active_record'
+
+gem 'daemons'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

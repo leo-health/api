@@ -40,6 +40,7 @@ FactoryGirl.define do
     athena_appointment_type_id 1
     family_id 1
     athena_id 0
+    athena_department_id 1
   end
 
 end

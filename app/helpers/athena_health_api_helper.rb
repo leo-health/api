@@ -64,8 +64,8 @@ module AthenaHealthApiHelper
     @@common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
 
     def initialize(key: ENV["ATHENA_KEY"], secret: ENV["ATHENA_SECRET"], 
-      version: ENV["ATHENA_VERSION"].empty? ? "preview1" : ENV["ATHENA_VERSION"], 
-      practice_id: ENV["ATHENA_PRACTICE_ID"].empty? ? "195900" : ENV["ATHENA_PRACTICE_ID"])
+      version: ENV["ATHENA_VERSION"].to_s.empty? ? "preview1" : ENV["ATHENA_VERSION"], 
+      practice_id: ENV["ATHENA_PRACTICE_ID"].to_s.empty? ? "11060" : ENV["ATHENA_PRACTICE_ID"])
 
       @connection = AthenaHealthAPI::Connection.new(version, key, secret, practice_id)
     end
@@ -73,8 +73,7 @@ module AthenaHealthApiHelper
     # obtain information on an athena appointment
     # returns an instance of AthenaStruct, nil of not found
     # raises exceptions if anything goes wrong
-    def get_appointment(practiceid: @@practiceid_default, 
-      appointmentid: , showinsurance: false)
+    def get_appointment(appointmentid: , showinsurance: false)
 
       params = {}
       params[:showinsurance] = showinsurance
@@ -84,7 +83,7 @@ module AthenaHealthApiHelper
       #410 means the appointment does not exist
       return nil if response.code.to_i == 410
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
       return AthenaStruct.new(JSON.parse(response.body)[0])
     end
@@ -97,7 +96,7 @@ module AthenaHealthApiHelper
 
       response = @connection.DELETE("appointments/#{appointmentid}", params, @@common_headers)
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
     # create open appointment in athena
@@ -116,13 +115,13 @@ module AthenaHealthApiHelper
 
       response = @connection.POST("appointments/open", params, @@common_headers)
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
       val = JSON.parse(response.body)
 
-      raise "unexpected size of appointmentids encountered" unless val[:appointmentids.to_s].length != 1
+      raise "unexpected size of appointmentids encountered: #{val[:appointmentids.to_s].length}" unless val[:appointmentids.to_s].length == 1
 
-      return val[:appointmentids.to_s][0].to_i
+      return val[:appointmentids.to_s].keys[0].to_i
     end
 
     # books an appointment slot for a specified patient
@@ -153,7 +152,7 @@ module AthenaHealthApiHelper
 
       response = @connection.PUT("appointments/#{appointmentid}", params, @@common_headers)
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
     # cancel a booked appointment
@@ -169,10 +168,10 @@ module AthenaHealthApiHelper
 
       response = @connection.PUT("appointments/#{appointmentid}/cancel", params, @@common_headers)
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
-    # cancel a booked appointment
+    # reschedule a booked appointment
     # A booked appointment must already exist.
     # raises exceptions if anything goes wrong in the process
     def reschedule_appointment(appointmentid: ,
@@ -189,7 +188,7 @@ module AthenaHealthApiHelper
 
       response = @connection.PUT("appointments/#{appointmentid}/reschedule", params, @@common_headers)
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
     # freezes/unfreezes an appointment
@@ -201,7 +200,7 @@ module AthenaHealthApiHelper
 
       response = @connection.PUT("appointments/#{appointmentid}/freeze", params, @@common_headers)
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
     # create open appointment in athena
@@ -214,7 +213,7 @@ module AthenaHealthApiHelper
 
       response = @connection.POST("appointments/#{appointmentid}/checkin", params, @@common_headers)
 
-      raise "response.code #{reponse.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
@@ -229,7 +228,7 @@ module AthenaHealthApiHelper
 
       response = @connection.GET(url, local_params, headers)
 
-      raise "response.code #{response.code}" unless response.code.to_i == 200
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
       parsed = JSON.parse(response.body)
 
@@ -413,7 +412,7 @@ module AthenaHealthApiHelper
       id = 1
 
       @appointments.each do |appt|
-        id = app.appointmentid if appt.appointmentid > id
+        id = appt.appointmentid if appt.appointmentid > id
       end
 
       return id + 1
@@ -437,6 +436,7 @@ module AthenaHealthApiHelper
         :starttime => appointmenttime,
         :appointmenttypeid => appointmenttypeid,
         :departmentid => departmentid,
+        :providerid => providerid,
         :reasonid => reasonid,
         :appointmentstatus => "o",
         :frozenyn => false
@@ -460,6 +460,18 @@ module AthenaHealthApiHelper
       raise "Appointment appt=#{appt.to_json} is frozen" if appt.frozenyn
       appt.appointmentstatus = "f"
       appt.add_field(:patientid, patientid)
+      appt.add_field(:appointmenttypeid, appointmenttypeid) if appointmenttypeid
+      appt.add_field(:bookingnote, bookingnote) if bookingnote
+      appt.add_field(:departmentid, departmentid) if departmentid
+      appt.add_field(:insurancecompany, insurancecompany) if insurancecompany
+      appt.add_field(:insurancegroupid, insurancegroupid) if insurancegroupid
+      appt.add_field(:insuranceidnumber, insuranceidnumber) if insuranceidnumber
+      appt.add_field(:insurancenote, insurancenote) if insurancenote
+      appt.add_field(:insurancephone, insurancephone) if insurancephone
+      appt.add_field(:insuranceplanname, insuranceplanname) if insuranceplanname
+      appt.add_field(:insurancepolicyholder, insurancepolicyholder) if insurancepolicyholder
+      appt.add_field(:patientrelationshiptopolicyholder, patientrelationshiptopolicyholder) if patientrelationshiptopolicyholder
+      appt.add_field(:reasonid, reasonid) if reasonid
     end
 
     def cancel_appointment(appointmentid: ,
@@ -472,6 +484,24 @@ module AthenaHealthApiHelper
       raise "Could not find appointment id=#{appointmentid}" if appt.nil?
       raise "Appointment appt=#{appt.to_json} is not booked" unless appt.booked?
       appt.appointmentstatus = "x"
+    end
+
+    def reschedule_appointment(appointmentid: ,
+      ignoreschedulablepermission: true, newappointmentid: , nopatientcase: false, patientid: ,
+      reasonid: nil, reschedulereason: nil)
+
+      #validate params
+      raise "Invalid patientid: #{patientid}" if patientid.to_i <= 0
+
+      appt = get_appointment(appointmentid: appointmentid)
+      raise "Could not find appointment id=#{appointmentid}" if appt.nil?
+      raise "Appointment appt=#{appt.to_json} is not booked" unless appt.booked?
+
+      resch_appt = get_appointment(appointmentid: newappointmentid)
+      raise "Could not find appointment id=#{newappointmentid}" if resch_appt.nil?
+
+      appt.appointmentstatus = "x"
+      appt.add_field(:rescheduledappointmentid, newappointmentid) if newappointmentid
     end
 
     def freeze_appointment(appointmentid:, freeze:)
