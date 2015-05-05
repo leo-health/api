@@ -16,7 +16,6 @@ describe 'Creating families and managing users when authenticated -', trans_off:
 		create(:role, :parent)
 		@post_data = FactoryGirl.attributes_for(:user, :father)
 		@post_data[:role] = :parent
-
 		post '/api/v1/users', @post_data, format: :json
 		parsed = JSON.parse(response.body)
 		user = parsed["data"]["user"]
