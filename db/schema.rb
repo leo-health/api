@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150407212630) do
+ActiveRecord::Schema.define(version: 20150505182926) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status",         default: "o", null: false
@@ -99,6 +99,7 @@ ActiveRecord::Schema.define(version: 20150407212630) do
     t.datetime "resolved_requested_at"
     t.datetime "resolved_approved_at"
     t.datetime "escalated_at"
+    t.integer  "escalated_by_id"
   end
 
   create_table "read_receipts", force: :cascade do |t|

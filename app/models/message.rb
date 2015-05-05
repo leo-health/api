@@ -13,12 +13,14 @@
 #  resolved_requested_at :datetime
 #  resolved_approved_at  :datetime
 #  escalated_at          :datetime
+#  escalated_by_id       :integer
 #
 
 class Message < ActiveRecord::Base
   belongs_to :conversation
   has_many :read_receipts
   belongs_to :escalated_to, class_name: 'User'
+  belongs_to :escalated_by, class_name: 'User'
   
 
   def read_by!(user)

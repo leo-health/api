@@ -1,18 +1,5 @@
 module Leo
   module Entities
-    class MessageEntity < Grape::Entity
-      expose :id
-      expose :sender_id, documentation: {type: "integer", desc: "The Leo id of the sender." }
-      expose :conversation_id,  documentation: {type: "integer", desc: "The conversation id." }
-      expose :body, documentation: {type: "string", desc: "The message body." }
-      expose :message_type, documentation: {type: "string", desc: "The message type." }
-      expose :created_at
-      expose :escalated_to, documentation: {type: "object", desc: "The physician who the message has been escalated to." }
-      expose :escalated_at
-      expose :resolved_requested_at
-      expose :resolved_approved_at
-      expose :read_receipts
-    end
     class ConversationParticipantEntity < Grape::Entity
       expose :id
       expose :title
@@ -25,6 +12,22 @@ module Leo
       expose :family_id
       expose :email
       expose :primary_role
+    end
+
+    class MessageEntity < Grape::Entity
+      expose :id
+      expose :sender_id, documentation: {type: "integer", desc: "The Leo id of the sender." }
+      expose :escalated_by, with: Leo::Entities::ConversationParticipantEntity
+      expose :conversation_id,  documentation: {type: "integer", desc: "The conversation id." }
+      expose :body, documentation: {type: "string", desc: "The message body." }
+      expose :message_type, documentation: {type: "string", desc: "The message type." }
+      expose :created_at
+      expose :escalated_to, documentation: {type: "object", desc: "The physician who the message has been escalated to." }
+      expose :escalated_at
+      expose :resolved_requested_at
+      expose :resolved_approved_at
+      expose :read_receipts
+
     end
 
     class ConversationEntity < Grape::Entity
@@ -175,6 +178,7 @@ module Leo
                 return
               end
               @message.escalated_to = escalated_to
+              @message.escalated_by = current_user
               @message.escalated_at = DateTime.now
               @message.save
 
