@@ -22,7 +22,59 @@
 #  updated_at                 :datetime         not null
 #
 
-class Appointment < ActiveRecord::Base
+class Appointment < ActiveRecord::Base  
+	# callbacks for generating sync tasks
+  # if a sync task cannot be created, the transaction will be rolled back.
+  attr_accessor :skip_sync_callbacks
+  after_save :create_update_from_leo_sync_task, on: [:create, :update], unless: :skip_sync_callbacks
+  after_destroy :create_update_from_athena_sync_task, on: :destroy, unless: :skip_sync_callbacks
+
+  #create a sync task for the Appointment that is being updated
+  def create_update_from_leo_sync_task
+    SyncTask.create!(sync_source: :leo, sync_type: :appointment, sync_id: self.id)
+  end
+
+  #create a sync task for the Appointment that is being deleted
+  def create_update_from_athena_sync_task
+    SyncTask.create!(sync_source: :athena, sync_type: :appointment, sync_id: self.athena_id) unless self.athena_id == 0
+  end
+
+  #helpers for booked status
+  def pre_checked_in?
+    return future? || open? || cancelled?
+  end
+
+  def post_checked_in?
+    return !pre_checked_in?
+  end
+
+  def booked?
+    return future? || checked_in? || checked_out? || charge_entered?
+  end
+
+  def cancelled?
+    return appointment_status == "x"
+  end
+
+  def future?
+    return appointment_status == "f"
+  end
+
+  def open?
+    return appointment_status == "o"
+  end
+
+  def checked_in?
+    return appointment_status == "2"
+  end
+
+  def checked_out?
+    return appointment_status == "3"
+  end
+
+  def charge_entered?
+    return appointment_status == "4"
+  end
 
 	def self.MAX_DURATION
 		40
@@ -30,7 +82,6 @@ class Appointment < ActiveRecord::Base
 	def self.MIN_DURATION
 		10
 	end
-
 	
 	
 	def self.for_family(family)
