@@ -57,6 +57,7 @@ module Leo
         requires :password,   type: String, desc: "Password"
         requires :role,       type: String, desc: "Role for the user. Get list from /roles", role_exists: true
         requires :dob,        type: String, desc: "Date of Birth"
+        requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
       end
       post do
         dob = Chronic.try(:parse, params[:dob])
@@ -75,7 +76,8 @@ module Leo
           email:        params[:email],
           password:     params[:password],
           dob:          dob,
-          family_id:    family.id
+          family_id:    family.id,
+          sex:          params[:sex]
         })
         user.roles << role
         present :user, user, with: Leo::Entities::UserEntity
@@ -83,7 +85,7 @@ module Leo
 
       desc "Return a user"
       params do 
-        requires :id, type: Integer, desc: "User id"
+        requires :id, type: Integer, desc: "User id"    
       end
       route_param :id do 
         get do
