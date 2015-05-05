@@ -40,7 +40,7 @@ FactoryGirl.define do
   	last_name 	'Munir'
   	dob 				{ 29.years.ago.to_s }
   	sex					'M'
-  	email				'danish@leohealth.com'
+  	email				'danisha@leohealth.com'
     password    'fake_pass'
     password_confirmation    'fake_pass'
     association :family, factory: :family
