@@ -122,12 +122,7 @@ module Leo
 
             # Check that family exists and this user has access to that family
             family_id = params[:family_id]
-            puts "BAZOOKA"
-            puts "family_id: #{family_id}"
-            puts "current_user: #{current_user}"
-            puts "current_user.family_id: #{current_user.family_id}"
             family = Family.find_by_id(family_id)
-            puts "family: #{family}"
             if family.nil? or family_id != current_user.family_id
               error!({error_code: 422, error_message: "Invalid family"},422)
               return
@@ -164,9 +159,7 @@ module Leo
           delete do
             authenticated_user
             user_id = params[:user_id]
-            puts "user_id: #{user_id}"
             user = User.find_by_id(user_id)
-            puts "user: #{user}"
             if user_id.blank? or user.nil?
               error!({error_code: 422, error_message: "The user id is invalid."}, 422)
               return
