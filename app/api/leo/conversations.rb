@@ -27,7 +27,6 @@ module Leo
       expose :resolved_requested_at
       expose :resolved_approved_at
       expose :read_receipts
-
     end
 
     class ConversationEntity < Grape::Entity
