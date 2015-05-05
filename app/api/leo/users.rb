@@ -57,7 +57,6 @@ module Leo
         requires :password,   type: String, desc: "Password"
         requires :role,       type: String, desc: "Role for the user. Get list from /roles", role_exists: true
         requires :dob,        type: String, desc: "Date of Birth"
-
       end
       post do
         dob = Chronic.try(:parse, params[:dob])
@@ -105,14 +104,16 @@ module Leo
 
     end
     namespace :invite do 
+      # POST "/users/invite"
       post do
-        puts "BAZOOKE IN INVITE"
+        # Check that date makes sense
         dob = Chronic.try(:parse, params[:dob])
         if params[:dob].strip.length > 0 and dob.nil?
           error!({error_code: 422, error_message: "Invalid dob format"},422)
           return
         end
 
+        # Check that family exists and this user has access to that family
         family = Family.find_by_id(params[:family_id])
         if family.nil? or family_id != current_user.family_id
           error!({error_code: 422, error_message: "Invalid family"},422)

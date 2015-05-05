@@ -19,6 +19,10 @@ end
 
 
 module Leo
+
+  # These modules are used for formatting the successful 
+  # and faield responses. Any global modification to the 
+  # response formats should be made here
   module JSendSuccessFormatter
     def self.call object, env
       { :status => 'ok', :data => object }.to_json
