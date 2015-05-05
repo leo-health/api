@@ -8,7 +8,15 @@
 #
 
 class Family < ActiveRecord::Base
+	after_save :ensure_default_conversation_exists
+
 	has_many :members, :class_name => 'User'
+	has_many :conversations
+
+	def conversation
+		ensure_default_conversation_exists
+		self.conversations.first
+	end
 
 	def parents
 		self.members.with_role :parent
@@ -20,5 +28,18 @@ class Family < ActiveRecord::Base
 
 	def children
 		self.members.with_role :child
+	end
+
+	private
+
+	def ensure_default_conversation_exists
+		setup_default_conversation if self.conversations.count == 0 
+	end
+
+	def setup_default_conversation
+		conversation = Conversation.new
+		conversation.family = self
+		conversation.participants << self.parents
+		conversation.save
 	end
 end
