@@ -13,6 +13,7 @@
 #  resolved_requested_at :datetime
 #  resolved_approved_at  :datetime
 #  escalated_at          :datetime
+#  escalated_by_id       :integer
 #
 
 FactoryGirl.define do
