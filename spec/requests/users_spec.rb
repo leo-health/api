@@ -20,8 +20,7 @@ describe 'Creating families and managing users when authenticated -', trans_off:
 		parsed = JSON.parse(response.body)
 		user = parsed["data"]["user"]
 		expect(response).to have_http_status(201)
-		expect_json({data: {user: {first_name: @post_data[:first_name], last_name: @post_data[:last_name], family_id: 1 }}})
-		
+		expect_json({data: {user: {first_name: @post_data[:first_name], last_name: @post_data[:last_name], sex: @post_data[:sex], family_id: 1 }}})		
 	end
 
 	it 'should successfully create a user when you invite another parent to join your family' do
