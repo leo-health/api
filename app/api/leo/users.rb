@@ -80,6 +80,7 @@ module Leo
           sex:          params[:sex]
         })
         user.roles << role
+        family.conversation.participants << user
         present :user, user, with: Leo::Entities::UserEntity
       end
 
@@ -132,6 +133,7 @@ module Leo
           family_id:    family.id
         })
         user.add_role :parent
+        family.conversation.participants << user
         present :user, user, with: Leo::Entities::UserEntity
       end
     end

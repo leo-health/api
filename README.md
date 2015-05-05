@@ -23,5 +23,7 @@ This is the core api for the leo-health services.
 
 ## Testing
 1. The tests live at spec/[models, requests, etc]
-2. To run the test suite, on the command line run `spring rspec`
+2. To run the test suite, 
+2a. First run `rake db:test:prepare` on the command line 
+2b. Then run `spring rspec`
 
