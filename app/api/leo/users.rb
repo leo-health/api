@@ -89,7 +89,7 @@ module Leo
         desc "Return a user"
         get do
           authenticated_user
-          User.find(params[:id])
+          user = User.find(params[:id])
         end
         
         namespace :invitations do
@@ -97,8 +97,11 @@ module Leo
           # GET users/:id/invitations
           desc "Get invitations sent by this user"
           get do
-            authenticated_user
-            invitations = current_user.invitations
+            if user != current_user
+              error!({error_code: 403, error_message: "You don't have permission to list this user's invitiations."}, 403)
+              return
+            end
+            invitations = user.invitations
             present :invitations, invitations, with: Leo::Entities::UserEntity
           end
 
@@ -112,7 +115,10 @@ module Leo
             requires :dob,        type: String, desc: "Date of Birth"
           end
           post do
-            authenticated_user
+            if user != current_user
+              error!({error_code: 403, error_message: "You don't have permission to list this user's invitiations."}, 403)
+              return
+            end
             # Check that date makes sense
             dob = Chronic.try(:parse, params[:dob])
             if params[:dob].strip.length > 0 and dob.nil?
@@ -123,19 +129,19 @@ module Leo
             # Check that family exists and this user has access to that family
             family_id = params[:family_id]
             family = Family.find_by_id(family_id)
-            if family.nil? or family_id != current_user.family_id
+            if family.nil? or family_id != user.family_id
               error!({error_code: 422, error_message: "Invalid family"},422)
               return
             end
 
-            user = User.invite!(
+            invited_user = User.invite!(
               email:        params[:email],
               first_name:   params[:first_name],
               last_name:    params[:last_name],
               dob:          dob,
               family_id:    family.id
               ) do |u|
-              u.invited_by_id =  current_user.id
+              u.invited_by_id =  user.id
               u.invited_by_type = 'User'
             end
             # user = User.create!(
@@ -147,9 +153,9 @@ module Leo
             #   dob:          dob,
             #   family_id:    family.id
             # })
-            user.add_role :parent
-            family.conversation.participants << user
-            present :user, user, with: Leo::Entities::UserEntity
+            invited_user.add_role :parent
+            family.conversation.participants << invited_user
+            present :user, invited_user, with: Leo::Entities::UserEntity
           end
 
           # DELETE users/:id/invitations/
@@ -157,19 +163,22 @@ module Leo
             requires :user_id,         type: Integer, desc: "Id for user who's invitation is to be deleted"
           end
           delete do
-            authenticated_user
+            if user != current_user
+              error!({error_code: 403, error_message: "You don't have permission to delete this user's invitiations."}, 403)
+              return
+            end
             user_id = params[:user_id]
-            user = User.find_by_id(user_id)
-            if user_id.blank? or user.nil?
+            user_to_delete = User.find_by_id(user_id)
+            if user_id.blank? or user_to_delete.nil?
               error!({error_code: 422, error_message: "The user id is invalid."}, 422)
               return
             end
 
-            if !user.invitation_accepted_at.nil? or user.family.primary_parent.id != current_user.id 
+            if !user_to_delete.invitation_accepted_at.nil? or user_to_delete.family.primary_parent.id != user.id or user_to_delete == user
               error!({error_code: 403, error_message: "You don't have permission to delete this invitation or it is no longer pending."}, 403)
               return
             end
-            result = User.destroy(user.id)
+            result = User.destroy(user_to_delete.id)
           end
         end
       end
