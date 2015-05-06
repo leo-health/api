@@ -13,6 +13,10 @@ class Family < ActiveRecord::Base
   has_many :members, :class_name => 'User'
   has_many :conversations
 
+  def primary_parent
+    self.members.order('created_at ASC').first
+  end
+
   def conversation
     ensure_default_conversation_exists
     self.conversations.first

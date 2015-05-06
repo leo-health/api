@@ -21,11 +21,14 @@ class Message < ActiveRecord::Base
   has_many :read_receipts
   belongs_to :escalated_to, class_name: 'User'
   belongs_to :escalated_by, class_name: 'User'
-  
 
   def read_by!(user)
     r = self.read_receipts.new(participant: user)
     r.save
+  end
+
+  def resolved
+    !self.resolved_approved_at.nil?
   end
 
 end

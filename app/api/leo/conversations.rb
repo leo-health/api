@@ -10,22 +10,22 @@ module Leo
       expose :sex
       expose :practice_id
       expose :family_id
-      expose :email
       expose :primary_role
     end
 
     class MessageEntity < Grape::Entity
       expose :id
       expose :sender_id, documentation: {type: "integer", desc: "The Leo id of the sender." }
-      expose :escalated_by, with: Leo::Entities::ConversationParticipantEntity
       expose :conversation_id,  documentation: {type: "integer", desc: "The conversation id." }
       expose :body, documentation: {type: "string", desc: "The message body." }
       expose :message_type, documentation: {type: "string", desc: "The message type." }
-      expose :created_at
-      expose :escalated_to, documentation: {type: "object", desc: "The physician who the message has been escalated to." }
-      expose :escalated_at
-      expose :resolved_requested_at
-      expose :resolved_approved_at
+      expose :created_at, , documentation: {type: "datetime", desc: "The date/time the message was created at." }
+      expose :escalated_to, with: Leo::Entities::ConversationParticipantEntity, documentation: {type: "object", desc: "The physician who the message has been escalated to." }
+      expose :escalated_by, with: Leo::Entities::ConversationParticipantEntity, documentation: {type: "object", desc: "The staff who the message has been escalated by." }
+      expose :escalated_at, documentation: {type: "datetime", desc: "The date/time the message was escalated at." }
+      expose :resolved_requested_at, documentation: {type: "datetime", desc: "The date/time a physician marked a message as resolved." }
+      expose :resolved_approved_at, documentation: {type: "datetime", desc: "The date/time a staff member approved a resolved request." }
+      expose :resolved, documentation: {type: "boolean", desc: "Has the escalation been resolved?" }
       expose :read_receipts
     end
 
@@ -118,9 +118,22 @@ module Leo
 
           desc "Return all messages for current conversation"
           # get "/messages"
+          params do
+            optional :escalated,  type:   Boolean, desc: "Filter by messages that are escalated or not"
+          end
           get do
+            messages = @conversation.messages
+            unless params[:escalated].nil?
+              if params[:escalated] == true
+                messages = messages.where.not(escalated_to: nil)
+              else
+                messages = messages.where(escalated_to: nil)
+              end
+            end
             # TODO: Check authorization
-            present :messages, @conversation.messages, with: Leo::Entities::MessageEntity
+            present :count, messages.count
+            present :messages, messages, with: Leo::Entities::MessageEntity
+
           end
 
           desc "Create a message"
@@ -183,6 +196,32 @@ module Leo
 
               present :message, @message, with: Leo::Entities::MessageEntity
 
+            end
+
+            desc "Request message marked as resolved"
+            params do 
+            end
+            post "request_resolved" do 
+              if current_user.id != @message.escalate_to_id
+                error({error_code: 403, error_message: "You are not allowed to request this message to be marked as resolved."})
+                return
+              end
+              @message.resolved_requested_at = DateTime.now
+              @message.save
+              present :message, @message, with: Leo::Entities::MessageEntity
+            end
+
+            desc "Approve a request to mark message as resolved"
+            params do 
+            end
+            post "approve_resolved" do 
+              if current_user.id != @message.escalate_by_id
+                error({error_code: 403, error_message: "You are not allowed to approve a request to mark this message as resolved."})
+                return
+              end
+              @message.resolved_approved_at = DateTime.now
+              @message.save
+              present :message, @message, with: Leo::Entities::MessageEntity
             end
 
           end
