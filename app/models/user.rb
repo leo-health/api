@@ -35,6 +35,8 @@
 #
 
 class User < ActiveRecord::Base
+  after_initialize :init
+
   rolify
   acts_as_token_authenticatable
   # Include default devise modules. Others available are:
@@ -43,6 +45,11 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   validates :first_name, :last_name, :email,  presence: true
+
+  # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
+  def init
+    self.practice_id ||= 1
+  end
 
   ROLES = {
   			# Admin is 1
@@ -88,6 +95,8 @@ class User < ActiveRecord::Base
       User.all
     end
   end
+
+
 
   # Helper methods to render attributes in a more friednly way
 
