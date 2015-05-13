@@ -47,7 +47,12 @@ module AthenaHealthAPI
   # * +PUT+ - Perform an HTTP PUT request
   # * +DELETE+ - Perform an HTTP DELETE request
   class Connection
-    @@debug = false
+    class <<self
+      attr_accessor :debug
+    end
+
+    Connection.debug = false
+
     @@last_token = nil
 
     attr_reader :version
@@ -140,12 +145,12 @@ module AthenaHealthAPI
       request['authorization'] = "Bearer #{@token}"
       
       Rails.logger.info("#{request.method} #{request.path}")
-      Rails.logger.info("request body: #{request.body}") if @@debug
+      Rails.logger.info("request body: #{request.body}") if Connection.debug
 
       response = @connection.request(request)
 
-      Rails.logger.info("response code: #{response.code}") if @@debug
-      Rails.logger.info("response body: #{response.body}") if @@debug
+      Rails.logger.info("response code: #{response.code}") if Connection.debug
+      Rails.logger.info("response body: #{response.body}") if Connection.debug
 
       if response.code == '401' && !secondcall
         #force re-authentication by nulling out @token

@@ -338,6 +338,287 @@ module AthenaHealthApiHelper
         url: "/appointments/booked", params: params, 
         headers: @@common_headers, field: :appointments, limit: limit)
     end
+
+    #Create a patient: POST /preview1/:practiceid/patients
+    #returns patient id
+    #TODO: Doesn't seem to create a new patient when some of the records are the same.  Investigate.
+    def create_patient(
+      #deceaseddate
+      #ethnicitycode
+      #industrycode
+      #language6392code
+      #occupationcode
+      #patientidlist
+      #primarydepartmentid: nil,
+      #primaryproviderid: nil,
+      status: nil, #active, inactive, prospective, deleted
+      firstname: ,
+      lastname: ,
+      #suffix
+      #preferredname
+      #address1
+      #address2
+      #city
+      #state
+      #zip
+      #countrycode3166
+      #homephone
+      #hasmobileyn
+      #workphone
+      #anyphone
+      #email: ,
+      sex: ,
+      dob: ,
+      #maritalstatus
+      #ssn
+      #contactpreference
+      #contactname
+      #contactrelationship
+      #contacthomephone
+      #contactmobilephone
+      #nextkinname
+      #nextkinrelationship
+      #nextkinphone
+      #guardianfirstname
+      #guardianmiddlename
+      #guardianlastname
+      #guardiansuffix
+      #guarantormiddlename
+      #guarantorlastname
+      #guarantorsuffix
+      #guarantoraddress1
+      #guarantoraddress2
+      #guarantorstate
+      #guarantorzip
+      #guarantorcountrycode3166
+      #guarantordob
+      guarantoremail: ,
+      #guarantorphone
+      departmentid: ,
+      #portalaccessgiven
+      #referralsourceid
+      #caresummarydeliverypreference
+      #notes
+      #contactpreference_announcement_email
+      #upcomingappointmenthours
+      #appointmentproviderid
+      #contactpreference_announcement_sms
+      #contactpreference_announcement_phone
+      #contactpreference_appointment_email
+      #contactpreference_appointment_sms
+      #homeboundyn
+      #guarantorfirstname
+      #guarantorcity
+      #onlinestatementonlyyn
+      #contactpreference_billing_sms
+      #contactpreference_billing_phone
+      #contactpreference_lab_sms
+      #race
+      middlename: nil
+      #mobilephone
+      #guarantorssn
+      #guarantorrelationshiptopatient
+      #employerid
+      #employerphone
+      #guarantoremployerid
+      #consenttocall
+      #defaultpharmacyncpdpid
+      #clinicalordertypegroupid
+      #mobilecarrierid
+      #appointmentdepartmentid
+      #ignorerestrictions
+      #contactpreference_appointment_phone
+      #contactpreference_billing_email
+      #contactpreference_lab_email
+      #contactpreference_lab_phone
+      )
+
+      params = {}
+      params[:status] = status if status
+      params[:firstname] = firstname
+      params[:lastname] = lastname
+      params[:guarantoremail] = guarantoremail
+      params[:sex] = sex
+      params[:dob] = dob
+      params[:departmentid] = departmentid
+      params[:middlename] = middlename if (middlename.to_s != '')
+
+      #"anyphone", "email", "guarantoremail", "ssn", "homephone", "mobilephone", "workphone", "zip"
+      response = @connection.POST("patients", params, @@common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+
+      val = JSON.parse(response.body)
+
+      raise "unexpected patient list len: #{val.length}" unless val.length == 1
+
+      return val[0][:patientid.to_s]
+    end
+
+    #Get a patient: GET /preview1/:practiceid/patients/:patientid
+    #returns null if patient does not exist
+    def get_patient(patientid: )
+
+      params = {}
+
+      response = @connection.GET("patients/#{patientid}", params, @@common_headers)
+
+      #404 means the patient does not exist
+      return nil if response.code.to_i == 404
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+
+      return AthenaStruct.new(JSON.parse(response.body)[0])
+    end
+
+
+    #Update a patient: PUT /preview1/:practiceid/patients/:patientid
+    def update_patient(
+      patientid: ,
+      #deceaseddate
+      #ethnicitycode
+      #industrycode
+      #language6392code
+      #occupationcode
+      #patientidlist
+      #primarydepartmentid: nil,
+      #primaryproviderid: nil,
+      status: nil, #active, inactive, prospective, deleted
+      firstname: nil,
+      lastname: nil,
+      #suffix
+      #preferredname
+      #address1
+      #address2
+      #city
+      #state
+      #zip
+      #countrycode3166
+      #homephone
+      #hasmobileyn
+      #workphone
+      #anyphone
+      #email: ,
+      sex: nil,
+      dob: nil,
+      #maritalstatus
+      #ssn
+      #contactpreference
+      #contactname
+      #contactrelationship
+      #contacthomephone
+      #contactmobilephone
+      #nextkinname
+      #nextkinrelationship
+      #nextkinphone
+      #guardianfirstname
+      #guardianmiddlename
+      #guardianlastname
+      #guardiansuffix
+      #guarantormiddlename
+      #guarantorlastname
+      #guarantorsuffix
+      #guarantoraddress1
+      #guarantoraddress2
+      #guarantorstate
+      #guarantorzip
+      #guarantorcountrycode3166
+      #guarantordob
+      guarantoremail: nil,
+      #guarantorphone
+      departmentid: nil,
+      #portalaccessgiven
+      #referralsourceid
+      #caresummarydeliverypreference
+      #notes
+      #contactpreference_announcement_email
+      #upcomingappointmenthours
+      #appointmentproviderid
+      #contactpreference_announcement_sms
+      #contactpreference_announcement_phone
+      #contactpreference_appointment_email
+      #contactpreference_appointment_sms
+      #homeboundyn
+      #guarantorfirstname
+      #guarantorcity
+      #onlinestatementonlyyn
+      #contactpreference_billing_sms
+      #contactpreference_billing_phone
+      #contactpreference_lab_sms
+      #race
+      middlename: nil
+      #mobilephone
+      #guarantorssn
+      #guarantorrelationshiptopatient
+      #employerid
+      #employerphone
+      #guarantoremployerid
+      #consenttocall
+      #defaultpharmacyncpdpid
+      #clinicalordertypegroupid
+      #mobilecarrierid
+      #appointmentdepartmentid
+      #ignorerestrictions
+      #contactpreference_appointment_phone
+      #contactpreference_billing_email
+      #contactpreference_lab_email
+      #contactpreference_lab_phone
+      )
+
+      params = {}
+      params[:status] = status if status
+      params[:firstname] = firstname if firstname
+      params[:lastname] = lastname if lastname
+      params[:guarantoremail] = guarantoremail if guarantoremail
+      params[:sex] = sex if sex
+      params[:dob] = dob if dob
+      params[:departmentid] = departmentid if departmentid
+      params[:middlename] = middlename if middlename
+
+      #"anyphone", "email", "guarantoremail", "ssn", "homephone", "mobilephone", "workphone", "zip"
+      response = @connection.PUT("patients/#{patientid}", params, @@common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+    end
+
+    #get a patient's photo in b64 encoded form
+    def get_patient_photo(patientid: )
+
+      params = {}
+
+      response = @connection.GET("patients/#{patientid}/photo", params, @@common_headers)
+
+      #404 means the patient does not exist or no photo found
+      return nil if response.code.to_i == 404
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+
+      val = JSON.parse(response.body)
+
+      return val[:image.to_s]
+    end
+
+    #set a patient's photo in b64 encoded form
+    def set_patient_photo(patientid: , image: )
+
+      params = {}
+      params[:image] = image
+
+      response = @connection.POST("patients/#{patientid}/photo", params, @@common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+    end
+
+    #delete a patient's photo
+    def delete_patient_photo(patientid: )
+
+      params = {}
+
+      response = @connection.DELETE("patients/#{patientid}/photo", params, @@common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+    end
+
   end
 
   class MockConnector
