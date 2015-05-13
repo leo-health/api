@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'athena_health_api_helper'
 
 RSpec.describe AthenaHealthApiHelper, type: :helper do
-  run_athena = true
+  run_athena = false
 
   department_id = (ENV["ATHENA_TEST_DEPARTMENT_ID"].to_i <= 0) ? "2" : ENV["ATHENA_TEST_DEPARTMENT_ID"]
   provider_id = (ENV["ATHENA_TEST_PROVIDER_ID"].to_i <= 0) ? "1" : ENV["ATHENA_TEST_PROVIDER_ID"]
