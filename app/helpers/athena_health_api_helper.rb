@@ -70,6 +70,22 @@ module AthenaHealthApiHelper
       @connection = AthenaHealthAPI::Connection.new(version, key, secret, practice_id)
     end
 
+    def get(path: , params: {})
+      @connection.GET(path, params, @@common_headers)
+    end
+
+    def put(path: , params: {})
+      @connection.PUT(path, params, @@common_headers)
+    end
+
+    def post(path: , params: {})
+      @connection.POST(path, params, @@common_headers)
+    end
+
+    def delete(path: , params: {})
+      @connection.DELETE(path, params, @@common_headers)
+    end
+
     # obtain information on an athena appointment
     # returns an instance of AthenaStruct, nil of not found
     # raises exceptions if anything goes wrong
@@ -219,7 +235,7 @@ module AthenaHealthApiHelper
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: , headers: , field: , offset: 0, limit: 5000)
+    def get_paged(url: , params: , headers: , field: , offset: 0, limit: 5000, structize: false)
       raise "limit #{limit} is higher then max allowed 5000." if limit > 5000
 
       local_params = params.clone
@@ -235,7 +251,11 @@ module AthenaHealthApiHelper
       entries = []
 
       parsed[field.to_s].each do | val |
-        entries.push AthenaStruct.new val
+        if structize
+          entries.push AthenaStruct.new val
+        else
+          entries.push val
+        end
       end
 
       #add following pages of results
@@ -243,7 +263,7 @@ module AthenaHealthApiHelper
         entries.concat(
           get_paged(url: url,
             params: params, headers: headers, field: field, offset: offset + limit, 
-            limit: limit))
+            limit: limit, structize: structize))
       end
 
       return entries
@@ -303,7 +323,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/open", params: params, 
-        headers: @@common_headers, field: :appointments, limit: limit)
+        headers: @@common_headers, field: :appointments, limit: limit, structize: true)
     end
 
     # get a list of booked appointments
@@ -336,7 +356,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/booked", params: params, 
-        headers: @@common_headers, field: :appointments, limit: limit)
+        headers: @@common_headers, field: :appointments, limit: limit, structize: true)
     end
 
     #Create a patient: POST /preview1/:practiceid/patients
@@ -383,17 +403,17 @@ module AthenaHealthApiHelper
       #guardianmiddlename
       #guardianlastname
       #guardiansuffix
-      #guarantormiddlename
-      #guarantorlastname
+      guarantormiddlename: nil,
+      guarantorlastname: nil,
       #guarantorsuffix
-      #guarantoraddress1
-      #guarantoraddress2
-      #guarantorstate
-      #guarantorzip
+      guarantoraddress1: nil,
+      guarantoraddress2: nil,
+      guarantorstate: nil,
+      guarantorzip: nil,
       #guarantorcountrycode3166
-      #guarantordob
+      guarantordob: nil,
       guarantoremail: ,
-      #guarantorphone
+      guarantorphone: nil,
       departmentid: ,
       #portalaccessgiven
       #referralsourceid
@@ -407,17 +427,17 @@ module AthenaHealthApiHelper
       #contactpreference_appointment_email
       #contactpreference_appointment_sms
       #homeboundyn
-      #guarantorfirstname
-      #guarantorcity
+      guarantorfirstname: nil,
+      guarantorcity: nil,
       #onlinestatementonlyyn
       #contactpreference_billing_sms
       #contactpreference_billing_phone
       #contactpreference_lab_sms
       #race
-      middlename: nil
+      middlename: nil,
       #mobilephone
-      #guarantorssn
-      #guarantorrelationshiptopatient
+      guarantorssn: nil,
+      guarantorrelationshiptopatient: nil
       #employerid
       #employerphone
       #guarantoremployerid
@@ -437,13 +457,25 @@ module AthenaHealthApiHelper
       params[:status] = status if status
       params[:firstname] = firstname
       params[:lastname] = lastname
-      params[:guarantoremail] = guarantoremail
       params[:sex] = sex
       params[:dob] = dob
       params[:departmentid] = departmentid
-      params[:middlename] = middlename if (middlename.to_s != '')
+      params[:middlename] = middlename if middlename
 
-      #"anyphone", "email", "guarantoremail", "ssn", "homephone", "mobilephone", "workphone", "zip"
+      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
+      params[:guarantorlastname] = guarantorlastname if guarantorlastname
+      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
+      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
+      params[:guarantorstate] = guarantorstate if guarantorstate
+      params[:guarantorzip] = guarantorzip if guarantorzip
+      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantoremail] = guarantoremail if guarantoremail
+      params[:guarantorphone] = guarantorphone if guarantorphone
+      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
+      params[:guarantorcity] = guarantorcity if guarantorcity
+      params[:guarantorssn] = guarantorssn if guarantorssn
+      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
+
       response = @connection.POST("patients", params, @@common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -484,8 +516,8 @@ module AthenaHealthApiHelper
       #primarydepartmentid: nil,
       #primaryproviderid: nil,
       status: nil, #active, inactive, prospective, deleted
-      firstname: nil,
-      lastname: nil,
+      firstname: ,
+      lastname: ,
       #suffix
       #preferredname
       #address1
@@ -499,8 +531,8 @@ module AthenaHealthApiHelper
       #workphone
       #anyphone
       #email: ,
-      sex: nil,
-      dob: nil,
+      sex: ,
+      dob: ,
       #maritalstatus
       #ssn
       #contactpreference
@@ -515,18 +547,18 @@ module AthenaHealthApiHelper
       #guardianmiddlename
       #guardianlastname
       #guardiansuffix
-      #guarantormiddlename
-      #guarantorlastname
+      guarantormiddlename: nil,
+      guarantorlastname: nil,
       #guarantorsuffix
-      #guarantoraddress1
-      #guarantoraddress2
-      #guarantorstate
-      #guarantorzip
+      guarantoraddress1: nil,
+      guarantoraddress2: nil,
+      guarantorstate: nil,
+      guarantorzip: nil,
       #guarantorcountrycode3166
-      #guarantordob
-      guarantoremail: nil,
-      #guarantorphone
-      departmentid: nil,
+      guarantordob: nil,
+      guarantoremail: ,
+      guarantorphone: nil,
+      departmentid: ,
       #portalaccessgiven
       #referralsourceid
       #caresummarydeliverypreference
@@ -539,17 +571,17 @@ module AthenaHealthApiHelper
       #contactpreference_appointment_email
       #contactpreference_appointment_sms
       #homeboundyn
-      #guarantorfirstname
-      #guarantorcity
+      guarantorfirstname: nil,
+      guarantorcity: nil,
       #onlinestatementonlyyn
       #contactpreference_billing_sms
       #contactpreference_billing_phone
       #contactpreference_lab_sms
       #race
-      middlename: nil
+      middlename: nil,
       #mobilephone
-      #guarantorssn
-      #guarantorrelationshiptopatient
+      guarantorssn: nil,
+      guarantorrelationshiptopatient: nil
       #employerid
       #employerphone
       #guarantoremployerid
@@ -569,13 +601,25 @@ module AthenaHealthApiHelper
       params[:status] = status if status
       params[:firstname] = firstname if firstname
       params[:lastname] = lastname if lastname
-      params[:guarantoremail] = guarantoremail if guarantoremail
       params[:sex] = sex if sex
       params[:dob] = dob if dob
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
 
-      #"anyphone", "email", "guarantoremail", "ssn", "homephone", "mobilephone", "workphone", "zip"
+      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
+      params[:guarantorlastname] = guarantorlastname if guarantorlastname
+      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
+      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
+      params[:guarantorstate] = guarantorstate if guarantorstate
+      params[:guarantorzip] = guarantorzip if guarantorzip
+      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantoremail] = guarantoremail if guarantoremail
+      params[:guarantorphone] = guarantorphone if guarantorphone
+      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
+      params[:guarantorcity] = guarantorcity if guarantorcity
+      params[:guarantorssn] = guarantorssn if guarantorssn
+      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
+
       response = @connection.PUT("patients/#{patientid}", params, @@common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -619,6 +663,54 @@ module AthenaHealthApiHelper
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
+    def get_patient_allergies(patientid: , departmentid: )
+
+      params = {}
+      params[:departmentid] = departmentid
+
+      response = @connection.GET("chart/#{patientid}/allergies", params, @@common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+
+      val = JSON.parse(response.body)
+
+      return val[:allergies.to_s]
+    end
+
+    def get_patient_vitals(patientid: , departmentid: )
+
+      params = {}
+      params[:departmentid] = departmentid
+      params[:source] = "ENCOUNTER"      
+
+      return get_paged(
+        url: "chart/#{patientid}/vitals", params: params, 
+        headers: @@common_headers, field: :vitals)
+    end
+
+    def get_patient_vaccines(patientid: , departmentid: )
+
+      params = {}
+      params[:departmentid] = departmentid
+
+      return get_paged(
+        url: "chart/#{patientid}/vaccines", params: params, 
+        headers: @@common_headers, field: :vaccines)
+    end
+
+    def get_patient_medications(patientid: , departmentid: )
+
+      params = {}
+      params[:departmentid] = departmentid
+
+      response = @connection.GET("chart/#{patientid}/medications", params, @@common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+
+      val = JSON.parse(response.body)
+
+      return val[:medications.to_s]
+    end
   end
 
   class MockConnector
@@ -671,9 +763,9 @@ module AthenaHealthApiHelper
     end
 
     def initialize(appointment_types: @@appointment_types_default, appointments: [], appointment_resons: [])
-      @appointment_types = MockConnector.structize(JSON.parse(appointment_types.to_json))
+      @appointment_types = JSON.parse(appointment_types.to_json)
       @appointments = MockConnector.structize(JSON.parse(appointments.to_json))
-      @appointment_resons = MockConnector.structize(JSON.parse(appointment_resons.to_json))
+      @appointment_resons = JSON.parse(appointment_resons.to_json)
     end
 
     def get_appointment(appointmentid: , showinsurance: false)
