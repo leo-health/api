@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150505182926) do
+ActiveRecord::Schema.define(version: 20150518212830) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status",         default: "o", null: false
@@ -88,6 +88,52 @@ ActiveRecord::Schema.define(version: 20150505182926) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "insurances", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "athena_id",          default: 0, null: false
+    t.string   "plan_name"
+    t.string   "plan_phone"
+    t.string   "plan_type"
+    t.string   "policy_number"
+    t.string   "holder_ssn"
+    t.datetime "holder_dob"
+    t.string   "holder_sex"
+    t.string   "holder_last_name"
+    t.string   "holder_first_name"
+    t.string   "holder_middle_name"
+    t.string   "holder_address_1"
+    t.string   "holder_address_2"
+    t.string   "holder_city"
+    t.string   "holder_state"
+    t.string   "holder_zip"
+    t.string   "holder_country"
+    t.integer  "primary"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+  end
+
+  add_index "insurances", ["athena_id"], name: "index_insurances_on_athena_id"
+  add_index "insurances", ["user_id"], name: "index_insurances_on_user_id"
+
+  create_table "medications", force: :cascade do |t|
+    t.integer  "patient_id"
+    t.integer  "athena_id",    default: 0,  null: false
+    t.string   "medication",                null: false
+    t.string   "sig",          default: "", null: false
+    t.string   "patient_note", default: "", null: false
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.datetime "ordered_at"
+    t.datetime "filled_at"
+    t.datetime "entered_at"
+    t.datetime "hiden_at"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "medications", ["athena_id"], name: "index_medications_on_athena_id"
+  add_index "medications", ["patient_id"], name: "index_medications_on_patient_id"
+
   create_table "messages", force: :cascade do |t|
     t.integer  "sender_id"
     t.integer  "conversation_id"
@@ -101,6 +147,26 @@ ActiveRecord::Schema.define(version: 20150505182926) do
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
   end
+
+  create_table "patients", force: :cascade do |t|
+    t.integer  "athena_id",  default: 0, null: false
+    t.integer  "user_id"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "patients", ["athena_id"], name: "index_patients_on_athena_id"
+  add_index "patients", ["user_id"], name: "index_patients_on_user_id"
+
+  create_table "photos", force: :cascade do |t|
+    t.integer  "patient_id"
+    t.text     "image",      limit: 16777216
+    t.datetime "taken_at"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
+  add_index "photos", ["patient_id"], name: "index_photos_on_patient_id"
 
   create_table "read_receipts", force: :cascade do |t|
     t.integer  "message_id"
@@ -177,5 +243,30 @@ ActiveRecord::Schema.define(version: 20150505182926) do
   end
 
   add_index "users_roles", ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id"
+
+  create_table "vaccines", force: :cascade do |t|
+    t.integer  "patient_id"
+    t.string   "athena_id",       default: "0", null: false
+    t.string   "description",                   null: false
+    t.datetime "administered_at",               null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "vaccines", ["athena_id"], name: "index_vaccines_on_athena_id"
+  add_index "vaccines", ["patient_id"], name: "index_vaccines_on_patient_id"
+
+  create_table "vitals", force: :cascade do |t|
+    t.integer  "patient_id"
+    t.integer  "athena_id",  default: 0, null: false
+    t.datetime "taken_at",               null: false
+    t.string   "type",                   null: false
+    t.string   "value",                  null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "vitals", ["athena_id"], name: "index_vitals_on_athena_id"
+  add_index "vitals", ["patient_id"], name: "index_vitals_on_patient_id"
 
 end
