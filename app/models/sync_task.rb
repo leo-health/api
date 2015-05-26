@@ -22,6 +22,29 @@ class SyncTask < ActiveRecord::Base
   #   appointment - sync appointment to/from athena
   enum sync_type: [
     :gen_initial_appointment_tasks,
-    :appointment
+
+    #push/pull appointment info
+    :appointment,
+
+    #push patient info
+    :patient,
+
+    #push patient photo
+    :patient_photo,
+
+    #pull patient allergies info
+    :patient_allergies,
+
+    #pull patient medications
+    :patient_medications,
+
+    #pull patient vaccines
+    :patient_vaccines,
+
+    #pull patient vitals
+    :patient_vitals,
+
+    #pull patient insurance
+    :patient_insurance,
   ]
 end

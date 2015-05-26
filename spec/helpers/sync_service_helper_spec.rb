@@ -66,7 +66,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
             :providerid => provider_id,
             :reasonid => nil,
             :appointmentstatus => "o",
-            :frozenyn => true
+            :frozenyn => true,
+            :appointmenttype => "Visit"
           }         
         ])
       syncher = SyncServiceHelper::Syncher.new(connector)

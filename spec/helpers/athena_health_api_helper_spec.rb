@@ -33,8 +33,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
             :appointmentstatus => "f",
             :frozenyn => false
           }           
-        ]
-      )
+        ])
     end
 
     it "get a list of appointment types" do
@@ -60,7 +59,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
     end
 
     #don't run modifying tests on athena server
-    if !run_athena do
+    if !run_athena
       it "create appointment" do
         res = connector.create_appointment(appointmentdate: "01/01/2020", appointmenttime: "12:00", 
           appointmenttypeid: 1, departmentid: department_id, providerid: provider_id, reasonid: nil)

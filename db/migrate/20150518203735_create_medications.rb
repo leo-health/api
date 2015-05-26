@@ -4,7 +4,7 @@ class CreateMedications < ActiveRecord::Migration
       t.belongs_to :patient, index: true
 
       t.integer :athena_id, index: true, default: 0, null: false #medicationid
-      t.string :medication, null: false #medication
+      t.string :medication, deafult: '', null: false #medication
       t.string :sig, default: '', null: false #unstructuredsig (optional)
       t.string :patient_note, default: '', null: false #patientnote (optional)
       t.datetime :started_at #events.eventdata, events.type=START (optional)
@@ -12,7 +12,7 @@ class CreateMedications < ActiveRecord::Migration
       t.datetime :ordered_at #events.eventdata, events.type=ORDER (optional)
       t.datetime :filled_at #events.eventdata, events.type=FILL (optional)
       t.datetime :entered_at #events.eventdata, events.type=ENTER (optional)
-      t.datetime :hiden_at #events.eventdata, events.type=HIDE (optional)
+      t.datetime :hidden_at #events.eventdata, events.type=HIDE (optional)
 
       t.timestamps null: false
 """

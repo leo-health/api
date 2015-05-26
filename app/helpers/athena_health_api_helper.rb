@@ -363,103 +363,35 @@ module AthenaHealthApiHelper
     #returns patient id
     #TODO: Doesn't seem to create a new patient when some of the records are the same.  Investigate.
     def create_patient(
-      #deceaseddate
-      #ethnicitycode
-      #industrycode
-      #language6392code
-      #occupationcode
-      #patientidlist
-      #primarydepartmentid: nil,
-      #primaryproviderid: nil,
       status: nil, #active, inactive, prospective, deleted
       firstname: ,
       lastname: ,
-      #suffix
-      #preferredname
-      #address1
-      #address2
-      #city
-      #state
-      #zip
-      #countrycode3166
-      #homephone
-      #hasmobileyn
-      #workphone
-      #anyphone
-      #email: ,
-      sex: ,
+      sex: nil,
       dob: ,
-      #maritalstatus
-      #ssn
-      #contactpreference
-      #contactname
-      #contactrelationship
-      #contacthomephone
-      #contactmobilephone
-      #nextkinname
-      #nextkinrelationship
-      #nextkinphone
-      #guardianfirstname
-      #guardianmiddlename
-      #guardianlastname
-      #guardiansuffix
       guarantormiddlename: nil,
       guarantorlastname: nil,
-      #guarantorsuffix
       guarantoraddress1: nil,
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      #guarantorcountrycode3166
       guarantordob: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
-      #portalaccessgiven
-      #referralsourceid
-      #caresummarydeliverypreference
-      #notes
-      #contactpreference_announcement_email
-      #upcomingappointmenthours
-      #appointmentproviderid
-      #contactpreference_announcement_sms
-      #contactpreference_announcement_phone
-      #contactpreference_appointment_email
-      #contactpreference_appointment_sms
-      #homeboundyn
       guarantorfirstname: nil,
       guarantorcity: nil,
-      #onlinestatementonlyyn
-      #contactpreference_billing_sms
-      #contactpreference_billing_phone
-      #contactpreference_lab_sms
-      #race
       middlename: nil,
-      #mobilephone
       guarantorssn: nil,
       guarantorrelationshiptopatient: nil
-      #employerid
-      #employerphone
-      #guarantoremployerid
-      #consenttocall
-      #defaultpharmacyncpdpid
-      #clinicalordertypegroupid
-      #mobilecarrierid
-      #appointmentdepartmentid
-      #ignorerestrictions
-      #contactpreference_appointment_phone
-      #contactpreference_billing_email
-      #contactpreference_lab_email
-      #contactpreference_lab_phone
       )
 
       params = {}
       params[:status] = status if status
-      params[:firstname] = firstname
-      params[:lastname] = lastname
-      params[:sex] = sex
-      params[:dob] = dob
-      params[:departmentid] = departmentid
+      params[:firstname] = firstname if firstname
+      params[:lastname] = lastname if lastname
+      params[:sex] = sex if sex
+      params[:dob] = dob if dob
+      params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
 
       params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
@@ -507,94 +439,26 @@ module AthenaHealthApiHelper
     #Update a patient: PUT /preview1/:practiceid/patients/:patientid
     def update_patient(
       patientid: ,
-      #deceaseddate
-      #ethnicitycode
-      #industrycode
-      #language6392code
-      #occupationcode
-      #patientidlist
-      #primarydepartmentid: nil,
-      #primaryproviderid: nil,
       status: nil, #active, inactive, prospective, deleted
       firstname: ,
       lastname: ,
-      #suffix
-      #preferredname
-      #address1
-      #address2
-      #city
-      #state
-      #zip
-      #countrycode3166
-      #homephone
-      #hasmobileyn
-      #workphone
-      #anyphone
-      #email: ,
       sex: ,
       dob: ,
-      #maritalstatus
-      #ssn
-      #contactpreference
-      #contactname
-      #contactrelationship
-      #contacthomephone
-      #contactmobilephone
-      #nextkinname
-      #nextkinrelationship
-      #nextkinphone
-      #guardianfirstname
-      #guardianmiddlename
-      #guardianlastname
-      #guardiansuffix
       guarantormiddlename: nil,
       guarantorlastname: nil,
-      #guarantorsuffix
       guarantoraddress1: nil,
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      #guarantorcountrycode3166
       guarantordob: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
-      #portalaccessgiven
-      #referralsourceid
-      #caresummarydeliverypreference
-      #notes
-      #contactpreference_announcement_email
-      #upcomingappointmenthours
-      #appointmentproviderid
-      #contactpreference_announcement_sms
-      #contactpreference_announcement_phone
-      #contactpreference_appointment_email
-      #contactpreference_appointment_sms
-      #homeboundyn
       guarantorfirstname: nil,
       guarantorcity: nil,
-      #onlinestatementonlyyn
-      #contactpreference_billing_sms
-      #contactpreference_billing_phone
-      #contactpreference_lab_sms
-      #race
       middlename: nil,
-      #mobilephone
       guarantorssn: nil,
       guarantorrelationshiptopatient: nil
-      #employerid
-      #employerphone
-      #guarantoremployerid
-      #consenttocall
-      #defaultpharmacyncpdpid
-      #clinicalordertypegroupid
-      #mobilecarrierid
-      #appointmentdepartmentid
-      #ignorerestrictions
-      #contactpreference_appointment_phone
-      #contactpreference_billing_email
-      #contactpreference_lab_email
-      #contactpreference_lab_phone
       )
 
       params = {}
@@ -762,10 +626,15 @@ module AthenaHealthApiHelper
       return entries
     end
 
-    def initialize(appointment_types: @@appointment_types_default, appointments: [], appointment_resons: [])
+    def initialize(appointment_types: @@appointment_types_default, appointments: [], appointment_resons: [], patients: [], vaccines: [], medications: [], allergies: [], vitals: [])
       @appointment_types = JSON.parse(appointment_types.to_json)
       @appointments = MockConnector.structize(JSON.parse(appointments.to_json))
       @appointment_resons = JSON.parse(appointment_resons.to_json)
+      @patients = JSON.parse(patients.to_json)
+      @vaccines = JSON.parse(vaccines.to_json)
+      @medications = JSON.parse(medications.to_json)
+      @allergies = JSON.parse(allergies.to_json)
+      @vitals = JSON.parse(vitals.to_json)
     end
 
     def get_appointment(appointmentid: , showinsurance: false)
@@ -781,7 +650,7 @@ module AthenaHealthApiHelper
       @appointments.delete_if { |appt| appt.appointmentid == appointmentid }
     end
 
-    def next_id()
+    def next_appt_id()
       id = 1
 
       @appointments.each do |appt|
@@ -801,10 +670,10 @@ module AthenaHealthApiHelper
       raise "Invalid departmentid: #{departmentid}" if departmentid.to_i <= 0
       raise "Invalid providerid: #{providerid}" if providerid.to_i <= 0
 
-      id = next_id()
+      id = next_appt_id()
 
       @appointments.push AthenaStruct.new({ 
-        :appointmentid => next_id(), 
+        :appointmentid => next_appt_id(), 
         :date => appointmentdate,
         :starttime => appointmenttime,
         :appointmenttypeid => appointmenttypeid,
@@ -896,8 +765,7 @@ module AthenaHealthApiHelper
       return @appointment_types
     end
 
-    def get_appointment_reasons(departmentid: , 
-      providerid: , limit: 5000)
+    def get_appointment_reasons(departmentid: , providerid: , limit: 5000)
 
       return @appointment_resons
     end
@@ -928,6 +796,171 @@ module AthenaHealthApiHelper
       #todo: add time filtering
 
       return @appointments.select { |appt| appt.booked? }
+    end
+
+    def next_patient_id()
+      id = 1
+
+      @patients.each do |patient|
+        id = patient.patientid if patient.patientid > id
+      end
+
+      return id + 1
+    end
+
+    #Create a patient: POST /preview1/:practiceid/patients
+    #returns patient id
+    def create_patient(
+      status: nil, #active, inactive, prospective, deleted
+      firstname: ,
+      lastname: ,
+      sex: nil,
+      dob: ,
+      guarantormiddlename: nil,
+      guarantorlastname: nil,
+      guarantoraddress1: nil,
+      guarantoraddress2: nil,
+      guarantorstate: nil,
+      guarantorzip: nil,
+      guarantordob: nil,
+      guarantoremail: ,
+      guarantorphone: nil,
+      departmentid: ,
+      guarantorfirstname: nil,
+      guarantorcity: nil,
+      middlename: nil,
+      guarantorssn: nil,
+      guarantorrelationshiptopatient: nil)
+
+      params = {}
+      params[:status] = status if status
+      params[:firstname] = firstname if firstname
+      params[:lastname] = lastname if lastname
+      params[:sex] = sex if sex
+      params[:dob] = dob if dob
+      params[:departmentid] = departmentid if departmentid
+      params[:middlename] = middlename if middlename
+
+      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
+      params[:guarantorlastname] = guarantorlastname if guarantorlastname
+      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
+      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
+      params[:guarantorstate] = guarantorstate if guarantorstate
+      params[:guarantorzip] = guarantorzip if guarantorzip
+      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantoremail] = guarantoremail if guarantoremail
+      params[:guarantorphone] = guarantorphone if guarantorphone
+      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
+      params[:guarantorcity] = guarantorcity if guarantorcity
+      params[:guarantorssn] = guarantorssn if guarantorssn
+      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
+
+      params[:patientid] = next_patient_id()
+
+      @patients.push params
+
+      return params[:patientid]
+    end
+
+    #Get a patient: GET /preview1/:practiceid/patients/:patientid
+    #returns null if patient does not exist
+    def get_patient(patientid: )
+      matching = @patients.select { |patient| patient.patientid == patientid }
+      return nil if matching.empty?
+      return matching.first
+    end
+
+    #Update a patient: PUT /preview1/:practiceid/patients/:patientid
+    def update_patient(
+      patientid: ,
+      status: nil, #active, inactive, prospective, deleted
+      firstname: ,
+      lastname: ,
+      sex: ,
+      dob: ,
+      guarantormiddlename: nil,
+      guarantorlastname: nil,
+      guarantoraddress1: nil,
+      guarantoraddress2: nil,
+      guarantorstate: nil,
+      guarantorzip: nil,
+      guarantordob: nil,
+      guarantoremail: ,
+      guarantorphone: nil,
+      departmentid: ,
+      guarantorfirstname: nil,
+      guarantorcity: nil,
+      middlename: nil,
+      guarantorssn: nil,
+      guarantorrelationshiptopatient: nil)
+
+      params = get_patient(patientid: patientid)
+      raise "Could not find patient #{patientid}" if patams.nil?
+
+      params[:status] = status if status
+      params[:firstname] = firstname if firstname
+      params[:lastname] = lastname if lastname
+      params[:sex] = sex if sex
+      params[:dob] = dob if dob
+      params[:departmentid] = departmentid if departmentid
+      params[:middlename] = middlename if middlename
+      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
+      params[:guarantorlastname] = guarantorlastname if guarantorlastname
+      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
+      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
+      params[:guarantorstate] = guarantorstate if guarantorstate
+      params[:guarantorzip] = guarantorzip if guarantorzip
+      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantoremail] = guarantoremail if guarantoremail
+      params[:guarantorphone] = guarantorphone if guarantorphone
+      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
+      params[:guarantorcity] = guarantorcity if guarantorcity
+      params[:guarantorssn] = guarantorssn if guarantorssn
+      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
+    end
+
+    #get a patient's photo in b64 encoded form
+    def get_patient_photo(patientid: )
+      params = get_patient(patientid: patientid)
+      raise "Could not find patient #{patientid}" if patams.nil?
+
+      return params[:photo]
+    end
+
+    #set a patient's photo in b64 encoded form
+    def set_patient_photo(patientid: , image: )
+      params = get_patient(patientid: patientid)
+      raise "Could not find patient #{patientid}" if patams.nil?
+
+      params[:photo] = image
+    end
+
+    #delete a patient's photo
+    def delete_patient_photo(patientid: )
+      params = get_patient(patientid: patientid)
+      raise "Could not find patient #{patientid}" if patams.nil?
+
+      params[:photo] = nil
+    end
+
+    def get_patient_allergies(patientid: , departmentid: )
+      matching = @allergies.select { |allergy| allergy.patientid == patientid }
+      return matching
+    end
+
+    def get_patient_vitals(patientid: , departmentid: )
+      matching = @vitals.select { |vital| vital.patientid == patientid }
+      return matching
+    end
+
+    def get_patient_vaccines(patientid: , departmentid: )
+      matching = @vaccines.select { |vaccine| vaccine.patientid == patientid }
+      return matching
+    end
+
+    def get_patient_medications(patientid: , departmentid: )
+      matching = @medications.select { |medication| medication.patientid == patientid }
+      return matching
     end
   end
 end

@@ -69,6 +69,8 @@ module AthenaHealthAPI
     # * +practiceid+ - the practice ID to be used in constructing URLs
     #
     def initialize(version, key, secret, practiceid=nil)
+      Rails.logger.error("Athena key or secret are empty.  Please set ATHENA_KEY and ATHENA_SECRET env vars.") if key.to_s == '' || secret.to_s == ''
+
       uri = URI.parse('https://api.athenahealth.com/')
       @connection = Net::HTTP.new(uri.host, uri.port)
       @connection.use_ssl = true

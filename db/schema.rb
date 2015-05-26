@@ -11,7 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150518212830) do
+ActiveRecord::Schema.define(version: 20150526152621) do
+
+  create_table "allergies", force: :cascade do |t|
+    t.integer  "patient_id"
+    t.integer  "athena_id",  default: 0, null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id"
+  add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id"
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status",         default: "o", null: false
@@ -126,7 +136,7 @@ ActiveRecord::Schema.define(version: 20150518212830) do
     t.datetime "ordered_at"
     t.datetime "filled_at"
     t.datetime "entered_at"
-    t.datetime "hiden_at"
+    t.datetime "hidden_at"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
   end
@@ -247,7 +257,7 @@ ActiveRecord::Schema.define(version: 20150518212830) do
   create_table "vaccines", force: :cascade do |t|
     t.integer  "patient_id"
     t.string   "athena_id",       default: "0", null: false
-    t.string   "description",                   null: false
+    t.string   "vaccine",                       null: false
     t.datetime "administered_at",               null: false
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
