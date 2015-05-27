@@ -64,4 +64,12 @@ describe 'User registration & login (when a user exists) -', trans_off: true do
 		expect_json({status: 'ok'})
 	end
 
+	it 'should not let a child user log in' do
+		create(:user, :first_child)
+		@login_params = FactoryGirl.attributes_for :first_child
+		post '/api/v1/sessions', @login_params, format: :json 
+		expect(response).to have_http_status(401)
+		expect_json({status: 'error'})
+	end
+
 end
