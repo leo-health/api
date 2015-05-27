@@ -181,7 +181,62 @@ module Leo
             result = User.destroy(user_to_delete.id)
           end
         end
+
+        namespace :children do 
+
+          # GET users/:id/children
+          get do
+            if user != current_user
+              error!({error_code: 403, error_message: "You don't have permission to list this user's children."}, 403)
+              return
+            end
+            children = user.family.children
+            present :children, children, with: Leo::Entities::UserEntity
+          end
+
+          # POST users/:id/children
+          desc "Create a child for this user"
+          params do
+            requires :first_name, type: String, desc: "First Name"
+            requires :last_name,  type: String, desc: "Last Name"
+            optional :email,      type: String, desc: "Email", user_unique: true
+            requires :dob,        type: String, desc: "Date of Birth"
+            requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
+          end
+          post do
+            if user != current_user
+              error!({error_code: 403, error_message: "You don't have permission to add a child for this user."}, 403)
+              return
+            end
+            # Check that date makes sense
+            dob = Chronic.try(:parse, params[:dob])
+            if params[:dob].strip.length > 0 and dob.nil?
+              error!({error_code: 422, error_message: "Invalid dob format"},422)
+              return
+            end
+
+            family = user.family
+            role = Role.where(name: :child)
+            
+            user = User.create!(
+            {
+              first_name:   params[:first_name],
+              last_name:    params[:last_name],
+              email:        params[:email],
+              dob:          dob,
+              family_id:    family.id,
+              sex:          params[:sex]
+            })
+
+            
+            user.add_role :child
+            present :user, user, with: Leo::Entities::UserEntity
+          end
+
+        end
       end
+
+
     end
   end
 end
