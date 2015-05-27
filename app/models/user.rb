@@ -94,7 +94,11 @@ class User < ActiveRecord::Base
   # Helper methods to render attributes in a more friednly way
 
   def primary_role
-    self.roles.first.name
+    if self.roles and self.roles.count > 0
+      self.roles.first.name 
+    else
+      nil
+    end
   end
 
   # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
