@@ -8,14 +8,6 @@ describe 'Creating conversations and managing participants when not authenticate
 	it 'should not allow you to create a conversation when not signed in' do
 		post '/api/v1/conversations', format: :json
 		expect(response).to have_http_status(403)
-
-		# @login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
-		# post '/api/v1/sessions', @login_params, format: :json
-		# # puts "Response.body:"
-		# # puts response.body
-		# expect(response).to have_http_status(401)
-		# expect_json({data: {error_code: 404} })
-		# expect_json_types({data: {error_message: :string}})
 	end
 
 	it 'should not allow you to access conversations when not signed in' do
@@ -35,9 +27,6 @@ describe 'Creating conversations and managing participants when not authenticate
 		@login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
 		post '/api/v1/sessions', @login_params, format: :json
 		parsed = JSON.parse(response.body)
-		print_response
-		puts "Parsed:"
-		puts parsed
 		expect_json_types({'data': {user: :object}})
 		expect_json_types({'data': {user: {id: :integer}}})
 		@conv_params = {user_id: parsed["data"]["user"]["id"], child_ids: [Family.all.first.children.pluck(&:id)]}
