@@ -18,8 +18,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
       expect(SyncTask.all.empty?).to eq(true)
 
       #generate sync task for the appointment
-      task = SyncTask.new(sync_type: :gen_initial_appointment_tasks, sync_source: :leo, sync_id: 0)
-      syncher.process_gen_initial_appointment_tasks_task(task)
+      task = SyncTask.new(sync_type: :scan_appointments, sync_source: :leo, sync_id: 0)
+      syncher.process_scan_appointments(task)
 
       expect(SyncTask.all.empty?).to eq(false)
     end
@@ -36,7 +36,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -80,7 +80,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -113,7 +113,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -157,7 +157,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -201,7 +201,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -245,7 +245,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -278,7 +278,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -322,7 +322,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -366,7 +366,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -410,7 +410,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)
@@ -444,7 +444,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       #generate sync task for the appointment
       task = SyncTask.new(sync_type: :appointment, sync_source: :leo, sync_id: leo_appt.id)
-      syncher.process_appointment_task(task)
+      syncher.process_appointment(task)
 
       #get updated appointment from leo
       leo_appt = Appointment.find(leo_appt.id)

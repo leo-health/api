@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150526152621) do
+ActiveRecord::Schema.define(version: 20150527210102) do
 
   create_table "allergies", force: :cascade do |t|
     t.integer  "patient_id"
@@ -29,7 +29,6 @@ ActiveRecord::Schema.define(version: 20150526152621) do
     t.integer  "leo_provider_id",                          null: false
     t.integer  "athena_provider_id",         default: 0,   null: false
     t.integer  "leo_patient_id",                           null: false
-    t.integer  "athena_patient_id",          default: 0,   null: false
     t.integer  "booked_by_user_id",                        null: false
     t.integer  "rescheduled_appointment_id"
     t.integer  "duration",                                 null: false
@@ -43,13 +42,13 @@ ActiveRecord::Schema.define(version: 20150526152621) do
     t.datetime "updated_at",                               null: false
     t.integer  "athena_id",                  default: 0,   null: false
     t.integer  "athena_department_id",       default: 0,   null: false
+    t.datetime "sync_updated_at"
   end
 
   add_index "appointments", ["appointment_date"], name: "index_appointments_on_appointment_date"
   add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id"
   add_index "appointments", ["athena_department_id"], name: "index_appointments_on_athena_department_id"
   add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id"
-  add_index "appointments", ["athena_patient_id"], name: "index_appointments_on_athena_patient_id"
   add_index "appointments", ["athena_provider_id"], name: "index_appointments_on_athena_provider_id"
   add_index "appointments", ["booked_by_user_id"], name: "index_appointments_on_booked_by_user_id"
   add_index "appointments", ["family_id"], name: "index_appointments_on_family_id"
@@ -159,10 +158,17 @@ ActiveRecord::Schema.define(version: 20150526152621) do
   end
 
   create_table "patients", force: :cascade do |t|
-    t.integer  "athena_id",  default: 0, null: false
+    t.integer  "athena_id",              default: 0, null: false
     t.integer  "user_id"
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.datetime "patient_updated_at"
+    t.datetime "medications_updated_at"
+    t.datetime "vaccines_updated_at"
+    t.datetime "allergies_updated_at"
+    t.datetime "vitals_updated_at"
+    t.datetime "insurances_updated_at"
+    t.datetime "photos_updated_at"
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
   end
 
   add_index "patients", ["athena_id"], name: "index_patients_on_athena_id"
@@ -257,8 +263,8 @@ ActiveRecord::Schema.define(version: 20150526152621) do
   create_table "vaccines", force: :cascade do |t|
     t.integer  "patient_id"
     t.string   "athena_id",       default: "0", null: false
-    t.string   "vaccine",                       null: false
-    t.datetime "administered_at",               null: false
+    t.string   "vaccine",         default: "",  null: false
+    t.datetime "administered_at"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
   end

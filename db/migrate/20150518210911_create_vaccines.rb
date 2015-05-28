@@ -4,8 +4,8 @@ class CreateVaccines < ActiveRecord::Migration
       t.belongs_to :patient, index: true
 
       t.string :athena_id, index: true, default: 0, null: false #vaccineid
-      t.string :vaccine, null: false #description
-      t.datetime :administered_at, null: false #administerdate
+      t.string :vaccine, default: '', null: false #description
+      t.datetime :administered_at #administerdate
       
 
       #filter status == ADMINISTERED

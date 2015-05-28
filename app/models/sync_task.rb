@@ -17,14 +17,14 @@ class SyncTask < ActiveRecord::Base
     :athena
   ]
 
-  # type of sync task
-  #   gen_initial_appointment_tasks - generate appointment sync tasks for existing leo appointments
-  #   appointment - sync appointment to/from athena
   enum sync_type: [
-    :gen_initial_appointment_tasks,
+    :scan_appointments,
 
     #push/pull appointment info
     :appointment,
+
+    #create sync tasks for Users with the role :child
+    :scan_patients,
 
     #push patient info
     :patient,

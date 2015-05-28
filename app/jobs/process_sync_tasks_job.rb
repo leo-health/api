@@ -14,8 +14,8 @@ class ProcessSyncTasksJob
 
   def after(job)
     #reschedule next run
-    if SyncService.configuration.sync_job_auto_reschedule
-      ProcessSyncTasksJob.schedule!(SyncService.configuration.sync_job_delay.from_now.utc)
+    if SyncService.configuration.auto_reschedule_job
+      ProcessSyncTasksJob.schedule!(SyncService.configuration.job_interval.from_now.utc)
     end
   end
 

@@ -368,6 +368,7 @@ module AthenaHealthApiHelper
       lastname: ,
       sex: nil,
       dob: ,
+      homephone: '0000000000',
       guarantormiddlename: nil,
       guarantorlastname: nil,
       guarantoraddress1: nil,
@@ -393,6 +394,7 @@ module AthenaHealthApiHelper
       params[:dob] = dob if dob
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
+      params[:homephone] = homephone if homephone
 
       params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
       params[:guarantorlastname] = guarantorlastname if guarantorlastname
@@ -444,6 +446,7 @@ module AthenaHealthApiHelper
       lastname: ,
       sex: ,
       dob: ,
+      homephone: nil,
       guarantormiddlename: nil,
       guarantorlastname: nil,
       guarantoraddress1: nil,
@@ -469,6 +472,7 @@ module AthenaHealthApiHelper
       params[:dob] = dob if dob
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
+      params[:homephone] = homephone if homephone
 
       params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
       params[:guarantorlastname] = guarantorlastname if guarantorlastname

@@ -25,22 +25,6 @@
 #
 
 class Appointment < ActiveRecord::Base  
-	# callbacks for generating sync tasks
-  # if a sync task cannot be created, the transaction will be rolled back.
-  attr_accessor :skip_sync_callbacks
-  after_save :create_update_from_leo_sync_task, on: [:create, :update], unless: :skip_sync_callbacks
-  after_destroy :create_update_from_athena_sync_task, on: :destroy, unless: :skip_sync_callbacks
-
-  #create a sync task for the Appointment that is being updated
-  def create_update_from_leo_sync_task
-    SyncTask.create!(sync_source: :leo, sync_type: :appointment, sync_id: self.id)
-  end
-
-  #create a sync task for the Appointment that is being deleted
-  def create_update_from_athena_sync_task
-    SyncTask.create!(sync_source: :athena, sync_type: :appointment, sync_id: self.athena_id) unless self.athena_id == 0
-  end
-
   #helpers for booked status
   def pre_checked_in?
     return future? || open? || cancelled?

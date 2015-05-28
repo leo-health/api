@@ -10,13 +10,34 @@ module SyncService
     yield(configuration)
   end
 
+  def self.start
+    #make sure that the sync job is scheduled.  It will reschedule automatically.
+    ProcessSyncTasksJob.schedule if Delayed::Job.table_exists?
+
+    #create scan tasks
+    SyncService.create_scan_tasks
+  end
+
+  def self.create_scan_tasks
+    #create scan tasks
+    if SyncService.configuration.auto_gen_scan_tasks
+      SyncTask.find_or_create_by(sync_type: :scan_patients) if SyncTask.table_exists?
+    end
+  end
+
   class Configuration
-    attr_accessor :sync_job_auto_reschedule
-    attr_accessor :sync_job_delay
+    attr_accessor :auto_reschedule_job
+    attr_accessor :job_interval
+    attr_accessor :auto_gen_scan_tasks
+    attr_accessor :patient_data_interval
+    attr_accessor :appointment_data_interval
 
     def initialize
-      @sync_job_auto_reschedule = true
-      @sync_job_delay = 1.minutes
+      @auto_reschedule_job = true
+      @job_interval = 1.minutes
+      @auto_gen_scan_tasks = true
+      @patient_data_interval = 15.minutes
+      @appointment_data_interval = 15.minutes
     end
   end
 end
@@ -35,8 +56,6 @@ module SyncServiceHelper
     # Tasks that are completed will be removed from the table.  Tasks that failed
     # will stay.
     def process_all_sync_tasks()
-      Rails.logger.info "Syncher: #{SyncTask.count} sync tasks detected"
-
       SyncTask.find_each() do |task|
         begin
           process_sync_task(task)
@@ -49,6 +68,9 @@ module SyncServiceHelper
           Rails.logger.error e.backtrace.join("\n")
         end
       end
+
+      #re-create all the scan tasks
+      SyncService.create_scan_tasks
     end
 
     # process a single sync task.  An exception will be thrown if anything goes wrong.
@@ -56,27 +78,28 @@ module SyncServiceHelper
     # ==== arguments
     # * +task+ - the sync task to process
     def process_sync_task(task)
-      Rails.logger.info("Processing task: #{task.to_json}")
+      Rails.logger.info("Syncher: Processing task #{task.to_json}")
 
       if task.sync_type.to_sym == :appointment
-        process_appointment_task(task)
-      elsif task.sync_type.to_sym == :gen_initial_appointment_tasks
-        process_gen_initial_appointment_tasks_task(task)
-
+        process_appointment(task)
+      elsif task.sync_type.to_sym == :scan_appointments
+        process_scan_appointments(task)
+      elsif task.sync_type.to_sym == :scan_patients
+        process_scan_patients(task)
       elsif task.sync_type.to_sym == :patient
-        process_patient_task(task)
+        process_patient(task)
       elsif task.sync_type.to_sym == :patient_photo
-        process_patient_photo_task(task)
+        process_patient_photo(task)
       elsif task.sync_type.to_sym == :patient_allergies
-        process_patient_allergies_task(task)
+        process_patient_allergies(task)
       elsif task.sync_type.to_sym == :patient_medications
-        process_patient_medications_task(task)
+        process_patient_medications(task)
       elsif task.sync_type.to_sym == :patient_vaccines
-        process_patient_vaccines_task(task)
+        process_patient_vaccines(task)
       elsif task.sync_type.to_sym == :patient_vitals
-        process_patient_vitals_task(task)
+        process_patient_vitals(task)
       elsif task.sync_type.to_sym == :patient_insurance
-        process_patient_insurance_task(task)
+        process_patient_insurance(task)
       else
         raise "Unknown task.sync_type entry: #{task.sync_type}"
       end
@@ -86,14 +109,17 @@ module SyncServiceHelper
     #
     # ==== arguments
     # * +task+ - the sync task to process
-    def process_gen_initial_appointment_tasks_task(task)
-      raise "#{task.sync_type} task is not implemented with source set to #{task.sync_source}" unless task.leo?
-
+    def process_scan_appointments(task)
       Appointment.find_each() do |appt|
         begin
-          SyncTask.find_or_create_by(sync_id: appt.id, 
-            sync_type: :appointment, 
-            sync_source: :leo)
+          if appt.athena_id == 0
+            SyncTask.find_or_create_by(sync_id: appt.id, sync_type: :appointment)
+          else
+            if appt.sync_updated_at.nil || (appt.sync_updated_at.utc + SyncService.configuration.appointment_data_interval) < DateTime.now.utc
+              SyncTask.find_or_create_by(sync_id: appt.id, sync_type: :appointment)
+            end
+          end
+
         rescue => e 
           Rails.logger.error "Syncher: Creating sync task for appointment.id=#{appt.id} failed"
           Rails.logger.error e.message
@@ -102,66 +128,115 @@ module SyncServiceHelper
       end
     end
 
-    def sync_appt_to_athena(leo_appt, athena_appt)
-      raise "Null input parameters" unless leo_appt && athena_appt
+    def process_scan_patients(task)
+      User.find_each() do |user|
+        if user.has_role? :child
+          begin
+            if user.patient.nil?
+              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient, sync_id: user.id)
+              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo, sync_id: user.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies, sync_id: user.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_insurances, sync_id: user.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_medications, sync_id: user.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vaccines, sync_id: user.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals, sync_id: user.id)
+            else
+              if user.patient.patient_updated_at.nil || (user.patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+                SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient, sync_id: user.id)
+              end
 
-      #set frozen field
-      @connector.freeze_appointment(appointmentid:leo_appt.athena_id, freeze: leo_appt.frozenyn)
+              if user.patient.photos_updated_at.nil || (user.patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+                SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo, sync_id: user.id)
+              end
 
-      #return if nothing to be done
-      return if (leo_appt.appointment_status == athena_appt.appointmentstatus)
+              if user.patient.allergies_updated_at.nil || (user.patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+                SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies, sync_id: user.id)
+              end
 
-      if athena_appt.open?
-        #book
-        Rails.logger.info("Syncher: Booking athena appointment: #{leo_appt.athena_patient_id}")
+              if user.patient.insurances_updated_at.nil || (user.patient.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+                SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_insurances, sync_id: user.id)
+              end
+
+              if user.patient.medications_updated_at.nil || (user.patient.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+                SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_medications, sync_id: user.id)
+              end
+
+              if user.patient.vaccines_updated_at.nil || (user.patient.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+                SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vaccines, sync_id: user.id)
+              end
+
+              if user.patient.vitals_updated_at.nil || (user.patient.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+                SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals, sync_id: user.id)
+              end
+            end
+          rescue => e 
+            Rails.logger.error "Syncher: Creating sync task for patient user.id=#{user.id} failed"
+            Rails.logger.error e.message
+            Rails.logger.error e.backtrace.join("\n")
+          end
+        end
+      end
+    end
+
+    def process_appointment(task)
+      leo_appt = Appointment.find(task.sync_id)
+
+      #create appointment
+      if leo_appt.athena_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
+        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.user.nil? || leo_appt.user.athena_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_provider_id" if leo_appt.athena_provider_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_department_id" if leo_appt.athena_department_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_appointment_type_id" if leo_appt.athena_appointment_type_id == 0
+
+        #create appointment
+        leo_appt.athena_id = @connector.create_appointment(
+          appointmentdate: leo_appt.appointment_date.strftime("%m/%d/%Y"),
+          appointmenttime: leo_appt.appointment_start_time.strftime("%H:%M"), 
+          appointmenttypeid: leo_appt.athena_appointment_type_id,
+          departmentid: leo_appt.athena_department_id,
+          providerid: leo_appt.athena_provider_id
+        )
+
+        #book appointment
         @connector.book_appointment(
             appointmentid: leo_appt.athena_id,
-            patientid: leo_appt.athena_patient_id,
+            patientid: leo_appt.user.athena_id,
             reasonid: nil,
             appointmenttypeid: leo_appt.athena_appointment_type_id,
             departmentid: leo_appt.athena_department_id
         )
-      elsif athena_appt.future?
-        raise "Cannot transition a booked appointment to open" if leo_appt.open?
 
-        if leo_appt.cancelled?
-          if leo_appt.rescheduled_appointment_id
-            leo_resched_appt = Appointment.find(leo_appt.rescheduled_appointment_id)
-            raise "Could not find rescheduled leo appt id: #{leo_appt.rescheduled_appointment_id}" if leo_resched_appt.nil?
-
-            #sync rescheduled appointment first
-            if leo_resched_appt.athena_id == 0
-              sync_appt(leo_resched_appt) 
-              leo_resched_appt = Appointment.find(leo_appt.rescheduled_appointment_id)
-            end
-
-            Rails.logger.info("Syncher: Rescheduling athena appointment: #{leo_appt.athena_id}")
-            @connector.reschedule_appointment(
-              appointmentid: leo_appt.athena_id,
-              newappointmentid: leo_resched_appt.athena_id, 
-              patientid: leo_appt.athena_patient_id
-            )
-          else
-            #cancel
-            Rails.logger.info("Syncher: Cancelling athena appointment: #{leo_appt.athena_id}")
-            @connector.cancel_appointment(appointmentid: leo_appt.athena_id, patientid: leo_appt.athena_patient_id) if athena_appt.booked?
-          end
-        else
-          raise "Cannot transition athena appt id=#{athena_appt.appointmentid} to #{leo_appt.appointment_status} status"
-        end
-      else
-        raise "Cannot transition athena appt id=#{athena_appt.appointmentid} to #{leo_appt.appointment_status} status"
+        leo_appt.save!
       end
 
-      #recursively call the function until the appointment is as synched as it can be
       athena_appt = @connector.get_appointment(appointmentid: leo_appt.athena_id)
-      sync_appt_to_athena(leo_appt, athena_appt)
-    end
+      raise "Could not find athena appointment with id=#{leo_appt.athena_id}" if athena_appt.nil?
 
-    def sync_appt_from_athena(leo_appt, athena_appt)
-      raise "Null input parameters" unless leo_appt && athena_appt
+      @connector.freeze_appointment(appointmentid:leo_appt.athena_id, freeze: leo_appt.frozenyn)
 
-      if leo_appt.appointment_status != athena_appt.appointmentstatus
+      if athena_appt.future? && leo_appt.cancelled?
+        if leo_appt.rescheduled_appointment_id
+          #reschedule
+          leo_resched_appt = Appointment.find(leo_appt.rescheduled_appointment_id)
+          raise "Could not find rescheduled leo appt id: #{leo_appt.rescheduled_appointment_id}" if leo_resched_appt.nil?
+
+          if leo_resched_appt.athena_id == 0
+            process_appointment(SynchTask.new(sync_type: :appointment, sync_id: leo_appt.rescheduled_appointment_id))
+          end
+          leo_resched_appt = Appointment.find(leo_appt.rescheduled_appointment_id)
+
+          @connector.reschedule_appointment(
+            appointmentid: leo_appt.athena_id,
+            newappointmentid: leo_resched_appt.athena_id, 
+            patientid: leo_appt.user.athena_id
+          )
+        else
+          #cancel
+          @connector.cancel_appointment(appointmentid: leo_appt.athena_id, 
+            patientid: leo_appt.user.athena_id) if athena_appt.booked?
+        end
+      else
         leo_appt.appointment_status = athena_appt.appointmentstatus
 
         leo_appt.athena_appointment_type = athena_appt.appointmenttype
@@ -170,98 +245,25 @@ module SyncServiceHelper
         #todo: do we need to update leo_provider_id
         leo_appt.athena_department_id = athena_appt.departmentid.to_i
         leo_appt.athena_appointment_type_id = athena_appt.appointmenttypeid.to_i
-        leo_appt.athena_patient_id = athena_appt.patientid.to_i
-        #todo: do we need to update leo_patient_id
-
 
         #todo: any other stuff that would need to get synched back to leo
         #the following should not change from athena side
+        #todo: do we need to update leo_patient_id
         #rescheduled_appointment_id = athena_appt.rescheduledappointmentid
         #duration = athena_appt.duration
         #appointment_date = 
         #appointment_start_time = 
         #frozenyn = athena_appt.frozenyn
-
-        leo_appt.skip_sync_callbacks = true
-        leo_appt.save!
-        leo_appt.skip_sync_callbacks = false
-      end
-    end
-
-    def sync_appt(leo_appt)
-      #create appointment if missing
-      if leo_appt.athena_id == 0
-        if leo_appt.post_checked_in?
-          raise "Encountered an appointment id=#{leo_appt.id} in a state that that cannot be reproduced in athena"
-        end
-
-        leo_appt.athena_id = @connector.create_appointment(
-          appointmentdate: leo_appt.appointment_date.strftime("%m/%d/%Y"),
-          appointmenttime: leo_appt.appointment_start_time.strftime("%H:%M"), 
-          appointmenttypeid: leo_appt.athena_appointment_type_id,
-          departmentid: leo_appt.athena_department_id,
-          providerid: leo_appt.athena_provider_id
-        )
-        leo_appt.skip_sync_callbacks = true
-        leo_appt.save!
-        leo_appt.skip_sync_callbacks = false
       end
 
-      athena_appt = @connector.get_appointment(appointmentid: leo_appt.athena_id)
-      raise "Could not find athena appointment with id=#{leo_appt.athena_id}" if athena_appt.nil?
-
-      if athena_appt.pre_checked_in?
-        #sync from leo to athena
-        sync_appt_to_athena(leo_appt, athena_appt)
-      else
-        #sync from athena to leo
-        sync_appt_from_athena(leo_appt, athena_appt)
-      end
-    end
-
-    # sync leo and athena appointment.  
-    # An exception will be thrown if anything goes wrong.
-    #
-    # ==== arguments
-    # * +task+ - the sync task to process  
-    def process_appointment_task(task)
-      if task.leo?
-        leo_appt = Appointment.find(task.sync_id)
-        return if leo_appt.nil?
-
-        sync_appt(leo_appt)
-      elsif task.athena?
-        athena_appt = @connector.get_appointment(appointmentid: task.sync_id)
-        return if athena_appt.nil?
-
-        leo_appts = Appointment.find(:all, athena_id: task.sync_id)
-
-        if leo_appts.empty?
-          #disabled deleting open appointments for now
-          if false
-            #delete an appointment that does not exist in leo
-            raise "only open athena appts can be deleted" unless athena_appt.open?
-            Rails.logger.info("Deleting athena appointment because it does not exist in Leo: #{task.sync_id}")
-            @connector.delete_appointment(appointmentid: task.sync_id)
-          end
-        else
-          #if record exists, run sync task for those leo records
-          leo_appts.each do |leo_appt|
-            process_appointment_task(SyncTask.new(
-              sync_source: :leo, 
-              sync_type: :appointment,
-              sync_id: leo_appt.id))
-          end
-        end
-      else
-        raise "#{task.sync_type} task is not implemented with source set to #{task.sync_source}"
-      end
+      leo_appt.sync_updated_at = DateTime.now.utc
+      leo_appt.save!
     end
 
     #sync patient
     #SyncTask.sync_id = User.id
     #creates an instance of Patient model if one does not exist, and then updates the patient in Athena
-    def process_patient_task(task)
+    def process_patient(task)
       raise "patient task cannot be called with sync_source set to athena: #{task.to_json}" if task.athena?
 
       leo_user = User.find(task.sync_id)
@@ -283,6 +285,8 @@ module SyncServiceHelper
           Rails.logger.error e.backtrace.join("\n")
         end
 
+        Rails.logger.info("Syncher: synching patient=#{leo_patient.to_json}")
+      
         patient_dob = leo_user.dob.strftime("%m/%d/%Y") if leo_user.dob
         parent_dob = leo_parent.dob.strftime("%m/%d/%Y") if leo_parent.dob
 
@@ -300,7 +304,7 @@ module SyncServiceHelper
             guarantorlastname: leo_parent.last_name, 
             guarantordob: parent_dob, 
             guarantoremail: leo_parent.email,
-            guarantorrelationshiptopatient: 2
+            guarantorrelationshiptopatient: 3 #3==child
             ).to_i
           leo_patient.save!
         else
@@ -318,15 +322,19 @@ module SyncServiceHelper
             guarantorlastname: leo_parent.last_name, 
             guarantordob: parent_dob, 
             guarantoremail: leo_parent.email,
-            guarantorrelationshiptopatient: 2
+            guarantorrelationshiptopatient: 3 #3==child
             )
         end
+
+        leo_patient.patient_updated_at = DateTime.now.utc
+        leo_patient.save!
       end
     end
 
-    #sync patient
+    #sync patient photo
+    #uploads the latest photo to athena, or deletes the athena photo if none found
     #SyncTask.sync_id = User.id
-    def process_patient_photo_task(task)
+    def process_patient_photo(task)
       raise "patient photo task cannot be called with sync_source set to athena: #{task.to_json}" if task.athena?
 
       leo_user = User.find(task.sync_id)
@@ -336,20 +344,24 @@ module SyncServiceHelper
 
       #get list of photos for this patients
       photos = leo_user.patient.photos.order("id desc")
+      Rails.logger.info("Syncher: synching photos=#{photos.to_json}")
 
       if photos.empty?
         @connector.delete_patient_photo(patientid: leo_user.patient.athena_id)
       else
         @connector.set_patient_photo(patientid: leo_user.patient.athena_id, image: photos.first.image)
       end
+
+      leo_user.patient.photos_updated_at = DateTime.now.utc
+      leo_user.patient.save!
     end
 
-    def process_patient_allergies_task(task)
-      raise "not implemented"
+    def process_patient_allergies(task)
+      Rails.logger.warn("process_patient_allergies is not implemented yet")
     end
 
-    def process_patient_medications_task(task)
-      raise "patient medicatins task cannot be called with sync_source set to leo: #{task.to_json}" if task.leo?
+    def process_patient_medications(task)
+      raise "patient medications task cannot be called with sync_source set to leo: #{task.to_json}" if task.leo?
 
       leo_user = User.find(task.sync_id)
 
@@ -358,6 +370,9 @@ module SyncServiceHelper
 
       #get list of medications for this patients
       meds = @connector.get_patient_medications(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
+
+      #remove existing medications for the user
+      Medication.destroy_all(patient_id: leo_user.patient_id)
 
       #create and/or update the medication records in Leo
       meds.each do | med |
@@ -386,13 +401,16 @@ module SyncServiceHelper
 
         leo_med.save!
       end
+
+      leo_user.patient.medications_updated_at = DateTime.now.utc
+      leo_user.patient.save!
     end
 
-    def process_patient_vitals_task(task)
-      raise "not implemented"
+    def process_patient_vitals(task)
+      Rails.logger.warn("process_patient_vitals is not implemented yet")
     end
 
-    def process_patient_vaccines_task(task)
+    def process_patient_vaccines(task)
       raise "patient vaccines task cannot be called with sync_source set to leo: #{task.to_json}" if task.leo?
 
       leo_user = User.find(task.sync_id)
@@ -403,21 +421,29 @@ module SyncServiceHelper
       #get list of vaccines for this patients
       vaccs = @connector.get_patient_vaccines(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
 
+      #remove existing vaccines for the user
+      Vaccine.destroy_all(patient_id: leo_user.patient_id)
+
       #create and/or update the vaccine records in Leo
       vaccs.each do | vacc |
-        leo_vacc = Vaccine.find_or_create_by(athena_id: vacc.vaccineid)
+        if vacc[:status.to_s] == 'ADMINISTERED'
+          leo_vacc = Vaccine.find_or_create_by(athena_id: vacc[:vaccineid.to_s])
 
-        leo_vacc.patient_id = leo_user.patient_id
-        leo_vacc.athena_id = vacc.vaccineid.to_i
-        leo_vacc.vaccine = vacc.description.to_s
-        leo_vacc.administered_at = DateTime.strptime(vacc.administerdate, "%m/%d/%Y") if vacc.administerdate
+          leo_vacc.patient_id = leo_user.patient.id
+          leo_vacc.athena_id = vacc[:vaccineid.to_s]
+          leo_vacc.vaccine = vacc[:description.to_s]
+          leo_vacc.administered_at = DateTime.strptime(vacc[:administerdate.to_s], "%m/%d/%Y") if vacc[:administerdate.to_s]
 
-        leo_vacc.save!
+          leo_vacc.save!
+        end
       end
+
+      leo_user.patient.vaccinations_updated_at = DateTime.now.utc
+      leo_user.patient.save!
     end
 
-    def process_patient_insurance_task(task)
-      raise "not implemented"
+    def process_patient_insurance(task)
+      Rails.logger.warn("process_patient_insurance is not implemented yet")
     end
   end
 end
