@@ -24,9 +24,5 @@ describe Conversation, type: :model do
 		it "has 2 parent participants" do
 			expect(subject.participants.count).to eq(2)
 		end
-
-		it "has one child" do
-			expect(subject.children.count).to eq(1)
-		end
 	end
 end

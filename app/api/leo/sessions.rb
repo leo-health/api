@@ -32,17 +32,19 @@ module Leo
 				if user.nil? or !user.valid_password?(password)
 					error!({error_code: 404, error_message: "Invalid Email or Password."},401)
 					return
-				# end
-				#
-				# if !user.valid_password?(password)
-				#	error!({error_code: 404, error_message: "Invalid Email or Password."},401)
-				#	return
-				else  # Everything checks out. Log them in
-					user.ensure_authentication_token
-					user.save
-					present :token, user.authentication_token
-					present	:user, user, with: Leo::Entities::UserEntity
 				end
+				
+				# Prevent children from logging in (Issue #59)
+				if user.has_role? :child
+					error!({error_code: 404, error_message: "This user is not allowed to log in."},401)
+					return
+				end					
+
+				# Everything checks out. Log them in
+				user.ensure_authentication_token
+				user.save
+				present :token, user.authentication_token
+				present	:user, user, with: Leo::Entities::UserEntity
 			end
 
 			desc "Destroy the access token"

@@ -43,7 +43,8 @@ class User < ActiveRecord::Base
   devise :invitable, :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  validates :first_name, :last_name, :email,  presence: true
+  validates :first_name, :last_name, presence: true
+  validates :email, presence: true, unless: :is_child?
 
   ROLES = {
   			# Admin is 1
@@ -71,7 +72,6 @@ class User < ActiveRecord::Base
   end
 
   # Class variables, methods and properties to help better filter and retrieve records
-
   def self.for_user(user)
     # TODO. Think through this and design better
     if user.has_role? :parent
@@ -93,13 +93,41 @@ class User < ActiveRecord::Base
 
   # Helper methods to render attributes in a more friednly way
 
+  def is_child?
+    self.has_role? :child 
+  end
+
+  def email_required?
+    if self.is_child?
+      false
+    else
+      super
+    end
+  end
+
+  def password_required?
+    if self.is_child?
+      false
+    else
+      super
+    end
+  end
+
   def primary_role
-    self.roles.first.name
+    if self.roles and self.roles.count > 0
+      self.roles.first.name 
+    else
+      nil
+    end
   end
 
   # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
   def init
     self.practice_id ||= 1
+  end
+
+  def to_debug
+    self.to_yaml
   end
 
 end

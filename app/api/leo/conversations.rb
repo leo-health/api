@@ -19,7 +19,7 @@ module Leo
       expose :conversation_id,  documentation: {type: "integer", desc: "The conversation id." }
       expose :body, documentation: {type: "string", desc: "The message body." }
       expose :message_type, documentation: {type: "string", desc: "The message type." }
-      expose :created_at, , documentation: {type: "datetime", desc: "The date/time the message was created at." }
+      expose :created_at, documentation: {type: "datetime", desc: "The date/time the message was created at." }
       expose :escalated_to, with: Leo::Entities::ConversationParticipantEntity, documentation: {type: "object", desc: "The physician who the message has been escalated to." }
       expose :escalated_by, with: Leo::Entities::ConversationParticipantEntity, documentation: {type: "object", desc: "The staff who the message has been escalated by." }
       expose :escalated_at, documentation: {type: "datetime", desc: "The date/time the message was escalated at." }
