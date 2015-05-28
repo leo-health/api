@@ -35,9 +35,12 @@ describe 'Creating conversations and managing participants when not authenticate
 		@login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
 		post '/api/v1/sessions', @login_params, format: :json
 		parsed = JSON.parse(response.body)
+		print_response
+		puts "Parsed:"
+		puts parsed
 		expect_json_types({'data': {user: :object}})
 		expect_json_types({'data': {user: {id: :integer}}})
-		@conv_params = {user_id: parsed["data"]["user"]["id"], child_ids: [Family.all.first.children.first.id]}
+		@conv_params = {user_id: parsed["data"]["user"]["id"], child_ids: [Family.all.first.children.pluck(&:id)]}
 		@auth_params = { access_token: parsed["data"]["token"]}
 		@post_params = @conv_params.merge(@auth_params)
 		post '/api/v1/conversations', @post_params, format: :json

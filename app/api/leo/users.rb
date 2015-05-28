@@ -87,11 +87,9 @@ module Leo
       desc "Calls specific to a user"
       route_param :id do 
         before do
-          puts "users/:id - before"
           authenticated_user
         end
         after_validation do
-          puts "users/:id - after_validation"
           @user = User.find(params[:id])
         end
         desc "Return a user"
@@ -118,7 +116,6 @@ module Leo
             requires :first_name, type: String, desc: "First Name"
             requires :last_name,  type: String, desc: "Last Name"
             requires :email,      type: String, desc: "Email", user_unique: true
-            requires :family_id,  type: Integer, desc: "Family Id for the new user"
             requires :dob,        type: String, desc: "Date of Birth"
             requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
           end
@@ -134,20 +131,13 @@ module Leo
               return
             end
 
-            # Check that family exists and this user has access to that family
-            family_id = params[:family_id]
-            family = Family.find_by_id(family_id)
-            if family.nil? or family_id != @user.family_id
-              error!({error_code: 422, error_message: "Invalid family"},422)
-              return
-            end
-
+            family = Family.find(@user.family_id)
             invited_user = User.invite!(
               email:        params[:email],
               first_name:   params[:first_name],
               last_name:    params[:last_name],
               dob:          dob,
-              family_id:    family.id,
+              family_id:    @user.family_id,
               sex:          params[:sex]
               ) do |u|
               u.invited_by_id =  @user.id
@@ -219,7 +209,7 @@ module Leo
             family = @user.family
             role = Role.where(name: :child)
             
-            child = User.create!(
+            child = User.new(
             {
               first_name:   params[:first_name],
               last_name:    params[:last_name],
@@ -229,9 +219,9 @@ module Leo
               sex:          params[:sex]
             })
 
-            
             child.add_role :child
-            present :child, child, with: Leo::Entities::UserEntity
+            child.save!
+            present :user, child, with: Leo::Entities::UserEntity
           end
 
         end

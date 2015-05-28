@@ -43,7 +43,11 @@ FactoryGirl.define do
   	email				'danish@leohealth.com'
     password    'fake_pass'
     password_confirmation    'fake_pass'
+    family_id    11
     association :family, factory: :family
+    after(:create) do |u| 
+      u.family = Family.find_or_create_by(id: u.family_id)
+    end
 
   	trait :father do
   		first_name 	'Phil'
