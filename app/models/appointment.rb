@@ -25,6 +25,8 @@
 #
 
 class Appointment < ActiveRecord::Base  
+  belongs_to :leo_patient, class_name: "User"
+
   #helpers for booked status
   def pre_checked_in?
     return future? || open? || cancelled?

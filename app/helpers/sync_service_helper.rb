@@ -184,7 +184,7 @@ module SyncServiceHelper
       #create appointment
       if leo_appt.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
-        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.user.nil? || leo_appt.user.athena_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.leo_patient.nil? || leo_appt.leo_patient.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_provider_id" if leo_appt.athena_provider_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_department_id" if leo_appt.athena_department_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_appointment_type_id" if leo_appt.athena_appointment_type_id == 0
