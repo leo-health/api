@@ -72,7 +72,7 @@ class User < ActiveRecord::Base
   end
 
   def create_or_update_stripe_customer_id(token)
-    Stripe.api_key = "sk_test_BQokikJOvBiI2HlWgH4olfQ2"
+    Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"
 
     # Create a Stripe Customer
     customer = Stripe::Customer.create(
