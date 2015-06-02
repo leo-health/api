@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150505182926) do
+ActiveRecord::Schema.define(version: 20150602063437) do
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status",         default: "o", null: false
@@ -162,6 +162,7 @@ ActiveRecord::Schema.define(version: 20150505182926) do
     t.integer  "invitations_count",      default: 0
     t.string   "authentication_token"
     t.integer  "family_id"
+    t.string   "stripe_customer_id"
   end
 
   add_index "users", ["authentication_token"], name: "index_users_on_authentication_token"

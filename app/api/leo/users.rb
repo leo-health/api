@@ -13,6 +13,7 @@ module Leo
       expose :family_id
       expose :email
       expose :primary_role
+      expose :stripe_customer_id
     end 
 
     class RoleEntity < Grape::Entity
@@ -108,6 +109,20 @@ module Leo
         end
         desc "Return a user"
         get do
+          present :user, @user, with: Leo::Entities::UserEntity
+        end
+
+        params do
+          requires :stripe_token,  type: String, desc: "Stripe Token to use for creating Stripe token"
+        end
+        post "/add_card" do
+          token = params[:stripe_token]
+          if token.blank? or token.nil?
+            error!({error_code: 422, error_message: "A valid stripe token is required."}, 422)
+            return
+          end
+          # Save the customer ID in user table so you can use it later
+          @user.create_or_update_stripe_customer_id(token)
           present :user, @user, with: Leo::Entities::UserEntity
         end
         

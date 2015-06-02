@@ -71,6 +71,18 @@ class User < ActiveRecord::Base
   	u.update_attribute(:authentication_token, nil)
   end
 
+  def create_or_update_stripe_customer_id(token)
+    Stripe.api_key = "sk_test_BQokikJOvBiI2HlWgH4olfQ2"
+
+    # Create a Stripe Customer
+    customer = Stripe::Customer.create(
+      :source => token,
+      :description => self.id
+    )
+    self.stripe_customer_id = customer.id
+    self.save
+  end
+
   # Class variables, methods and properties to help better filter and retrieve records
   def self.for_user(user)
     # TODO. Think through this and design better
