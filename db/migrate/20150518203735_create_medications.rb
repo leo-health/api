@@ -4,7 +4,7 @@ class CreateMedications < ActiveRecord::Migration
       t.belongs_to :patient, index: true
 
       t.integer :athena_id, index: true, default: 0, null: false #medicationid
-      t.string :medication, deafult: '', null: false #medication
+      t.string :medication, default: '', null: false #medication
       t.string :sig, default: '', null: false #unstructuredsig (optional)
       t.string :patient_note, default: '', null: false #patientnote (optional)
       t.datetime :started_at #events.eventdata, events.type=START (optional)

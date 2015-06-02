@@ -3,7 +3,7 @@ class CreateVaccines < ActiveRecord::Migration
     create_table :vaccines do |t|
       t.belongs_to :patient, index: true
 
-      t.string :athena_id, index: true, default: 0, null: false #vaccineid
+      t.string :athena_id, index: true, default: '', null: false #vaccineid
       t.string :vaccine, default: '', null: false #description
       t.datetime :administered_at #administerdate
       

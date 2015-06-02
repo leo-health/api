@@ -15,9 +15,11 @@ ActiveRecord::Schema.define(version: 20150528021958) do
 
   create_table "allergies", force: :cascade do |t|
     t.integer  "patient_id"
-    t.integer  "athena_id",  default: 0, null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.integer  "athena_id",  default: 0,  null: false
+    t.string   "allergen",   default: "", null: false
+    t.datetime "onset_at"
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
   end
 
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id"
@@ -127,7 +129,7 @@ ActiveRecord::Schema.define(version: 20150528021958) do
   create_table "medications", force: :cascade do |t|
     t.integer  "patient_id"
     t.integer  "athena_id",    default: 0,  null: false
-    t.string   "medication",                null: false
+    t.string   "medication",   default: "", null: false
     t.string   "sig",          default: "", null: false
     t.string   "patient_note", default: "", null: false
     t.datetime "started_at"
@@ -260,11 +262,11 @@ ActiveRecord::Schema.define(version: 20150528021958) do
 
   create_table "vaccines", force: :cascade do |t|
     t.integer  "patient_id"
-    t.string   "athena_id",       default: "0", null: false
-    t.string   "vaccine",         default: "",  null: false
+    t.string   "athena_id",       default: "", null: false
+    t.string   "vaccine",         default: "", null: false
     t.datetime "administered_at"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "vaccines", ["athena_id"], name: "index_vaccines_on_athena_id"
@@ -272,12 +274,12 @@ ActiveRecord::Schema.define(version: 20150528021958) do
 
   create_table "vitals", force: :cascade do |t|
     t.integer  "patient_id"
-    t.integer  "athena_id",  default: 0, null: false
-    t.datetime "taken_at",               null: false
-    t.string   "type",                   null: false
-    t.string   "value",                  null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.integer  "athena_id",   default: 0,  null: false
+    t.datetime "taken_at"
+    t.string   "measurement", default: "", null: false
+    t.string   "value",       default: "", null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   add_index "vitals", ["athena_id"], name: "index_vitals_on_athena_id"

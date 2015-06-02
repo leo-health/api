@@ -4,9 +4,9 @@ class CreateVitals < ActiveRecord::Migration
       t.belongs_to :patient, index: true
 
       t.integer :athena_id, index: true, default: 0, null: false #vitalid
-      t.datetime :taken_at, null: false #readingtaken
-      t.string :type, null: false #clinicalelementid
-      t.string :value, null: false #value
+      t.datetime :taken_at #readingtaken
+      t.string :measurement, default: '', null: false #clinicalelementid
+      t.string :value, default: '', null: false #value
 
       #figure out which vitals are needed
 

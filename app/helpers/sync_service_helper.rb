@@ -40,6 +40,13 @@ module SyncService
       @appointment_data_interval = 15.minutes
     end
   end
+
+  def self.create_debug_syncher(practice_id: 195900)
+    connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new(practice_id: practice_id)
+    syncher = SyncServiceHelper::Syncher.new(connector)
+
+    return syncher
+  end
 end
 
 module SyncServiceHelper
@@ -260,6 +267,55 @@ module SyncServiceHelper
       leo_appt.save!
     end
 
+    def create_leo_user_from_athena_patient(patientid: )
+      leo_patient = Patient.find_by(athena_id: patientid)
+      raise "Patient id=#{patientid} already exists in Leo" unless leo_patient.nil?
+
+      athena_patient = @connector.get_patient(patientid: patientid)
+      raise "No patient found for id=#{patientid}" unless athena_patient
+
+      #create family
+      family = Family.create()
+
+      #create patient user
+      child = User.create(
+        first_name: athena_patient.firstname,
+        middle_initial: '',
+        last_name: athena_patient.lastname,
+        practice_id: athena_patient.departmentid,
+        sex: athena_patient.sex,
+        dob: DateTime.strptime(athena_patient.dob, "%m/%d/%Y"),
+        password: 'fake_pass',
+        password_confirmation: 'fake_pass',
+        email: Random.rand().to_s + '@leohealth.com',
+        family_id: family.id
+        )
+
+      child.add_role :child
+      child.save!
+
+      Patient.create(user_id: child.id, athena_id: patientid)
+
+      #create parent user
+      parent = User.create(
+        first_name: athena_patient.firstname + 'Parent',
+        middle_initial: '',
+        last_name: athena_patient.lastname + 'Parent',
+        practice_id: athena_patient.departmentid,
+        sex: athena_patient.sex,
+        dob: 45.years.ago,
+        password: 'fake_pass',
+        password_confirmation: 'fake_pass',
+        email: Random.rand().to_s + '@leohealth.com',
+        family_id: family.id
+        )
+
+      parent.add_role :parent
+      parent.save!
+
+      return child
+    end
+
     #sync patient
     #SyncTask.sync_id = User.id
     #creates an instance of Patient model if one does not exist, and then updates the patient in Athena
@@ -353,7 +409,31 @@ module SyncServiceHelper
     end
 
     def process_patient_allergies(task)
-      Rails.logger.warn("process_patient_allergies is not implemented yet")
+      leo_user = User.find(task.sync_id)
+
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+
+      #get list of allergies for this patients
+      allergies = @connector.get_patient_allergies(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
+
+      #remove existing allergies for the user
+      Allergie.destroy_all(patient_id: leo_user.patient.id)
+
+      #create and/or update the allergy records in Leo
+      allergies.each do | allergy |
+        leo_allergy = Allergie.find_or_create_by(patient_id: leo_user.patient.id, athena_id: allergy[:allergenid.to_s].to_i)
+
+        leo_allergy.patient_id = leo_user.patient.id
+        leo_allergy.athena_id = allergy[:allergenid.to_s].to_i
+        leo_allergy.allergen = allergy[:allergenname.to_s]
+        leo_allergy.onset_at = DateTime.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
+
+        leo_allergy.save!
+      end
+
+      leo_user.patient.allergies_updated_at = DateTime.now.utc
+      leo_user.patient.save!
     end
 
     def process_patient_medications(task)
@@ -370,13 +450,15 @@ module SyncServiceHelper
 
       #create and/or update the medication records in Leo
       meds.each do | med |
-        leo_med = Medication.find_or_create_by(athena_id: med.medicationid)
+        leo_med = Medication.find_or_create_by(athena_id: med[:medicationid.to_s])
 
         leo_med.patient_id = leo_user.patient.id
-        leo_med.athena_id = med.medicationid.to_i
-        leo_med.medication = med.medication.to_s
-        leo_med.sig = med.unstructuredsig.to_s
-        leo_med.patient_note = med.patientnote.to_s
+        leo_med.athena_id = med[:medicationid.to_s]
+        leo_med.medication = med[:medication.to_s]
+        leo_med.sig = med[:unstructuredsig.to_s]
+        leo_med.sig ||= ''
+        leo_med.patient_note = med[:patientnote.to_s]
+        leo_med.patient_note ||= ''
         leo_med.started_at = nil
         leo_med.ended_at = nil
         leo_med.ordered_at = nil
@@ -384,13 +466,13 @@ module SyncServiceHelper
         leo_med.entered_at = nil
         leo_med.hidden_at = nil
 
-        med.events.each do | evt |
-          leo_med.started_at = DateTime.strptime(evt.eventdate, "%m/%d/%Y") if (evt.type.to_sym == 'START'.to_sym)
-          leo_med.ended_at = DateTime.strptime(evt.eventdate, "%m/%d/%Y") if (evt.type.to_sym == 'END'.to_sym)
-          leo_med.ordered_at = DateTime.strptime(evt.eventdate, "%m/%d/%Y") if (evt.type.to_sym == 'ORDER'.to_sym)
-          leo_med.filled_at = DateTime.strptime(evt.eventdate, "%m/%d/%Y") if (evt.type.to_sym == 'FILL'.to_sym)
-          leo_med.entered_at = DateTime.strptime(evt.eventdate, "%m/%d/%Y") if (evt.type.to_sym == 'ENTER'.to_sym)
-          leo_med.hidden_at = DateTime.strptime(evt.eventdate, "%m/%d/%Y") if (evt.type.to_sym == 'HIDE'.to_sym)
+        med[:events.to_s].each do | evt |
+          leo_med.started_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
+          leo_med.ended_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
+          leo_med.ordered_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
+          leo_med.filled_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
+          leo_med.entered_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
+          leo_med.hidden_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
         end
 
         leo_med.save!
@@ -401,7 +483,36 @@ module SyncServiceHelper
     end
 
     def process_patient_vitals(task)
-      Rails.logger.warn("process_patient_vitals is not implemented yet")
+      leo_user = User.find(task.sync_id)
+
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+
+      #get list of vitals for this patients
+      vitals = @connector.get_patient_vitals(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
+
+      #remove existing vitals for the user
+      Vital.destroy_all(patient_id: leo_user.patient.id)
+
+      #create and/or update the vitals records in Leo
+      vitals.each do | vital |
+        vital[:readings.to_s].each do | reading_arr |
+          reading = reading_arr[0]
+          
+          leo_vital = Vital.find_or_create_by(athena_id: reading[:vitalid.to_s].to_i)
+
+          leo_vital.patient_id = leo_user.patient.id
+          leo_vital.athena_id = reading[:vitalid.to_s].to_i
+          leo_vital.measurement = reading[:clinicalelementid.to_s]
+          leo_vital.value = reading[:value.to_s]
+          leo_vital.taken_at = DateTime.strptime(reading[:readingtaken.to_s], "%m/%d/%Y") if reading[:readingtaken.to_s]
+
+          leo_vital.save!
+        end
+      end
+
+      leo_user.patient.vitals_updated_at = DateTime.now.utc
+      leo_user.patient.save!
     end
 
     def process_patient_vaccines(task)

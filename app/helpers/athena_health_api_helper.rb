@@ -577,7 +577,8 @@ module AthenaHealthApiHelper
 
       val = JSON.parse(response.body)
 
-      return val[:medications.to_s]
+      #TODO: why do we need to do double array de-ref
+      return val[:medications.to_s][0]
     end
   end
 
