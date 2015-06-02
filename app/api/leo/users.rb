@@ -44,9 +44,23 @@ module Leo
       
       desc "Get available users"
       paginate per_page: 20
+      params do
+        optional :role,     type: String,   desc: "Return users with this role"
+      end
       get do
         authenticated_user
-        present :users, paginate(User.for_user(current_user))
+        users = User.for_user(current_user)
+
+        unless params[:role].blank? 
+          role=Role.find_by_name(params[:role])
+          if role.nil?
+            error!({error_code: 422, error_message: "Invalid role."}, 422)
+            return
+          end
+          users = users.with_role role.name.to_sym
+        end
+          
+        present :users, paginate(users), with: Leo::Entities::UserEntity
       end
 
       desc "Create a user"

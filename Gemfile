@@ -26,6 +26,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 # gem 'rails_12factor'
 gem 'chronic'               # Clever parsing of dates (also NLP date formats)
+gem 'daemons'
+gem 'delayed_job_active_record'
 gem 'devise'                # Authentication 
 gem 'devise_invitable'      # Inviting users
 gem 'grape'                 # Our API base
@@ -39,9 +41,7 @@ gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
-gem 'delayed_job_active_record'
-
-gem 'daemons'
+gem 'squeel'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

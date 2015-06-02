@@ -74,10 +74,17 @@ class User < ActiveRecord::Base
   # Class variables, methods and properties to help better filter and retrieve records
   def self.for_user(user)
     # TODO. Think through this and design better
+    my_family_id = user.family_id
     if user.has_role? :parent
-      user.family.members
+      User.joins(:roles).where{
+        (family_id.eq(my_family_id)) | (roles.name.matches 'physician' )
+      }
+      
     elsif user.has_role? :guardian
-      user.family.members
+      User.joins(:roles).where{
+        (family_id.eq(my_family_id)) | (roles.name.matches 'physician' )
+      }
+      
     elsif user.has_role? :child
       [user]
     elsif user.has_role? :physician
