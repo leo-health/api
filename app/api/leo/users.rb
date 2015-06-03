@@ -1,5 +1,4 @@
 module Leo
-
   module Entities
     class UserEntity < Grape::Entity
       expose :id
@@ -16,7 +15,7 @@ module Leo
       expose :stripe_customer_id
     end 
 
-    UserWithAuthEntity < UserEntity
+    class UserWithAuthEntity < UserEntity
       expose :authentication_token
     end
 
@@ -25,7 +24,6 @@ module Leo
       expose :name
     end
   end
-
 
   class Users < Grape::API
     version 'v1', using: :path, vendor: 'leo-health'
