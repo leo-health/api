@@ -108,20 +108,20 @@ module Leo
 
 					# A blank value was submitted for one of the paramaters
 					if email.nil? or old_password.nil? or new_password.nil? or new_password_confirmation.nil?
-						error!({error_code: 404, error_message: "Invalid email or password."})
+						error!({error_code: 422, error_message: "Invalid email or password."})
 						return
 					end
 
 					user = User.where(email: email.downcase).first
 					# The user doesn't exist, or the password for the user is not valid
 					if user.nil? or !user.valid_password?(password)
-						error!({error_code: 404, error_message: "Invalid Email or Password."},401)
+						error!({error_code: 422, error_message: "Invalid Email or Password."},422)
 						return
 					end
 
 					# The new_password and new_password confirmation don't match
 					if new_password != new_password_confirmation
-						error!({error_code: 404, error_message: "New Password and New Password Confirmation don't match."})
+						error!({error_code: 422, error_message: "New Password and New Password Confirmation don't match."})
 						return
 					else
 						user.reset_password!(new_password, new_password_confirmation)

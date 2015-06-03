@@ -16,6 +16,10 @@ module Leo
       expose :stripe_customer_id
     end 
 
+    UserWithAuthEntity < UserEntity
+      expose :authentication_token
+    end
+
     class RoleEntity < Grape::Entity
       expose :id
       expose :name
@@ -96,7 +100,8 @@ module Leo
         })
         user.roles << role
         family.conversation.participants << user
-        present :user, user, with: Leo::Entities::UserEntity
+        user.ensure_authentication_token
+        present :user, user, with: Leo::Entities::UserWithAuthEntity
       end
 
       desc "Calls specific to a user"
