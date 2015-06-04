@@ -39,6 +39,7 @@ module Leo
     resource :roles do
       desc "Return all roles"
       get "/" do 
+        puts "In get roles"
         present :roles, Role.all, with: Leo::Entities::RoleEntity
       end
     end
@@ -51,6 +52,7 @@ module Leo
         optional :role,     type: String,   desc: "Return users with this role"
       end
       get do
+        puts "In get users"
         authenticated_user
         users = User.for_user(current_user)
 
@@ -77,6 +79,7 @@ module Leo
         requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
       end
       post do
+        puts "In Create User"
         dob = Chronic.try(:parse, params[:dob])
         if dob.nil?
           error!({error_code: 422, error_message: "Invalid dob format"},422)
@@ -112,6 +115,7 @@ module Leo
         end
         desc "Return a user"
         get do
+          puts "In get user"
           present :user, @user, with: Leo::Entities::UserEntity
         end
 
@@ -119,6 +123,7 @@ module Leo
           requires :stripe_token,  type: String, desc: "Stripe Token to use for creating Stripe token"
         end
         post "/add_card" do
+          puts "In add_card"
           token = params[:stripe_token]
           if token.blank? or token.nil?
             error!({error_code: 422, error_message: "A valid stripe token is required."}, 422)
@@ -128,12 +133,47 @@ module Leo
           @user.create_or_update_stripe_customer_id(token)
           present :user, @user, with: Leo::Entities::UserEntity
         end
+
+        params do
+          optional :first_name, type: String, desc: "First Name"
+          optional :last_name,  type: String, desc: "Last Name"
+          optional :email,      type: String, desc: "Email"
+          optional :role,       type: String, desc: "Role for the user. Get list from /roles", role_exists: true
+          optional :dob,        type: String, desc: "Date of Birth"
+          optional :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
+        end
+        put do
+          puts "In Update User"
+          sanitized_params = declared(params, {include_missing: false})
+          if sanitized_params.key?('role')
+            role = Role.where(name: sanitized_params[:role])
+            sanitized_params.delete(:role)
+            # TODO: Find a way to add the role back after the update
+          end
+          
+          if sanitized_params.key?('dob')
+            dob = Chronic.try(:parse, params[:dob])
+            if dob.nil?
+              error!({error_code: 422, error_message: "Invalid dob format"},422)
+              return
+            end
+            sanitized_params[:dob] = dob
+          end
+
+          
+          if @user.update_attributes(sanitized_params)
+            present :user, @user, with: Leo::Entities::UserEntity
+          else
+            error!({errors: @user.errors.messages})
+          end
+        end
         
         namespace :invitations do
 
           # GET users/:id/invitations
           desc "Get invitations sent by this user"
           get do
+            puts "In get /users/#{params[:id]}/invitations"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to list this user's invitiations."}, 403)
               return
@@ -152,6 +192,7 @@ module Leo
             requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
           end
           post do
+            puts "In post /users/#{params[:id]}/invitations"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to list this user's invitiations."}, 403)
               return
@@ -186,6 +227,7 @@ module Leo
             requires :user_id,         type: Integer, desc: "Id for user who's invitation is to be deleted"
           end
           delete do
+            puts "In DELETE /users/#{params[:id]}/invitations"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to delete this user's invitiations."}, 403)
               return
@@ -209,6 +251,7 @@ module Leo
 
           # GET users/:id/children
           get do
+            puts "In get /users/#{params[:id]}/children"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to list this user's children."}, 403)
               return
@@ -227,6 +270,7 @@ module Leo
             requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
           end
           post do
+            puts "In post /users/#{params[:id]}/children"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to add a child for this user."}, 403)
               return
