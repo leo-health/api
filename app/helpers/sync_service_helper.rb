@@ -546,7 +546,46 @@ module SyncServiceHelper
     end
 
     def process_patient_insurances(task)
-      Rails.logger.warn("process_patient_insurances is not implemented yet")
+      leo_user = User.find(task.sync_id)
+
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+
+      #get list of insurances for this patient
+      insurances = @connector.get_patient_insurances(patientid: leo_user.patient.athena_id)
+
+      #remove existing insurances for the user
+      Insurance.destroy_all(patient_id: leo_user.patient.id)
+
+      #create and/or update the vaccine records in Leo
+      insurances.each do | insurance |
+        leo_insurance = Insurance.find_or_create_by(athena_id: insurance[:insuranceid.to_s].to_i)
+
+        leo_insurance.patient_id = leo_user.patient.id
+        leo_insurance.athena_id = insurance[:insuranceid.to_s].to_i
+        leo_insurance.plan_name = insurance[:insuranceplanname.to_s]
+        leo_insurance.plan_phone = insurance[:insurancephone.to_s]
+        leo_insurance.plan_type = insurance[:insurancetype.to_s]
+        leo_insurance.policy_number = insurance[:policynumber.to_s]
+        leo_insurance.holder_ssn = insurance[:insurancepolicyholderssn.to_s]
+        leo_insurance.holder_dob = insurance[:insurancepolicyholderdob.to_s]
+        leo_insurance.holder_sex = insurance[:insurancepolicyholdersex.to_s]
+        leo_insurance.holder_last_name = insurance[:insurancepolicyholderlastname.to_s]
+        leo_insurance.holder_first_name = insurance[:insurancepolicyholderfirstname.to_s]
+        leo_insurance.holder_middle_name = insurance[:insurancepolicyholdermiddlename.to_s]
+        leo_insurance.holder_address_1 = insurance[:insurancepolicyholderaddress1.to_s]
+        leo_insurance.holder_address_2 = insurance[:insurancepolicyholderaddress2.to_s]
+        leo_insurance.holder_city = insurance[:insurancepolicyholdercity.to_s]
+        leo_insurance.holder_state = insurance[:insurancepolicyholderstate.to_s]
+        leo_insurance.holder_zip = insurance[:insurancepolicyholderzip.to_s]
+        leo_insurance.holder_country = insurance[:insurancepolicyholdercountrycode.to_s]
+        leo_insurance.primary = insurance[:sequencenumber.to_s]
+
+        leo_insurance.save!
+      end
+
+      leo_user.patient.insurances_updated_at = DateTime.now.utc
+      leo_user.patient.save!
     end
   end
 end

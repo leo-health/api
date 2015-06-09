@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150602063437) do
+ActiveRecord::Schema.define(version: 20150609204507) do
 
   create_table "allergies", force: :cascade do |t|
     t.integer  "patient_id"
@@ -100,7 +100,6 @@ ActiveRecord::Schema.define(version: 20150602063437) do
   end
 
   create_table "insurances", force: :cascade do |t|
-    t.integer  "user_id"
     t.integer  "athena_id",          default: 0, null: false
     t.string   "plan_name"
     t.string   "plan_phone"
@@ -121,10 +120,11 @@ ActiveRecord::Schema.define(version: 20150602063437) do
     t.integer  "primary"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.integer  "patient_id"
   end
 
   add_index "insurances", ["athena_id"], name: "index_insurances_on_athena_id"
-  add_index "insurances", ["user_id"], name: "index_insurances_on_user_id"
+  add_index "insurances", ["patient_id"], name: "index_insurances_on_patient_id"
 
   create_table "medications", force: :cascade do |t|
     t.integer  "patient_id"

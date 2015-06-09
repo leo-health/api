@@ -580,6 +580,15 @@ module AthenaHealthApiHelper
       #TODO: why do we need to do double array de-ref
       return val[:medications.to_s][0]
     end
+
+    def get_patient_insurances(patientid:)
+
+      params = {}
+
+      return get_paged(
+        url: "patients/#{patientid}/insurances", params: params, 
+        headers: @@common_headers, field: :insurances)
+    end
   end
 
   class MockConnector
