@@ -1,0 +1,10 @@
+branch-defaults:
+  master:
+    environment: api-env
+global:
+  application_name: api
+  default_ec2_keyname: devenv-key
+  default_platform: Ruby 2.2 (Puma)
+  default_region: null
+  profile: null
+  sc: git
