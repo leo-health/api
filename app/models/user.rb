@@ -43,7 +43,8 @@ class User < ActiveRecord::Base
   devise :invitable, :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  validates :first_name, :last_name, :email,  presence: true
+  validates :first_name, :last_name, presence: true
+  validates :email, presence: true, unless: :is_child?
 
   ROLES = {
   			# Admin is 1
@@ -72,14 +73,32 @@ class User < ActiveRecord::Base
   	u.update_attribute(:authentication_token, nil)
   end
 
-  # Class variables, methods and properties to help better filter and retrieve records
+  def create_or_update_stripe_customer_id(token)
+    Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"
 
+    # Create a Stripe Customer
+    customer = Stripe::Customer.create(
+      :source => token,
+      :description => self.id
+    )
+    self.stripe_customer_id = customer.id
+    self.save
+  end
+
+  # Class variables, methods and properties to help better filter and retrieve records
   def self.for_user(user)
     # TODO. Think through this and design better
+    my_family_id = user.family_id
     if user.has_role? :parent
-      user.family.members
+      User.joins(:roles).where{
+        (family_id.eq(my_family_id)) | (roles.name.matches 'physician' )
+      }
+      
     elsif user.has_role? :guardian
-      user.family.members
+      User.joins(:roles).where{
+        (family_id.eq(my_family_id)) | (roles.name.matches 'physician' )
+      }
+      
     elsif user.has_role? :child
       [user]
     elsif user.has_role? :physician
@@ -95,13 +114,41 @@ class User < ActiveRecord::Base
 
   # Helper methods to render attributes in a more friednly way
 
+  def is_child?
+    self.has_role? :child 
+  end
+
+  def email_required?
+    if self.is_child?
+      false
+    else
+      super
+    end
+  end
+
+  def password_required?
+    if self.is_child?
+      false
+    else
+      super
+    end
+  end
+
   def primary_role
-    self.roles.first.name
+    if self.roles and self.roles.count > 0
+      self.roles.first.name 
+    else
+      nil
+    end
   end
 
   # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
   def init
     self.practice_id ||= 1
+  end
+
+  def to_debug
+    self.to_yaml
   end
 
 end

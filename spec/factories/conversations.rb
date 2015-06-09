@@ -18,7 +18,6 @@ FactoryGirl.define do
     	after(:create) do |instance|
     		family = create(:family_with_members)
     		instance.participants << family.parents
-    		instance.children << [family.children.first]
     	end
     end
   end

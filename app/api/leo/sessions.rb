@@ -32,17 +32,19 @@ module Leo
 				if user.nil? or !user.valid_password?(password)
 					error!({error_code: 404, error_message: "Invalid Email or Password."},401)
 					return
-				# end
-				#
-				# if !user.valid_password?(password)
-				#	error!({error_code: 404, error_message: "Invalid Email or Password."},401)
-				#	return
-				else  # Everything checks out. Log them in
-					user.ensure_authentication_token
-					user.save
-					present :token, user.authentication_token
-					present	:user, user, with: Leo::Entities::UserEntity
 				end
+				
+				# Prevent children from logging in (Issue #59)
+				if user.has_role? :child
+					error!({error_code: 404, error_message: "This user is not allowed to log in."},401)
+					return
+				end					
+
+				# Everything checks out. Log them in
+				user.ensure_authentication_token
+				user.save
+				present :token, user.authentication_token
+				present	:user, user, with: Leo::Entities::UserEntity
 			end
 
 			desc "Destroy the access token"
@@ -106,20 +108,20 @@ module Leo
 
 					# A blank value was submitted for one of the paramaters
 					if email.nil? or old_password.nil? or new_password.nil? or new_password_confirmation.nil?
-						error!({error_code: 404, error_message: "Invalid email or password."})
+						error!({error_code: 422, error_message: "Invalid email or password."})
 						return
 					end
 
 					user = User.where(email: email.downcase).first
 					# The user doesn't exist, or the password for the user is not valid
 					if user.nil? or !user.valid_password?(password)
-						error!({error_code: 404, error_message: "Invalid Email or Password."},401)
+						error!({error_code: 422, error_message: "Invalid Email or Password."},422)
 						return
 					end
 
 					# The new_password and new_password confirmation don't match
 					if new_password != new_password_confirmation
-						error!({error_code: 404, error_message: "New Password and New Password Confirmation don't match."})
+						error!({error_code: 422, error_message: "New Password and New Password Confirmation don't match."})
 						return
 					else
 						user.reset_password!(new_password, new_password_confirmation)

@@ -27,3 +27,9 @@ This is the core api for the leo-health services.
 2a. First run `rake db:test:prepare` on the command line 
 2b. Then run `spring rspec`
 
+
+## Setting Up
+1. Prerequisites: rvm, git, rails (via rvm), postgres
+2. Clone repository from git
+3. Run `rake db:seed` to populate the database with seeds (roles, etc.)
+4. Run `rails s` to start the local server
