@@ -49,7 +49,7 @@ vendor/bundle/
 .DS_Store
 
 #aws
-.elasticbeanstalk
+.elasticbeanstalk/
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
