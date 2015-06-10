@@ -29,11 +29,12 @@ test: &test
 
 production:
   adapter: postgresql    
-  database: <%= ENV['RDS_DB_NAME'] %>
-  username: <%= ENV['RDS_USERNAME'] %>
-  password: <%= ENV['RDS_PASSWORD'] %>
-  host: <%= ENV['RDS_HOST'] %>
-  port: <%= ENV['RDS_PORT'] %>
+  database: ebdb
+  username: leo
+  password: Y3sW3Cod3!
+  host: aa7jx2e3cqq6qf.cttpadfmmego.us-west-2.rds.amazonaws.com
+  port: 5432
+  pool: 5
   # port: 5432
   # socket: /tmp/postgresql.sock
 
