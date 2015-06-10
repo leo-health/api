@@ -46,7 +46,6 @@ production:
   host: <%= ENV['RDS_HOST'] %>
   port: <%= ENV['RDS_PORT'] %>
   pool: 5
-  # port: 5432
   # socket: /tmp/postgresql.sock
 
 cucumber:
