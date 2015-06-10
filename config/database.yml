@@ -27,5 +27,15 @@ production:
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: 5
 
+  rds:
+    adapter: postgresql
+    encoding: unicode
+    pool: 5
+    username: leo
+    password: Y3sW3Cod3!
+    host: aa7jx2e3cqq6qf.cttpadfmmego.us-west-2.rds.amazonaws.com
+    # port: 5432
+    # socket: /tmp/postgresql.sock
+
 cucumber:
   <<: *test
