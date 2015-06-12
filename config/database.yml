@@ -27,25 +27,25 @@ test: &test
   # http://guides.rubyonrails.org/configuring.html#database-pooling
 #  pool: 5
 
-production:
-  adapter: postgresql    
-  database: ebdb
-  username: leo
-  password: Y3sW3Cod3!
-  host: aawakxmkhxue8n.cttpadfmmego.us-west-2.rds.amazonaws.com
-  port: 5432
-  pool: 5
+# production:
+#   adapter: postgresql    
+#   database: ebdb
+#   username: leo
+#   password: Y3sW3Cod3!
+#   host: aawakxmkhxue8n.cttpadfmmego.us-west-2.rds.amazonaws.com
+#   port: 5432
+#   pool: 5
   # port: 5432
   # socket: /tmp/postgresql.sock
 
-# production:
-#   adapter: postgresql    
-#   database: <%= ENV['RDS_DB_NAME'] %>
-#   username: <%= ENV['RDS_USERNAME'] %>
-#   password: <%= ENV['RDS_PASSWORD'] %>
-#   host: <%= ENV['RDS_HOST'] %>
-#   port: <%= ENV['RDS_PORT'] %>
-#   pool: 5
+production:
+  adapter: postgresql    
+  database: <%= ENV['RDS_DB_NAME'] %>
+  username: <%= ENV['RDS_USERNAME'] %>
+  password: <%= ENV['RDS_PASSWORD'] %>
+  host: <%= ENV['RDS_HOST'] %>
+  port: <%= ENV['RDS_PORT'] %>
+  pool: 5
   # socket: /tmp/postgresql.sock
 
 cucumber:
