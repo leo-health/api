@@ -20,24 +20,6 @@ test: &test
   <<: *default
   database: db/test.sqlite3
 
-#production:
-#  adapter: postgresql
-#  encoding: unicode
-  # For details on connection pooling, see rails configuration guide
-  # http://guides.rubyonrails.org/configuring.html#database-pooling
-#  pool: 5
-
-# production:
-#   adapter: postgresql    
-#   database: ebdb
-#   username: leo
-#   password: Y3sW3Cod3!
-#   host: aawakxmkhxue8n.cttpadfmmego.us-west-2.rds.amazonaws.com
-#   port: 5432
-#   pool: 5
-  # port: 5432
-  # socket: /tmp/postgresql.sock
-
 production:
   adapter: postgresql
   encoding: utf8
