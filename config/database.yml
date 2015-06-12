@@ -39,13 +39,13 @@ test: &test
   # socket: /tmp/postgresql.sock
 
 production:
-  adapter: postgresql    
+  adapter: postgresql
+  encoding: utf8
   database: <%= ENV['RDS_DB_NAME'] %>
   username: <%= ENV['RDS_USERNAME'] %>
   password: <%= ENV['RDS_PASSWORD'] %>
-  host: <%= ENV['RDS_HOST'] %>
+  host: <%= ENV['RDS_HOSTNAME'] %>
   port: <%= ENV['RDS_PORT'] %>
-  pool: 5
   # socket: /tmp/postgresql.sock
 
 cucumber:
