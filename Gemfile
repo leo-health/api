@@ -28,7 +28,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
-gem 'devise'                # Authentication 
+gem 'devise'                # Authentication
 gem 'devise_invitable'      # Inviting users
 gem 'grape'                 # Our API base
 gem 'grape-entity'
@@ -80,12 +80,11 @@ group :development do
   gem 'byebug'
   gem 'rails-footnotes'
   gem 'rails_layout'
-  gem 'sqlite3'
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
 end
 
-group :test do 
+group :test do
   # gem 'cucumber-rails', :require => false
   gem 'database_cleaner'
 end
@@ -97,4 +96,4 @@ group :production do
 	gem 'unicorn'
 end
 
-ruby '2.2.0'
+ruby '2.2.2'
