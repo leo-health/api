@@ -23,13 +23,28 @@ module SyncService
     if SyncService.configuration.auto_gen_scan_tasks
       SyncTask.find_or_create_by(sync_type: :scan_patients.to_s) if SyncTask.table_exists?
     end
+
+    if SyncService.configuration.auto_gen_scan_tasks
+      SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s) if SyncTask.table_exists?
+    end
   end
 
   class Configuration
+    #Should ProcessSyncTasksJob reschedule itself on completion?
+    #Set to true unless doing some kind of testing
     attr_accessor :auto_reschedule_job
+
+    #Interval between successive runs of ProcessSyncTasksJob
     attr_accessor :job_interval
+
+    #Should scanner tasks be auto-generated?  Scanner tasks scan the Leo DB and schedule SyncTasks for individual entities
+    #Set to true unless doing testing.
     attr_accessor :auto_gen_scan_tasks
+
+    #The interval between succesive patient data updates.
     attr_accessor :patient_data_interval
+
+    #The interval between successive appointment updates
     attr_accessor :appointment_data_interval
 
     def initialize
@@ -191,7 +206,7 @@ module SyncServiceHelper
       #create appointment
       if leo_appt.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
-        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.leo_patient.nil? || leo_appt.leo_patient.athena_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.leo_patient.patient.nil? || leo_appt.leo_patient.patient.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_provider_id" if leo_appt.athena_provider_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_department_id" if leo_appt.athena_department_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_appointment_type_id" if leo_appt.athena_appointment_type_id == 0
@@ -208,7 +223,7 @@ module SyncServiceHelper
         #book appointment
         @connector.book_appointment(
             appointmentid: leo_appt.athena_id,
-            patientid: leo_appt.user.athena_id,
+            patientid: leo_appt.leo_patient.patient.athena_id,
             reasonid: nil,
             appointmenttypeid: leo_appt.athena_appointment_type_id,
             departmentid: leo_appt.athena_department_id
@@ -236,12 +251,12 @@ module SyncServiceHelper
           @connector.reschedule_appointment(
             appointmentid: leo_appt.athena_id,
             newappointmentid: leo_resched_appt.athena_id, 
-            patientid: leo_appt.user.athena_id
+            patientid: leo_appt.leo_patient.patient.athena_id
           )
         else
           #cancel
           @connector.cancel_appointment(appointmentid: leo_appt.athena_id, 
-            patientid: leo_appt.user.athena_id) if athena_appt.booked?
+            patientid: leo_appt.leo_patient.patient.athena_id) if athena_appt.booked?
         end
       else
         leo_appt.appointment_status = athena_appt.appointmentstatus
