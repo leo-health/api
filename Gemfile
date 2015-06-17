@@ -28,7 +28,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
-gem 'devise'                # Authentication 
+gem 'devise'                # Authentication
 gem 'devise_invitable'      # Inviting users
 gem 'grape'                 # Our API base
 gem 'grape-entity'
@@ -84,7 +84,7 @@ group :development do
   gem 'web-console', '~> 2.0'
 end
 
-group :test do 
+group :test do
   # gem 'cucumber-rails', :require => false
   gem 'database_cleaner'
 end
