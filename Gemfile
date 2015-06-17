@@ -50,6 +50,7 @@ gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
 	gem 'factory_girl_rails'
+  gem "parallel_tests"
 	#gem 'guard'
   #gem 'guard-rspec'
   ## gem 'guard-cucumber'
