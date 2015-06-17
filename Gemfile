@@ -80,7 +80,6 @@ group :development do
   gem 'byebug'
   gem 'rails-footnotes'
   gem 'rails_layout'
-  gem 'sqlite3'
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
 end
@@ -97,4 +96,4 @@ group :production do
 	gem 'unicorn'
 end
 
-ruby '2.2.0'
+ruby '2.2.2'
