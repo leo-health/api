@@ -41,7 +41,7 @@ node_modules
 vendor/bundle/
 .DS_Store
 
-# Elastic Beanstalk Files
+# Ignore Elastic Beanstalk Files
 .elasticbeanstalk/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
