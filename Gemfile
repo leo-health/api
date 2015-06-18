@@ -57,6 +57,7 @@ group :development, :test do
   #gem 'guard-livereload'
   #gem 'guard-spork'
   ## gem 'guard-brakeman'
+  gem 'byebug'
   gem 'launchy'
   gem 'letter_opener'
 	gem 'letter_opener_web', '~> 1.2.0'
@@ -77,7 +78,6 @@ group :development do
 	# gem 'brakeman'
   gem 'bullet'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
   gem 'rails-footnotes'
   gem 'rails_layout'
   # Access an IRB console on exception pages or by using <%= console %> in views
@@ -86,6 +86,7 @@ end
 
 group :test do
   # gem 'cucumber-rails', :require => false
+  gem 'grape-entity-matchers'
   gem 'database_cleaner'
 end
 
