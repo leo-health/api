@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20150602063437) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status",         default: "o", null: false
     t.string   "athena_appointment_type"
@@ -35,18 +38,18 @@ ActiveRecord::Schema.define(version: 20150602063437) do
     t.integer  "athena_department_id",       default: 0,   null: false
   end
 
-  add_index "appointments", ["appointment_date"], name: "index_appointments_on_appointment_date"
-  add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id"
-  add_index "appointments", ["athena_department_id"], name: "index_appointments_on_athena_department_id"
-  add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id"
-  add_index "appointments", ["athena_patient_id"], name: "index_appointments_on_athena_patient_id"
-  add_index "appointments", ["athena_provider_id"], name: "index_appointments_on_athena_provider_id"
-  add_index "appointments", ["booked_by_user_id"], name: "index_appointments_on_booked_by_user_id"
-  add_index "appointments", ["family_id"], name: "index_appointments_on_family_id"
-  add_index "appointments", ["leo_appointment_type"], name: "index_appointments_on_leo_appointment_type"
-  add_index "appointments", ["leo_patient_id"], name: "index_appointments_on_leo_patient_id"
-  add_index "appointments", ["leo_provider_id"], name: "index_appointments_on_leo_provider_id"
-  add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id"
+  add_index "appointments", ["appointment_date"], name: "index_appointments_on_appointment_date", using: :btree
+  add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id", using: :btree
+  add_index "appointments", ["athena_department_id"], name: "index_appointments_on_athena_department_id", using: :btree
+  add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id", using: :btree
+  add_index "appointments", ["athena_patient_id"], name: "index_appointments_on_athena_patient_id", using: :btree
+  add_index "appointments", ["athena_provider_id"], name: "index_appointments_on_athena_provider_id", using: :btree
+  add_index "appointments", ["booked_by_user_id"], name: "index_appointments_on_booked_by_user_id", using: :btree
+  add_index "appointments", ["family_id"], name: "index_appointments_on_family_id", using: :btree
+  add_index "appointments", ["leo_appointment_type"], name: "index_appointments_on_leo_appointment_type", using: :btree
+  add_index "appointments", ["leo_patient_id"], name: "index_appointments_on_leo_patient_id", using: :btree
+  add_index "appointments", ["leo_provider_id"], name: "index_appointments_on_leo_provider_id", using: :btree
+  add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id", using: :btree
 
   create_table "conversations", force: :cascade do |t|
     t.datetime "created_at",           null: false
@@ -64,8 +67,8 @@ ActiveRecord::Schema.define(version: 20150602063437) do
     t.string  "participant_role"
   end
 
-  add_index "conversations_participants", ["conversation_id", "participant_id"], name: "conversations_participants_convid_pid", unique: true
-  add_index "conversations_participants", ["participant_id", "conversation_id"], name: "conversations_participants_pid_convid", unique: true
+  add_index "conversations_participants", ["conversation_id", "participant_id"], name: "conversations_participants_convid_pid", unique: true, using: :btree
+  add_index "conversations_participants", ["participant_id", "conversation_id"], name: "conversations_participants_pid_convid", unique: true, using: :btree
 
   create_table "delayed_jobs", force: :cascade do |t|
     t.integer  "priority",   default: 0, null: false
@@ -81,7 +84,7 @@ ActiveRecord::Schema.define(version: 20150602063437) do
     t.datetime "updated_at"
   end
 
-  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority"
+  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -117,8 +120,8 @@ ActiveRecord::Schema.define(version: 20150602063437) do
     t.datetime "updated_at"
   end
 
-  add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
-  add_index "roles", ["name"], name: "index_roles_on_name"
+  add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
+  add_index "roles", ["name"], name: "index_roles_on_name", using: :btree
 
   create_table "sync_tasks", force: :cascade do |t|
     t.integer  "sync_id",     default: 0, null: false
@@ -128,9 +131,9 @@ ActiveRecord::Schema.define(version: 20150602063437) do
     t.datetime "updated_at",              null: false
   end
 
-  add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id"
-  add_index "sync_tasks", ["sync_source"], name: "index_sync_tasks_on_sync_source"
-  add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type"
+  add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id", using: :btree
+  add_index "sync_tasks", ["sync_source"], name: "index_sync_tasks_on_sync_source", using: :btree
+  add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "title",                  default: ""
@@ -165,18 +168,18 @@ ActiveRecord::Schema.define(version: 20150602063437) do
     t.string   "stripe_customer_id"
   end
 
-  add_index "users", ["authentication_token"], name: "index_users_on_authentication_token"
-  add_index "users", ["email"], name: "index_users_on_email", unique: true
-  add_index "users", ["invitation_token"], name: "index_users_on_invitation_token", unique: true
-  add_index "users", ["invitations_count"], name: "index_users_on_invitations_count"
-  add_index "users", ["invited_by_id"], name: "index_users_on_invited_by_id"
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", using: :btree
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["invitation_token"], name: "index_users_on_invitation_token", unique: true, using: :btree
+  add_index "users", ["invitations_count"], name: "index_users_on_invitations_count", using: :btree
+  add_index "users", ["invited_by_id"], name: "index_users_on_invited_by_id", using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "users_roles", id: false, force: :cascade do |t|
     t.integer "user_id"
     t.integer "role_id"
   end
 
-  add_index "users_roles", ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id"
+  add_index "users_roles", ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id", using: :btree
 
 end
