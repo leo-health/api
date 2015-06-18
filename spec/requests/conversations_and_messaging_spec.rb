@@ -2,7 +2,7 @@ require 'airborne'
 
 describe 'Creating conversations and managing participants when not authenticated', trans_off: true do
 	before(:each) do 
-		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 1)
+		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 2)
 	# 	FactoryGirl.create(:conversation_with_participants)
 	end
 	it 'should not allow you to create a conversation when not signed in' do
@@ -17,7 +17,7 @@ describe 'Creating conversations and managing participants when not authenticate
 end
 describe 'Creating conversations and managing participants when not authenticated', trans_off: true do
 	before(:each) do 
-		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 1)
+		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 2)
 		create(:family_with_members)
 
 	# 	FactoryGirl.create(:conversation_with_participants)
@@ -34,8 +34,5 @@ describe 'Creating conversations and managing participants when not authenticate
 		@post_params = @conv_params.merge(@auth_params)
 		post '/api/v1/conversations', @post_params, format: :json
 		expect(response).to have_http_status(201)
-
 	end
-
-
 end
