@@ -1,10 +1,11 @@
 require 'airborne'
+require 'rails_helper'
 
 describe 'Creating conversations and managing participants when not authenticated', trans_off: true do
-	before(:each) do 
+	before do
 		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 1)
-	# 	FactoryGirl.create(:conversation_with_participants)
-	end
+  end
+
 	it 'should not allow you to create a conversation when not signed in' do
 		post '/api/v1/conversations', format: :json
 		expect(response).to have_http_status(403)
@@ -15,13 +16,12 @@ describe 'Creating conversations and managing participants when not authenticate
 		expect(response).to have_http_status(403)
 	end
 end
+
 describe 'Creating conversations and managing participants when not authenticated', trans_off: true do
-	before(:each) do 
+	before do
 		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 1)
 		create(:family_with_members)
-
-	# 	FactoryGirl.create(:conversation_with_participants)
-	end
+  end
 
 	it 'should allow creation of a conversation valid parameters when logged in' do
 		@login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
@@ -34,8 +34,5 @@ describe 'Creating conversations and managing participants when not authenticate
 		@post_params = @conv_params.merge(@auth_params)
 		post '/api/v1/conversations', @post_params, format: :json
 		expect(response).to have_http_status(201)
-
 	end
-
-
 end
