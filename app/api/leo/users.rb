@@ -52,7 +52,6 @@ module Leo
         optional :role,     type: String,   desc: "Return users with this role"
       end
       get do
-        puts "In get users"
         authenticated_user
         users = User.for_user(current_user)
 
