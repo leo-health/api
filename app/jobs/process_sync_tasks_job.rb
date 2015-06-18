@@ -3,7 +3,7 @@ require "athena_health_api_helper"
 
 class ProcessSyncTasksJob
   def perform(*args)
-    SyncServiceHelper::Syncher.new(
+    SyncServiceHelper::Syncer.new(
       AthenaHealthApiHelper::AthenaHealthApiConnector.new()).process_all_sync_tasks()
   end
 

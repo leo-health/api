@@ -11,7 +11,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       it "generate initial appointment sync tasks" do
         connector = AthenaHealthApiHelper::MockConnector.new()
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         create(:appointment, athena_department_id: department_id)
@@ -21,14 +21,14 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :scan_appointments, sync_id: 0)
-        syncher.process_scan_appointments(task)
+        syncer.process_scan_appointments(task)
 
         expect(SyncTask.all.empty?).to eq(false)
       end
 
       it "sync booked leo appointment with missing athena appointment" do
         connector = AthenaHealthApiHelper::MockConnector.new()
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "f", athena_id: 0, athena_department_id: department_id, 
@@ -38,7 +38,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -71,7 +71,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
               :frozenyn => true
             }         
           ])
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "f", athena_id: 1, athena_department_id: department_id, 
@@ -81,7 +81,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -114,7 +114,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
               :frozenyn => false
             }         
           ])
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "f", athena_id: 1, athena_department_id: department_id, 
@@ -124,7 +124,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -157,7 +157,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
               :frozenyn => false
             }         
           ])
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "f", athena_id: 1, athena_department_id: department_id, 
@@ -167,7 +167,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -189,7 +189,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       it "sync cancelled leo appointment with missing athena appointment" do
         connector = AthenaHealthApiHelper::MockConnector.new()
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "x", athena_id: 0, athena_department_id: department_id, 
@@ -199,7 +199,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -232,7 +232,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
               :frozenyn => true
             }         
           ])
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "x", athena_id: 1, athena_department_id: department_id, 
@@ -242,7 +242,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -275,7 +275,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
               :frozenyn => true
             }         
           ])
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "x", athena_id: 1, athena_department_id: department_id, 
@@ -285,7 +285,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -318,7 +318,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
               :frozenyn => true
             }         
           ])
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         leo_appt = create(:appointment, appointment_status: "x", athena_id: 1, athena_department_id: department_id, 
@@ -328,7 +328,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)
@@ -349,7 +349,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       it "sync rescheduled leo appointment with missing athena appointment" do
         connector = AthenaHealthApiHelper::MockConnector.new()
-        syncher = SyncServiceHelper::Syncher.new(connector)
+        syncer = SyncServiceHelper::Syncer.new(connector)
 
         #create appointment in leo
         resched_appt = create(:appointment, appointment_status: "f", athena_id: 0, athena_department_id: department_id, 
@@ -361,7 +361,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         #generate sync task for the appointment
         task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncher.process_appointment(task)
+        syncer.process_appointment(task)
 
         #get updated appointment from leo
         leo_appt = Appointment.find(leo_appt.id)

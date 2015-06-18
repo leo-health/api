@@ -56,16 +56,16 @@ module SyncService
     end
   end
 
-  def self.create_debug_syncher(practice_id: 195900)
+  def self.create_debug_syncer(practice_id: 195900)
     connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new(practice_id: practice_id)
-    syncher = SyncServiceHelper::Syncher.new(connector)
+    syncer = SyncServiceHelper::Syncer.new(connector)
 
-    return syncher
+    return syncer
   end
 end
 
 module SyncServiceHelper
-  class Syncher
+  class Syncer
     @debug = false
 
     attr_reader :connector
@@ -85,7 +85,7 @@ module SyncServiceHelper
           #destroy task if everything went ok
           task.destroy
         rescue => e 
-          Rails.logger.error "Syncher: Processing sync task id=#{task.id} failed"
+          Rails.logger.error "Syncer: Processing sync task id=#{task.id} failed"
           Rails.logger.error e.message
           Rails.logger.error e.backtrace.join("\n")
         end
@@ -100,7 +100,7 @@ module SyncServiceHelper
     # ==== arguments
     # * +task+ - the sync task to process
     def process_sync_task(task)
-      Rails.logger.info("Syncher: Processing task #{task.to_json}")
+      Rails.logger.info("Syncer: Processing task #{task.to_json}")
 
       if task.sync_type  == :appointment.to_s
         process_appointment(task)
@@ -143,7 +143,7 @@ module SyncServiceHelper
           end
 
         rescue => e 
-          Rails.logger.error "Syncher: Creating sync task for appointment.id=#{appt.id} failed"
+          Rails.logger.error "Syncer: Creating sync task for appointment.id=#{appt.id} failed"
           Rails.logger.error e.message
           Rails.logger.error e.backtrace.join("\n")
         end
@@ -192,7 +192,7 @@ module SyncServiceHelper
               end
             end
           rescue => e 
-            Rails.logger.error "Syncher: Creating sync task for patient user.id=#{user.id} failed"
+            Rails.logger.error "Syncer: Creating sync task for patient user.id=#{user.id} failed"
             Rails.logger.error e.message
             Rails.logger.error e.backtrace.join("\n")
           end
@@ -349,12 +349,12 @@ module SyncServiceHelper
         begin
           leo_patient = Patient.find_or_create_by(user_id: task.sync_id)
         rescue => e 
-          Rails.logger.error "Syncher: Creating patient for user.id=#{task.sync_id} failed"
+          Rails.logger.error "Syncer: Creating patient for user.id=#{task.sync_id} failed"
           Rails.logger.error e.message
           Rails.logger.error e.backtrace.join("\n")
         end
 
-        Rails.logger.info("Syncher: synching patient=#{leo_patient.to_json}")
+        Rails.logger.info("Syncer: synching patient=#{leo_patient.to_json}")
       
         patient_dob = leo_user.dob.strftime("%m/%d/%Y") if leo_user.dob
         parent_dob = leo_parent.dob.strftime("%m/%d/%Y") if leo_parent.dob
@@ -411,7 +411,7 @@ module SyncServiceHelper
 
       #get list of photos for this patients
       photos = leo_user.patient.photos.order("id desc")
-      Rails.logger.info("Syncher: synching photos=#{photos.to_json}")
+      Rails.logger.info("Syncer: synching photos=#{photos.to_json}")
 
       if photos.empty?
         @connector.delete_patient_photo(patientid: leo_user.patient.athena_id)
@@ -433,11 +433,11 @@ module SyncServiceHelper
       allergies = @connector.get_patient_allergies(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
 
       #remove existing allergies for the user
-      Allergie.destroy_all(patient_id: leo_user.patient.id)
+      Allergy.destroy_all(patient_id: leo_user.patient.id)
 
       #create and/or update the allergy records in Leo
       allergies.each do | allergy |
-        leo_allergy = Allergie.find_or_create_by(patient_id: leo_user.patient.id, athena_id: allergy[:allergenid.to_s].to_i)
+        leo_allergy = Allergy.find_or_create_by(patient_id: leo_user.patient.id, athena_id: allergy[:allergenid.to_s].to_i)
 
         leo_allergy.patient_id = leo_user.patient.id
         leo_allergy.athena_id = allergy[:allergenid.to_s].to_i
