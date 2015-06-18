@@ -2,19 +2,19 @@ require 'airborne'
 require 'rails_helper'
 
 describe 'Creating conversations and managing participants when not authenticated', trans_off: true do
-	before do
-		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 1)
+  before do
+    create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 1)
     create(:family_with_members)
   end
 
-	it 'should not allow you to create a conversation when not signed in' do
-		post '/api/v1/conversations', format: :json
-		expect(response).to have_http_status(403)
-	end
+  it 'should not allow you to create a conversation when not signed in' do
+    post '/api/v1/conversations', format: :json
+    expect(response).to have_http_status(403)
+  end
 
-	it 'should not allow you to access conversations when not signed in' do
-		get '/api/v1/conversations', format: :json
-		expect(response).to have_http_status(403)
+  it 'should not allow you to access conversations when not signed in' do
+    get '/api/v1/conversations', format: :json
+    expect(response).to have_http_status(403)
   end
 
   it 'should allow creation of a conversation valid parameters when logged in' do
