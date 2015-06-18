@@ -44,5 +44,4 @@ FactoryGirl.define do
     athena_id 0
     athena_department_id 1
   end
-
 end
