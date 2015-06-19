@@ -32,7 +32,6 @@ module Leo
 
     include Grape::Kaminari
 
-    #rescue_from :all, :backtrace => true
     formatter :json, JSendSuccessFormatter
     error_formatter :json, JSendErrorFormatter
 
