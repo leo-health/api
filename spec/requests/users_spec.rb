@@ -15,7 +15,6 @@ describe Leo::Users do
       it 'should create a user with parent role' do
         do_request
         body = JSON.parse(response.body, :symbolize_names => true)
-        byebug
         expect(response.status).to eq(200)
       end
     end

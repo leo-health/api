@@ -8,6 +8,7 @@ class Family < ActiveRecord::Base
     self.members.order('created_at ASC').first
   end
 
+  #wuang-make sure the conversation.first method would grab the primary conversation
   def conversation
     ensure_default_conversation_exists
     self.conversations.first

@@ -70,12 +70,9 @@ class User < ActiveRecord::Base
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"
 
     # Create a Stripe Customer
-    customer = Stripe::Customer.create(
-      :source => token,
-      :description => self.id
-    )
-    self.stripe_customer_id = customer.id
-    self.save
+    if customer = Stripe::Customer.create(:source => token, :description => self.id)
+      update_attributes(stripe_customer_id: customer.id)
+    end
   end
 
   # Class variables, methods and properties to help better filter and retrieve records
@@ -108,40 +105,27 @@ class User < ActiveRecord::Base
   # Helper methods to render attributes in a more friednly way
 
   def is_child?
-    self.has_role? :child 
+    has_role? :child
   end
 
   def email_required?
-    if self.is_child?
-      false
-    else
-      super
-    end
+    (is_child?) ? false :super
   end
 
   def password_required?
-    if self.is_child?
-      false
-    else
-      super
-    end
+    (is_child?) ? false : super
   end
 
   def primary_role
-    if self.roles and self.roles.count > 0
-      self.roles.first.name 
-    else
-      nil
-    end
+    roles.first.name if (roles and roles.count > 0)
   end
 
   # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
   def init
-    self.practice_id ||= 1
+    practice_id ||= 1
   end
 
   def to_debug
-    self.to_yaml
+    to_yaml
   end
-
 end
