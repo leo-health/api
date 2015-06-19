@@ -35,11 +35,14 @@
 #
 
 class User < ActiveRecord::Base
+  belongs_to :family
+  has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
+  has_many :escalations, foreign_key: 'escalated_to_id'
+  has_many :invitations, :class_name => self.to_s, :as => :invited_by
+
   after_initialize :init
   rolify
   acts_as_token_authenticatable
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :invitable, :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
@@ -58,14 +61,6 @@ class User < ActiveRecord::Base
   			child: 22,
   			guardian: 23
   		}
-
-  # GET /roles
-
-  belongs_to :family
-  has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
-  # has_and_belongs_to_many :conversations, foreign_key: 'child_id', join_table: 'conversations_children'
-  has_many :escalations, foreign_key: 'escalated_to_id'
-  has_many :invitations, :class_name => self.to_s, :as => :invited_by
 
   def reset_authentication_token
   	u.update_attribute(:authentication_token, nil)

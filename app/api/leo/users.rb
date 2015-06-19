@@ -77,29 +77,28 @@ module Leo
         requires :dob,        type: String, desc: "Date of Birth"
         requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
       end
+
       post do
-        puts "In Create User"
         dob = Chronic.try(:parse, params[:dob])
-        if dob.nil?
-          error!({error_code: 422, error_message: "Invalid dob format"},422)
-          return
+        unless dob
+          error!({error_code: 422, error_message: "Invalid dob format"},422) and return
         end
 
         role = Role.where(name: params[:role])
-        family = Family.create! 
+        family = Family.create!
+        user_params = { first_name: params[:first_name],
+                        last_name: params[:last_name],
+                        email: params[:email],
+                        password: params[:password],
+                        dob: dob,
+                        family_id: family.id,
+                        sex: params[:sex] }
 
-        user = User.create!(
-        {
-          first_name:   params[:first_name],
-          last_name:    params[:last_name],
-          email:        params[:email],
-          password:     params[:password],
-          dob:          dob,
-          family_id:    family.id,
-          sex:          params[:sex]
-        })
-        user.roles << role
-        family.conversation.participants << user
+        if user = User.create(user_params)
+          user.roles.create(role)
+          family.conversation.participants.create(user)
+        end
+        #here just creating user, why assign user the auth_token? or say what is the use case here?
         user.ensure_authentication_token
         present :user, user, with: Leo::Entities::UserWithAuthEntity
       end

@@ -1,12 +1,3 @@
-# == Schema Information
-#
-# Table name: families
-#
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
-
 class Family < ActiveRecord::Base
   after_save :ensure_default_conversation_exists
 
