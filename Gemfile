@@ -51,6 +51,7 @@ group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
 	gem 'factory_girl_rails'
   gem 'awesome_print'
+  gem "parallel_tests"
 	#gem 'guard'
   #gem 'guard-rspec'
   ## gem 'guard-cucumber'
