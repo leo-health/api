@@ -11,7 +11,7 @@ describe Leo::Roles do
     end
 
     it "returns all roles" do
-      get '/api/v1/roles', format: :json
+      do_request
       expect(response.status).to eq(200)
       expect_json([parent, child].as_json)
     end
