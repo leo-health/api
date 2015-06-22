@@ -51,7 +51,8 @@ group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
 	gem 'factory_girl_rails'
   gem 'awesome_print'
-	#gem 'guard'
+  gem 'byebug'
+  #gem 'guard'
   #gem 'guard-rspec'
   ## gem 'guard-cucumber'
   #gem 'guard-livereload'
@@ -77,7 +78,6 @@ group :development do
 	# gem 'brakeman'
   gem 'bullet'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
   gem 'rails-footnotes'
   gem 'rails_layout'
   # Access an IRB console on exception pages or by using <%= console %> in views
