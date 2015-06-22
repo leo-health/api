@@ -138,7 +138,7 @@ module Leo
 
         desc "#update individual user information"
         params do
-          optional :email,      type: String, desc: "Email"
+          optional :email, type: String
         end
 
         put do
