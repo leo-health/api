@@ -52,7 +52,6 @@ module Leo
         optional :role,     type: String,   desc: "Return users with this role"
       end
       get do
-        puts "In get users"
         authenticated_user
         users = User.for_user(current_user)
 
@@ -115,7 +114,6 @@ module Leo
         end
         desc "Return a user"
         get do
-          puts "In get user"
           present :user, @user, with: Leo::Entities::UserEntity
         end
 
@@ -227,7 +225,6 @@ module Leo
             requires :user_id,         type: Integer, desc: "Id for user who's invitation is to be deleted"
           end
           delete do
-            puts "In DELETE /users/#{params[:id]}/invitations"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to delete this user's invitiations."}, 403)
               return
@@ -250,8 +247,8 @@ module Leo
         namespace :children do 
 
           # GET users/:id/children
+          desc "#get: get all children of individual user"
           get do
-            puts "In get /users/#{params[:id]}/children"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to list this user's children."}, 403)
               return
@@ -261,7 +258,7 @@ module Leo
           end
 
           # POST users/:id/children
-          desc "Create a child for this user"
+          desc "#post: create a child for this user"
           params do
             requires :first_name, type: String, desc: "First Name"
             requires :last_name,  type: String, desc: "Last Name"
@@ -270,7 +267,6 @@ module Leo
             requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
           end
           post do
-            puts "In post /users/#{params[:id]}/children"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to add a child for this user."}, 403)
               return
@@ -300,6 +296,26 @@ module Leo
             present :user, child, with: Leo::Entities::UserEntity
           end
 
+          desc "#put: update child information"
+          params do
+            requires :id, type: String, allow_blank: false
+            optional :email, type: String, user_unique: true
+            optional :first_name, type: String
+            optional :last_name, type: String
+            optional :phone_number, type: String
+            at_least_one_of :email, :first_name, :last_name, :phone_number
+          end
+
+          child_params = { email: params[:email],
+                           first_name: params[:first_name],
+                           last_name: params[:last_name],
+                           phone_number: params[:phone_number] }
+
+          put ':id' do
+            authenticate!
+            current_user.update_attributes(child_params)
+            present :user, child, with: Leo::Entities::UserEntity
+          end
         end
       end
 
