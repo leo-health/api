@@ -43,13 +43,14 @@ gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
 gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
-
+gem 'pg'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
 	gem 'factory_girl_rails'
+  gem 'awesome_print'
 	#gem 'guard'
   #gem 'guard-rspec'
   ## gem 'guard-cucumber'
@@ -67,7 +68,6 @@ group :development, :test do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-commands-rspec'
-  gem 'sqlite3'
 end
 
 group :development do
@@ -91,7 +91,6 @@ end
 
 group :production do
 	# Use Unicorn as the app server
-	gem 'pg'
 	gem 'rails_12factor'
 	gem 'unicorn'
 end
