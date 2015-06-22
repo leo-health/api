@@ -32,7 +32,6 @@ module Leo
 
     include Grape::Kaminari
 
-    #rescue_from :all, :backtrace => true
     formatter :json, JSendSuccessFormatter
     error_formatter :json, JSendErrorFormatter
 
@@ -52,7 +51,6 @@ module Leo
         optional :role,     type: String,   desc: "Return users with this role"
       end
       get do
-        puts "In get users"
         authenticated_user
         users = User.for_user(current_user)
 
@@ -78,34 +76,33 @@ module Leo
         requires :dob,        type: String, desc: "Date of Birth"
         requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
       end
+
       post do
-        puts "In Create User"
         dob = Chronic.try(:parse, params[:dob])
-        if dob.nil?
-          error!({error_code: 422, error_message: "Invalid dob format"},422)
-          return
+        unless dob
+          error!({error_code: 422, error_message: "Invalid dob format"},422) and return
         end
 
         role = Role.where(name: params[:role])
-        family = Family.create! 
+        family = Family.create!
+        user_params = { first_name: params[:first_name],
+                        last_name: params[:last_name],
+                        email: params[:email],
+                        password: params[:password],
+                        dob: dob,
+                        family_id: family.id,
+                        sex: params[:sex] }
 
-        user = User.create!(
-        {
-          first_name:   params[:first_name],
-          last_name:    params[:last_name],
-          email:        params[:email],
-          password:     params[:password],
-          dob:          dob,
-          family_id:    family.id,
-          sex:          params[:sex]
-        })
-        user.roles << role
-        family.conversation.participants << user
-        user.ensure_authentication_token
-        present :user, user, with: Leo::Entities::UserWithAuthEntity
+        if user = User.create(user_params)
+          user.roles << role
+          family.conversation.participants << user
+          user.ensure_authentication_token
+          present :user, user, with: Leo::Entities::UserWithAuthEntity
+        end
+        #here just creating user, why assign user the auth_token? or say what is the use case here?
       end
 
-      desc "Calls specific to a user"
+      desc "#show single user"
       route_param :id do 
         before do
           authenticated_user
@@ -115,19 +112,17 @@ module Leo
         end
         desc "Return a user"
         get do
-          puts "In get user"
           present :user, @user, with: Leo::Entities::UserEntity
         end
 
         params do
           requires :stripe_token,  type: String, desc: "Stripe Token to use for creating Stripe token"
         end
+        #extract the stripe part out later from users api
         post "/add_card" do
-          puts "In add_card"
           token = params[:stripe_token]
-          if token.blank? or token.nil?
-            error!({error_code: 422, error_message: "A valid stripe token is required."}, 422)
-            return
+          unless token || token.blank?
+            error!({error_code: 422, error_message: "A valid stripe token is required."}, 422) and return
           end
           # Save the customer ID in user table so you can use it later
           @user.create_or_update_stripe_customer_id(token)
@@ -143,7 +138,6 @@ module Leo
           optional :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
         end
         put do
-          puts "In Update User"
           sanitized_params = declared(params, {include_missing: false})
           if sanitized_params.key?('role')
             role = Role.where(name: sanitized_params[:role])
@@ -247,8 +241,7 @@ module Leo
           end
         end
 
-        namespace :children do 
-
+        namespace :children do
           # GET users/:id/children
           get do
             puts "In get /users/#{params[:id]}/children"
@@ -283,27 +276,22 @@ module Leo
             end
 
             family = @user.family
-            role = Role.where(name: :child)
-            
-            child = User.new(
-            {
-              first_name:   params[:first_name],
-              last_name:    params[:last_name],
-              email:        params[:email],
-              dob:          dob,
-              family_id:    family.id,
-              sex:          params[:sex]
-            })
 
-            child.add_role :child
-            child.save!
+            child_params = { first_name: params[:first_name],
+                              last_name: params[:last_name],
+                              email: params[:email],
+                              dob: dob,
+                              family_id: family.id,
+                              sex: params[:sex] }
+            
+            if child = User.create(child_params)
+              child.add_role :child
+              child.save!
+            end
             present :user, child, with: Leo::Entities::UserEntity
           end
-
         end
       end
-
-
     end
   end
 end
