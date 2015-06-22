@@ -94,12 +94,12 @@ module Leo
                         sex: params[:sex] }
 
         if user = User.create(user_params)
-          user.roles.create(role)
-          family.conversation.participants.create(user)
+          user.roles << role
+          family.conversation.participants << user
+          user.ensure_authentication_token
+          present :user, user, with: Leo::Entities::UserWithAuthEntity
         end
         #here just creating user, why assign user the auth_token? or say what is the use case here?
-        user.ensure_authentication_token
-        present :user, user, with: Leo::Entities::UserWithAuthEntity
       end
 
       desc "#show single user"

@@ -63,7 +63,7 @@ class User < ActiveRecord::Base
   		}
 
   def reset_authentication_token
-  	u.update_attribute(:authentication_token, nil)
+  	update_attribute(:authentication_token, nil)
   end
 
   def create_or_update_stripe_customer_id(token)
@@ -122,7 +122,7 @@ class User < ActiveRecord::Base
 
   # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
   def init
-    practice_id ||= 1
+    self.practice_id ||= 1
   end
 
   def to_debug
