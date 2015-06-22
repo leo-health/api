@@ -31,6 +31,7 @@ gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
 gem 'devise_invitable'      # Inviting users
 gem 'grape'                 # Our API base
+gem 'grape-cancan'
 gem 'grape-entity'
 gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
