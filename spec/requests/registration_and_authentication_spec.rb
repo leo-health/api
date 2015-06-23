@@ -21,7 +21,7 @@ describe 'User registration & login when a user doesn\'t exist -', trans_off: tr
 end
 
 describe 'User registration & login (when a user exists) -', trans_off: true do
-	let!(:user){create(:user)}
+  let!(:user){create(:user)}
 
   it 'should allow you to sign in for a user with valid credentials' do
     @login_params = { email: user.email, password: user.password }
