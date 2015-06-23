@@ -101,3 +101,17 @@ describe "DELETE /api/v1/users/id" do
     expect(User.count).to eq(1)
   end
 end
+
+describe "PUT /api/v1/users/id" do
+  let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
+  let!(:email){"new_email@leohealth.com"}
+  def do_request
+    put "/api/v1/users/#{user.id}", {access_token: "yAZ_3VHjVzt8uoi7uD7z", email: email}, format: :json
+  end
+
+  it "should update the user info, email only, for authenticated users" do
+    do_request
+    expect(response.status).to eq(200)
+    expect_json('data.user.email', email)
+  end
+end
