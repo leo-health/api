@@ -66,7 +66,7 @@ module Leo
         present :users, paginate(users), with: Leo::Entities::UserEntity
       end
 
-      desc "Create a user"
+      desc "#post create a user"
       params do
         requires :first_name, type: String, desc: "First Name"
         requires :last_name,  type: String, desc: "Last Name"
@@ -102,19 +102,26 @@ module Leo
         #here just creating user, why assign user the auth_token? or say what is the use case here?
       end
 
-      desc "#show single user"
+      desc "single user methods"
       route_param :id do 
         before do
           authenticated_user
         end
+
         after_validation do
           @user = User.find(params[:id])
         end
-        desc "Return a user"
+
+        desc "#show individual user"
+        params do
+          requires :id, type:String, allow_blank: false
+        end
+
         get do
           present :user, @user, with: Leo::Entities::UserEntity
         end
 
+        desc "add credit card for individual user"
         params do
           requires :stripe_token,  type: String, desc: "Stripe Token to use for creating Stripe token"
         end
@@ -129,33 +136,14 @@ module Leo
           present :user, @user, with: Leo::Entities::UserEntity
         end
 
+        desc "#update individual user information"
         params do
-          optional :first_name, type: String, desc: "First Name"
-          optional :last_name,  type: String, desc: "Last Name"
-          optional :email,      type: String, desc: "Email"
-          optional :role,       type: String, desc: "Role for the user. Get list from /roles", role_exists: true
-          optional :dob,        type: String, desc: "Date of Birth"
-          optional :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
+          optional :email, type: String
         end
-        put do
-          sanitized_params = declared(params, {include_missing: false})
-          if sanitized_params.key?('role')
-            role = Role.where(name: sanitized_params[:role])
-            sanitized_params.delete(:role)
-            # TODO: Find a way to add the role back after the update
-          end
-          
-          if sanitized_params.key?('dob')
-            dob = Chronic.try(:parse, params[:dob])
-            if dob.nil?
-              error!({error_code: 422, error_message: "Invalid dob format"},422)
-              return
-            end
-            sanitized_params[:dob] = dob
-          end
 
-          
-          if @user.update_attributes(sanitized_params)
+        put do
+          user_params = declared(params)
+          if @user.update_attributes(user_params)
             present :user, @user, with: Leo::Entities::UserEntity
           else
             error!({errors: @user.errors.messages})
