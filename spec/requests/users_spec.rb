@@ -2,7 +2,7 @@ require 'airborne'
 require 'rails_helper'
 
 describe 'Creating families and managing users -', trans_off: true do
-  before(:each) do
+  before do
     create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')
   end
 
@@ -22,12 +22,12 @@ describe 'Creating families and managing users -', trans_off: true do
     user = parsed["data"]["user"]
     expect(response).to have_http_status(201)
     expect_json({data:
-                     {user:
-                          { 	first_name: @post_data[:first_name],
-                             last_name: @post_data[:last_name],
-                             sex: @post_data[:sex]
-                          }
-                     }
+                   {user:
+                      { 	first_name: @post_data[:first_name],
+                         last_name: @post_data[:last_name],
+                         sex: @post_data[:sex]
+                      }
+                   }
                 })
   end
 
@@ -67,7 +67,7 @@ describe 'Creating families and managing users -', trans_off: true do
     it 'should allow you to add children to your family' do
       # Set up post params with the parent to be invited and the token
       @child_params = FactoryGirl.attributes_for(:user, :first_child)
-      @post_params = @child_params.merge(@auth_params)
+      @post_params = @child_params.merge!(@auth_params)
 
       # Set up the url and make the post request
       url = "/api/v1/users/#{@user_id}/children"
@@ -83,9 +83,45 @@ describe 'Creating families and managing users -', trans_off: true do
   end
 end
 
+describe 'POST /api/v1/users/id/children' do
+  let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
+
+  def do_request
+    @child_params = FactoryGirl.attributes_for(:user, :first_child).merge({access_token: user.authentication_token})
+    post "/api/v1/users/#{user.id}/children", @child_params, format: :json
+  end
+
+  it "should add a child to the family" do
+    do_request
+    expect(response.status).to eq(201)
+    expect_json('data.user.first_name', @child_params[:first_name])
+    expect_json('data.user.last_name', @child_params[:last_name])
+  end
+end
+
+describe 'GET /api/v1/users/id/children' do
+  let!(:family){create(:family_with_members)}
+
+  before do
+    @user = Role.find_by_name("parent").users.first
+    @user.update_attributes(authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')
+  end
+
+  def do_request
+    get "/api/v1/users/#{@user.id}/children", {access_token: @user.authentication_token}
+  end
+
+  it "should return every children belongs to the user" do
+    do_request
+    expect(response.status).to eq(200)
+    expect_json(Role.find_by_name('child').users)
+  end
+end
+
 describe "PUT /api/v1/users/id" do
   let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
   let!(:email){"new_email@leohealth.com"}
+
   def do_request
     put "/api/v1/users/#{user.id}", {access_token: "yAZ_3VHjVzt8uoi7uD7z", email: email}, format: :json
   end

@@ -71,5 +71,4 @@ describe 'User registration & login (when a user exists) -', trans_off: true do
 		expect(response).to have_http_status(401)
 		expect_json({status: 'fail'})
 	end
-
 end

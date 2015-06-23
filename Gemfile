@@ -32,6 +32,7 @@ group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
   gem 'factory_girl_rails'
   gem 'awesome_print'
+  gem 'byebug'
   gem "parallel_tests"
   gem 'byebug'
   gem 'launchy'
