@@ -19,7 +19,6 @@ module Leo
 		class AppointmentDetailedWithAthena < Leo::Entities::AppointmentDetailed
 			expose :athena_appointment_type
 			expose :athena_provider_id
-			expose :athena_patient_id
 			expose :athena_appointment_type_id
 		end
 	end

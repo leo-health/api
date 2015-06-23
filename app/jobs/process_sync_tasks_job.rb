@@ -3,7 +3,7 @@ require "athena_health_api_helper"
 
 class ProcessSyncTasksJob
   def perform(*args)
-    SyncServiceHelper::Syncher.new(
+    SyncServiceHelper::Syncer.new(
       AthenaHealthApiHelper::AthenaHealthApiConnector.new()).process_all_sync_tasks()
   end
 
@@ -14,7 +14,9 @@ class ProcessSyncTasksJob
 
   def after(job)
     #reschedule next run
-    #ProcessSyncTasksJob.schedule!(1.minutes.from_now.utc)
+    if SyncService.configuration.auto_reschedule_job
+      ProcessSyncTasksJob.schedule!(SyncService.configuration.job_interval.from_now.utc)
+    end
   end
 
   def self.schedule(run_at = Time.now)

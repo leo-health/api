@@ -31,7 +31,6 @@ FactoryGirl.define do
     leo_provider_id 1
     athena_provider_id 1
     leo_patient_id 1
-    athena_patient_id 1
     booked_by_user_id 1
     rescheduled_appointment_id 1
     duration 1
@@ -44,5 +43,4 @@ FactoryGirl.define do
     athena_id 0
     athena_department_id 1
   end
-
 end
