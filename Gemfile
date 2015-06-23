@@ -31,6 +31,7 @@ gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
 gem 'devise_invitable'      # Inviting users
 gem 'grape'                 # Our API base
+gem 'grape-cancan'
 gem 'grape-entity'
 gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
@@ -52,12 +53,8 @@ group :development, :test do
 	gem 'factory_girl_rails'
   gem 'awesome_print'
   gem 'byebug'
-  #gem 'guard'
-  #gem 'guard-rspec'
-  ## gem 'guard-cucumber'
-  #gem 'guard-livereload'
-  #gem 'guard-spork'
-  ## gem 'guard-brakeman'
+  gem "parallel_tests"
+  gem 'byebug'
   gem 'launchy'
   gem 'letter_opener'
 	gem 'letter_opener_web', '~> 1.2.0'
@@ -86,6 +83,7 @@ end
 
 group :test do
   # gem 'cucumber-rails', :require => false
+  gem 'grape-entity-matchers'
   gem 'database_cleaner'
 end
 

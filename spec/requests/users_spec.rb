@@ -22,13 +22,13 @@ describe 'Creating families and managing users -', trans_off: true do
     user = parsed["data"]["user"]
     expect(response).to have_http_status(201)
     expect_json({data:
-            {user:
-              { 	first_name: @post_data[:first_name],
-                last_name: @post_data[:last_name],
-                sex: @post_data[:sex]
-              }
-            }
-          })
+                   {user:
+                      { 	first_name: @post_data[:first_name],
+                         last_name: @post_data[:last_name],
+                         sex: @post_data[:sex]
+                      }
+                   }
+                })
   end
 
   describe "manage your family when logged in -" do
@@ -62,6 +62,23 @@ describe 'Creating families and managing users -', trans_off: true do
       expect(response).to have_http_status(201)
       expect(user['first_name']).to eq(@invite_params[:first_name])
       expect(user['last_name']).to eq(@invite_params[:last_name])
+    end
+
+    it 'should allow you to add children to your family' do
+      # Set up post params with the parent to be invited and the token
+      @child_params = FactoryGirl.attributes_for(:user, :first_child)
+      @post_params = @child_params.merge!(@auth_params)
+
+      # Set up the url and make the post request
+      url = "/api/v1/users/#{@user_id}/children"
+      post url, @post_params, format: :json
+      # parse the results and make sure they are valid
+      parsed = JSON.parse(response.body)
+      user = parsed["data"]["user"]
+
+      expect(response).to have_http_status(201)
+      expect(user['first_name']).to eq(@child_params[:first_name])
+      expect(user['last_name']).to eq(@child_params[:last_name])
     end
   end
 end
@@ -98,5 +115,20 @@ describe 'GET /api/v1/users/id/children' do
     do_request
     expect(response.status).to eq(200)
     expect_json(Role.find_by_name('child').users)
+  end
+end
+
+describe "PUT /api/v1/users/id" do
+  let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
+  let!(:email){"new_email@leohealth.com"}
+
+  def do_request
+    put "/api/v1/users/#{user.id}", {access_token: "yAZ_3VHjVzt8uoi7uD7z", email: email}, format: :json
+  end
+
+  it "should update the user info, email only, for authenticated users" do
+    do_request
+    expect(response.status).to eq(200)
+    expect_json('data.user.email', email)
   end
 end

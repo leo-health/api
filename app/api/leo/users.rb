@@ -32,7 +32,6 @@ module Leo
 
     include Grape::Kaminari
 
-    #rescue_from :all, :backtrace => true
     formatter :json, JSendSuccessFormatter
     error_formatter :json, JSendErrorFormatter
 
@@ -67,7 +66,7 @@ module Leo
         present :users, paginate(users), with: Leo::Entities::UserEntity
       end
 
-      desc "Create a user"
+      desc "#post create a user"
       params do
         requires :first_name, type: String, desc: "First Name"
         requires :last_name,  type: String, desc: "Last Name"
@@ -77,53 +76,60 @@ module Leo
         requires :dob,        type: String, desc: "Date of Birth"
         requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
       end
+
       post do
         dob = Chronic.try(:parse, params[:dob])
-        if dob.nil?
-          error!({error_code: 422, error_message: "Invalid dob format"},422)
-          return
+        unless dob
+          error!({error_code: 422, error_message: "Invalid dob format"},422) and return
         end
 
         role = Role.where(name: params[:role])
-        family = Family.create! 
+        family = Family.create!
+        user_params = { first_name: params[:first_name],
+                        last_name: params[:last_name],
+                        email: params[:email],
+                        password: params[:password],
+                        dob: dob,
+                        family_id: family.id,
+                        sex: params[:sex] }
 
-        user = User.create!(
-        {
-          first_name:   params[:first_name],
-          last_name:    params[:last_name],
-          email:        params[:email],
-          password:     params[:password],
-          dob:          dob,
-          family_id:    family.id,
-          sex:          params[:sex]
-        })
-        user.roles << role
-        family.conversation.participants << user
-        user.ensure_authentication_token
-        present :user, user, with: Leo::Entities::UserWithAuthEntity
+        if user = User.create(user_params)
+          user.roles << role
+          family.conversation.participants << user
+          user.ensure_authentication_token
+          present :user, user, with: Leo::Entities::UserWithAuthEntity
+        end
+        #here just creating user, why assign user the auth_token? or say what is the use case here?
       end
 
-      desc "Calls specific to a user"
+      desc "single user methods"
       route_param :id do 
         before do
           authenticated_user
         end
+
         after_validation do
           @user = User.find(params[:id])
         end
-        desc "Return a user"
+
+        desc "#show individual user"
+        params do
+          requires :id, type:String, allow_blank: false
+        end
+
         get do
           present :user, @user, with: Leo::Entities::UserEntity
         end
 
+        desc "add credit card for individual user"
         params do
           requires :stripe_token,  type: String, desc: "Stripe Token to use for creating Stripe token"
         end
+        #extract the stripe part out later from users api
         post "/add_card" do
           token = params[:stripe_token]
-          if token.blank? or token.nil?
-            error!({error_code: 422, error_message: "A valid stripe token is required."}, 422)
-            return
+          unless token || token.blank?
+            error!({error_code: 422, error_message: "A valid stripe token is required."}, 422) and return
           end
           # Save the customer ID in user table so you can use it later
           @user.create_or_update_stripe_customer_id(token)
@@ -132,32 +138,12 @@ module Leo
 
       desc "#put update individual user"
         params do
-          optional :first_name, type: String, desc: "First Name"
-          optional :last_name,  type: String, desc: "Last Name"
-          optional :email,      type: String, desc: "Email"
-          optional :role,       type: String, desc: "Role for the user. Get list from /roles", role_exists: true
-          optional :dob,        type: String, desc: "Date of Birth"
-          optional :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
+          optional :email, type: String
         end
-        put do
-          sanitized_params = declared(params)
-          if sanitized_params.key?('role')
-            role = Role.where(name: sanitized_params[:role])
-            sanitized_params.delete(:role)
-            # TODO: Find a way to add the role back after the update
-          end
-          
-          if sanitized_params.key?('dob')
-            dob = Chronic.try(:parse, params[:dob])
-            if dob.nil?
-              error!({error_code: 422, error_message: "Invalid dob format"},422)
-              return
-            end
-            sanitized_params[:dob] = dob
-          end
 
-          
-          if @user.update_attributes(sanitized_params)
+        put do
+          user_params = declared(params)
+          if @user.update_attributes(user_params)
             present :user, @user, with: Leo::Entities::UserEntity
           else
             error!({errors: @user.errors.messages})
@@ -241,8 +227,7 @@ module Leo
           end
         end
 
-        namespace :children do 
-
+        namespace :children do
           # GET users/:id/children
           desc "#get get all children of individual user"
           get do
@@ -276,20 +261,17 @@ module Leo
             end
 
             family = @user.family
-            # role = Role.where(name: :child)
+            child_params = { first_name: params[:first_name],
+                              last_name: params[:last_name],
+                              email: params[:email],
+                              dob: dob,
+                              family_id: family.id,
+                              sex: params[:sex] }
             
-            child = User.new(
-            {
-              first_name:   params[:first_name],
-              last_name:    params[:last_name],
-              email:        params[:email],
-              dob:          dob,
-              family_id:    family.id,
-              sex:          params[:sex]
-            })
-
-            child.add_role :child
-            child.save!
+            if child = User.create(child_params)
+              child.add_role :child
+              child.save!
+            end
             present :user, child, with: Leo::Entities::UserEntity
           end
         end
