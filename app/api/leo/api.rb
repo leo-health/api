@@ -69,29 +69,26 @@ module Leo
 
 
     helpers do
-      #def current_user
-      #  @current_user ||= User.authorize!(env)
-      #end
-      
       def authenticate!
         error!('401 Unauthorized', 401) unless current_user
       end
+
       def warden
         env['warden']
       end
+
       def authenticated
         return true if (warden.authenticated? || (params[:access_token] && @user = User.find_by_authentication_token(params[:access_token])))
       end
+
       def current_user
         warden.user || (User.find_by_authentication_token(params[:access_token]) if params[:access_token])
       end
-      # returns 403 if there's no current user
+
       def authenticated_user
         authenticated
         error!('Forbidden', 403) unless current_user
       end
-
-      
     end
 
     get do
