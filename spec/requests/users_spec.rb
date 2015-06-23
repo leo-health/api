@@ -2,9 +2,7 @@ require 'airborne'
 require 'rails_helper'
 
 describe 'Creating families and managing users -', trans_off: true do
-  before(:each) do
-    create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')
-  end
+  let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
 
   it 'should allow you to get a list of roles' do
     create(:role, :parent)
@@ -34,7 +32,7 @@ describe 'Creating families and managing users -', trans_off: true do
   describe "manage your family when logged in -" do
     before(:each) do
       # Login the existing user and make sure that was successful
-      @login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
+      @login_params = { email: user.email, password: user.password }
       post '/api/v1/sessions', @login_params, format: :json
       parsed = JSON.parse(response.body)
       expect_json_types({'data': {user: :object}})
@@ -83,3 +81,23 @@ describe 'Creating families and managing users -', trans_off: true do
   end
 end
 
+describe "DELETE /api/v1/users/id" do
+  let!(:user){create(:user, authentication_token: "yAZ_3VHjVzt8uoi7uD7z")}
+  let!(:deleted_user){create(:user)}
+  let!(:admin){create(:role, :admin)}
+
+  before do
+    user.add_role :admin
+  end
+
+  def do_request
+    delete "/api/v1/users/#{deleted_user.id}", {access_token: user.authentication_token}
+  end
+
+  it "should delete selected user if current user has admin right" do
+    expect(User.count).to eq(2)
+    do_request
+    expect(response.status).to eq(200)
+    expect(User.count).to eq(1)
+  end
+end

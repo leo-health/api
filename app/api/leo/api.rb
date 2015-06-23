@@ -80,11 +80,10 @@ module Leo
         env['warden']
       end
       def authenticated
-        return true if warden.authenticated?
-        params[:access_token] && @user = User.find_by_authentication_token(params[:access_token])
+        return true if (warden.authenticated? || (params[:access_token] && @user = User.find_by_authentication_token(params[:access_token])))
       end
       def current_user
-        warden.user || @user
+        warden.user || (User.find_by_authentication_token(params[:access_token]) if params[:access_token])
       end
       # returns 403 if there's no current user
       def authenticated_user

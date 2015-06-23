@@ -35,12 +35,16 @@
 #
 
 FactoryGirl.define do
+	sequence :email do |n|
+		"user#{n}@test.com"
+  end
+
   factory :user do
-  	first_name 	'Danish'
-  	last_name 	'Munir'
+  	first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Naiyan'].sample }
+  	last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
   	dob 				{ 29.years.ago.to_s }
   	sex					'M'
-  	email				'danish@leohealth.com'
+  	email
     password    'fake_pass'
     password_confirmation    'fake_pass'
     family_id    11

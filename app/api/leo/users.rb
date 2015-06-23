@@ -103,13 +103,16 @@ module Leo
       end
 
       desc "#show single user"
-      route_param :id do 
+      route_param :id do
+
         before do
           authenticated_user
         end
+
         after_validation do
           @user = User.find(params[:id])
         end
+
         desc "Return a user"
         get do
           present :user, @user, with: Leo::Entities::UserEntity
@@ -161,6 +164,13 @@ module Leo
             error!({errors: @user.errors.messages})
           end
         end
+
+        desc 'delete a user with admin right'
+        delete do
+          error!({error_code: 403, error_message: "No admin access"}, 403) unless current_user.has_role? :admin
+          user = User.find(params[:id])
+          user.try(:destroy)
+        end
         
         namespace :invitations do
 
@@ -186,7 +196,6 @@ module Leo
             requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
           end
           post do
-            puts "In post /users/#{params[:id]}/invitations"
             if @user != current_user
               error!({error_code: 403, error_message: "You don't have permission to list this user's invitiations."}, 403)
               return
