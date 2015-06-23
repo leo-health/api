@@ -54,7 +54,6 @@ group :development do
   gem 'byebug'
   gem 'rails-footnotes'
   gem 'rails_layout'
-  gem 'sqlite3'
   gem 'rails-footnotes'
   gem 'rails_layout'
   gem 'web-console', '~> 2.0'
