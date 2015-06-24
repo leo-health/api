@@ -139,7 +139,7 @@ module Leo
 
       desc "#put update individual user"
         params do
-          optional :email, type: String
+          requires :email, type: String
         end
 
         put do
@@ -153,8 +153,8 @@ module Leo
 
         desc 'delete a user with admin right'
         delete do
-          error!({error_code: 403, error_message: "No admin access"}, 403) unless current_user.has_role? :admin
           user = User.find(params[:id])
+          authorize! :destroy, user, :message => "Admin right requied."
           user.try(:destroy)
         end
         

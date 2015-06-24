@@ -53,10 +53,6 @@ module Leo
 
 
     helpers do
-      def authorize!(*args)
-        ::Ability.new(current_user).authorize!(*args)
-      end
-
       def authenticate!
         error!('401 Unauthorized', 401) unless current_user
       end

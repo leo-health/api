@@ -100,6 +100,13 @@ describe "DELETE /api/v1/users/id" do
     expect(response.status).to eq(200)
     expect(User.count).to eq(1)
   end
+
+  it "should raise error when user do not have the access right" do
+    user.roles.destroy_all
+    do_request
+    expect(response.status).to eq(422)
+    byebug
+  end
 end
 
 describe 'POST /api/v1/users/id/children' do
