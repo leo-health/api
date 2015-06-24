@@ -2,10 +2,8 @@ require 'airborne'
 require 'rails_helper'
 
 describe 'Creating conversations and managing participants when not authenticated', trans_off: true do
-  before do
-    create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 2)
-    create(:family_with_members)
-  end
+  let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z', family_id: 2)}
+  let!(:family){create(:family_with_members)}
 
   it 'should not allow you to create a conversation when not signed in' do
     post '/api/v1/conversations', format: :json
@@ -18,7 +16,7 @@ describe 'Creating conversations and managing participants when not authenticate
   end
 
   it 'should allow creation of a conversation valid parameters when logged in' do
-    @login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
+    @login_params = { email: user.email, password: user.password }
     post '/api/v1/sessions', @login_params, format: :json
     parsed = JSON.parse(response.body)
     expect_json_types({'data': {user: :object}})

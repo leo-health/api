@@ -102,8 +102,9 @@ module Leo
         #here just creating user, why assign user the auth_token? or say what is the use case here?
       end
 
-      desc "single user methods"
-      route_param :id do 
+      desc "#show single user"
+      route_param :id do
+
         before do
           authenticated_user
         end
@@ -148,6 +149,13 @@ module Leo
           else
             error!({errors: @user.errors.messages})
           end
+        end
+
+        desc 'delete a user with admin right'
+        delete do
+          error!({error_code: 403, error_message: "No admin access"}, 403) unless current_user.has_role? :admin
+          user = User.find(params[:id])
+          user.try(:destroy)
         end
         
         namespace :invitations do

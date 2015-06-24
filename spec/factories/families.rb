@@ -13,9 +13,9 @@ FactoryGirl.define do
 			after(:create) do |instance|
 				create(:user, :father, family: instance)
 				create(:user, :mother, family: instance)
-				create(:user, :first_child, family: instance)
-				create(:user, :middle_child, family: instance)
-				create(:user, :last_child, family: instance)
+				create(:user, :child, family: instance)
+				create(:user, :child, family: instance)
+				create(:user, :child, family: instance)
 			end  
 		end
 	end
