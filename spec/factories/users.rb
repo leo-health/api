@@ -40,10 +40,10 @@ FactoryGirl.define do
   end
 
   factory :user do
-    first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Naiyan'].sample }
+    first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
     last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
     dob 				{ 29.years.ago.to_s }
-    sex					'M'
+    sex					{ ['M', 'F'].sample }
     email
     password    'fake_pass'
     password_confirmation    'fake_pass'
@@ -55,49 +55,39 @@ FactoryGirl.define do
     end
 
     trait :father do
-      first_name 	'Phil'
-      last_name		'Dunphy'
       dob 				{ 48.years.ago.to_s }
       sex					'M'
-      email				'phil.dunphy@gmail.com'
       after(:create) { |u| u.add_role :parent }
     end
 
     trait :mother do
-      first_name	'Claire'
-      last_name		'Dunphy'
       dob 				{ 45.years.ago.to_s }
       sex					'F'
-      email 			'claire.dunphy@gmail.com'
       after(:create) { |u| u.add_role :parent }
     end
 
-    trait :first_child do
-      first_name 	'Haley'
-      last_name		'Dunphy'
+    trait :child do
       dob 				{ 19.years.ago.to_s }
       sex 				'F'
-      email 			'haley.dunphy@gmail.com'
       after(:create) { |u| u.add_role :child }
     end
 
-    trait :middle_child do
-      first_name 	'Alex'
-      last_name		'Dunphy'
-      dob 				{ 17.years.ago.to_s }
-      sex 				'F'
-      email 			'alex.dunphy@gmail.com'
-      after(:create) { |u| u.add_role :child }
-    end
-
-    trait :last_child do
-      first_name	'Luke'
-      last_name 	'Dunphy'
-      dob 				{ 15.years.ago.to_s }
-      sex 				'F'
-      email 			'luke.dunphy@gmail.com'
-      # family
-      after(:create) { |u| u.add_role :child }
-    end
+    # trait :middle_child do
+    #   first_name 	'Alex'
+    #   last_name		'Dunphy'
+    #   dob 				{ 17.years.ago.to_s }
+    #   sex 				'F'
+    #   email
+    #   after(:create) { |u| u.add_role :child }
+    # end
+    #
+    # trait :last_child do
+    #   first_name	'Luke'
+    #   last_name 	'Dunphy'
+    #   dob 				{ 15.years.ago.to_s }
+    #   sex 				'F'
+    #   email
+    #   after(:create) { |u| u.add_role :child }
+    # end
   end
 end
