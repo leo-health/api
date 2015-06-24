@@ -63,16 +63,16 @@ describe 'User registration & login (when a user exists) -', trans_off: true do
   end
 
   it 'should not let a child user log in' do
-    create(:user, :first_child)
-    @login_params = FactoryGirl.attributes_for(:user, :first_child)
+    create(:user, :child)
+    @login_params = FactoryGirl.attributes_for(:user, :child)
     post '/api/v1/sessions', @login_params, format: :json
     expect(response).to have_http_status(401)
     expect_json({status: 'fail'})
   end
 
 	it 'should not let a child user log in' do
-		create(:user, :first_child)
-		@login_params = FactoryGirl.attributes_for(:user, :first_child)
+		create(:user, :child)
+		@login_params = FactoryGirl.attributes_for(:user, :child)
 		post '/api/v1/sessions', @login_params, format: :json 
 		expect(response).to have_http_status(401)
 		expect_json({status: 'fail'})

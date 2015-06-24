@@ -64,7 +64,7 @@ describe 'Creating families and managing users -', trans_off: true do
 
     it 'should allow you to add children to your family' do
       # Set up post params with the parent to be invited and the token
-      @child_params = FactoryGirl.attributes_for(:user, :first_child)
+      @child_params = FactoryGirl.attributes_for(:user, :child)
       @post_params = @child_params.merge!(@auth_params)
 
       # Set up the url and make the post request
@@ -106,7 +106,7 @@ describe 'POST /api/v1/users/id/children' do
   let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
 
   def do_request
-    @child_params = FactoryGirl.attributes_for(:user, :first_child).merge({access_token: user.authentication_token})
+    @child_params = FactoryGirl.attributes_for(:user, :child).merge({access_token: user.authentication_token})
     post "/api/v1/users/#{user.id}/children", @child_params, format: :json
   end
 

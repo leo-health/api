@@ -71,23 +71,5 @@ FactoryGirl.define do
       sex 				'F'
       after(:create) { |u| u.add_role :child }
     end
-
-    # trait :middle_child do
-    #   first_name 	'Alex'
-    #   last_name		'Dunphy'
-    #   dob 				{ 17.years.ago.to_s }
-    #   sex 				'F'
-    #   email
-    #   after(:create) { |u| u.add_role :child }
-    # end
-    #
-    # trait :last_child do
-    #   first_name	'Luke'
-    #   last_name 	'Dunphy'
-    #   dob 				{ 15.years.ago.to_s }
-    #   sex 				'F'
-    #   email
-    #   after(:create) { |u| u.add_role :child }
-    # end
   end
 end
