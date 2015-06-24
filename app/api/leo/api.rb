@@ -11,6 +11,7 @@ module Leo
       { :status => 'ok', :data => object }.to_json
     end
   end
+
   module JSendErrorFormatter
     def self.call message, backtrace, options, env
       # This uses convention that a error! with a Hash param is a jsend "fail", otherwise we present an "error"
@@ -52,6 +53,10 @@ module Leo
 
 
     helpers do
+      def authorize!(*args)
+        ::Ability.new(current_user).authorize!(*args)
+      end
+
       def authenticate!
         error!('401 Unauthorized', 401) unless current_user
       end
