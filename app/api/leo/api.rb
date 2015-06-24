@@ -28,11 +28,14 @@ module Leo
     prefix :api
 
     include Grape::Kaminari
+    require_relative '../../../lib/api/validations/user_unique'
+    require_relative '../../../lib/api/validations/role_exists'
 
     rescue_from :all, :backtrace => true
     formatter :json, JSendSuccessFormatter
     error_formatter :json, JSendErrorFormatter
     default_error_status 400
+
     rescue_from Grape::Exceptions::ValidationErrors do |e|
       data = e.map { |k,v| { 
         params: k, 
@@ -42,9 +45,6 @@ module Leo
       rack_response resp.to_json, 422
     end
 
-    #before do
-    # error!("401 Unauthorized", 401) unless authenticated
-    #end
     before do
       header['Access-Control-Allow-Origin'] = '*'
       header['Access-Control-Request-Method'] = '*'
@@ -82,7 +82,6 @@ module Leo
     mount Appointments
     mount Conversations
     mount Sessions
-    mount Statuses
     mount Users
 
     add_swagger_documentation(
