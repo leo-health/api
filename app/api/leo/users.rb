@@ -43,8 +43,7 @@ module Leo
       end
     end
 
-    resource :users do 
-      
+    resource :users do
       desc "Get available users"
       paginate per_page: 20
       params do
@@ -154,7 +153,7 @@ module Leo
         desc 'delete a user with admin right'
         delete do
           user = User.find(params[:id])
-          authorize! :destroy, user, :message => "Admin right requied."
+          authorize! :destroy, user
           user.try(:destroy)
         end
         

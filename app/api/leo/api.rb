@@ -37,6 +37,11 @@ module Leo
     error_formatter :json, JSendErrorFormatter
     default_error_status 400
 
+    rescue_from CanCan::AccessDenied do |e|
+      resp = {status: 'error', message: 'access right required'}
+      rack_response resp.to_json, 401
+    end
+
     rescue_from Grape::Exceptions::ValidationErrors do |e|
       data = e.map { |k,v| { 
         params: k, 
