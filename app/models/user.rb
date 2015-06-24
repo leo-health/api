@@ -120,12 +120,13 @@ class User < ActiveRecord::Base
     roles.first.name if (roles and roles.count > 0)
   end
 
+  def to_debug
+    to_yaml
+  end
+
+  private
   # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
   def init
     self.practice_id ||= 1
-  end
-
-  def to_debug
-    to_yaml
   end
 end
