@@ -51,8 +51,8 @@ module Leo
       format :json
 
       rescue_from :all, :backtrace => true
-      formatter :json, Leo::V1::JSendSuccessFormatter
-      error_formatter :json, Leo::V1::JSendErrorFormatter
+      formatter :json, Leo::V1::SuccessFormatter
+      error_formatter :json, Leo::V1::ErrorFormatter
       default_error_status 400
 
       resource :conversations do

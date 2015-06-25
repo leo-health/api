@@ -12,8 +12,8 @@ module Leo
       format :json
 
       include Grape::Kaminari
-      formatter :json, JSendSuccessFormatter
-      error_formatter :json, JSendErrorFormatter
+      formatter :json, SuccessFormatter
+      error_formatter :json, ErrorFormatter
 
       resource :roles do
         desc "Return all roles"

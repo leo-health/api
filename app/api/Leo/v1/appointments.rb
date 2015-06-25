@@ -30,8 +30,8 @@ module Leo
       format :json
 
       rescue_from :all, :backtrace => true
-      formatter :json, JSendSuccessFormatter
-      error_formatter :json, JSendErrorFormatter
+      formatter :json, SuccessFormatter
+      error_formatter :json, ErrorFormatter
       default_error_status 400
 
       resource :appointments do

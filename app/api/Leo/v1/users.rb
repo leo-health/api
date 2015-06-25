@@ -1,24 +1,24 @@
 module Leo
   module V1
     module Entities
-      class UserEntity < Grape::Entity
-        expose :id
-        expose :title
-        expose :first_name
-        expose :middle_initial
-        expose :last_name
-        expose :dob
-        expose :sex
-        expose :practice_id
-        expose :family_id
-        expose :email
-        expose :primary_role
-        expose :stripe_customer_id
-      end
+      # class UserEntity < Grape::Entity
+      #   expose :id
+      #   expose :title
+      #   expose :first_name
+      #   expose :middle_initial
+      #   expose :last_name
+      #   expose :dob
+      #   expose :sex
+      #   expose :practice_id
+      #   expose :family_id
+      #   expose :email
+      #   expose :primary_role
+      #   expose :stripe_customer_id
+      # end
 
-      class UserWithAuthEntity < UserEntity
-        expose :authentication_token
-      end
+      # class UserWithAuthEntity < UserEntity
+      #   expose :authentication_token
+      # end
 
       class RoleEntity < Grape::Entity
         expose :id
@@ -32,14 +32,14 @@ module Leo
 
       include Grape::Kaminari
 
-      formatter :json, JSendSuccessFormatter
-      error_formatter :json, JSendErrorFormatter
+      formatter :json, SuccessFormatter
+      error_formatter :json, ErrorFormatter
 
       resource :roles do
         desc "Return all roles"
         get "/" do
           puts "In get roles"
-          present :roles, Role.all, with: V1::Entities::RoleEntity
+          present :roles, Role.all, with: Leo::V1::Entities::RoleEntity
         end
       end
 
@@ -63,7 +63,7 @@ module Leo
             users = users.with_role role.name.to_sym
           end
 
-          present :users, paginate(users), with: V1::Entities::UserEntity
+          present :users, paginate(users), with: Leo::V1::Entities::UserEntity
         end
 
         desc "#post create a user"
@@ -97,7 +97,7 @@ module Leo
             user.roles << role
             family.conversation.participants << user
             user.ensure_authentication_token
-            present :user, user, with: V1::Entities::UserWithAuthEntity
+            present :user, user, with: Leo::V1::Entities::UserWithAuthEntity
           end
           #here just creating user, why assign user the auth_token? or say what is the use case here?
         end
@@ -119,7 +119,7 @@ module Leo
           end
 
           get do
-            present :user, @user, with: V1::Entities::UserEntity
+            present :user, @user, with: Leo::V1::Entities::UserEntity
           end
 
           desc "add credit card for individual user"
@@ -134,7 +134,7 @@ module Leo
             end
             # Save the customer ID in user table so you can use it later
             @user.create_or_update_stripe_customer_id(token)
-            present :user, @user, with: V1::Entities::UserEntity
+            present :user, @user, with: Leo::V1::Entities::UserEntity
           end
 
           desc "#put update individual user"
@@ -145,7 +145,7 @@ module Leo
           put do
             user_params = declared(params)
             if @user.update_attributes(user_params)
-              present :user, @user, with: V1::Entities::UserEntity
+              present :user, @user, with: Leo::V1::Entities::UserEntity
             else
               error!({errors: @user.errors.messages})
             end
@@ -169,7 +169,7 @@ module Leo
                 return
               end
               invitations = @user.invitations
-              present :invitations, invitations, with: V1::Entities::UserEntity
+              present :invitations, invitations, with: Leo::V1::Entities::UserEntity
             end
 
             # POST users/:id/invitations
@@ -208,7 +208,7 @@ module Leo
 
               invited_user.add_role :parent
               family.conversation.participants << invited_user
-              present :user, invited_user, with: V1::Entities::UserEntity
+              present :user, invited_user, with: Leo::V1::Entities::UserEntity
             end
 
             # DELETE users/:id/invitations/
@@ -244,7 +244,7 @@ module Leo
                 return
               end
               children = @user.family.children
-              present :children, children, with: V1::Entities::UserEntity
+              present :children, children, with: Leo::V1::Entities::UserEntity
             end
 
             # POST users/:id/children
@@ -280,7 +280,7 @@ module Leo
                 child.add_role :child
                 child.save!
               end
-              present :user, child, with: V1::Entities::UserEntity
+              present :user, child, with: Leo::V1::Entities::UserEntity
             end
           end
         end
