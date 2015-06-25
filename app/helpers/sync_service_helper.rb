@@ -155,8 +155,8 @@ module SyncServiceHelper
         if user.has_role? :child
           begin
             if user.patient.nil?
-              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
-              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
+              SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
+              SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_insurances.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_medications.to_s, sync_id: user.id)
@@ -164,11 +164,11 @@ module SyncServiceHelper
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: user.id)
             else
               if user.patient.patient_updated_at.nil? || (user.patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-                SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
+                SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
               end
 
               if user.patient.photos_updated_at.nil? || (user.patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-                SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
+                SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
               end
 
               if user.patient.allergies_updated_at.nil? || (user.patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
