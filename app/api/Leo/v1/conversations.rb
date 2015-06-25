@@ -32,7 +32,7 @@ module Leo
 
       class ConversationEntity < Grape::Entity
         expose :id
-        expose :participants, with: V1::Entities::ConversationParticipantEntity
+        expose :participants, with: Leo::V1::Entities::ConversationParticipantEntity
         expose :created_at
         expose :family
         expose :last_message_created
@@ -42,7 +42,7 @@ module Leo
       end
 
       class ConversationWithMessagesEntity < ConversationEntity
-        expose :messages, with: V1::Entities::MessageEntity
+        expose :messages, with: Leo::V1::Entities::MessageEntity
       end
     end
 
@@ -64,7 +64,7 @@ module Leo
         desc "Return all relevant conversations for current user"
         # get "/conversations"
         get do
-          present :conversation, Conversation.for_user(current_user), with: V1::Entities::ConversationEntity
+          present :conversation, Conversation.for_user(current_user), with: Leo::V1::Entities::ConversationEntity
         end
 
         desc "Create a conversation for a given user"
@@ -91,7 +91,7 @@ module Leo
           @conversation.participants << user.family.parents
           ## Add the children
           @conversation.save
-          present :conversation, @conversation, with: V1::Entities::ConversationEntity
+          present :conversation, @conversation, with: Leo::V1::Entities::ConversationEntity
         end
 
         route_param :conversation_id, type: Integer do
@@ -110,7 +110,7 @@ module Leo
           desc "Retrieve a specific conversation"
           # get "/conversations/:conversation_id"
           get do
-            present :conversation, @conversation, with: V1::Entities::ConversationWithMessagesEntity
+            present :conversation, @conversation, with: Leo::V1::Entities::ConversationWithMessagesEntity
           end
 
           resource :messages do
@@ -155,7 +155,7 @@ module Leo
                 return
               end
               message = @conversation.messages.create(sender_id: sender_id, body: body)
-              present message, with: V1::Entities::MessageEntity
+              present message, with: Leo::V1::Entities::MessageEntity
             end
 
             desc "Operate on individual messages"
@@ -173,7 +173,7 @@ module Leo
               # get "/messages/{id}"
               get do
                 # TODO: Check authorization
-                present :message, @message, with: V1::Entities::MessageEntity
+                present :message, @message, with: Leo::V1::Entities::MessageEntity
               end
 
               desc "Escalate a message"
@@ -193,7 +193,7 @@ module Leo
                 @message.escalated_at = DateTime.now
                 @message.save
 
-                present :message, @message, with: V1::Entities::MessageEntity
+                present :message, @message, with: Leo::V1::Entities::MessageEntity
 
               end
 
@@ -207,7 +207,7 @@ module Leo
                 end
                 @message.resolved_requested_at = DateTime.now
                 @message.save
-                present :message, @message, with: V1::Entities::MessageEntity
+                present :message, @message, with: Leo::V1::Entities::MessageEntity
               end
 
               desc "Approve a request to mark message as resolved"
@@ -220,7 +220,7 @@ module Leo
                 end
                 @message.resolved_approved_at = DateTime.now
                 @message.save
-                present :message, @message, with: V1::Entities::MessageEntity
+                present :message, @message, with: Leo::V1::Entities::MessageEntity
               end
             end
           end
@@ -253,7 +253,7 @@ module Leo
               participants.each do |participant|
                 @conversation.participants << participant unless @conversation.participants.include?(participant)
               end
-              present @conversation, with: V1::Entities::ConversationEntity
+              present @conversation, with: Leo::V1::Entities::ConversationEntity
             end
 
             post 'remove' do
@@ -279,7 +279,7 @@ module Leo
               participants.each do |participant|
                 @conversation.participants.delete(participant)
               end
-              present @conversation, with: V1::Entities::ConversationEntity
+              present @conversation, with: Leo::V1::Entities::ConversationEntity
             end
           end
 

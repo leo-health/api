@@ -44,7 +44,7 @@ module Leo
           user.ensure_authentication_token
           user.save
           present :token, user.authentication_token
-          present	:user, user, with: V1::Entities::UserEntity
+          present	:user, user, with: Leo::Entities::UserEntity
         end
 
         desc "Destroy the access token"

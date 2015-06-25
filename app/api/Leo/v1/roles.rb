@@ -1,12 +1,5 @@
 module Leo
   module V1
-    module Entities
-      class RoleEntity < Grape::Entity
-        expose :id
-        expose :name
-      end
-    end
-
     class Roles < Grape::API
       version 'v1', using: :path, vendor: 'leo-health'
       format :json

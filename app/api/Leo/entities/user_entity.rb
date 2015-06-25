@@ -1,4 +1,4 @@
-class Leo::V1::Entities::UserEntity < Grape::Entity
+class Leo::Entities::UserEntity < Grape::Entity
   expose :id
   expose :title
   expose :first_name
@@ -12,3 +12,4 @@ class Leo::V1::Entities::UserEntity < Grape::Entity
   expose :primary_role
   expose :stripe_customer_id
 end
+
