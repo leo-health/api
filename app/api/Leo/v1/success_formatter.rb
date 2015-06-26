@@ -3,5 +3,3 @@ module Leo::V1::SuccessFormatter
     { :status => 'ok', :data => object }.to_json
   end
 end
-
-

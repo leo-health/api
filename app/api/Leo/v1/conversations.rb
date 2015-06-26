@@ -295,5 +295,3 @@ class Leo::V1::Conversations < Grape::API
     end
   end
 end
-
-

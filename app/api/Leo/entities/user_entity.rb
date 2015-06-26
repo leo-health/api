@@ -12,4 +12,3 @@ class Leo::Entities::UserEntity < Grape::Entity
   expose :primary_role
   expose :stripe_customer_id
 end
-

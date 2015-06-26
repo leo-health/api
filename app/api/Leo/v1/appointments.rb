@@ -87,4 +87,3 @@ class Leo::V1::Appointments < Grape::API
     end
   end
 end
-

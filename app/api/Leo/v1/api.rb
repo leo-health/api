@@ -63,4 +63,3 @@ class Leo::V1::API < Grape::API
       hide_documentation_path: true
   )
 end
-
