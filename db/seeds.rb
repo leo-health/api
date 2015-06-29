@@ -6,16 +6,20 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 ROLES = {
-          # Admin is 1
-          admin: 1,
-          # Leo users are 10-19
-          physician: 11,
-          clinical_staff: 12,
-          other_staff: 13,
-          # Leo customers are 20-29
-          parent: 21,
-          child: 22,
-          guardian: 23
+          # Super user / admin
+          super_user: 0,
+          # Accounting and billing
+          billing: 1,
+          # Non-provider roles (MA, nurse, NP)
+          clinical_support: 2,
+          # Leo staff and reception
+          customer_service: 3,
+          # Parent and legal guardians
+          parent: 4,
+          # Pediatricians and other providers
+          physician: 5,
+          #Children
+          child: 6,
         }
 
 ROLES.each do |role, id|
