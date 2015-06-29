@@ -1,4 +1,5 @@
 require 'airborne'
+require 'rails_helper'
 
 def print_response
 	puts "\nResponse (#{caller[0]})"

@@ -6,10 +6,18 @@ module Leo
 
       include Grape::Kaminari
 
-      require_relative 'error_formatter'
-      require_relative 'success_formatter'
+      require_relative '../../../../app/api/Leo/entities/appointment_entity'
+      require_relative '../../../../app/api/Leo/entities/message_entity'
+      require_relative '../../../../app/api/Leo/entities/conversation_participant_entity'
+      require_relative '../../../../app/api/Leo/entities/conversation_entity'
+      require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
+      require_relative '../../../../app/api/Leo/entities/role_entity'
+      require_relative '../../../../app/api/Leo/entities/user_entity'
+      require_relative '../../../../app/api/Leo/entities/user_with_auth_entity'
       require_relative '../../../../lib/api/validations/user_unique'
       require_relative '../../../../lib/api/validations/role_exists'
+      require_relative 'error_formatter'
+      require_relative 'success_formatter'
       require_relative 'appointments'
       require_relative 'conversations'
       require_relative 'roles'
