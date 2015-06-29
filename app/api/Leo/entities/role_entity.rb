@@ -1,4 +1,8 @@
-class Leo::Entities::RoleEntity < Grape::Entity
-  expose :id
-  expose :name
+module Leo
+  module Entities
+    class RoleEntity < Grape::Entity
+      expose :id
+      expose :name
+    end
+  end
 end

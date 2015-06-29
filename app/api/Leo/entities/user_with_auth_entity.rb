@@ -1,3 +1,7 @@
-class Leo::Entities::UserWithAuthEntity < Leo::Entities::UserEntity
-  expose :authentication_token
+module Leo
+  module Entities
+    class UserWithAuthEntity < Leo::Entities::UserEntity
+      expose :authentication_token
+    end
+  end
 end
