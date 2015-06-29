@@ -1,7 +1,7 @@
 require 'airborne'
 require 'rails_helper'
 
-describe Leo::Roles do
+describe Leo::V1::Roles do
   describe "GET /api/v1/roles" do
     let!(:parent){create(:role, :parent)}
     let!(:child){create(:role, :child)}
