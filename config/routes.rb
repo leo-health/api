@@ -41,6 +41,8 @@
 #
 
 Rails.application.routes.draw do
+  require_relative '../app/api/Leo/root'
+
   get 'regisrations/create'
   get 'regisrations/sign_up'
 
