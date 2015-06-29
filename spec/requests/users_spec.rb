@@ -104,7 +104,7 @@ describe "DELETE /api/v1/users/id" do
   it "should not delelte selected user and raise error when user do not have the access right" do
     user.roles.destroy_all
     do_request
-    expect(response.status).to eq(401)
+    expect(response.status).to eq(403)
     expect(User.count).to eq(2)
   end
 end
