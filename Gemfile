@@ -25,7 +25,6 @@ gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
-gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 
@@ -35,7 +34,6 @@ group :development, :test do
   gem 'awesome_print'
   gem 'byebug'
   gem "parallel_tests"
-  gem 'byebug'
   gem 'launchy'
   gem 'letter_opener'
   gem 'letter_opener_web', '~> 1.2.0'
@@ -49,13 +47,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'annotate'
-  gem 'better_errors'
-  gem 'binding_of_caller'
   gem 'bullet'
-  gem 'byebug'
-  gem 'rails-footnotes'
-  gem 'rails_layout'
   gem 'rails-footnotes'
   gem 'rails_layout'
   gem 'web-console', '~> 2.0'
