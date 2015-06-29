@@ -13,6 +13,7 @@ gem 'daemons'
 gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
 gem 'devise_invitable'      # Inviting users
+gem 'cancancan', '~> 1.10'
 gem 'grape'                 # Our API base
 gem 'grape-cancan'
 gem 'grape-entity'
