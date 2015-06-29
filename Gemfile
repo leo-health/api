@@ -35,7 +35,6 @@ group :development, :test do
   gem 'awesome_print'
   gem 'byebug'
   gem "parallel_tests"
-  gem 'byebug'
   gem 'launchy'
   gem 'letter_opener'
   gem 'letter_opener_web', '~> 1.2.0'
@@ -53,9 +52,6 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'bullet'
-  gem 'byebug'
-  gem 'rails-footnotes'
-  gem 'rails_layout'
   gem 'rails-footnotes'
   gem 'rails_layout'
   gem 'web-console', '~> 2.0'
