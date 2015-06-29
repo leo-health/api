@@ -7,8 +7,8 @@ module Leo
       include Grape::Kaminari
 
       require_relative '../../../../app/api/Leo/entities/appointment_entity'
-      require_relative '../../../../app/api/Leo/entities/message_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_participant_entity'
+      require_relative '../../../../app/api/Leo/entities/message_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
       require_relative '../../../../app/api/Leo/entities/role_entity'

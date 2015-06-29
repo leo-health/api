@@ -34,5 +34,4 @@ class Conversation < ActiveRecord::Base
       Conversation.all
     end
   end
-
 end
