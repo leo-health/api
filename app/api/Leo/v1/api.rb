@@ -6,15 +6,15 @@ module Leo
 
       include Grape::Kaminari
 
+      require_relative 'error_formatter'
+      require_relative 'success_formatter'
+      require_relative '../../../../lib/api/validations/user_unique'
+      require_relative '../../../../lib/api/validations/role_exists'
       require_relative 'appointments'
       require_relative 'conversations'
       require_relative 'roles'
       require_relative 'sessions'
       require_relative 'users'
-      require_relative 'error_formatter'
-      require_relative 'success_formatter'
-      require_relative '../../../../lib/api/validations/user_unique'
-      require_relative '../../../../lib/api/validations/role_exists'
 
       rescue_from :all, :backtrace => true
       formatter :json, Leo::V1::SuccessFormatter
