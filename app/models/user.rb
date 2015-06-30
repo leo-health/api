@@ -39,19 +39,17 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
   has_many :escalations, foreign_key: 'escalated_to_id'
   has_many :invitations, :class_name => self.to_s, :as => :invited_by
+  has_many :sessions
 
   after_initialize :init
   rolify
-  acts_as_token_authenticatable
+
   devise :invitable, :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
   validates :first_name, :last_name, presence: true
   validates :email, presence: true, unless: :is_child?
-
-  def reset_authentication_token
-  	update_attribute(:authentication_token, nil)
-  end
+  validates_uniqueness_of :email, unless: :is_child?
 
   def create_or_update_stripe_customer_id(token)
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"

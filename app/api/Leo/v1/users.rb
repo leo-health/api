@@ -9,14 +9,6 @@ module Leo
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
 
-      resource :roles do
-        desc "Return all roles"
-        get "/" do
-          puts "In get roles"
-          present :roles, Role.all, with: Leo::Entities::RoleEntity
-        end
-      end
-
       resource :users do
 
         desc "Get available users"

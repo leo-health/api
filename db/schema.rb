@@ -208,15 +208,15 @@ ActiveRecord::Schema.define(version: 20150630181940) do
   add_index "roles", ["name"], name: "index_roles_on_name", using: :btree
 
   create_table "sessions", force: :cascade do |t|
-    t.integer  "user_id",     null: false
-    t.string   "auth_token",  null: false
+    t.integer  "user_id",              null: false
+    t.string   "authentication_token", null: false
     t.datetime "disabled_at"
     t.string   "os_version"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
   end
 
-  add_index "sessions", ["auth_token"], name: "index_sessions_on_auth_token", using: :btree
+  add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", using: :btree
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "sync_tasks", force: :cascade do |t|
