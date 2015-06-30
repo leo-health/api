@@ -25,6 +25,7 @@ gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
 gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
+gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 
