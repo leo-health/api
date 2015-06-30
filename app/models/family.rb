@@ -1,12 +1,3 @@
-# == Schema Information
-#
-# Table name: families
-#
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
-
 class Family < ActiveRecord::Base
   after_save :ensure_default_conversation_exists
 
@@ -17,6 +8,7 @@ class Family < ActiveRecord::Base
     self.members.order('created_at ASC').first
   end
 
+  #wuang-make sure the conversation.first method would grab the primary conversation
   def conversation
     ensure_default_conversation_exists
     self.conversations.first
