@@ -7,6 +7,7 @@ class CreateSessions < ActiveRecord::Migration
       t.string :os_version
       t.timestamps null: false
     end
+
     add_index :sessions, :user_id
     add_index :sessions, :authentication_token
   end
