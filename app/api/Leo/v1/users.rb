@@ -38,19 +38,21 @@ module Leo
           requires :last_name,  type: String, allow_blank: false
           requires :email,      type: String, allow_blank: false
           requires :password,   type: String, allow_blank: false
-          requires :role,       type: String, role_exists: true
+          requires :role_id,    type: Integer, allow_blank: false, role_exists: true
           requires :dob,        type: String, allow_blank: false
           requires :gender,     type: String, values: ['M', 'F']
+          optional :family_id,  type: Integer, allow_blank: false
         end
 
         post do
           dob = Chronic.try(:parse, params[:dob])
-          unless dob
+          role = Role.find(params[:role_id])
+          family = params[:family_id] ? Family.find(params[:family_id]) : Family.create!
+
+          unless family && dob && role
             error!({error_code: 422, error_message: "unprocessable entity"},422) and return
           end
 
-          role = Role.where(name: params[:role])
-          family = Family.create!
           user_params = { first_name: params[:first_name],
                           last_name: params[:last_name],
                           email: params[:email],
@@ -63,8 +65,7 @@ module Leo
             user.roles << role
             family.conversation.participants << user
             session = user.sessions.create
-            auth_token = session.authentication_token
-            present user, with: Leo::Entities::UserWithAuthEntity
+            present user, with: Leo::Entities::UserEntity, access_token: session.authentication_token
           end
         end
 

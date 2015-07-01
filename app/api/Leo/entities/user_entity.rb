@@ -7,7 +7,7 @@ module Leo
       expose :middle_initial
       expose :last_name
       expose :dob
-      expose :sex
+      expose :gender
       expose :practice_id
       expose :family_id
       expose :email

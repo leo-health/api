@@ -8,7 +8,7 @@
 #  middle_initial         :string           default("")
 #  last_name              :string           default(""), not null
 #  dob                    :datetime
-#  sex                    :string
+#  gender                    :string
 #  practice_id            :integer
 #  email                  :string           default(""), not null
 #  encrypted_password     :string           default("")
@@ -43,7 +43,7 @@ FactoryGirl.define do
     first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
     last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
     dob 				{ 29.years.ago.to_s }
-    sex					{ ['M', 'F'].sample }
+    gender					{ ['M', 'F'].sample }
     email
     password    'fake_pass'
     password_confirmation    'fake_pass'
@@ -56,19 +56,19 @@ FactoryGirl.define do
 
     trait :father do
       dob 				{ 48.years.ago.to_s }
-      sex					'M'
+      gender					'M'
       after(:create) { |u| u.add_role :parent }
     end
 
     trait :mother do
       dob 				{ 45.years.ago.to_s }
-      sex					'F'
+      gender					'F'
       after(:create) { |u| u.add_role :parent }
     end
 
     trait :child do
       dob 				{ 19.years.ago.to_s }
-      sex 				'F'
+      gender 				'F'
       after(:create) { |u| u.add_role :child }
     end
   end

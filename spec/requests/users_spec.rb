@@ -4,23 +4,25 @@ require 'rails_helper'
 describe Leo::V1::Users do
 
   describe "POST /api/v1/users" do
+    let!(:role){create(:role, :parent)}
+    let!(:family){create(:family)}
+
     def do_request
-      post "/api/v1/users", user_params = FactoryGirl.attributes_for(:user, :father), format: :json
+      post "/api/v1/users", user_params = FactoryGirl.attributes_for(:user).merge(role_id: role.id, family_id: family.id), format: :json
     end
 
     it "should create the user with a role, and return created user along with auth_token" do
       do_request
-      expect(response.status).to eq(200)
       byebug
+      expect(response.status).to eq(200)
     end
   end
 
   describe "PUT /api/v1/users/id" do
     let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
-    let!(:email){"new_email@leohealth.com"}
 
     def do_request
-      put "/api/v1/users/#{user.id}", {access_token: "yAZ_3VHjVzt8uoi7uD7z", email: email}, format: :json
+      put "/api/v1/users/#{user.id}", {access_token: "yAZ_3VHjVzt8uoi7uD7z", email: 'new_email@leohealth.com'}, format: :json
     end
 
     it "should update the user info, email only, for authenticated users" do
