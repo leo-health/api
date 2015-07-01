@@ -19,7 +19,7 @@ ROLES = {
           # Pediatricians and other providers
           physician: 5,
           #Children
-          child: 6,
+          child: 6
         }
 
 ROLES.each do |role, id|
