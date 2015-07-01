@@ -38,8 +38,8 @@ module Leo
           requires :last_name,  type: String, allow_blank: false
           requires :email,      type: String, allow_blank: false
           requires :password,   type: String, allow_blank: false
-          requires :role,       type: String, desc: "Role for the user. Get list from /roles", role_exists: true
-          requires :dob,        type: String
+          requires :role,       type: String, role_exists: true
+          requires :dob,        type: String, allow_blank: false
           requires :gender,     type: String, values: ['M', 'F']
         end
 
