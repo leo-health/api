@@ -7,6 +7,8 @@ class ChangeUserColumns < ActiveRecord::Migration
     remove_column :users, :sign_in_count
     remove_column :users, :remember_created_at
     remove_column :users, :authentication_token
+    remove_column :users, :sex
+    add_column :users, :gender, :string, null: false
   end
 
   def down
@@ -17,5 +19,7 @@ class ChangeUserColumns < ActiveRecord::Migration
     add_column :users, :sign_in_count, :integer, default: 0,  null: false
     add_column :users, :remember_created_at, :datetime
     add_column :users, :authentication_token, :string
+    remove_column :users, :gender
+    add_column :users, :sex, :string
   end
 end

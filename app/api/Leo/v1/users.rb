@@ -34,13 +34,13 @@ module Leo
 
         desc "#post create a user"
         params do
-          requires :first_name, type: String, desc: "First Name"
-          requires :last_name,  type: String, desc: "Last Name"
-          requires :email,      type: String, desc: "Email", user_unique: true
+          requires :first_name, type: String, allow_blank: false
+          requires :last_name,  type: String, allow_blank: false
+          requires :email,      type: String, desc: "Email"
           requires :password,   type: String, desc: "Password"
           requires :role,       type: String, desc: "Role for the user. Get list from /roles", role_exists: true
           requires :dob,        type: String, desc: "Date of Birth"
-          requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
+          requires :sex,        type: String, desc: "Sex", values: ['M', 'F']
         end
 
         post do
@@ -143,7 +143,7 @@ module Leo
             params do
               requires :first_name, type: String, desc: "First Name"
               requires :last_name,  type: String, desc: "Last Name"
-              requires :email,      type: String, desc: "Email", user_unique: true
+              requires :email,      type: String, desc: "Email"
               requires :dob,        type: String, desc: "Date of Birth"
               requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
             end
@@ -218,7 +218,7 @@ module Leo
             params do
               requires :first_name, type: String, desc: "First Name"
               requires :last_name,  type: String, desc: "Last Name"
-              optional :email,      type: String, desc: "Email", user_unique: true
+              optional :email,      type: String, desc: "Email"
               requires :dob,        type: String, desc: "Date of Birth"
               requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
             end

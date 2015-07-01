@@ -234,8 +234,7 @@ ActiveRecord::Schema.define(version: 20150701155402) do
     t.string   "first_name",             default: "", null: false
     t.string   "middle_initial",         default: ""
     t.string   "last_name",              default: "", null: false
-    t.datetime "dob"
-    t.string   "sex"
+    t.datetime "dob",                                 null: false
     t.integer  "practice_id"
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: ""
@@ -253,6 +252,7 @@ ActiveRecord::Schema.define(version: 20150701155402) do
     t.integer  "invitations_count",      default: 0
     t.integer  "family_id"
     t.string   "stripe_customer_id"
+    t.string   "gender",                              null: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
