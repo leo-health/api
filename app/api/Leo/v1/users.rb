@@ -65,7 +65,7 @@ module Leo
             user.roles << role
             family.conversation.participants << user
             session = user.sessions.create
-            present :auth_token, session.authentication_token
+            present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
           end
         end

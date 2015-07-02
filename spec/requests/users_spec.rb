@@ -12,7 +12,7 @@ describe Leo::V1::Users do
       post "/api/v1/users", user_params, format: :json
     end
 
-    it "should create the user with a role, and return created user along with auth_token" do
+    it "should create the user with a role, and return created user along with authentication_token" do
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
     end
