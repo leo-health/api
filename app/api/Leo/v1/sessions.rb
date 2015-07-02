@@ -21,11 +21,11 @@ module Leo
           user = User.find_by_email(params[:email].downcase)
 
           unless user && user.valid_password?(params[:password])
-            error!({error_code: 422, error_message: "Invalid Email or Password."}, 422)
+            error!({error_code: 403, error_message: "Invalid Email or Password."}, 422)
             return
           end
 
-          error!({error_code: 422, error_message: "Invalid Email or Password."}, 422) and return if user.has_role? :child
+          error!({error_code: 403, error_message: "Invalid Email or Password."}, 422) and return if user.has_role? :child
 
           if session = user.sessions.create
             present	session
@@ -41,8 +41,7 @@ module Leo
 
         desc "destroy the session when user logout"
         delete do
-          session = current_user.sessions.find_by_authentication_token(params[:access_token])
-          session.try(:update_attributes, disabled_at: Time.now)
+          Session.find_by_authentication_token(params[:access_token]).try(:update_attributes, disabled_at: Time.now)
         end
       end
     end
