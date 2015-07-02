@@ -210,13 +210,14 @@ ActiveRecord::Schema.define(version: 20150701155402) do
   create_table "sessions", force: :cascade do |t|
     t.integer  "user_id",              null: false
     t.string   "authentication_token", null: false
-    t.datetime "disabled_at"
+    t.datetime "deleted_at"
     t.string   "os_version"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
   end
 
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", using: :btree
+  add_index "sessions", ["deleted_at"], name: "index_sessions_on_deleted_at", using: :btree
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
 
   create_table "sync_tasks", force: :cascade do |t|
