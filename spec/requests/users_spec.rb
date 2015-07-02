@@ -77,6 +77,10 @@ describe Leo::V1::Users do
       expect(User.count).to eq(2)
     end
   end
+
+  describe "Get /api/v1/users/id" do
+
+  end
 end
 
 
