@@ -11,6 +11,7 @@ class User < ActiveRecord::Base
   devise :invitable, :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
+  validates :password, length: {minimum: 6, allow_nil: true}
   validates :first_name, :last_name, presence: true
   validates :email, presence: true, unless: :is_child?
   validates_uniqueness_of :email, unless: :is_child?
@@ -58,7 +59,7 @@ class User < ActiveRecord::Base
   end
 
   def email_required?
-    (is_child?) ? false :super
+    (is_child?) ? false : super
   end
 
   def password_required?

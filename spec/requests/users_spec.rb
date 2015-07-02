@@ -36,7 +36,8 @@ describe Leo::V1::Users do
   end
 
   describe "DELETE /api/v1/users/id" do
-    let!(:user){create(:user, authentication_token: "yAZ_3VHjVzt8uoi7uD7z")}
+    let(:user){create(:user)}
+    let!(:session){user.sessions.create}
     let!(:deleted_user){create(:user)}
     let!(:admin){create(:role, :admin)}
 
@@ -45,7 +46,7 @@ describe Leo::V1::Users do
     end
 
     def do_request
-      delete "/api/v1/users/#{deleted_user.id}", {access_token: user.authentication_token}
+      delete "/api/v1/users/#{deleted_user.id}", {access_token: session.authentication_token}
     end
 
     it "should delete selected user if current user has admin right" do
