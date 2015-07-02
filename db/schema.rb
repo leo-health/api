@@ -216,9 +216,9 @@ ActiveRecord::Schema.define(version: 20150701155402) do
     t.datetime "updated_at",           null: false
   end
 
-  add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", using: :btree
+  add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree
   add_index "sessions", ["deleted_at"], name: "index_sessions_on_deleted_at", using: :btree
-  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", using: :btree
+  add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", where: "(deleted_at IS NULL)", using: :btree
 
   create_table "sync_tasks", force: :cascade do |t|
     t.integer  "sync_id",    default: 0,  null: false

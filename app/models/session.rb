@@ -6,4 +6,5 @@ class Session < ActiveRecord::Base
   validates_uniqueness_of :authentication_token
 
   acts_as_token_authenticatable
+  acts_as_paranoid
 end

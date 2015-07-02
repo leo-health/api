@@ -8,8 +8,8 @@ class CreateSessions < ActiveRecord::Migration
       t.timestamps null: false
     end
 
-    add_index :sessions, :user_id
-    add_index :sessions, :authentication_token
+    add_index :sessions, :user_id, where: "deleted_at IS NULL"
+    add_index :sessions, :authentication_token, where: "deleted_at IS NULL"
     add_index :sessions, :deleted_at
   end
 end

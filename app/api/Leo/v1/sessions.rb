@@ -41,7 +41,7 @@ module Leo
 
         desc "destroy the session when user logout"
         delete do
-          Session.find_by_authentication_token(params[:authentication_token]).try(:update_attributes, disabled_at: Time.now)
+          Session.find_by_authentication_token(params[:authentication_token]).destroy
         end
       end
     end
