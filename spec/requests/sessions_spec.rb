@@ -11,7 +11,7 @@ describe Leo::V1::Sessions do
 
     context 'user have correct email and password' do
       it 'should create a session for the user and return the session infomation' do
-        do_request({email: user.email, password: 'password'})
+        expect{do_request({email: user.email, password: 'password'})}.to change{Session.count}.from(0).to(1)
         expect(response.status).to eq(201)
       end
     end
@@ -20,6 +20,7 @@ describe Leo::V1::Sessions do
       it 'should not create session and return error message' do
         do_request({email: user.email, password: 'wrong_password'})
         expect(response.status).to eq(422)
+        expect(Session.count).to eq(0)
       end
     end
 
@@ -29,6 +30,7 @@ describe Leo::V1::Sessions do
       it 'should not create session and return errror message' do
         do_request({email: child.email, password: 'password'})
         expect(response.status).to eq(422)
+        expect(Session.count).to eq(0)
       end
     end
   end

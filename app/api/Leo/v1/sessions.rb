@@ -28,7 +28,7 @@ module Leo
           error!({error_code: 403, error_message: "Invalid Email or Password."}, 422) and return if user.has_role? :child
 
           if session = user.sessions.create
-            present	session, with: Leo::Entities::SessionEntity
+            present	:session, session, with: Leo::Entities::SessionEntity
           end
         end
       end
