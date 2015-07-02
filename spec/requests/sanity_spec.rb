@@ -27,7 +27,7 @@ describe 'Ensure no data leaks -' do
 		@login_params = { email: 'phil.dunphy@gmail.com', password: 'fake_pass' }
 		post '/api/v1/sessions', @login_params, format: :json
 		# Use the auth token (which we already know) to make an authenticated request
-		@get_params = { access_token: 'yAZ_3VHjVzt8uoi7uD7z'}
+		@get_params = { authentication_token: 'yAZ_3VHjVzt8uoi7uD7z'}
 		get '/api/v1/users', @get_params, format: :json
 
 		expect(response).to have_http_status(200)

@@ -2,7 +2,7 @@ describe 'POST /api/v1/users/id/children' do
   let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
 
   def do_request
-    @child_params = FactoryGirl.attributes_for(:user, :child).merge({access_token: user.authentication_token})
+    @child_params = FactoryGirl.attributes_for(:user, :child).merge({authentication_token: user.authentication_token})
     post "/api/v1/users/#{user.id}/children", @child_params, format: :json
   end
 
@@ -23,7 +23,7 @@ describe 'GET /api/v1/users/id/children' do
   end
 
   def do_request
-    get "/api/v1/users/#{@user.id}/children", {access_token: @user.authentication_token}
+    get "/api/v1/users/#{@user.id}/children", {authentication_token: @user.authentication_token}
   end
 
   it "should return every children belongs to the user" do

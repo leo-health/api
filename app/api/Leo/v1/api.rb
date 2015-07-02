@@ -51,7 +51,7 @@ module Leo
         def authenticated
           if warden.authenticated?
             return true
-          elsif params[:access_token] and Session.find_by_authentication_token(params[:access_token]).try(:user)
+          elsif params[:authentication_token] and Session.find_by_authentication_token(params[:authentication_token]).try(:user)
             return true
           else
             error!('401 Unauthorized', 401)
@@ -63,7 +63,7 @@ module Leo
         end
 
         def current_user
-          warden.user || ((Session.find_by_authentication_token(params[:access_token]).try(:user)) if params[:access_token])
+          warden.user || ((Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token])
         end
       end
 

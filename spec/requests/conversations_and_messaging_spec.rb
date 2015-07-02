@@ -22,7 +22,7 @@ describe 'Creating conversations and managing participants when not authenticate
     expect_json_types({'data': {user: :object}})
     expect_json_types({'data': {user: {id: :integer}}})
     @conv_params = {user_id: parsed["data"]["user"]["id"], child_ids: [Family.all.first.children.pluck(&:id)]}
-    @auth_params = { access_token: parsed["data"]["token"]}
+    @auth_params = { authentication_token: parsed["data"]["token"]}
     @post_params = @conv_params.merge(@auth_params)
     post '/api/v1/conversations', @post_params, format: :json
     expect(response).to have_http_status(201)

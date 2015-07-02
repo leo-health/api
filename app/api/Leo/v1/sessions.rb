@@ -36,12 +36,12 @@ module Leo
       namespace :logout do
         params do
           requires :user_id, type: Integer, allow_blank: false
-          requires :access_token, type: String, allow_blank: false
+          requires :authentication_token, type: String, allow_blank: false
         end
 
         desc "destroy the session when user logout"
         delete do
-          Session.find_by_authentication_token(params[:access_token]).try(:update_attributes, disabled_at: Time.now)
+          Session.find_by_authentication_token(params[:authentication_token]).try(:update_attributes, disabled_at: Time.now)
         end
       end
     end

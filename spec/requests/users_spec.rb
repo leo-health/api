@@ -23,7 +23,7 @@ describe Leo::V1::Users do
     let!(:session){user.sessions.create}
 
     def do_request
-      get "/api/v1/users/#{user.id}", {access_token: session.authentication_token}, format: :json
+      get "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token}, format: :json
     end
 
     it "should update the user info, email only, for authenticated users" do
@@ -39,7 +39,7 @@ describe Leo::V1::Users do
     let!(:email){'new_email@leohealth.com'}
 
     def do_request
-      put "/api/v1/users/#{user.id}", {access_token: session.authentication_token, email: email}, format: :json
+      put "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token, email: email}, format: :json
     end
 
     it "should update the user info, email only, for authenticated users" do
@@ -60,7 +60,7 @@ describe Leo::V1::Users do
     end
 
     def do_request
-      delete "/api/v1/users/#{deleted_user.id}", {access_token: session.authentication_token}
+      delete "/api/v1/users/#{deleted_user.id}", {authentication_token: session.authentication_token}
     end
 
     it "should delete selected user if current user has admin right" do
