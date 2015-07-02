@@ -6,27 +6,30 @@ describe Leo::V1::Users do
   describe "POST /api/v1/users" do
     let!(:role){create(:role, :parent)}
     let!(:family){create(:family)}
+    let!(:user_params){FactoryGirl.attributes_for(:user).merge(role_id: role.id, family_id: family.id)}
 
     def do_request
-      post "/api/v1/users", user_params = FactoryGirl.attributes_for(:user).merge(role_id: role.id, family_id: family.id), format: :json
+      post "/api/v1/users", user_params, format: :json
     end
 
     it "should create the user with a role, and return created user along with auth_token" do
       do_request
-      byebug
-      expect(response.status).to eq(200)
+      expect(response.status).to eq(201)
     end
   end
 
   describe "PUT /api/v1/users/id" do
-    let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
+    let(:user){create(:user)}
+    let!(:session){user.sessions.create}
+    let!(:email){'new_email@leohealth.com'}
 
     def do_request
-      put "/api/v1/users/#{user.id}", {access_token: "yAZ_3VHjVzt8uoi7uD7z", email: 'new_email@leohealth.com'}, format: :json
+      put "/api/v1/users/#{user.id}", {access_token: session.authentication_token, email: email}, format: :json
     end
 
     it "should update the user info, email only, for authenticated users" do
       do_request
+      byebug
       expect(response.status).to eq(200)
       expect_json('data.user.email', email)
     end

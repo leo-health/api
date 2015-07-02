@@ -71,7 +71,7 @@ module Leo
 
         route_param :id do
           before do
-            authenticated_user
+            authenticated
           end
 
           after_validation do

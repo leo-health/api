@@ -19,10 +19,14 @@ module Leo
         desc "create a session when user login"
         post do
           user = User.find_by_email(params[:email].downcase)
-          unless user && user.valid_password?(password) && (user.has_role? :child)
+
+          unless user && user.valid_password?(params[:password])
             error!({error_code: 422, error_message: "Invalid Email or Password."}, 422)
             return
           end
+
+          error!({error_code: 422, error_message: "Invalid Email or Password."}, 422) and return if user.has_role? :child
+
           if session = user.sessions.create
             present	session
           end
