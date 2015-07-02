@@ -65,7 +65,8 @@ module Leo
             user.roles << role
             family.conversation.participants << user
             session = user.sessions.create
-            present user, with: Leo::Entities::UserEntity, access_token: session.authentication_token
+            present :auth_token, session.authentication_token
+            present :user, user, with: Leo::Entities::UserEntity
           end
         end
 
@@ -80,7 +81,7 @@ module Leo
 
           desc "#show get an individual user"
           get do
-            present @user, with: Leo::Entities::UserEntity
+            present :user, @user, with: Leo::Entities::UserEntity
           end
 
           desc "#put update individual user"
@@ -91,7 +92,7 @@ module Leo
           put do
             user_params = declared(params)
             if @user.update_attributes(user_params)
-              present @user, with: Leo::Entities::UserEntity
+              present :user, @user, with: Leo::Entities::UserEntity
             else
               error!({errors: @user.errors.messages})
             end

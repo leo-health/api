@@ -13,8 +13,23 @@ describe Leo::V1::Users do
     end
 
     it "should create the user with a role, and return created user along with auth_token" do
-      do_request
+      expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
+    end
+  end
+
+  describe "GET /api/v1/users/id" do
+    let(:user){create(:user)}
+    let!(:session){user.sessions.create}
+
+    def do_request
+      get "/api/v1/users/#{user.id}", {access_token: session.authentication_token}, format: :json
+    end
+
+    it "should update the user info, email only, for authenticated users" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json('data.user.id', user.id)
     end
   end
 
@@ -29,7 +44,6 @@ describe Leo::V1::Users do
 
     it "should update the user info, email only, for authenticated users" do
       do_request
-      byebug
       expect(response.status).to eq(200)
       expect_json('data.user.email', email)
     end
