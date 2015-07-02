@@ -11,7 +11,6 @@ module Leo
       resource :roles do
         desc "Return all roles"
         get "/" do
-          puts "In get roles"
           present :roles, Role.all, with: Leo::Entities::RoleEntity
         end
       end

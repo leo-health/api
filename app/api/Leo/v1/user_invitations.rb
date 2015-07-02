@@ -13,7 +13,6 @@ module Leo
         # GET users/:id/invitations
         desc "Get invitations sent by this user"
         get do
-          puts "In get /users/#{params[:id]}/invitations"
           if @user != current_user
             error!({error_code: 403, error_message: "You don't have permission to list this user's invitiations."}, 403)
             return

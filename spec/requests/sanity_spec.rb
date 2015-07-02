@@ -1,35 +1,6 @@
 require 'airborne'
 require 'rails_helper'
 
-def print_response
-	puts "\nResponse (#{caller[0]})"
-	puts "--------"
-	puts response.to_a
-	if response.status >=400 and response.status < 500
-		parsed = JSON.parse(response.body)
-		puts "--------"
-		msg = parsed["message"] if parsed.has_key? "message"
-		if msg.nil? or msg.strip.length == 0
-			puts "Body: #{response.body}"
-		else
-			puts "Error: #{msg}"
-		end
-	elsif response.status == 500
-		puts "--------"
-		parsed = JSON.parse(response.body)
-		puts "Status: #{parsed["status"]}"
-		puts "Message: #{parsed["message"]}"
-		puts "Backtrace:"
-		parsed["backtrace"].each do |bt|
-			puts "\t #{bt}"
-		end
-
-	else	
-		puts "Header: #{response.header}"
-		puts "Body: #{response.body}"
-	end
-end
-
 describe 'Ensure site is up and running, and basic endpoints are working' do
 	it 'should successfully hit /api/v1/' do
 		get '/api/v1', format: :json
