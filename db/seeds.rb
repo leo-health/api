@@ -10,18 +10,18 @@
 ROLES = {
           # Super user / admin
           super_user: 0,
-          # Accounting and billing
-          billing: 1,
-          # Non-provider roles (medical assistant, nurse practicioner)
+          # Access accounting and billing data for administrative staff
+          financial: 1,
+          # Access to clinical data for non-provider roles including a nurse practicioner, medical asssitant, or nurse
           clinical_support: 2,
-          # Leo staff and reception
+          # Access to service level data to provide support for non-clinical issues and feedback
           customer_service: 3,
-          # Parent and legal guardians
-          parent: 4,
-          # Pediatricians and other care providers
-          physician: 5,
-          # Children
-          child: 6
+          # Access to user their data and shared data where relationships are maintained
+          guardian: 4,
+          # Access to clinical data for provider roles and other (sub)specialists
+          clinical: 5,
+          # Access to all data pertaining to the patient
+          patient: 6
         }
 
 ROLES.each do |role, id|
