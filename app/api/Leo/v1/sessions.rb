@@ -47,5 +47,3 @@ module Leo
     end
   end
 end
-
-
