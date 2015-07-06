@@ -46,7 +46,7 @@ describe Leo::V1::Users do
       original_email = user.email
       do_request
       expect(response.status).to eq(200)
-      expect{user.reload.confirm!}.to change{user.email}.from(original_email).to(email)
+      expect{user.reload.confirm}.to change{user.email}.from(original_email).to(email)
     end
   end
 
