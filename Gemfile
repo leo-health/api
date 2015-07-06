@@ -21,6 +21,7 @@ gem 'grape-entity'
 gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
+gem 'mandrill_mailer'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
