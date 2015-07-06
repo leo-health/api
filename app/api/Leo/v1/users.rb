@@ -105,6 +105,19 @@ module Leo
             user.try(:destroy)
           end
         end
+
+        namespace "reset_password" do
+          desc 'reset the password for user'
+
+          params do
+            requires :email, type: String, allow_blank: false
+          end
+
+          post do
+            user = User.find_by_email(params[:email])
+            user.try(:send_reset_password_instructions)
+          end
+        end
       end
     end
   end
