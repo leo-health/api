@@ -235,7 +235,7 @@ ActiveRecord::Schema.define(version: 20150706143950) do
     t.string   "first_name",             default: "", null: false
     t.string   "middle_initial",         default: ""
     t.string   "last_name",              default: "", null: false
-    t.datetime "dob",                                 null: false
+    t.datetime "dob"
     t.integer  "practice_id"
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: ""
@@ -253,7 +253,7 @@ ActiveRecord::Schema.define(version: 20150706143950) do
     t.integer  "invitations_count",      default: 0
     t.integer  "family_id"
     t.string   "stripe_customer_id"
-    t.string   "gender",                              null: false
+    t.string   "sex"
     t.string   "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"

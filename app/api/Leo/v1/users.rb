@@ -40,7 +40,7 @@ module Leo
           requires :password,   type: String, allow_blank: false
           requires :role_id,    type: Integer, allow_blank: false, role_exists: true
           requires :dob,        type: String, allow_blank: false
-          requires :gender,     type: String, values: ['M', 'F']
+          requires :sex,        type: String, values: ['M', 'F']
           optional :family_id,  type: Integer, allow_blank: false
         end
 
@@ -59,7 +59,7 @@ module Leo
                           password: params[:password],
                           dob: dob,
                           family_id: family.id,
-                          gender: params[:gender] }
+                          sex: params[:sex] }
 
           if user = User.create(user_params)
             user.roles << role
