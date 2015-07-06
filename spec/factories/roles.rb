@@ -47,6 +47,5 @@ FactoryGirl.define do
       id    6
       name  :patient
     end
-
   end
 end
