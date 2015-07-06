@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
   after_initialize :init
   rolify
 
-  devise :invitable, :database_authenticatable, :registerable,
+  devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
 
   validates :password, length: {minimum: 6, allow_nil: true}
