@@ -9,12 +9,5 @@ module Api
     config.paths.add File.join('app', 'api'), glob: File.join('**', '*.rb')
     config.autoload_paths += Dir[Rails.root.join('app', 'api', '*')]
     config.active_job.queue_adapter = :delayed_job
-
-    if Rails.env.test?
-      log_level = "INFO"
-      config.logger = Logger.new(STDOUT)
-      config.logger.level = Logger.const_get(log_level)
-      config.log_level = log_level
-    end
   end
 end

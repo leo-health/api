@@ -7,19 +7,20 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
-gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
 gem 'devise_invitable'      # Inviting users
 gem 'cancancan', '~> 1.10'
+gem "paranoia", "~> 2.0"
 gem 'grape'                 # Our API base
 gem 'grape-cancan'
 gem 'grape-entity'
 gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
+gem 'mandrill_mailer'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie-forbidden_attributes'
 gem 'rack-cors'

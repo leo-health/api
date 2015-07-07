@@ -1,12 +1,3 @@
-# == Schema Information
-#
-# Table name: families
-#
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
-
 require 'rails_helper'
 
 describe Family, type: :model do

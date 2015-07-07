@@ -121,7 +121,7 @@ module AthenaHealthAPI
       raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
 
       authorization = JSON.parse(response.body)
-      @@last_token = @token = authorization['access_token']
+      @@last_token = @token = authorization['authentication_token']
     end
     
     # Joins together URI paths so we can use it in API calls.  Trims extra slashes from arguments,

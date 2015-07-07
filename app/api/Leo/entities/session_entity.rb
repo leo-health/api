@@ -1,6 +1,7 @@
 module Leo
   module Entities
-    class UserWithAuthEntity < Leo::Entities::UserEntity
+    class SessionEntity < Grape::Entity
+      expose :user, using: UserEntity
       expose :authentication_token
     end
   end

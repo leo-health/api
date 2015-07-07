@@ -13,8 +13,7 @@ module Leo
       require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
       require_relative '../../../../app/api/Leo/entities/role_entity'
       require_relative '../../../../app/api/Leo/entities/user_entity'
-      require_relative '../../../../app/api/Leo/entities/user_with_auth_entity'
-      require_relative '../../../../lib/api/validations/user_unique'
+      require_relative '../../../../app/api/Leo/entities/session_entity'
       require_relative '../../../../lib/api/validations/role_exists'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
@@ -45,25 +44,26 @@ module Leo
 
 
       helpers do
-        def authenticate!
-          error!('401 Unauthorized', 401) unless current_user
+        def warden
+          env['warden']
+        end
+
+        def authenticated
+          if warden.authenticated?
+            return true
+          elsif params[:authentication_token] and Session.find_by_authentication_token(params[:authentication_token]).try(:user)
+            return true
+          else
+            error!('401 Unauthorized', 401)
+          end
         end
 
         def warden
           env['warden']
         end
 
-        def authenticated
-          return true if (warden.authenticated? || (params[:access_token] && @user = User.find_by_authentication_token(params[:access_token])))
-        end
-
         def current_user
-          warden.user || (User.find_by_authentication_token(params[:access_token]) if params[:access_token])
-        end
-
-        def authenticated_user
-          authenticated
-          error!('Forbidden', 403) unless current_user
+          warden.user || ((Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token])
         end
       end
 
@@ -75,6 +75,7 @@ module Leo
       mount Leo::V1::Conversations
       mount Leo::V1::Sessions
       mount Leo::V1::Users
+      mount Leo::V1::Roles
 
       add_swagger_documentation(
           base_path: "/api",
