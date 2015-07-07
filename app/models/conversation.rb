@@ -17,20 +17,17 @@ class Conversation < ActiveRecord::Base
   end
 
   def self.for_user(user)
-    if user.has_role? :parent
-      user.conversations 
-      # TODO need to figure out how conversations will be shared across multiple parents
-    elsif user.has_role? :guardian
+    if user.has_role? :guardian
       user.conversations
-    elsif user.has_role? :child
+    elsif user.has_role? :patient
       #TODO: Implement
-    elsif user.has_role? :physician
+    elsif user.has_role? :clinical
       #TODO: Implement
-    elsif user.has_role? :clinical_staff
+    elsif user.has_role? :clinical_support
       #TODO: Implement
-    elsif user.has_role? :other_staff
+    elsif user.has_role? :customer_service
       #TODO: Implement
-    elsif user.has_role? :admin
+    elsif user.has_role? :super_user
       Conversation.all
     end
   end

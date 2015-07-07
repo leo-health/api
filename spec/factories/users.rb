@@ -21,19 +21,19 @@ FactoryGirl.define do
     trait :father do
       dob 				{ 48.years.ago.to_s }
       sex					'M'
-      after(:create) { |u| u.add_role :parent }
+      after(:create) { |u| u.add_role :guardian }
     end
 
     trait :mother do
       dob 				{ 45.years.ago.to_s }
       sex					'F'
-      after(:create) { |u| u.add_role :parent }
+      after(:create) { |u| u.add_role :guardian }
     end
 
     trait :child do
       dob 				{ 19.years.ago.to_s }
       sex 				'F'
-      after(:create) { |u| u.add_role :child }
+      after(:create) { |u| u.add_role :patient }
     end
   end
 end

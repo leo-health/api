@@ -9,7 +9,7 @@ describe "User" do
       let!(:user){create(:user)}
 
       before do
-        user.add_role :admin
+        user.add_role :super_user
       end
 
       it{ should be_able_to(:manage, User.new) }

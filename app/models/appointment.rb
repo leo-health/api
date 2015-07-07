@@ -1,4 +1,4 @@
-class Appointment < ActiveRecord::Base  
+class Appointment < ActiveRecord::Base
   belongs_to :leo_patient, class_name: "User"
 
   #helpers for booked status
@@ -44,26 +44,22 @@ class Appointment < ActiveRecord::Base
 	def self.MIN_DURATION
 		10
 	end
-	
-	
+
+
 	def self.for_family(family)
 		Appointment.where(family_id: family.id)
 	end
 
 	def self.for_user(user)
-		if user.has_role? :parent
+		if user.has_role? :guardian
 			Appointment.for_family(user.family)
-		elsif user.has_role? :guardian
-			Appointment.for_family(user.family)
-		elsif user.has_role? :child
+		elsif user.has_role? :patient
 			#TODO: Implement
-		elsif user.has_role? :physician
+		elsif user.has_role? :clinical
 			#TODO: Implement
-		elsif user.has_role? :clinical_staff
+		elsif user.has_role? :clinical_support
 			#TODO: Implement
-		elsif user.has_role? :other_staff
-			#TODO: Implement
-		elsif user.has_role? :admin
+		elsif user.has_role? :super_user
 			Appointment.all
 		end
 	end

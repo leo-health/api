@@ -14,28 +14,24 @@ class Family < ActiveRecord::Base
     self.conversations.first
   end
 
-  def parents
-    self.members.with_role :parent
-  end
-
   def guardians
     self.members.with_role :guardian
   end
 
   def children
-    self.members.with_role :child
+    self.members.with_role :patient
   end
 
   private
 
   def ensure_default_conversation_exists
-    setup_default_conversation if self.conversations.count == 0 
+    setup_default_conversation if self.conversations.count == 0
   end
 
   def setup_default_conversation
     conversation = Conversation.new
     conversation.family = self
-    conversation.participants << self.parents
+    conversation.participants << self.guardians
     conversation.save
   end
 end

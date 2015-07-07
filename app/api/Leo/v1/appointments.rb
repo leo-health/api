@@ -60,11 +60,11 @@ module Leo
             error!({error_code: 422, error_message: "The appointment duration is not valid"}, 422)
             return
           end
-          if User.find(provider_id).has_role? :provider == false
+          if User.find(provider_id).has_role? :clinical == false
             error!({error_code: 422, error_message: "A physician with that id does not exist"}, 422)
             return
           end
-          if User.find(patient_id).has_role? :child == false
+          if User.find(patient_id).has_role? :patient == false
             error!({error_code: 422, error_message: "A patient with that id does not exist"}, 422)
             return
           end

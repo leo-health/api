@@ -55,7 +55,7 @@ module Leo
             u.invited_by_type = 'User'
           end
 
-          invited_user.add_role :parent
+          invited_user.add_role :guardian
           family.conversation.participants << invited_user
           present :user, invited_user, with: Leo::Entities::UserEntity
         end

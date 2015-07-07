@@ -84,7 +84,7 @@ module SyncServiceHelper
 
           #destroy task if everything went ok
           task.destroy
-        rescue => e 
+        rescue => e
           Rails.logger.error "Syncer: Processing sync task id=#{task.id} failed"
           Rails.logger.error e.message
           Rails.logger.error e.backtrace.join("\n")
@@ -142,7 +142,7 @@ module SyncServiceHelper
             end
           end
 
-        rescue => e 
+        rescue => e
           Rails.logger.error "Syncer: Creating sync task for appointment.id=#{appt.id} failed"
           Rails.logger.error e.message
           Rails.logger.error e.backtrace.join("\n")
@@ -152,7 +152,7 @@ module SyncServiceHelper
 
     def process_scan_patients(task)
       User.find_each() do |user|
-        if user.has_role? :child
+        if user.has_role? :patient
           begin
             if user.patient.nil?
               SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
@@ -191,7 +191,7 @@ module SyncServiceHelper
                 SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: user.id)
               end
             end
-          rescue => e 
+          rescue => e
             Rails.logger.error "Syncer: Creating sync task for patient user.id=#{user.id} failed"
             Rails.logger.error e.message
             Rails.logger.error e.backtrace.join("\n")
@@ -214,7 +214,7 @@ module SyncServiceHelper
         #create appointment
         leo_appt.athena_id = @connector.create_appointment(
           appointmentdate: leo_appt.appointment_date.strftime("%m/%d/%Y"),
-          appointmenttime: leo_appt.appointment_start_time.strftime("%H:%M"), 
+          appointmenttime: leo_appt.appointment_start_time.strftime("%H:%M"),
           appointmenttypeid: leo_appt.athena_appointment_type_id,
           departmentid: leo_appt.athena_department_id,
           providerid: leo_appt.athena_provider_id
@@ -250,12 +250,12 @@ module SyncServiceHelper
 
           @connector.reschedule_appointment(
             appointmentid: leo_appt.athena_id,
-            newappointmentid: leo_resched_appt.athena_id, 
+            newappointmentid: leo_resched_appt.athena_id,
             patientid: leo_appt.leo_patient.patient.athena_id
           )
         else
           #cancel
-          @connector.cancel_appointment(appointmentid: leo_appt.athena_id, 
+          @connector.cancel_appointment(appointmentid: leo_appt.athena_id,
             patientid: leo_appt.leo_patient.patient.athena_id) if athena_appt.booked?
         end
       else
@@ -273,8 +273,8 @@ module SyncServiceHelper
         #todo: do we need to update leo_patient_id
         #rescheduled_appointment_id = athena_appt.rescheduledappointmentid
         #duration = athena_appt.duration
-        #appointment_date = 
-        #appointment_start_time = 
+        #appointment_date =
+        #appointment_start_time =
         #frozenyn = athena_appt.frozenyn
       end
 
@@ -306,7 +306,7 @@ module SyncServiceHelper
         family_id: family.id
         )
 
-      child.add_role :child
+      child.add_role :patient
       child.save!
 
       Patient.create(user_id: child.id, athena_id: patientid)
@@ -325,7 +325,7 @@ module SyncServiceHelper
         family_id: family.id
         )
 
-      parent.add_role :parent
+      parent.add_role :guardian
       parent.save!
 
       return child
@@ -338,7 +338,7 @@ module SyncServiceHelper
       leo_user = User.find(task.sync_id)
 
       #only need to create patient if the user has the role child
-      if leo_user.has_role? :child
+      if leo_user.has_role? :patient
         raise "user.id #{leo_user.id} has no associated family" if leo_user.family.nil?
         raise "user.id #{leo_user.id} has no parents in his family" if leo_user.family.parents.empty?
 
@@ -348,30 +348,30 @@ module SyncServiceHelper
 
         begin
           leo_patient = Patient.find_or_create_by(user_id: task.sync_id)
-        rescue => e 
+        rescue => e
           Rails.logger.error "Syncer: Creating patient for user.id=#{task.sync_id} failed"
           Rails.logger.error e.message
           Rails.logger.error e.backtrace.join("\n")
         end
 
         Rails.logger.info("Syncer: synching patient=#{leo_patient.to_json}")
-      
+
         patient_dob = leo_user.dob.strftime("%m/%d/%Y") if leo_user.dob
         parent_dob = leo_parent.dob.strftime("%m/%d/%Y") if leo_parent.dob
 
         if leo_patient.athena_id == 0
           #create patient
           leo_patient.athena_id = @connector.create_patient(
-            departmentid: leo_user.practice_id, 
-            firstname: leo_user.first_name, 
-            middlename: leo_user.middle_initial.to_s, 
-            lastname: leo_user.last_name, 
-            sex: leo_user.sex, 
+            departmentid: leo_user.practice_id,
+            firstname: leo_user.first_name,
+            middlename: leo_user.middle_initial.to_s,
+            lastname: leo_user.last_name,
+            sex: leo_user.sex,
             dob: patient_dob,
-            guarantorfirstname: leo_parent.first_name, 
-            guarantormiddlename: leo_parent.middle_initial.to_s, 
-            guarantorlastname: leo_parent.last_name, 
-            guarantordob: parent_dob, 
+            guarantorfirstname: leo_parent.first_name,
+            guarantormiddlename: leo_parent.middle_initial.to_s,
+            guarantorlastname: leo_parent.last_name,
+            guarantordob: parent_dob,
             guarantoremail: leo_parent.email,
             guarantorrelationshiptopatient: 3 #3==child
             ).to_i
@@ -379,17 +379,17 @@ module SyncServiceHelper
         else
           #update patient
           @connector.update_patient(
-            patientid: leo_patient.athena_id, 
-            departmentid: leo_user.practice_id, 
-            firstname: leo_user.first_name, 
-            middlename: leo_user.middle_initial.to_s, 
-            lastname: leo_user.last_name, 
-            sex: leo_user.sex, 
+            patientid: leo_patient.athena_id,
+            departmentid: leo_user.practice_id,
+            firstname: leo_user.first_name,
+            middlename: leo_user.middle_initial.to_s,
+            lastname: leo_user.last_name,
+            sex: leo_user.sex,
             dob: patient_dob,
-            guarantorfirstname: leo_parent.first_name, 
-            guarantormiddlename: leo_parent.middle_initial.to_s, 
-            guarantorlastname: leo_parent.last_name, 
-            guarantordob: parent_dob, 
+            guarantorfirstname: leo_parent.first_name,
+            guarantormiddlename: leo_parent.middle_initial.to_s,
+            guarantorlastname: leo_parent.last_name,
+            guarantordob: parent_dob,
             guarantoremail: leo_parent.email,
             guarantorrelationshiptopatient: 3 #3==child
             )
@@ -513,7 +513,7 @@ module SyncServiceHelper
       vitals.each do | vital |
         vital[:readings.to_s].each do | reading_arr |
           reading = reading_arr[0]
-          
+
           leo_vital = Vital.find_or_create_by(athena_id: reading[:vitalid.to_s].to_i)
 
           leo_vital.patient_id = leo_user.patient.id

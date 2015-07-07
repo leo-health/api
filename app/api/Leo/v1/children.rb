@@ -50,7 +50,7 @@ module Leo
                            sex: params[:sex] }
 
           if child = User.create(child_params)
-            child.add_role :child
+            child.add_role :patient
             child.save!
           end
           present :user, child, with: Leo::Entities::UserEntity
