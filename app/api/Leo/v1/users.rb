@@ -100,7 +100,7 @@ module Leo
 
           desc 'delete a user with admin right'
           delete do
-            error!({error_code: 422}, 422) unless current_user.has_role? :admin
+            error!({error_code: 422}, 422) unless current_user.has_role? :super_user
             user = User.find(params[:id])
             user.try(:destroy)
           end

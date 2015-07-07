@@ -4,7 +4,7 @@ require 'rails_helper'
 describe Leo::V1::Users do
 
   describe "POST /api/v1/users" do
-    let!(:role){create(:role, :parent)}
+    let!(:role){create(:role, :guardian)}
     let!(:family){create(:family)}
     let!(:user_params){FactoryGirl.attributes_for(:user).merge(role_id: role.id, family_id: family.id)}
 
