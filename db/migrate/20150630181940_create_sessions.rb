@@ -5,6 +5,7 @@ class CreateSessions < ActiveRecord::Migration
       t.string :authentication_token, :null => false
       t.datetime :deleted_at
       t.string :os_version
+      t.string :platform
       t.timestamps null: false
     end
 

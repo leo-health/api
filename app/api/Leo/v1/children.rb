@@ -26,8 +26,9 @@ module Leo
           requires :last_name,  type: String, desc: "Last Name"
           optional :email,      type: String, desc: "Email"
           requires :dob,        type: String, desc: "Date of Birth"
-          requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
+          requires :sex,        type: String, desc: "Sex", values: ['M', 'F']
         end
+
         post do
           if @user != current_user
             error!({error_code: 403, error_message: "You don't have permission to add a child for this user."}, 403)

@@ -28,7 +28,7 @@ module Leo
           requires :last_name,  type: String, desc: "Last Name"
           requires :email,      type: String, desc: "Email"
           requires :dob,        type: String, desc: "Date of Birth"
-          requires :sex,        type: String, desc: "Sex", values: ['M', 'F', 'U']
+          requires :sex,        type: String, desc: "Sex", values: ['M', 'F']
         end
         post do
           if @user != current_user
@@ -64,24 +64,24 @@ module Leo
         params do
           requires :user_id,         type: Integer, desc: "Id for user who's invitation is to be deleted"
         end
-        delete do
-          if @user != current_user
-            error!({error_code: 403, error_message: "You don't have permission to delete this user's invitiations."}, 403)
-            return
-          end
-          user_id = params[:user_id]
-          user_to_delete = User.find_by_id(user_id)
-          if user_id.blank? or user_to_delete.nil?
-            error!({error_code: 422, error_message: "The user id is invalid."}, 422)
-            return
-          end
-
-          if !user_to_delete.invitation_accepted_at.nil? or user_to_delete.family.primary_parent.id != @user.id or user_to_delete == @user
-            error!({error_code: 403, error_message: "You don't have permission to delete this invitation or it is no longer pending."}, 403)
-            return
-          end
-          result = User.destroy(user_to_delete.id)
-        end
+        # delete do
+        #   if @user != current_user
+        #     error!({error_code: 403, error_message: "You don't have permission to delete this user's invitiations."}, 403)
+        #     return
+        #   end
+        #   user_id = params[:user_id]
+        #   user_to_delete = User.find_by_id(user_id)
+        #   if user_id.blank? or user_to_delete.nil?
+        #     error!({error_code: 422, error_message: "The user id is invalid."}, 422)
+        #     return
+        #   end
+        #
+        #   if !user_to_delete.invitation_accepted_at.nil? or user_to_delete.family.primary_parent.id != @user.id or user_to_delete == @user
+        #     error!({error_code: 403, error_message: "You don't have permission to delete this invitation or it is no longer pending."}, 403)
+        #     return
+        #   end
+        #   result = User.destroy(user_to_delete.id)
+        # end
       end
     end
   end

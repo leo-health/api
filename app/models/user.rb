@@ -11,10 +11,10 @@ class User < ActiveRecord::Base
   devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  validates :password, length: {minimum: 6, allow_nil: true}
+  validates :password, length: {minimum: 8, allow_nil: true}
   validates :first_name, :last_name, presence: true
   validates :email, presence: true, unless: :is_child?
-  validates_uniqueness_of :email, unless: :is_child?
+  validates_uniqueness_of :email
 
   def create_or_update_stripe_customer_id(token)
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"

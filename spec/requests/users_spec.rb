@@ -54,10 +54,10 @@ describe Leo::V1::Users do
     let(:user){create(:user)}
     let!(:session){user.sessions.create}
     let!(:deleted_user){create(:user)}
-    let!(:admin){create(:role, :admin)}
+    let!(:super_user){create(:role, :super_user)}
 
     before do
-      user.add_role :admin
+      user.add_role :super_user
     end
 
     def do_request

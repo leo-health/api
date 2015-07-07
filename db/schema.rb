@@ -212,6 +212,7 @@ ActiveRecord::Schema.define(version: 20150706143950) do
     t.string   "authentication_token", null: false
     t.datetime "deleted_at"
     t.string   "os_version"
+    t.string   "platform"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
   end
