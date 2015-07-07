@@ -1,3 +1,5 @@
+[![Circle CI](https://circleci.com/gh/leo-health/api.svg?style=svg)](https://circleci.com/gh/leo-health/api)
+
 # api
 
 This is the core api for the leo-health services.
