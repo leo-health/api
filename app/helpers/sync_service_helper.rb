@@ -320,20 +320,18 @@ module SyncServiceHelper
         leo_appt.appointment_status = athena_appt.appointmentstatus
 
         leo_appt.athena_appointment_type = athena_appt.appointmenttype
-        #todo: do we need to update leo_appointment_type
         leo_appt.athena_provider_id = athena_appt.providerid.to_i
-        #todo: do we need to update leo_provider_id
         leo_appt.athena_department_id = athena_appt.departmentid.to_i
         leo_appt.athena_appointment_type_id = athena_appt.appointmenttypeid.to_i
-
-        #todo: any other stuff that would need to get synched back to leo
-        #the following should not change from athena side
-        #todo: do we need to update leo_patient_id
-        #rescheduled_appointment_id = athena_appt.rescheduledappointmentid
-        #duration = athena_appt.duration
-        #appointment_date =
-        #appointment_start_time =
-        #frozenyn = athena_appt.frozenyn
+        leo_appt.duration = athena_appt.duration.to_i
+        leo_appt.appointment_date = Date.strptime(athena_appt.date, "%m/%d/%Y")
+        leo_appt.appointment_start_time = Time.strptime(athena_appt.starttime, "%H:%M")
+        leo_appt.leo_appointment_type = athena_appt.patientappointmenttypename
+        patient = Patient.find_by!(athena_id: athena_appt.patientid.to_i)
+        leo_appt.leo_patient_id = patient.user.id
+        leo_appt.family_id = patient.user.family.id
+        #todo: leo_provider_id
+        #todo: rescheduled_appointment_id = athena_appt.rescheduledappointmentid
       end
 
       leo_appt.sync_updated_at = DateTime.now.utc
