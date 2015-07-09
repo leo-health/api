@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150706143950) do
+ActiveRecord::Schema.define(version: 20150708185412) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -222,10 +222,11 @@ ActiveRecord::Schema.define(version: 20150706143950) do
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", where: "(deleted_at IS NULL)", using: :btree
 
   create_table "sync_tasks", force: :cascade do |t|
-    t.integer  "sync_id",    default: 0,  null: false
-    t.string   "sync_type",  default: "", null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.integer  "sync_id",     default: 0,  null: false
+    t.string   "sync_type",   default: "", null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "sync_params", default: "", null: false
   end
 
   add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id", using: :btree

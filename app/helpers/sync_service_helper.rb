@@ -20,12 +20,13 @@ module SyncService
 
   def self.create_scan_tasks
     #create scan tasks
-    if SyncService.configuration.auto_gen_scan_tasks
-      SyncTask.find_or_create_by(sync_type: :scan_patients.to_s) if SyncTask.table_exists?
-    end
+    if SyncService.configuration.auto_gen_scan_tasks && SyncTask.table_exists?
+      SyncTask.find_or_create_by(sync_type: :scan_patients.to_s)
+      SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s)
 
-    if SyncService.configuration.auto_gen_scan_tasks
-      SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s) if SyncTask.table_exists?
+      SyncService.configuration.department_ids.each { |id| 
+        SyncTask.find_or_create_by(sync_type: :scan_remote_appointments.to_s, sync_id: id)
+      }
     end
   end
 
@@ -47,12 +48,16 @@ module SyncService
     #The interval between successive appointment updates
     attr_accessor :appointment_data_interval
 
+    #An array of Athena department ids
+    attr_accessor :department_ids
+
     def initialize
       @auto_reschedule_job = true
       @job_interval = 1.minutes
       @auto_gen_scan_tasks = true
       @patient_data_interval = 15.minutes
       @appointment_data_interval = 15.minutes
+      @department_ids = [ 1 ]
     end
   end
 
@@ -106,6 +111,8 @@ module SyncServiceHelper
         process_appointment(task)
       elsif task.sync_type  == :scan_appointments.to_s
         process_scan_appointments(task)
+      elsif task.sync_type  == :scan_remote_appointments.to_s
+        process_scan_remote_appointments(task)
       elsif task.sync_type  == :scan_patients.to_s
         process_scan_patients(task)
       elsif task.sync_type  == :patient.to_s
@@ -150,13 +157,64 @@ module SyncServiceHelper
       end
     end
 
+    def process_scan_remote_appointments(task)
+      sync_params = {}
+      sync_params = JSON.parse(task.sync_params) if task.sync_params.to_s != ''
+
+      #mm/dd/yyyy hh:mi:ss
+      start_date = nil
+      start_date = DateTime.iso8601(sync_params[:start_date.to_s]).strftime("%m/%d/%Y %H:%M:00") if sync_params[:start_date.to_s]
+      next_start_date = DateTime.now.to_s
+
+      booked_appts = @connector.get_booked_appointments(
+        departmentid: task.sync_id, 
+        startdate: 1.year.ago.strftime("%m/%d/%Y"), 
+        enddate: 1.year.from_now.strftime("%m/%d/%Y"), 
+        startlastmodified: start_date)
+
+      booked_appts.each { |appt|
+        leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
+        impl_create_leo_appt_from_athena(appt: appt) if leo_appt.nil?
+      }
+
+      #reschedule the task
+      if SyncService.configuration.auto_gen_scan_tasks
+        if SyncTask.where(sync_type: :scan_remote_appointments.to_s, sync_id: task.sync_id).where.not(id: task.id).count <= 0
+          SyncTask.create(sync_type: :scan_remote_appointments.to_s, sync_id: task.sync_id, sync_params: { :start_date => next_start_date }.to_json)
+        end
+      end
+    end
+
+    def impl_create_leo_appt_from_athena(appt: )
+      patient = Patient.find_by!(athena_id: appt.patientid.to_i)
+
+      Appointment.create(
+        appointment_status: appt.appointmentstatus,
+        athena_appointment_type: appt.appointmenttype,
+        leo_provider_id: 0, #todo:
+        athena_provider_id: appt.providerid,
+        leo_patient_id: patient.user.id,
+        booked_by_user_id: 0, #todo:
+        rescheduled_appointment_id: nil,
+        duration: appt.duration,
+        appointment_date: Date.strptime(appt.date, "%m/%d/%Y"),
+        appointment_start_time: Time.strptime(appt.starttime, "%H:%M"),
+        frozenyn: false,
+        leo_appointment_type: appt.patientappointmenttypename,
+        athena_appointment_type_id: appt.appointmenttypeid.to_i,
+        family_id: patient.user.family.id,
+        athena_department_id: appt.departmentid.to_i,
+        sync_updated_at: DateTime.now,
+        athena_id: appt.appointmentid.to_i)
+    end
+
     def process_scan_patients(task)
       User.find_each() do |user|
         if user.has_role? :patient
           begin
             if user.patient.nil?
-              SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
-              SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
+              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
+              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_insurances.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_medications.to_s, sync_id: user.id)
@@ -164,11 +222,11 @@ module SyncServiceHelper
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: user.id)
             else
               if user.patient.patient_updated_at.nil? || (user.patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-                SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
+                SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
               end
 
               if user.patient.photos_updated_at.nil? || (user.patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-                SyncTask.create_with(sync_source: :v1).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
+                SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
               end
 
               if user.patient.allergies_updated_at.nil? || (user.patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
@@ -298,7 +356,7 @@ module SyncServiceHelper
         middle_initial: '',
         last_name: athena_patient.lastname,
         practice_id: athena_patient.departmentid,
-        sex: athena_patient.sex,
+        sex: "M",
         dob: DateTime.strptime(athena_patient.dob, "%m/%d/%Y"),
         password: 'fake_pass',
         password_confirmation: 'fake_pass',
@@ -317,7 +375,7 @@ module SyncServiceHelper
         middle_initial: '',
         last_name: athena_patient.lastname + 'Parent',
         practice_id: athena_patient.departmentid,
-        sex: athena_patient.sex,
+        sex: "M",
         dob: 45.years.ago,
         password: 'fake_pass',
         password_confirmation: 'fake_pass',
