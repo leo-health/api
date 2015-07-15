@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150708185412) do
+ActiveRecord::Schema.define(version: 20150714214553) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,6 +27,16 @@ ActiveRecord::Schema.define(version: 20150708185412) do
 
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
+
+  create_table "appointment_types", force: :cascade do |t|
+    t.integer  "athena_id",   default: 0, null: false
+    t.string   "description"
+    t.integer  "duration",                null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
 
   create_table "appointments", force: :cascade do |t|
     t.string   "appointment_status",         default: "o", null: false
@@ -188,6 +198,54 @@ ActiveRecord::Schema.define(version: 20150708185412) do
   end
 
   add_index "photos", ["patient_id"], name: "index_photos_on_patient_id", using: :btree
+
+  create_table "provider_additional_availabilities", force: :cascade do |t|
+    t.integer  "athena_provider_id", default: 0, null: false
+    t.string   "description"
+    t.date     "date",                           null: false
+    t.time     "start_time",                     null: false
+    t.time     "end_time",                       null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+  end
+
+  add_index "provider_additional_availabilities", ["athena_provider_id"], name: "index_provider_additional_availabilities_on_athena_provider_id", using: :btree
+
+  create_table "provider_leaves", force: :cascade do |t|
+    t.integer  "athena_provider_id", default: 0, null: false
+    t.string   "description"
+    t.date     "date",                           null: false
+    t.time     "start_time",                     null: false
+    t.time     "end_time",                       null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+  end
+
+  add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
+
+  create_table "provider_schedules", force: :cascade do |t|
+    t.integer  "athena_provider_id",   default: 0, null: false
+    t.string   "description"
+    t.boolean  "active"
+    t.time     "monday_start_time"
+    t.time     "monday_end_time"
+    t.time     "tuesday_start_time"
+    t.time     "tuesday_end_time"
+    t.time     "wednesday_start_time"
+    t.time     "wednesday_end_time"
+    t.time     "thursday_start_time"
+    t.time     "thursday_end_time"
+    t.time     "friday_start_time"
+    t.time     "friday_end_time"
+    t.time     "saturday_start_time"
+    t.time     "saturday_end_time"
+    t.time     "sunday_start_time"
+    t.time     "sunday_end_time"
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+  end
+
+  add_index "provider_schedules", ["athena_provider_id"], name: "index_provider_schedules_on_athena_provider_id", using: :btree
 
   create_table "read_receipts", force: :cascade do |t|
     t.integer  "message_id"

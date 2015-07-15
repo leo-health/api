@@ -18,6 +18,7 @@ module Leo
       require_relative 'error_formatter'
       require_relative 'success_formatter'
       require_relative 'appointments'
+      require_relative 'appointment_slots'
       require_relative 'conversations'
       require_relative 'roles'
       require_relative 'sessions'
@@ -72,6 +73,7 @@ module Leo
       end
 
       mount Leo::V1::Appointments
+      mount Leo::V1::AppointmentSlots
       mount Leo::V1::Conversations
       mount Leo::V1::Sessions
       mount Leo::V1::Users
