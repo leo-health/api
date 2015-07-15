@@ -1,5 +1,5 @@
-class Patient < ActiveRecord::Base::User
-    belongs_to :family
+class HealthRecord < ActiveRecord::Base
+    belongs_to :user
     has_many :medications
     has_many :photos
     has_many :vaccines

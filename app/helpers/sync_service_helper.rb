@@ -186,7 +186,7 @@ module SyncServiceHelper
     end
 
     def impl_create_leo_appt_from_athena(appt: )
-      patient = Patient.find_by!(athena_id: appt.patientid.to_i)
+      patient = HealthRecord.find_by!(athena_id: appt.patientid.to_i)
 
       Appointment.create(
         appointment_status: appt.appointmentstatus,
@@ -320,20 +320,18 @@ module SyncServiceHelper
         leo_appt.appointment_status = athena_appt.appointmentstatus
 
         leo_appt.athena_appointment_type = athena_appt.appointmenttype
-        #todo: do we need to update leo_appointment_type
         leo_appt.athena_provider_id = athena_appt.providerid.to_i
-        #todo: do we need to update leo_provider_id
         leo_appt.athena_department_id = athena_appt.departmentid.to_i
         leo_appt.athena_appointment_type_id = athena_appt.appointmenttypeid.to_i
-
-        #todo: any other stuff that would need to get synched back to leo
-        #the following should not change from athena side
-        #todo: do we need to update leo_patient_id
-        #rescheduled_appointment_id = athena_appt.rescheduledappointmentid
-        #duration = athena_appt.duration
-        #appointment_date =
-        #appointment_start_time =
-        #frozenyn = athena_appt.frozenyn
+        leo_appt.duration = athena_appt.duration.to_i
+        leo_appt.appointment_date = Date.strptime(athena_appt.date, "%m/%d/%Y")
+        leo_appt.appointment_start_time = Time.strptime(athena_appt.starttime, "%H:%M")
+        leo_appt.leo_appointment_type = athena_appt.patientappointmenttypename
+        patient = HealthRecord.find_by!(athena_id: athena_appt.patientid.to_i)
+        leo_appt.leo_patient_id = patient.user.id
+        leo_appt.family_id = patient.user.family.id
+        #todo: leo_provider_id
+        #todo: rescheduled_appointment_id = athena_appt.rescheduledappointmentid
       end
 
       leo_appt.sync_updated_at = DateTime.now.utc
@@ -341,8 +339,8 @@ module SyncServiceHelper
     end
 
     def create_leo_user_from_athena_patient(patientid: )
-      leo_patient = Patient.find_by(athena_id: patientid)
-      raise "Patient id=#{patientid} already exists in Leo" unless leo_patient.nil?
+      leo_patient = HealthRecord.find_by(athena_id: patientid)
+      raise "HealthRecord id=#{patientid} already exists in Leo" unless leo_patient.nil?
 
       athena_patient = @connector.get_patient(patientid: patientid)
       raise "No patient found for id=#{patientid}" unless athena_patient
@@ -367,7 +365,7 @@ module SyncServiceHelper
       child.add_role :patient
       child.save!
 
-      Patient.create(user_id: child.id, athena_id: patientid)
+      HealthRecord.create(user_id: child.id, athena_id: patientid)
 
       #create parent user
       parent = User.create(
@@ -391,7 +389,7 @@ module SyncServiceHelper
 
     #sync patient
     #SyncTask.sync_id = User.id
-    #creates an instance of Patient model if one does not exist, and then updates the patient in Athena
+    #creates an instance of HealthRecord model if one does not exist, and then updates the patient in Athena
     def process_patient(task)
       leo_user = User.find(task.sync_id)
 
@@ -405,7 +403,7 @@ module SyncServiceHelper
         leo_patient = nil
 
         begin
-          leo_patient = Patient.find_or_create_by(user_id: task.sync_id)
+          leo_patient = HealthRecord.find_or_create_by(user_id: task.sync_id)
         rescue => e
           Rails.logger.error "Syncer: Creating patient for user.id=#{task.sync_id} failed"
           Rails.logger.error e.message

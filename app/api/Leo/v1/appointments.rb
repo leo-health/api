@@ -36,7 +36,7 @@ module Leo
         desc "Create a Appointment"
         # post "/appointments"
         params do
-          requires :patient_id, 			type: Integer, 	desc: "Leo Patient Id"
+          requires :patient_id, 			type: Integer, 	desc: "Leo HealthRecord Id"
           requires :provider_id,  		type: Integer, 	desc: "Leo Provider Id"
           requires :date,     				type: Date, 		desc: "Appointment Date"
           requires :start_time,   		type: Time,	 		desc: "Appointment Start Time"
