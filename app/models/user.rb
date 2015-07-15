@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
 
   validates :password, length: {minimum: 8, allow_nil: true}
   validates :first_name, :last_name, presence: true
-  validates :email, presence: true, unless: :is_child?
+  validates :email, presence: true, unless: :is_patient?
   validates_uniqueness_of :email
 
   def create_or_update_stripe_customer_id(token)
@@ -48,7 +48,7 @@ class User < ActiveRecord::Base
 
   # Helper methods to render attributes in a more friednly way
 
-  def is_child?
+  def is_patient?
     has_role? :patient
   end
 
