@@ -1,6 +1,5 @@
 class Family < ActiveRecord::Base
-  has_many :guardians,
-  has_many :patients
+  has_many :members, :class_name => 'User'
   has_many :conversations
 
   after_save :ensure_default_conversation_exists
@@ -12,15 +11,15 @@ class Family < ActiveRecord::Base
   #wuang-make sure the conversation.first method would grab the primary conversation
   def conversation
     ensure_default_conversation_exists
-    self.conversations.first
+    conversations.first
   end
 
   def guardians
-    self.members.with_role :guardian
+    members.with_role :guardian
   end
 
   def patients
-    self.members.with_role :patient
+    members.with_role :patient
   end
 
   private
