@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150714214553) do
+ActiveRecord::Schema.define(version: 20150715183822) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -112,6 +112,23 @@ ActiveRecord::Schema.define(version: 20150714214553) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "health_records", force: :cascade do |t|
+    t.integer  "athena_id",              default: 0, null: false
+    t.integer  "user_id"
+    t.datetime "patient_updated_at"
+    t.datetime "medications_updated_at"
+    t.datetime "vaccines_updated_at"
+    t.datetime "allergies_updated_at"
+    t.datetime "vitals_updated_at"
+    t.datetime "insurances_updated_at"
+    t.datetime "photos_updated_at"
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+  end
+
+  add_index "health_records", ["athena_id"], name: "index_health_records_on_athena_id", using: :btree
+  add_index "health_records", ["user_id"], name: "index_health_records_on_user_id", using: :btree
+
   create_table "insurances", force: :cascade do |t|
     t.integer  "athena_id",          default: 0, null: false
     t.string   "plan_name"
@@ -171,23 +188,6 @@ ActiveRecord::Schema.define(version: 20150714214553) do
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
   end
-
-  create_table "patients", force: :cascade do |t|
-    t.integer  "athena_id",              default: 0, null: false
-    t.integer  "user_id"
-    t.datetime "patient_updated_at"
-    t.datetime "medications_updated_at"
-    t.datetime "vaccines_updated_at"
-    t.datetime "allergies_updated_at"
-    t.datetime "vitals_updated_at"
-    t.datetime "insurances_updated_at"
-    t.datetime "photos_updated_at"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-  end
-
-  add_index "patients", ["athena_id"], name: "index_patients_on_athena_id", using: :btree
-  add_index "patients", ["user_id"], name: "index_patients_on_user_id", using: :btree
 
   create_table "photos", force: :cascade do |t|
     t.integer  "patient_id"
