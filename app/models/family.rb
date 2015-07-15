@@ -1,8 +1,9 @@
 class Family < ActiveRecord::Base
-  after_save :ensure_default_conversation_exists
-
-  has_many :members, :class_name => 'User'
+  has_many :guardians,
+  has_many :patients
   has_many :conversations
+
+  after_save :ensure_default_conversation_exists
 
   def primary_parent
     self.members.order('created_at ASC').first
@@ -18,7 +19,7 @@ class Family < ActiveRecord::Base
     self.members.with_role :guardian
   end
 
-  def children
+  def patients
     self.members.with_role :patient
   end
 

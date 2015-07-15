@@ -1,20 +1,23 @@
 require 'airborne'
 require 'rails_helper'
 
-describe Leo::V1::Roles do
-  describe 'POST /api/v1/users/id/patients' do
-    let!(:user){create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')}
+describe Leo::V1::Patients do
+  let(:guardian){create(:user, :father)}
+  let!(:session){guardian.sessions.create}
+
+  describe 'POST /api/v1/patients' do
 
     def do_request
-      @child_params = FactoryGirl.attributes_for(:user, :child).merge({authentication_token: user.authentication_token})
-      post "/api/v1/users/#{user.id}/patients", @child_params, format: :json
+      @patient_params = FactoryGirl.attributes_for(:user, :child).merge({authentication_token: session.authentication_token})
+      post "/api/v1/patients", @patient_params, format: :json
     end
 
     it "should add a child to the family" do
       do_request
+      byebug
       expect(response.status).to eq(201)
-      expect_json('data.user.first_name', @child_params[:first_name])
-      expect_json('data.user.last_name', @child_params[:last_name])
+      expect_json('data.patient.first_name', @child_params[:first_name])
+      expect_json('data.patient.last_name', @child_params[:last_name])
     end
   end
 

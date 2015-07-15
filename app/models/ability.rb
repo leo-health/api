@@ -8,7 +8,7 @@ class Ability
     end
 
     if user.has_role? :guardian
-      can :manage, Patient
+      can :manage, User.where(role: 'child')
     end
   end
 end
