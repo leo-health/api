@@ -18,7 +18,7 @@ module Leo
           @guardian = Session.find_by_authentication_token(params[:authentication_token]).user  
         end
 
-        desc "#get get all patient of individual guardian"
+        desc "#get get all patients of individual guardian"
         get do
           authorize! :read, @guardian
           patients = @user.family.patients
@@ -42,36 +42,46 @@ module Leo
             error!({error_code: 422, error_message: "Invalid dob format"},422)
             return
           end
-
           family = @guardian.family
           patient_params = { first_name: params[:first_name],
-                           last_name: params[:last_name],
-                           email: params[:email],
-                           dob: dob,
-                           family_id: family.id,
-                           sex: params[:sex] }
+                             last_name: params[:last_name],
+                             email: params[:email],
+                             dob: dob,
+                             family_id: family.id,
+                             sex: params[:sex] }
 
           if patient = User.create(patient_params)
             patient.add_role :patient
             patient.save!
           end
-          present :user, patient, with: Leo::Entities::UserEntity
+          present :patient, patient, with: Leo::Entities::UserEntity
         end
 
-        desc "update the patient information, guardian only"
+        desc "#update: update the patient information, guardian only"
         params do
-          optional :first_name, type: String, desc: "First Name"
-          optional :last_name,  type: String, desc: "Last Name"
-          optional :email,      type: String, desc: "Email"
-          optional :dob,        type: String, desc: "Date of Birth"
-          optional :sex,        type: String, desc: "Sex", values: ['M', 'F']
+          requires :id, type: Integer, desc: 'patient id'
+          optional :first_name, type: String
+          optional :last_name,  type: String
+          optional :email,      type: String
+          optional :dob,        type: String
+          optional :sex,        type: String, values: ['M', 'F']
           at_least_one_of :first_name, :last_name, :email, :dob, :sex
         end
-        
-        
-        desc "delete the patient information, guardian only"
-        params do
+        put 'id' do
+          authorize! :update, @guardian
+          patient = @guardian.family.patients.find(params[:id])
+          if patient && patient.update_attributes(declared(params))
+            present :patient, patient, with: Leo::Entities::UserEntity
+          end
+        end
 
+        desc "#delete: delete individual patient, guardian only"
+        params do
+          requires :id, type: Integer, desc: "patient id"
+        end
+        delete 'id' do
+          authorize! :destroy, @guardian
+          @guardian.family.patients.find(params[:id]).try(:destory)
         end
       end
     end

@@ -76,6 +76,7 @@ module Leo
       mount Leo::V1::Sessions
       mount Leo::V1::Users
       mount Leo::V1::Roles
+      mount Leo::V1::Patients
 
       add_swagger_documentation(
           base_path: "/api",
