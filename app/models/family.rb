@@ -14,13 +14,14 @@ class Family < ActiveRecord::Base
     conversations.first
   end
 
-  def guardians
-    members.with_role :guardian
-  end
+  # def guardians
+  #   members.
+  #
+  # end
 
-  def patients
-    members.with_role :patient
-  end
+  # def patients
+  #   members.with_role :patient
+  # end
 
   private
 

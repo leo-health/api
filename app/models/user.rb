@@ -26,24 +26,28 @@ class User < ActiveRecord::Base
     end
   end
 
+  def has_role? (name)
+    !!roles.find_by_name(name)
+  end
+
+  def add_role(name)
+    roles.create(name: name)
+  end
+
   def is_patient?
     has_role? :patient
   end
 
   def email_required?
-    (is_child?) ? false : super
+    (is_patient?) ? false : super
   end
 
   def password_required?
-    (is_child?) ? false : super
+    (is_patient?) ? false : super
   end
 
   def primary_role
     roles.first.name if (roles and roles.count > 0)
-  end
-
-  def to_debug
-    to_yaml
   end
 
   private
