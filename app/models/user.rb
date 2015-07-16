@@ -31,7 +31,8 @@ class User < ActiveRecord::Base
   end
 
   def add_role(name)
-    roles.create(name: name)
+    role = Role.find_by_name(name) || Role.create(name: name)
+    roles << role if role
   end
 
   def is_patient?

@@ -9,7 +9,7 @@ class Ability
     if user.has_role? :super_user
       can :manage, :all
     elsif user.has_role? :guardian
-      can :crud, User, :id => user.family.members.with_role(:patient).pluck(:id)
+      can :crud, User, :id => user.family.patients.pluck(:id)
     end
   end
 end

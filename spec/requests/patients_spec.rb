@@ -5,14 +5,13 @@ describe Leo::V1::Patients do
   describe 'GET /api/v1/users/:id/patients' do
     let!(:family){create(:family_with_members)}
     let(:guardian){Role.find_by_name("guardian").users.first}
-    # let!(:session){guardian.sessions.create}
+    let!(:session){guardian.sessions.create}
 
     def do_request
       get "/api/v1/users/#{guardian.id}/patients", {authentication_token: session.authentication_token}
     end
 
     it "should return every patients belongs to the guardian" do
-      byebug
       do_request
       byebug
       expect(response.status).to eq(200)

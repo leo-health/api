@@ -3,4 +3,5 @@ class Role < ActiveRecord::Base
   has_many :users, :through => :user_roles
 
   validates :name, presence: true
+  validates_uniqueness_of :name
 end
