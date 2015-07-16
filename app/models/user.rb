@@ -8,7 +8,6 @@ class User < ActiveRecord::Base
   has_many :roles, :through => :user_roles
 
   after_initialize :init
-  rolify
 
   devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
