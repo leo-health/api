@@ -11,12 +11,7 @@ FactoryGirl.define do
     email
     password    'fake_pass'
     password_confirmation    'fake_pass'
-    family_id    11
     association :family, factory: :family
-
-    after(:create) do |u|
-      u.family = Family.find_or_create_by(id: u.family_id)
-    end
 
     trait :father do
       dob 				{ 48.years.ago.to_s }
