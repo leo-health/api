@@ -4,6 +4,8 @@ class User < ActiveRecord::Base
   has_many :escalations, foreign_key: 'escalated_to_id'
   has_many :invitations, :class_name => self.to_s, :as => :invited_by
   has_many :sessions
+  has_many :user_roles
+  has_many :roles, :through => :user_roles
 
   after_initialize :init
   rolify

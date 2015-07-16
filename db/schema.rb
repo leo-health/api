@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150715183822) do
+ActiveRecord::Schema.define(version: 20150716151101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -289,6 +289,16 @@ ActiveRecord::Schema.define(version: 20150715183822) do
 
   add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id", using: :btree
   add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type", using: :btree
+
+  create_table "user_roles", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "role_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "user_roles", ["role_id"], name: "index_user_roles_on_role_id", using: :btree
+  add_index "user_roles", ["user_id"], name: "index_user_roles_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "title",                  default: ""
