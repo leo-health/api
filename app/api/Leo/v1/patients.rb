@@ -9,7 +9,7 @@ module Leo
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
 
-      namespace 'users/:id' do
+      namespace 'users/:user_id' do
         resource :patients do
           before do
             authenticated
@@ -21,7 +21,6 @@ module Leo
 
           desc "#get get all patients of individual guardian"
           get do
-            byebug
             authorize! :read, @guardian
             if patients = @guardian.family.patients
               present :patients, patients, with: Leo::Entities::UserEntity
@@ -64,7 +63,7 @@ module Leo
             optional :sex,        type: String, values: ['M', 'F']
             at_least_one_of :first_name, :last_name, :email, :dob, :sex
           end
-          put 'id' do
+          put ':id' do
             authorize! :update, @guardian
             patient = @guardian.family.patients.find(params[:id])
             if patient && patient.update_attributes(declared(params))
@@ -73,10 +72,7 @@ module Leo
           end
 
           desc "#delete: delete individual patient, guardian only"
-          params do
-            requires :id, type: Integer, desc: "patient id"
-          end
-          delete 'id' do
+          delete ':id' do
             authorize! :destroy, @guardian
             @guardian.family.patients.find(params[:id]).try(:destory)
           end
