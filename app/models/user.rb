@@ -27,29 +27,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  # Class variables, methods and properties to help better filter and retrieve records
-  def self.for_user(user)
-    # TODO. Think through this and design better
-    my_family_id = user.family_id
-    if user.has_role? :guardian
-      User.joins(:roles).where{
-        (family_id.eq(my_family_id)) | (roles.name.matches 'physician' )
-    }
-    elsif user.has_role? :patient
-      [user]
-    elsif user.has_role? :clinical
-      #TODO: Implement
-    elsif user.has_role? :clinical_support
-      #TODO: Implement
-    elsif user.has_role? :customer_service
-      #TODO: Implement
-    elsif user.has_role? :super_user
-      User.all
-    end
-  end
-
-  # Helper methods to render attributes in a more friednly way
-
   def is_patient?
     has_role? :patient
   end
