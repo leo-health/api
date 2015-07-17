@@ -41,7 +41,7 @@ refillsallowed  integer The number of refills allowed when this medication was o
 issafetorenew boolean 
 stopreason  date  The reason why this medication was stopped.
 providernote  string  Non-patient facing note for ths prescription. Labeled internal note in the UI.
-patientnote string  Patient-facing note for this prescription. Labeled note in the UI.
+patientnote string  HealthRecord-facing note for this prescription. Labeled note in the UI.
 events  string  The list of events for this medication. Can be START, END, ORDER, ENTER, FILL, or HIDE.
   type  string  The event type. Can be START, END, ORDER, ENTER, FILL, or HIDE.
   eventdate date  The date this event occurred

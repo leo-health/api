@@ -59,6 +59,8 @@ module AthenaHealthApiHelper
   end
 
   class AthenaHealthApiConnector
+    attr_reader :connection
+
     #for some reason, gzip encoding returns invalid blocks in failure cases
     #todo: needs more investigation
     @@common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }

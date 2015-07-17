@@ -1,12 +1,3 @@
-# == Schema Information
-#
-# Table name: families
-#
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
-
 class Family < ActiveRecord::Base
   after_save :ensure_default_conversation_exists
 
@@ -17,13 +8,10 @@ class Family < ActiveRecord::Base
     self.members.order('created_at ASC').first
   end
 
+  #wuang-make sure the conversation.first method would grab the primary conversation
   def conversation
     ensure_default_conversation_exists
     self.conversations.first
-  end
-
-  def parents
-    self.members.with_role :parent
   end
 
   def guardians
@@ -31,19 +19,19 @@ class Family < ActiveRecord::Base
   end
 
   def children
-    self.members.with_role :child
+    self.members.with_role :patient
   end
 
   private
 
   def ensure_default_conversation_exists
-    setup_default_conversation if self.conversations.count == 0 
+    setup_default_conversation if self.conversations.count == 0
   end
 
   def setup_default_conversation
     conversation = Conversation.new
     conversation.family = self
-    conversation.participants << self.parents
+    conversation.participants << self.guardians
     conversation.save
   end
 end

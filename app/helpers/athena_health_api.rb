@@ -118,6 +118,9 @@ module AthenaHealthAPI
 
       response = @connection.request(request)
 
+      Rails.logger.info("response code: #{response.code}") if Connection.debug
+      Rails.logger.info("response body: #{response.body}") if Connection.debug
+
       raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
 
       authorization = JSON.parse(response.body)
@@ -252,8 +255,6 @@ module AthenaHealthAPI
       request = Net::HTTP::Delete.new(path_join(@version, @practiceid, url))
       return call(request, {}, headers)
     end
-    
-  private :authenticate, :path_join, :call
     
   end
   
