@@ -7,7 +7,7 @@ class User < ActiveRecord::Base
   has_many :user_roles
   has_many :roles, :through => :user_roles
 
-  after_initialize :init
+  after_initialize :set_default_practice
 
   devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
@@ -39,21 +39,8 @@ class User < ActiveRecord::Base
     has_role? :patient
   end
 
-  def email_required?
-    (is_patient?) ? false : super
-  end
-
-  def password_required?
-    (is_patient?) ? false : super
-  end
-
-  def primary_role
-    roles.first.name if (roles and roles.count > 0)
-  end
-
   private
-  # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
-  def init
+  def set_default_practice
     self.practice_id ||= 1
   end
 end
