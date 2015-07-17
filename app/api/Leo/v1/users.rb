@@ -98,8 +98,8 @@ module Leo
 
           desc '#delete destroy a user, super user only'
           delete do
-            authorize! :destroy, @user
             user = User.find(params[:id])
+            authorize! :destroy, user
             user.try(:destroy)
           end
         end

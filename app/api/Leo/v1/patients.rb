@@ -21,8 +21,13 @@ module Leo
 
           desc "#get get all patients of individual guardian"
           get do
-            authorize! :read, @guardian
             if patients = @guardian.family.patients
+              byebug
+              authorize! :read, patients
+              rescue_from CanCan::AccessDenied do |exception|
+                puts "Access denied on #{exception.action} #{exception.subject.inspect}"
+              end
+              byebug
               present :patients, patients, with: Leo::Entities::UserEntity
             end
           end
