@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   has_many :escalations, foreign_key: 'escalated_to_id'
   has_many :invitations, :class_name => self.to_s, :as => :invited_by
   has_many :sessions
-  has_many :user_roles
+  has_many :user_roles, inverse_of: :user
   has_many :roles, :through => :user_roles
 
   after_initialize :set_default_practice
@@ -14,8 +14,8 @@ class User < ActiveRecord::Base
 
   validates :password, length: {minimum: 8, allow_nil: true}
   validates :first_name, :last_name, presence: true
-  validates :email, presence: true, unless: :is_patient?
-  validates_uniqueness_of :email
+  validates :email, presence: true, unless: Proc.new{|u|u.password.nil?}
+  validates_uniqueness_of :email, allow_blank: true
 
   def create_or_update_stripe_customer_id(token)
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"

@@ -37,16 +37,15 @@ module Leo
           end
 
           post do
-            byebug
             authorize! :create, User
             family = @guardian.family
-            byebug
             patient_params = (declared(params, including_missing: false)).merge(family: family) if family
 
             if patient = User.create(patient_params)
               patient.add_role :patient
               patient.save!
             end
+            
             present :patient, patient, with: Leo::Entities::UserEntity
           end
 
