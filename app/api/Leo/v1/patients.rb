@@ -45,7 +45,7 @@ module Leo
               patient.add_role :patient
               patient.save!
             end
-            
+
             present :patient, patient, with: Leo::Entities::UserEntity
           end
 
