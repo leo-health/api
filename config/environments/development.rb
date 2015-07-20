@@ -18,6 +18,8 @@ Rails.application.configure do
   config.action_mailer.raise_delivery_errors = false
   config.action_mailer.delivery_method = :letter_opener
 
+  config.mandrill_mailer.default_url_options = { :host => 'localhost' }
+
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
