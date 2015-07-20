@@ -31,7 +31,7 @@ class User < ActiveRecord::Base
   end
 
   def add_role(name)
-    role = Role.find_by_name(name) || Role.create(name: name)
+    role = Role.find_by_name(name)
     roles << role if role
   end
 
