@@ -30,21 +30,21 @@ module Leo
           desc "#post create a patient for this guardian"
           params do
             requires :first_name, type: String
-            requires :last_name,  type: String
+            requires :last_name, type: String
             requires :birth_date, type: String
-            requires :sex,        type: String, values: ['M', 'F']
-            requires :role_id,    type: Integer
-            optional :email,      type: String, desc: "Email"
+            requires :sex, type: String, values: ['M', 'F']
+            optional :title, type: String
+            optional :suffix, type: String
+            optional :middle_initial, type: String
+            optional :email, type: String
           end
 
           post do
             authorize! :create, User
-            family = @guardian.family
-            patient_params = (declared(params, including_missing: false)).merge(family: family) if family
-
-            if patient = User.create(patient_params)
-              patient.add_role :patient
-              patient.save!
+            if family = @guardian.family
+              patient = family.patients.create(declared(params, including_missing: false))
+            else
+              error!('unprocessable_entity', 422)
             end
 
             present :patient, patient, with: Leo::Entities::UserEntity
@@ -52,25 +52,30 @@ module Leo
 
           desc "#update: update the patient information, guardian only"
           params do
+            optional :title, type: String
+            optional :suffix, type: String
+            optional :middle_initial, type: String
             optional :first_name, type: String
             optional :last_name, type: String
             optional :email, type: String
-            optional :dob, type: String
+            optional :birth_date, type: String
             optional :sex, type: String, values: ['M', 'F']
-            at_least_one_of :first_name, :last_name, :email, :dob, :sex
+            at_least_one_of :first_name, :last_name, :email, :birth_date, :sex, :title, :suffix, :middle_initial
           end
 
           put ':id' do
-            patient = @guardian.family.patients.find(params[:id])
+            patient = Patinets.find(params[:id])
             authorize! :update, patient if patient
             if patient && patient.update_attributes(declared(params, include_missing: false))
               present :patient, patient, with: Leo::Entities::UserEntity
+            else
+              error!('unprocessable_entity', 422)
             end
           end
 
           desc "#delete: delete individual patient, guardian only"
           delete ':id' do
-            patient = @guardian.family.patients.find(params[:id])
+            patient = Patinets.find(params[:id])
             authorize! :destroy, patient
             patient.try(:destroy)
           end
