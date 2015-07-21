@@ -24,7 +24,7 @@ describe Leo::V1::Patients do
     let(:guardian){create(:user, :father)}
     let!(:session){guardian.sessions.create}
     let(:patient_params){FactoryGirl.attributes_for(:patient)}
-    
+
     def do_request
       patient_params.merge!({authentication_token: session.authentication_token})
       post "/api/v1/users/#{guardian.id}/patients", patient_params, format: :json
