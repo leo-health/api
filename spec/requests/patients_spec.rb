@@ -4,8 +4,8 @@ require 'rails_helper'
 describe Leo::V1::Patients do
   let!(:guardian_role){create(:role, :guardian)}
   let!(:patient_role){create(:role, :patient)}
-  let!(:family){create(:family_with_members)}
-  let(:guardian){family.members.first}
+  let(:family){create(:family_with_members)}
+  let!(:guardian){family.reload.members.first}
   let!(:session){guardian.sessions.create}
 
   describe 'GET /api/v1/users/:user_id/patients' do
@@ -21,8 +21,6 @@ describe Leo::V1::Patients do
   end
 
   describe 'POST /api/v1/users/:user_id/patients' do
-    let(:guardian){create(:user, :father)}
-    let!(:session){guardian.sessions.create}
     let(:patient_params){FactoryGirl.attributes_for(:patient)}
 
     def do_request
