@@ -21,9 +21,10 @@ module Leo
 
           desc "#get get all patients of individual guardian"
           get do
-            authorize! :read, User
             if patients = @guardian.family.patients
-              present :patients, patients, with: Leo::Entities::UserEntity
+              present :patients, patients, with: Leo::Entities::PatientEntity
+            else
+              error!('unprocessable_entity', 422)
             end
           end
 
@@ -40,14 +41,13 @@ module Leo
           end
 
           post do
-            authorize! :create, User
             if family = @guardian.family
               patient = family.patients.create(declared(params, including_missing: false))
             else
               error!('unprocessable_entity', 422)
             end
 
-            present :patient, patient, with: Leo::Entities::UserEntity
+            present :patient, patient, with: Leo::Entities::PatientEntity
           end
 
           desc "#update: update the patient information, guardian only"
@@ -64,10 +64,10 @@ module Leo
           end
 
           put ':id' do
-            patient = Patinets.find(params[:id])
-            authorize! :update, patient if patient
+            patient = Patient.find(params[:id])
+            authorize! :update, patient
             if patient && patient.update_attributes(declared(params, include_missing: false))
-              present :patient, patient, with: Leo::Entities::UserEntity
+              present :patient, patient, with: Leo::Entities::PatientEntity
             else
               error!('unprocessable_entity', 422)
             end
@@ -75,7 +75,7 @@ module Leo
 
           desc "#delete: delete individual patient, guardian only"
           delete ':id' do
-            patient = Patinets.find(params[:id])
+            patient = Patient.find(params[:id])
             authorize! :destroy, patient
             patient.try(:destroy)
           end

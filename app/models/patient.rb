@@ -1,5 +1,5 @@
 class Patient < ActiveRecord::Base
   belongs_to :family
-
+  belongs_to :role
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 end

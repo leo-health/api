@@ -38,6 +38,7 @@ group :development, :test do
   gem 'letter_opener'
   gem 'letter_opener_web', '~> 1.2.0'
   gem 'quiet_assets'
+  gem 'spork'
   gem 'rspec-rails'
   gem 'spring'
   gem 'spring-commands-rspec'

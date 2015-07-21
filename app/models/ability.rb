@@ -3,13 +3,10 @@ class Ability
 
   def initialize(user)
     user ||= User.new
-
-    alias_action :create, :read, :update, :destroy, :to => :crud
-
     if user.has_role? :super_user
       can :manage, :all
     elsif user.has_role? :guardian
-      can :crud, User, id: user.family.patients.pluck(:id)
+      can [:read, :update, :destroy], Patient, :family_id => user.family_id
     end
   end
 end
