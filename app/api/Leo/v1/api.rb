@@ -25,6 +25,7 @@ module Leo
       require_relative 'roles'
       require_relative 'sessions'
       require_relative 'users'
+      require_relative 'patients'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
