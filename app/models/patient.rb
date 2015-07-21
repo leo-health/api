@@ -1,9 +1,5 @@
-class Patient < User
-  def email_required?
-    new_record? ? false : super
-  end
+class Patient < ActiveRecord::Base
+  belongs_to :family
 
-  def password_required?
-    new_record? ? false : super
-  end
+  validates :first_name, :last_name, presence: true
 end

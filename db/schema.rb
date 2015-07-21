@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150720191630) do
+ActiveRecord::Schema.define(version: 20150721160841) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -188,6 +188,22 @@ ActiveRecord::Schema.define(version: 20150720191630) do
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
   end
+
+  create_table "patients", force: :cascade do |t|
+    t.string   "title"
+    t.string   "first_name",     null: false
+    t.string   "middle_initial"
+    t.string   "last_name",      null: false
+    t.string   "suffix"
+    t.datetime "birth_date",     null: false
+    t.string   "sex",            null: false
+    t.integer  "family_id",      null: false
+    t.string   "email"
+    t.string   "avatar_url"
+    t.string   "role_id",        null: false
+  end
+
+  add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
 
   create_table "photos", force: :cascade do |t|
     t.integer  "patient_id"
