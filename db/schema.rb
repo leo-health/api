@@ -191,16 +191,16 @@ ActiveRecord::Schema.define(version: 20150721160841) do
 
   create_table "patients", force: :cascade do |t|
     t.string   "title"
-    t.string   "first_name",     null: false
+    t.string   "first_name",                 null: false
     t.string   "middle_initial"
-    t.string   "last_name",      null: false
+    t.string   "last_name",                  null: false
     t.string   "suffix"
-    t.datetime "birth_date",     null: false
-    t.string   "sex",            null: false
-    t.integer  "family_id",      null: false
+    t.datetime "birth_date",                 null: false
+    t.string   "sex",                        null: false
+    t.integer  "family_id",                  null: false
     t.string   "email"
     t.string   "avatar_url"
-    t.string   "role_id",        null: false
+    t.integer  "role_id",        default: 6, null: false
   end
 
   add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree

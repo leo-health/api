@@ -11,7 +11,7 @@ class CreatePatients < ActiveRecord::Migration
       t.integer :family_id, null: false
       t.string :email
       t.string :avatar_url
-      t.string :role_id, null:false
+      t.integer :role_id, null:false, default: 6
     end
     add_index :patients, [:first_name, :family_id]
   end

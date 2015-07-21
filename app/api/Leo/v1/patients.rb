@@ -29,11 +29,12 @@ module Leo
 
           desc "#post create a patient for this guardian"
           params do
-            requires :first_name, type: String, desc: "First Name"
-            requires :last_name,  type: String, desc: "Last Name"
+            requires :first_name, type: String
+            requires :last_name,  type: String
+            requires :birth_date, type: String
+            requires :sex,        type: String, values: ['M', 'F']
+            requires :role_id,    type: Integer
             optional :email,      type: String, desc: "Email"
-            requires :dob,        type: String, desc: "Date of Birth"
-            requires :sex,        type: String, desc: "Sex", values: ['M', 'F']
           end
 
           post do
