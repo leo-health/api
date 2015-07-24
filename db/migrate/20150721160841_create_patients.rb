@@ -5,7 +5,7 @@ class CreatePatients < ActiveRecord::Migration
       t.string :first_name, null: false
       t.string :middle_initial
       t.string :last_name, null: false
-      t.string :suffix, null: false
+      t.string :suffix
       t.datetime :birth_date, null: false
       t.string :sex, null: false
       t.integer :family_id, null: false
