@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150724140705) do
+ActiveRecord::Schema.define(version: 20150724182502) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -201,8 +201,10 @@ ActiveRecord::Schema.define(version: 20150724140705) do
     t.string   "email"
     t.string   "avatar_url"
     t.integer  "role_id",        default: 6, null: false
+    t.datetime "deleted_at"
   end
 
+  add_index "patients", ["deleted_at"], name: "index_patients_on_deleted_at", using: :btree
   add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
 
   create_table "photos", force: :cascade do |t|
