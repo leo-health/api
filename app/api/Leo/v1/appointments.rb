@@ -39,7 +39,7 @@ module Leo
           requires :patient_id, 			type: Integer, 	desc: "Leo HealthRecord Id"
           requires :provider_id,  		type: Integer, 	desc: "Leo Provider Id"
           requires :date,     				type: Date, 		desc: "Appointment Date"
-          requires :start_time,   		type: Time,	 		desc: "Appointment Start Time"
+          requires :start_time,   		type: String,	 		desc: "Appointment Start Time"
           requires :duration,        	type: Integer, 	desc: "Appointment Duration"
           requires :practice_id,			type: Integer,	desc: "Practice Id for the location of the appointment"
         end

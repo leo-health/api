@@ -196,4 +196,111 @@ module AppointmentSlotsHelper
       return 0
     end
   end
+
+  module_function
+  def to_date_time(date, time)
+    tm = Time.zone.parse(date.inspect + " " + time.getlocal.hour.to_s + ":" + time.getlocal.min.to_s)
+    res = DateTime.parse(tm.to_s).in_time_zone
+    return res
+  end
+
+  module_function
+  def to_date_time_str(date, time)
+    tm = Time.zone.parse(date.inspect + " " + time)
+    res = DateTime.parse(tm.to_s).in_time_zone
+    return res
+  end
+
+  module_function
+  def to_interval_str_duration(date, start_time, duration)
+    return Interval.new(to_date_time_str(date, start_time), duration.minutes.since(to_date_time_str(date, start_time)))
+  end
+
+  module_function
+  def to_interval_str(date, start_time, end_time)
+    return Interval.new(to_date_time_str(date, start_time), to_date_time_str(date, end_time))
+  end
+
+  module_function
+  def day_schedule_to_interval(schedule, date)
+    if date.monday?
+      start_time = schedule.monday_start_time
+      end_time = schedule.monday_end_time
+    elsif date.tuesday?
+      start_time = schedule.tuesday_start_time
+      end_time = schedule.tuesday_end_time
+    elsif date.wednesday?
+      start_time = schedule.wednesday_start_time
+      end_time = schedule.wednesday_end_time
+    elsif date.thursday?
+      start_time = schedule.thursday_start_time
+      end_time = schedule.thursday_end_time
+    elsif date.friday?
+      start_time = schedule.friday_start_time
+      end_time = schedule.friday_end_time
+    elsif date.saturday?
+      start_time = schedule.saturday_start_time
+      end_time = schedule.saturday_end_time
+    else
+      start_time = schedule.sunday_start_time
+      end_time = schedule.sunday_end_time
+    end
+
+    return nil if start_time.nil? || end_time.nil?
+    return to_interval_str(date, start_time, end_time)
+  end
+
+  module_function
+  def additional_availability_to_interval(availability)
+    return to_interval_str(availability.date, availability.start_time, availability.end_time)
+  end
+  
+  module_function
+  def leave_to_interval(leave)
+    return to_interval_str(leave.date, leave.start_time, leave.end_time)
+  end
+
+  module_function
+  def appt_to_interval(appt)
+    return to_interval_str_duration(appt.appointment_date, appt.appointment_start_time, appt.duration)
+  end
+
+  module_function
+  def get_provider_availability(athena_provider_id:, date:)
+    availability = DiscreteIntervals.new
+
+    #start with provider schedule
+    schedule = ProviderSchedule.find_by!(athena_provider_id: athena_provider_id, active: true)
+    Rails.logger.error("schedule: " + schedule.to_json);
+
+    schedule_int = day_schedule_to_interval(schedule, date)
+    Rails.logger.error("schedule_int: " + schedule_int.to_json);
+    availability += schedule_int if !schedule_int.nil?
+    Rails.logger.error("availability: " + availability.to_json);
+
+    #add additional availability
+    additional_availabilities = ProviderAdditionalAvailability.where(athena_provider_id: athena_provider_id, date: date).find_each {
+      |additional| availability += additional_availability_to_interval(additional)
+      Rails.logger.error("additional: " + additional.to_json);
+    }
+    Rails.logger.error("availability: " + availability.to_json);
+
+    #remove provider leaves
+    ProviderLeave.where(athena_provider_id: athena_provider_id, date: date).find_each { 
+      |leave| availability -= leave_to_interval(leave)
+      Rails.logger.error("leave: " + leave.to_json);
+    }
+    Rails.logger.error("availability: " + availability.to_json);
+
+    #remove existing appointments
+    Appointment.where(athena_provider_id: athena_provider_id, appointment_status: ["f", "2", "3", "4"], appointment_date: date).find_each {
+      |appt| availability -= appt_to_interval(appt)
+      Rails.logger.error("appt: " + appt.to_json);
+    }
+    Rails.logger.error("availability: " + availability.to_json);
+
+    return availability
+
+  end
 end
+

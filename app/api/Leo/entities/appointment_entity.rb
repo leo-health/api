@@ -8,7 +8,7 @@ module Leo
       expose :leo_appointment_type, documentation: {type: "string", desc: "Leo appointment type" }
       expose :appointment_status
       expose :appointment_date, documentation: {type: "date", desc: "Appointment Date" }
-      expose :appointment_start_time, documentation: {type: "time", desc: "Appointment Start time" }
+      expose :appointment_start_time, documentation: {type: "string", desc: "Appointment Start time" }
       expose :duration, documentation: {type: "integer", desc: "Appointment Duration" }
     end
   end
