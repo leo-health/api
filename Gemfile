@@ -29,6 +29,7 @@ gem 'simple_token_authentication', '~> 1.0'
 gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
+gem 'pusher'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
