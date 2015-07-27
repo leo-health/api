@@ -192,4 +192,50 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(di2.intersecting_inclusive(di1)).to eq(di2)
     end
   end
+  
+  describe "get_provider_availability" do
+    it "" do
+      date = Date.today
+
+      schedule = create(:provider_schedule, athena_provider_id: 1, active: true,
+        monday_start_time: "9:00",
+        monday_end_time: "17:00",
+        tuesday_start_time: "9:00",
+        tuesday_end_time: "17:00",
+        wednesday_start_time: "9:00",
+        wednesday_end_time: "17:00",
+        thursday_start_time: "9:00",
+        thursday_end_time: "17:00",
+        friday_start_time: "9:00",
+        friday_end_time: "17:00",
+        saturday_start_time: "9:00",
+        saturday_end_time: "17:00",
+        sunday_start_time: "9:00",
+        sunday_end_time: "17:00")
+
+      Rails.logger.error("schedule: " + schedule.to_json)
+
+      additional_availability = create(:provider_additional_availability, athena_provider_id: 1, 
+        date: date, start_time: "17:00", end_time: "20:00")
+
+      Rails.logger.error("additional_availability: " + additional_availability.to_json)
+
+      leaves = create(:provider_leave, athena_provider_id: 1, 
+        date: date, start_time: "9:00", end_time: "12:00")
+
+      Rails.logger.error("leaves: " + leaves.to_json)
+      
+      appointment = create(:appointment, athena_provider_id: 1, 
+        appointment_date: date, appointment_start_time: "14:00", duration: 20)
+
+      Rails.logger.error("appointment: " + appointment.to_json)
+
+      availability = AppointmentSlotsHelper.get_provider_availability(athena_provider_id: 1, date: date)
+      Rails.logger.error("availability: " + availability.to_json)
+      expect(availability).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([
+        AppointmentSlotsHelper::to_interval_str(date, "12:00", "14:00"),
+        AppointmentSlotsHelper::to_interval_str(date, "14:20", "20:00")]
+        ))
+    end
+  end
 end

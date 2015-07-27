@@ -198,7 +198,7 @@ module SyncServiceHelper
         rescheduled_appointment_id: nil,
         duration: appt.duration,
         appointment_date: Date.strptime(appt.date, "%m/%d/%Y"),
-        appointment_start_time: Time.strptime(appt.starttime, "%H:%M"),
+        appointment_start_time: appt.starttime,
         frozenyn: false,
         leo_appointment_type: appt.patientappointmenttypename,
         athena_appointment_type_id: appt.appointmenttypeid.to_i,
@@ -272,7 +272,7 @@ module SyncServiceHelper
         #create appointment
         leo_appt.athena_id = @connector.create_appointment(
           appointmentdate: leo_appt.appointment_date.strftime("%m/%d/%Y"),
-          appointmenttime: leo_appt.appointment_start_time.strftime("%H:%M"),
+          appointmenttime: leo_appt.appointment_start_time,
           appointmenttypeid: leo_appt.athena_appointment_type_id,
           departmentid: leo_appt.athena_department_id,
           providerid: leo_appt.athena_provider_id
@@ -325,7 +325,7 @@ module SyncServiceHelper
         leo_appt.athena_appointment_type_id = athena_appt.appointmenttypeid.to_i
         leo_appt.duration = athena_appt.duration.to_i
         leo_appt.appointment_date = Date.strptime(athena_appt.date, "%m/%d/%Y")
-        leo_appt.appointment_start_time = Time.strptime(athena_appt.starttime, "%H:%M")
+        leo_appt.appointment_start_time = athena_appt.starttime
         leo_appt.leo_appointment_type = athena_appt.patientappointmenttypename
         patient = HealthRecord.find_by!(athena_id: athena_appt.patientid.to_i)
         leo_appt.leo_patient_id = patient.user.id
