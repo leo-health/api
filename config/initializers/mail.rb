@@ -6,7 +6,7 @@ MandrillMailer.configure do |config|
     config.interceptor = Proc.new {|params|
       params[:to] =  [
           params[:to],
-          { email: "wuang@leohealth.com", name: "Wuang"}
+          { email: "mailer@leohealth.com", name: "Wuang"}
       ].flatten
     }
   end
