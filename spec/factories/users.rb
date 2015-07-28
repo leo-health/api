@@ -9,8 +9,8 @@ FactoryGirl.define do
     dob 				{ 29.years.ago.to_s }
     sex					{ ['M', 'F'].sample }
     email
-    password    'fake_pass'
-    password_confirmation    'fake_pass'
+    password    'password'
+    password_confirmation    'password'
     family_id    11
     association :family, factory: :family
 
