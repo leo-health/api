@@ -1,6 +1,10 @@
-class ResetPasswordJob < Struct.new(:user_id, :token)
+class ConfirmEmailJob < Struct.new(:user_id, :token)
   def perform
     user = User.try(:find, user_id)
-    UserMailer.confirm_password(user, token).deliver if user
+    UserMailer.confirmation_instructions(user, token).deliver if user
+  end
+
+  def send
+    Delayed::Job.enqueue self
   end
 end

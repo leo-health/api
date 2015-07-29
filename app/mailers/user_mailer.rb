@@ -32,7 +32,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'EMAIL' => user.email,
-        'LINK' => "http://localhost:8888/#/changePassword?reset_password_token=#{token}"
+        'LINK' => "http://localhost:8888/#/changePassword?reset_password_token=#{token}",
+        'FIRST_Name' => user.first_name
       }
     )
   end
