@@ -13,8 +13,10 @@ module Leo
       require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
       require_relative '../../../../app/api/Leo/entities/role_entity'
       require_relative '../../../../app/api/Leo/entities/user_entity'
+      require_relative '../../../../app/api/Leo/entities/patient_entity'
       require_relative '../../../../app/api/Leo/entities/session_entity'
       require_relative '../../../../lib/api/validations/role_exists'
+      require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
       require_relative 'appointments'
@@ -23,8 +25,9 @@ module Leo
       require_relative 'roles'
       require_relative 'sessions'
       require_relative 'users'
+      require_relative 'patients'
 
-      rescue_from :all, :backtrace => true
+      include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
       default_error_status 400
@@ -78,6 +81,7 @@ module Leo
       mount Leo::V1::Sessions
       mount Leo::V1::Users
       mount Leo::V1::Roles
+      mount Leo::V1::Patients
 
       add_swagger_documentation(
           base_path: "/api",

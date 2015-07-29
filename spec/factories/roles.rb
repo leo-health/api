@@ -1,12 +1,13 @@
 FactoryGirl.define do
   factory :role do
+    name { ['super_user', 'super_user', 'clinical_support', 'customer_service', 'guardian', 'clinical', 'patient'].sample }
 
     trait :super_user do
   		id    0
   		name  :super_user
   	end
 
-    trait :financial do
+    trait :super_user do
       id    1
       name  :financial
     end

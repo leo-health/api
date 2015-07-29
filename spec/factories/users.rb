@@ -1,6 +1,6 @@
 FactoryGirl.define do
   sequence :email do |n|
-  "user#{n}@test.com"
+    "user#{n}@test.com"
   end
 
   factory :user do
@@ -14,10 +14,6 @@ FactoryGirl.define do
     family_id    11
     association :family, factory: :family
 
-    after(:create) do |u|
-      u.family = Family.find_or_create_by(id: u.family_id)
-    end
-
     trait :father do
       dob 				{ 48.years.ago.to_s }
       sex					'M'
@@ -28,12 +24,6 @@ FactoryGirl.define do
       dob 				{ 45.years.ago.to_s }
       sex					'F'
       after(:create) { |u| u.add_role :guardian }
-    end
-
-    trait :child do
-      dob 				{ 19.years.ago.to_s }
-      sex 				'F'
-      after(:create) { |u| u.add_role :patient }
     end
   end
 end

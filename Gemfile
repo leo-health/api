@@ -21,10 +21,10 @@ gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
 gem 'mandrill_mailer'
+gem 'carrierwave'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
-gem 'rolify'                # Managing user roles
 gem 'simple_token_authentication', '~> 1.0'
 gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
@@ -36,15 +36,11 @@ group :development, :test do
   gem 'factory_girl_rails'
   gem 'awesome_print'
   gem 'byebug'
-  gem "parallel_tests"
-  gem 'launchy'
   gem 'letter_opener'
   gem 'letter_opener_web', '~> 1.2.0'
   gem 'quiet_assets'
-  gem 'pry'
-  gem 'pry-rails'
-  gem 'rspec-rails'
   gem 'spork'
+  gem 'rspec-rails'
   gem 'spring'
   gem 'spring-commands-rspec'
   gem 'rack-cors', :require => 'rack/cors'
