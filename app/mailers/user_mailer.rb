@@ -7,7 +7,19 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'trial',
       to: user.email,
       vars: {
-          'EMAIL' => user.email
+        'EMAIL' => user.email
+      }
+    )
+  end
+
+  def reset_password(user, token)
+    mandrill_mail(
+      template: 'reset_password',
+      subject: 'reset_password',
+      to: user.email,
+      vars: {
+        'EMAIL' => user.email,
+        'LINK' => "http://localhost:8888/#/changePassword?reset_password_token=#{token}"
       }
     )
   end
