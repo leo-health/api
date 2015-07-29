@@ -47,6 +47,7 @@ group :development, :test do
   gem 'spork'
   gem 'spring'
   gem 'spring-commands-rspec'
+  gem 'rack-cors', :require => 'rack/cors'
 end
 
 group :development do
