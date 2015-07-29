@@ -35,7 +35,6 @@ module Leo
 
       namespace :logout do
         params do
-          requires :user_id, type: Integer, allow_blank: false
           requires :authentication_token, type: String, allow_blank: false
         end
 
