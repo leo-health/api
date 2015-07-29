@@ -29,7 +29,7 @@ describe Leo::V1::Sessions do
     let!(:session){user.sessions.create}
 
     def do_request
-      delete "/api/v1/logout", logout_params = {authentication_token: session.authentication_token, user_id: user.id}, format: :json
+      delete "/api/v1/logout", logout_params = {authentication_token: session.authentication_token}, format: :json
     end
 
     it "should set the disabled at entry to soft delete the session" do
