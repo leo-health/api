@@ -9,7 +9,6 @@ module Api
     config.paths.add File.join('app', 'api'), glob: File.join('**', '*.rb')
     config.autoload_paths += Dir[Rails.root.join('app', 'api', '*')]
     config.autoload_paths += Dir[Rails.root.join('app', 'jobs', '*')]
-    config.autoload_paths += %W(#{config.root}/app/jobs)
     config.active_job.queue_adapter = :delayed_job
     config.middleware.insert_before 0, "Rack::Cors" do
       allow do
