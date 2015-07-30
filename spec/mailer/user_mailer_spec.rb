@@ -1,4 +1,5 @@
 require'rails_helper'
+require 'mandrill_mailer/offline'
 
 describe UserMailer do
   describe "Trial" do
