@@ -26,6 +26,7 @@ module Leo
       require_relative 'sessions'
       require_relative 'users'
       require_relative 'patients'
+      require_relative 'passwords'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -48,10 +49,6 @@ module Leo
 
 
       helpers do
-        def warden
-          env['warden']
-        end
-
         def authenticated
           if warden.authenticated?
             return true
@@ -71,16 +68,13 @@ module Leo
         end
       end
 
-      get do
-        {message: "Welcome to the Leo API"}
-      end
-
       mount Leo::V1::Appointments
       mount Leo::V1::AppointmentSlots
       mount Leo::V1::Conversations
       mount Leo::V1::Sessions
       mount Leo::V1::Users
       mount Leo::V1::Roles
+      mount Leo::V1::Passwords
       mount Leo::V1::Patients
 
       add_swagger_documentation(

@@ -1,10 +1,7 @@
 Rails.application.routes.draw do
   require_relative '../app/api/Leo/root'
 
-  get 'regisrations/create'
-  get 'regisrations/sign_up'
-
-  devise_for :users, :controllers => {registrations: 'registrations', sessions: 'sessions'}
+  # devise_for :users, :controllers => {registrations: 'registrations', sessions: 'sessions'}
   mount Leo::Root => '/'
   mount GrapeSwaggerRails::Engine => '/swagger'
 
