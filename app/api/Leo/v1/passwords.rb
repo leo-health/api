@@ -20,7 +20,7 @@ module Leo
             if user = User.find_by_email(params[:email].downcase)
               user.send_reset_password_instructions if user
             else
-              error!({error_code: 422, error_message: "Email is not correct"}, 422)
+              error!({error_code: 422, error_message: "A user with this email does not exist"}, 422)
             end
           end
         end
