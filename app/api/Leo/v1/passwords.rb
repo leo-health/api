@@ -19,25 +19,28 @@ module Leo
           post do
             if user = User.find_by_email(params[:email].downcase)
               user.send_reset_password_instructions if user
-              # present {message: "reset password instruction has been sent to your email"}
             else
               error!({error_code: 422, error_message: "Email is not correct"}, 422)
             end
           end
         end
 
-        namespace :reset do
-          params do
-            requires :password, type: String
-            requires :password_confirmation, type: String
-          end
+        route_param :id do
+          namespace :reset do
+            params do
+              requires :password, type: String
+              requires :password_confirmation, type: String
+            end
 
-          desc "reset the password for user"
-          put do
-            if user = User.find_by_reset_password_token(params[:token]) && user.try(:reset_password_period_valid?)
-              user.reset_password!(params[:password], params[:password_confirmation])
-            else
-              error!({error_code: 422, error_message: "Error happened during reset password, or reset password period expired"}, 422)
+            desc "reset the password for user"
+            put do
+              if user = User.find_by_reset_password_token(params[:id]) and user.try(:reset_password_period_valid?)
+                unless user.reset_password(params[:password], params[:password_confirmation])
+                  error!({error_code: 422, error_message: "Password need to has at least 8 characters"}, 422)
+                end
+              else
+                error!({error_code: 422, error_message: "Reset password period expired"}, 422)
+              end
             end
           end
         end
