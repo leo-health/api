@@ -21,7 +21,7 @@ describe UserMailer do
 
     it "should sent the user a reset_password_instructions email" do
       UserMailer.reset_password_instructions(user, "token").deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo reset password' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Reset Password' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
       expect(email).to_not be_nil
     end
   end

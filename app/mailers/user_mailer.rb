@@ -16,8 +16,8 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def reset_password_instructions(user, token, opts={})
     mandrill_mail(
-      template: 'Leo reset password',
-      subject: 'Reset password instruction',
+      template: 'Leo - Reset Password',
+      subject: 'Reset password instructions',
       to: user.email,
       vars: {
         'LINK' => "http://localhost:8888/#/changePassword?reset_password_token=#{token}",
