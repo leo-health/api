@@ -1,6 +1,7 @@
 class Conversation < ActiveRecord::Base
   has_many :messages
-  has_and_belongs_to_many :participants, -> {uniq}, class_name: 'User', join_table: 'conversations_participants', association_foreign_key: 'participant_id'
+  has_many :user_conversations
+  has_many :participants, class_name: "User", :through => :user_conversations
   belongs_to :family
   belongs_to :archived_by, class_name: 'User'
 

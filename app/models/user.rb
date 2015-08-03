@@ -1,11 +1,14 @@
 class User < ActiveRecord::Base
   belongs_to :family
-  has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
-  has_many :escalations, foreign_key: 'escalated_to_id'
+  has_many :user_conversations
+  has_many :conversations, :through => :user_conversations
   has_many :invitations, :class_name => self.to_s, :as => :invited_by
   has_many :sessions
   has_many :user_roles, inverse_of: :user
   has_many :roles, :through => :user_roles
+  has_many :send_messages, foreign_key: "sender_id", class_name: "Message"
+  has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
+  has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
 
   after_initialize :set_default_practice
 
