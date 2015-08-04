@@ -4,7 +4,7 @@ module AppointmentSlotsHelper
     attr_accessor :start_val
     attr_accessor :end_val
 
-    def initialize(start_val=0, end_val=0)
+    def initialize(start_val, end_val)
       @start_val = start_val
       @end_val = end_val
     end
@@ -12,14 +12,14 @@ module AppointmentSlotsHelper
     def <=>(other)
       if start_val != other.start_val || end_val != other.end_val
         if start_val < other.start_val
-          return -1
+          -1
         elsif start_val > other.start_val
-          return 1
+          1
         else
-          return end_val <=> other.end_val
+          end_val <=> other.end_val
         end
       else
-        return 0
+        0
       end
     end
 
@@ -32,8 +32,11 @@ module AppointmentSlotsHelper
     end
 
     def +(other)
-      return DiscreteIntervals.new([ self, other ]) if !intersects_inclusive?(other)
-      return DiscreteIntervals.new([ Interval.new([start_val, other.start_val].min, [end_val, other.end_val].max) ])
+      if !intersects_inclusive?(other)
+        DiscreteIntervals.new([ self, other ])
+      else 
+        DiscreteIntervals.new([ Interval.new([start_val, other.start_val].min, [end_val, other.end_val].max) ])
+      end
     end
 
     def -(other)
@@ -54,13 +57,16 @@ module AppointmentSlotsHelper
         end
       end
 
-      return DiscreteIntervals.new(res)
+      DiscreteIntervals.new(res)
     end
 
     def intersect(other)
       res_int = Interval.new([start_val, other.start_val].max, [end_val, other.end_val].min)
-      return res_int if !res_int.empty?
-      return nil
+      if !res_int.empty?
+        res_int 
+      else
+        nil
+      end
     end
 
     def empty?
@@ -81,7 +87,7 @@ module AppointmentSlotsHelper
         res = self
         other.intervals.each { |interval| res = res + interval }
 
-        return res
+        res
       else
         coalesced = Interval.new(other.start_val, other.end_val)
 
@@ -93,7 +99,8 @@ module AppointmentSlotsHelper
         #this will compact all the fields
         res = self - coalesced
         res.intervals << coalesced if !coalesced.empty?
-        return res
+
+        res
       end
     end
 
@@ -102,7 +109,7 @@ module AppointmentSlotsHelper
         res = self
         other.each { |interval| res = res - interval }
 
-        return res
+        res
       else
         res = []
 
@@ -111,7 +118,7 @@ module AppointmentSlotsHelper
           res += tmp.intervals
         }
 
-        return DiscreteIntervals.new(res)
+        DiscreteIntervals.new(res)
       end
     end
 
@@ -135,7 +142,8 @@ module AppointmentSlotsHelper
       if other.kind_of?(DiscreteIntervals)
         res = DiscreteIntervals.new()
         other.intervals.each { |interval| res = res + intersect(interval) }
-        return res
+
+        res
       else
         res = []
         intervals.each { |interval| 
@@ -143,7 +151,7 @@ module AppointmentSlotsHelper
           res << int if !int.nil?
         }
 
-        return DiscreteIntervals.new(res)
+        DiscreteIntervals.new(res)
       end
     end
 
@@ -152,14 +160,14 @@ module AppointmentSlotsHelper
         res = DiscreteIntervals.new()
         other.intervals.each { |interval| res = res + intersecting(interval) }
 
-        return res
+        res
       else
         res = []
         intervals.each { |interval| 
           res << interval if interval.intersects?(other)
         }
 
-        return DiscreteIntervals.new(res)
+        DiscreteIntervals.new(res)
       end
     end
 
@@ -168,14 +176,14 @@ module AppointmentSlotsHelper
         res = DiscreteIntervals.new()
         other.intervals.each { |interval| res = res + intersecting_inclusive(interval) }
 
-        return res
+        res
       else
         res = []
         intervals.each { |interval| 
           res << interval if interval.intersects_inclusive?(other)
         }
 
-        return DiscreteIntervals.new(res)
+        DiscreteIntervals.new(res)
       end
     end
 
@@ -193,32 +201,30 @@ module AppointmentSlotsHelper
         end
       end
 
-      return 0
+      0
     end
   end
 
   module_function
   def to_date_time(date, time)
     tm = Time.zone.parse(date.inspect + " " + time.getlocal.hour.to_s + ":" + time.getlocal.min.to_s)
-    res = DateTime.parse(tm.to_s).in_time_zone
-    return res
+    DateTime.parse(tm.to_s).in_time_zone
   end
 
   module_function
   def to_date_time_str(date, time)
     tm = Time.zone.parse(date.inspect + " " + time)
-    res = DateTime.parse(tm.to_s).in_time_zone
-    return res
+    DateTime.parse(tm.to_s).in_time_zone
   end
 
   module_function
   def to_interval_str_duration(date, start_time, duration)
-    return Interval.new(to_date_time_str(date, start_time), duration.minutes.since(to_date_time_str(date, start_time)))
+    Interval.new(to_date_time_str(date, start_time), duration.minutes.since(to_date_time_str(date, start_time)))
   end
 
   module_function
   def to_interval_str(date, start_time, end_time)
-    return Interval.new(to_date_time_str(date, start_time), to_date_time_str(date, end_time))
+    Interval.new(to_date_time_str(date, start_time), to_date_time_str(date, end_time))
   end
 
   module_function
@@ -246,23 +252,26 @@ module AppointmentSlotsHelper
       end_time = schedule.sunday_end_time
     end
 
-    return nil if start_time.nil? || end_time.nil?
-    return to_interval_str(date, start_time, end_time)
+    if start_time.nil? || end_time.nil?
+      nil 
+    else
+      to_interval_str(date, start_time, end_time)
+    end
   end
 
   module_function
   def additional_availability_to_interval(availability)
-    return to_interval_str(availability.date, availability.start_time, availability.end_time)
+    to_interval_str(availability.date, availability.start_time, availability.end_time)
   end
   
   module_function
   def leave_to_interval(leave)
-    return to_interval_str(leave.date, leave.start_time, leave.end_time)
+    to_interval_str(leave.date, leave.start_time, leave.end_time)
   end
 
   module_function
   def appt_to_interval(appt)
-    return to_interval_str_duration(appt.appointment_date, appt.appointment_start_time, appt.duration)
+    to_interval_str_duration(appt.appointment_date, appt.appointment_start_time, appt.duration)
   end
 
   module_function
@@ -299,7 +308,7 @@ module AppointmentSlotsHelper
     }
     Rails.logger.error("availability: " + availability.to_json);
 
-    return availability
+    availability
 
   end
 end

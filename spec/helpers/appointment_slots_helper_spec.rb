@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AppointmentSlotsHelper, type: :helper do
   describe "Interval- " do
-    it "intersects?" do
+    it "#intersects?" do
       i1 = AppointmentSlotsHelper::Interval.new(0, 10)
       i2 = AppointmentSlotsHelper::Interval.new(11, 20)
       expect(i1.intersects?(i2)).to be(false)
@@ -24,7 +24,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(i2.intersects?(i1)).to be(false)
     end
 
-    it "intersects_inclusive?" do
+    it "#intersects_inclusive?" do
       i1 = AppointmentSlotsHelper::Interval.new(0, 10)
       i2 = AppointmentSlotsHelper::Interval.new(11, 20)
       expect(i1.intersects_inclusive?(i2)).to be(false)
@@ -46,7 +46,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(i2.intersects_inclusive?(i1)).to be(true)
     end
 
-    it "+" do
+    it "#+" do
       i1 = AppointmentSlotsHelper::Interval.new(0, 10)
       i2 = AppointmentSlotsHelper::Interval.new(11, 20)
       expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1, i2 ]))
@@ -68,7 +68,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 20) ]))
     end
 
-    it "-" do
+    it "#-" do
       i1 = AppointmentSlotsHelper::Interval.new(0, 10)
       i2 = AppointmentSlotsHelper::Interval.new(11, 20)
       expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1 ]))
@@ -90,7 +90,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i2 ]))
     end
 
-    it "intersect" do
+    it "#intersect" do
       i1 = AppointmentSlotsHelper::Interval.new(0, 10)
       i2 = AppointmentSlotsHelper::Interval.new(11, 20)
       expect(i1.intersect(i2)).to eq(nil)
@@ -112,7 +112,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(i2.intersect(i1)).to eq(nil)
     end
 
-    it "empty?" do
+    it "#empty?" do
       expect(AppointmentSlotsHelper::Interval.new(0, 10).empty?).to eq(false)
       expect(AppointmentSlotsHelper::Interval.new(10, 10).empty?).to eq(true)
       expect(AppointmentSlotsHelper::Interval.new(11, 10).empty?).to eq(true)
@@ -120,17 +120,17 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
   end
 
   describe "DiscreteIntervals- " do
-    it "+" do
+    it "#+" do
       added = AppointmentSlotsHelper::Interval.new(0, 10) + AppointmentSlotsHelper::Interval.new(10, 20) + AppointmentSlotsHelper::Interval.new(30, 40)
       expect(added).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 20), AppointmentSlotsHelper::Interval.new(30, 40) ]))
     end
 
-    it "-" do
+    it "#-" do
       added = AppointmentSlotsHelper::Interval.new(0, 40) - AppointmentSlotsHelper::Interval.new(30, 50) - AppointmentSlotsHelper::Interval.new(5, 15)
       expect(added).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 5), AppointmentSlotsHelper::Interval.new(15, 30) ]))
     end
 
-    it "intersects?" do
+    it "#intersects?" do
       di1 = AppointmentSlotsHelper::Interval.new(0, 10) + AppointmentSlotsHelper::Interval.new(20, 30)
       di2 = AppointmentSlotsHelper::Interval.new(10, 20) + AppointmentSlotsHelper::Interval.new(30, 40)
       expect(di1.intersects?(di2)).to be(false)
@@ -142,7 +142,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(di2.intersects?(di1)).to be(true)
     end
 
-    it "intersects_inclusive" do
+    it "#intersects_inclusive" do
       di1 = AppointmentSlotsHelper::Interval.new(0, 9) + AppointmentSlotsHelper::Interval.new(21, 29)
       di2 = AppointmentSlotsHelper::Interval.new(10, 20) + AppointmentSlotsHelper::Interval.new(30, 40)
       expect(di1.intersects_inclusive?(di2)).to be(false)
@@ -154,7 +154,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(di2.intersects_inclusive?(di1)).to be(true)
     end
 
-    it "intersect" do
+    it "#intersect" do
       di1 = AppointmentSlotsHelper::Interval.new(0, 10) + AppointmentSlotsHelper::Interval.new(20, 30)
       di2 = AppointmentSlotsHelper::Interval.new(10, 20) + AppointmentSlotsHelper::Interval.new(30, 40)
       expect(di1.intersect(di2)).to eq(AppointmentSlotsHelper::DiscreteIntervals.new())
@@ -168,7 +168,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         [AppointmentSlotsHelper::Interval.new(10, 11), AppointmentSlotsHelper::Interval.new(30, 31)]))
     end
 
-    it "intersecting" do
+    it "#intersecting" do
       di1 = AppointmentSlotsHelper::Interval.new(0, 10) + AppointmentSlotsHelper::Interval.new(20, 30)
       di2 = AppointmentSlotsHelper::Interval.new(10, 20) + AppointmentSlotsHelper::Interval.new(30, 40)
       expect(di1.intersecting(di2)).to eq(AppointmentSlotsHelper::DiscreteIntervals.new())
@@ -180,7 +180,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       expect(di2.intersecting(di1)).to eq(di2)
     end
 
-    it "intersecting_inclusive" do
+    it "#intersecting_inclusive" do
       di1 = AppointmentSlotsHelper::Interval.new(0, 10) + AppointmentSlotsHelper::Interval.new(20, 30)
       di2 = AppointmentSlotsHelper::Interval.new(10, 20) + AppointmentSlotsHelper::Interval.new(30, 40)
       expect(di1.intersecting_inclusive(di2)).to eq(di1)
