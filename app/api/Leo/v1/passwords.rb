@@ -16,7 +16,7 @@ module Leo
           desc "send user reset password email"
           post do
             if user = User.find_by_email(params[:email].downcase)
-              user.send_reset_password_instructions if user
+              user.send_reset_password_instructions
             else
               error!({error_code: 422, error_message: "Invalid Email."}, 422)
             end
@@ -32,7 +32,7 @@ module Leo
 
             desc "reset the password for user"
             put do
-              if user = User.find_by_reset_password_token(params[:id]) and user.try(:reset_password_period_valid?)
+              if user = User.with_reset_password_token(params[:id]) and user.try(:reset_password_period_valid?)
                 unless user.reset_password(params[:password], params[:password_confirmation])
                   error!({error_code: 422, error_message: "Password need to has at least 8 characters."}, 422)
                 end
