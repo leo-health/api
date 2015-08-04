@@ -39,28 +39,26 @@ ActiveRecord::Schema.define(version: 20150727180427) do
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
 
   create_table "appointments", force: :cascade do |t|
-    t.string   "appointment_status",         default: "o",     null: false
+    t.string   "appointment_status",                     null: false
     t.string   "athena_appointment_type"
-    t.integer  "leo_provider_id",                              null: false
-    t.integer  "athena_provider_id",         default: 0,       null: false
-    t.integer  "leo_patient_id",                               null: false
-    t.integer  "booked_by_user_id",                            null: false
+    t.integer  "leo_provider_id",                        null: false
+    t.integer  "athena_provider_id",         default: 0, null: false
+    t.integer  "leo_patient_id",                         null: false
+    t.integer  "booked_by_user_id",                      null: false
     t.integer  "rescheduled_appointment_id"
-    t.integer  "duration",                                     null: false
-    t.date     "appointment_date",                             null: false
+    t.integer  "duration",                               null: false
     t.boolean  "frozenyn"
     t.string   "leo_appointment_type"
-    t.integer  "athena_appointment_type_id", default: 0,       null: false
-    t.integer  "family_id",                                    null: false
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
-    t.integer  "athena_id",                  default: 0,       null: false
-    t.integer  "athena_department_id",       default: 0,       null: false
+    t.integer  "athena_appointment_type_id", default: 0, null: false
+    t.integer  "family_id",                              null: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
+    t.integer  "athena_id",                  default: 0, null: false
+    t.integer  "athena_department_id",       default: 0, null: false
     t.datetime "sync_updated_at"
-    t.string   "appointment_start_time",     default: "00:00", null: false
+    t.datetime "start_datetime",                         null: false
   end
 
-  add_index "appointments", ["appointment_date"], name: "index_appointments_on_appointment_date", using: :btree
   add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id", using: :btree
   add_index "appointments", ["athena_department_id"], name: "index_appointments_on_athena_department_id", using: :btree
   add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id", using: :btree
@@ -71,6 +69,7 @@ ActiveRecord::Schema.define(version: 20150727180427) do
   add_index "appointments", ["leo_patient_id"], name: "index_appointments_on_leo_patient_id", using: :btree
   add_index "appointments", ["leo_provider_id"], name: "index_appointments_on_leo_provider_id", using: :btree
   add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id", using: :btree
+  add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
   create_table "conversations", force: :cascade do |t|
     t.datetime "created_at",           null: false
@@ -200,49 +199,47 @@ ActiveRecord::Schema.define(version: 20150727180427) do
   add_index "photos", ["patient_id"], name: "index_photos_on_patient_id", using: :btree
 
   create_table "provider_additional_availabilities", force: :cascade do |t|
-    t.integer  "athena_provider_id", default: 0,       null: false
+    t.integer  "athena_provider_id", default: 0, null: false
     t.string   "description"
-    t.date     "date",                                 null: false
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
-    t.string   "start_time",         default: "00:00", null: false
-    t.string   "end_time",           default: "00:00", null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.datetime "start_datetime",                 null: false
+    t.datetime "end_datetime",                   null: false
   end
 
   add_index "provider_additional_availabilities", ["athena_provider_id"], name: "index_provider_additional_availabilities_on_athena_provider_id", using: :btree
 
   create_table "provider_leaves", force: :cascade do |t|
-    t.integer  "athena_provider_id", default: 0,       null: false
+    t.integer  "athena_provider_id", default: 0, null: false
     t.string   "description"
-    t.date     "date",                                 null: false
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
-    t.string   "start_time",         default: "00:00", null: false
-    t.string   "end_time",           default: "00:00", null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.datetime "start_datetime",                 null: false
+    t.datetime "end_datetime",                   null: false
   end
 
   add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
 
   create_table "provider_schedules", force: :cascade do |t|
-    t.integer  "athena_provider_id",   default: 0,       null: false
+    t.integer  "athena_provider_id",   default: 0, null: false
     t.string   "description"
     t.boolean  "active"
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
-    t.string   "monday_start_time",    default: "00:00", null: false
-    t.string   "monday_end_time",      default: "00:00", null: false
-    t.string   "tuesday_start_time",   default: "00:00", null: false
-    t.string   "tuesday_end_time",     default: "00:00", null: false
-    t.string   "wednesday_start_time", default: "00:00", null: false
-    t.string   "wednesday_end_time",   default: "00:00", null: false
-    t.string   "thursday_start_time",  default: "00:00", null: false
-    t.string   "thursday_end_time",    default: "00:00", null: false
-    t.string   "friday_start_time",    default: "00:00", null: false
-    t.string   "friday_end_time",      default: "00:00", null: false
-    t.string   "saturday_start_time",  default: "00:00", null: false
-    t.string   "saturday_end_time",    default: "00:00", null: false
-    t.string   "sunday_start_time",    default: "00:00", null: false
-    t.string   "sunday_end_time",      default: "00:00", null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.string   "monday_start_time",                null: false
+    t.string   "monday_end_time",                  null: false
+    t.string   "tuesday_start_time",               null: false
+    t.string   "tuesday_end_time",                 null: false
+    t.string   "wednesday_start_time",             null: false
+    t.string   "wednesday_end_time",               null: false
+    t.string   "thursday_start_time",              null: false
+    t.string   "thursday_end_time",                null: false
+    t.string   "friday_start_time",                null: false
+    t.string   "friday_end_time",                  null: false
+    t.string   "saturday_start_time",              null: false
+    t.string   "saturday_end_time",                null: false
+    t.string   "sunday_start_time",                null: false
+    t.string   "sunday_end_time",                  null: false
   end
 
   add_index "provider_schedules", ["athena_provider_id"], name: "index_provider_schedules_on_athena_provider_id", using: :btree

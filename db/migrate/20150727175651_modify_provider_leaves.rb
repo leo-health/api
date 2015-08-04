@@ -4,17 +4,20 @@ class ModifyProviderLeaves < ActiveRecord::Migration
       dir.up {
         remove_column :provider_leaves, :start_time
         remove_column :provider_leaves, :end_time
+        remove_column :provider_leaves, :date
 
-        add_column :provider_leaves, :start_time, :string, null: false, default: '00:00'
-        add_column :provider_leaves, :end_time, :string, null: false, default: '00:00'
+        add_column :provider_leaves, :start_datetime, :datetime, null: false
+        add_column :provider_leaves, :end_datetime, :datetime, null: false
       }
 
       dir.down {
-        remove_column :provider_leaves, :start_time
-        remove_column :provider_leaves, :end_time
+        remove_column :provider_leaves, :start_datetime
+        remove_column :provider_leaves, :end_datetime
 
-        add_column :provider_leaves, :start_time, :time, null: true, default: nil
-        add_column :provider_leaves, :end_time, :time, null: true, default: nil
+        add_column :provider_leaves, :start_time, :time
+        add_column :provider_leaves, :end_time, :time
+        add_column :provider_leaves, :date, :date
       }
-    end  end
+    end
+  end
 end

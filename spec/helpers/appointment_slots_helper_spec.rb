@@ -194,7 +194,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
   end
   
   describe "get_provider_availability" do
-    it "" do
+    it "computes availability" do
       date = Date.today
 
       schedule = create(:provider_schedule, athena_provider_id: 1, active: true,
@@ -213,29 +213,77 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         sunday_start_time: "9:00",
         sunday_end_time: "17:00")
 
-      Rails.logger.error("schedule: " + schedule.to_json)
-
       additional_availability = create(:provider_additional_availability, athena_provider_id: 1, 
-        date: date, start_time: "17:00", end_time: "20:00")
-
-      Rails.logger.error("additional_availability: " + additional_availability.to_json)
+        start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "17:00").to_s).in_time_zone,
+        end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "20:00").to_s).in_time_zone)
 
       leaves = create(:provider_leave, athena_provider_id: 1, 
-        date: date, start_time: "9:00", end_time: "12:00")
+        start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
+        end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
 
-      Rails.logger.error("leaves: " + leaves.to_json)
-      
       appointment = create(:appointment, athena_provider_id: 1, 
-        appointment_date: date, appointment_start_time: "14:00", duration: 20)
+        start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
+        duration: 20)
 
-      Rails.logger.error("appointment: " + appointment.to_json)
-
-      availability = AppointmentSlotsHelper.get_provider_availability(athena_provider_id: 1, date: date)
-      Rails.logger.error("availability: " + availability.to_json)
+      osp = AppointmentSlotsHelper::OpenSlotsProcessor.new()
+      availability = osp.get_provider_availability(athena_provider_id: 1, date: date)
       expect(availability).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([
-        AppointmentSlotsHelper::to_interval_str(date, "12:00", "14:00"),
-        AppointmentSlotsHelper::to_interval_str(date, "14:20", "20:00")]
-        ))
+        AppointmentSlotsHelper::Interval.new(osp.to_datetime_str(date, "12:00"), osp.to_datetime_str(date, "14:00")),
+        AppointmentSlotsHelper::Interval.new(osp.to_datetime_str(date, "14:20"), osp.to_datetime_str(date, "20:00"))
+        ]))
+    end
+  end
+
+  describe "get_open_slots" do
+    it "returns slots" do
+      date = Date.today
+
+      schedule = create(:provider_schedule, athena_provider_id: 1, active: true,
+        monday_start_time: "9:00",
+        monday_end_time: "17:00",
+        tuesday_start_time: "9:00",
+        tuesday_end_time: "17:00",
+        wednesday_start_time: "9:00",
+        wednesday_end_time: "17:00",
+        thursday_start_time: "9:00",
+        thursday_end_time: "17:00",
+        friday_start_time: "9:00",
+        friday_end_time: "17:00",
+        saturday_start_time: "9:00",
+        saturday_end_time: "17:00",
+        sunday_start_time: "9:00",
+        sunday_end_time: "17:00")
+
+      additional_availability = create(:provider_additional_availability, athena_provider_id: 1, 
+        start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "17:00").to_s).in_time_zone,
+        end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "20:00").to_s).in_time_zone)
+
+      leaves = create(:provider_leave, athena_provider_id: 1, 
+        start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
+        end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
+
+      appointment = create(:appointment, athena_provider_id: 1, 
+        start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
+        duration: 20)
+
+      osp = AppointmentSlotsHelper::OpenSlotsProcessor.new()
+      slots = osp.get_open_slots(athena_provider_id: 1, date: date, durations: [ 60 ])
+      expect(slots).to eq([
+        AppointmentSlotsHelper::OpenSlot.new(
+          DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone, 60),
+        AppointmentSlotsHelper::OpenSlot.new(
+          DateTime.parse(Time.zone.parse(date.inspect + " " + "13:00").to_s).in_time_zone, 60),
+        AppointmentSlotsHelper::OpenSlot.new(
+          DateTime.parse(Time.zone.parse(date.inspect + " " + "14:20").to_s).in_time_zone, 60),
+        AppointmentSlotsHelper::OpenSlot.new(
+          DateTime.parse(Time.zone.parse(date.inspect + " " + "15:20").to_s).in_time_zone, 60),
+        AppointmentSlotsHelper::OpenSlot.new(
+          DateTime.parse(Time.zone.parse(date.inspect + " " + "16:20").to_s).in_time_zone, 60),
+        AppointmentSlotsHelper::OpenSlot.new(
+          DateTime.parse(Time.zone.parse(date.inspect + " " + "17:20").to_s).in_time_zone, 60),
+        AppointmentSlotsHelper::OpenSlot.new(
+          DateTime.parse(Time.zone.parse(date.inspect + " " + "18:20").to_s).in_time_zone, 60)
+        ])
     end
   end
 end

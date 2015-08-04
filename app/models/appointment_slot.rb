@@ -1,2 +1,2 @@
-class AppointmentSlot < Struct.new(:athena_provider_id, :date, :start_time, :duration)
+class AppointmentSlot < Struct.new(:athena_provider_id, :start_datetime, :duration)
 end
