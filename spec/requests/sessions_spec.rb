@@ -23,23 +23,13 @@ describe Leo::V1::Sessions do
         expect(Session.count).to eq(0)
       end
     end
-
-    context 'user is a child' do
-      let!(:child){create(:user, :child, password: "password", password_confirmation: "password")}
-
-      it 'should not create session and return errror message' do
-        do_request({email: child.email, password: 'password'})
-        expect(response.status).to eq(422)
-        expect(Session.count).to eq(0)
-      end
-    end
   end
 
   describe 'DELETE /api/v1/logout' do
     let!(:session){user.sessions.create}
 
     def do_request
-      delete "/api/v1/logout", logout_params = {authentication_token: session.authentication_token, user_id: user.id}, format: :json
+      delete "/api/v1/logout", logout_params = {authentication_token: session.authentication_token}, format: :json
     end
 
     it "should set the disabled at entry to soft delete the session" do

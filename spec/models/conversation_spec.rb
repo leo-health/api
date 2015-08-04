@@ -3,9 +3,5 @@ require 'rails_helper'
 describe Conversation, type: :model do
 	subject { FactoryGirl.create(:conversation_with_participants) }
 
-	describe "conversation relationships" do	
-		it "has 2 parent participants" do
-			expect(subject.participants.count).to eq(2)
-		end
-	end
+	pending "add some examples to (or delete) #{__FILE__}, redo the relationship between conversation and paticipants"
 end

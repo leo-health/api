@@ -10,5 +10,11 @@ module Api
     config.autoload_paths += Dir[Rails.root.join('app', 'api', '*')]
     config.active_job.queue_adapter = :delayed_job
     config.time_zone = 'Eastern Time (US & Canada)'
+    config.middleware.insert_before 0, "Rack::Cors" do
+      allow do
+        origins '*'
+        resource '*', :headers => :any, :methods => [:get, :post, :delete, :put, :options, :head]
+      end
+    end
   end
 end

@@ -1,12 +1,3 @@
-#
-# Groups:
-#   Super User:
-#     0
-#   Staff:
-#     1, 2, 3, 5
-#   Family:
-#     4, 6
-#
 ROLES = {
           # Super user / admin
           super_user: 0,

@@ -42,14 +42,14 @@ ActiveRecord::Schema.define(version: 20150727180427) do
     t.string   "appointment_status",                     null: false
     t.string   "athena_appointment_type"
     t.integer  "leo_provider_id",                        null: false
-    t.integer  "athena_provider_id",         default: 0, null: false
+    t.integer  "athena_provider_id",                     null: false
     t.integer  "leo_patient_id",                         null: false
     t.integer  "booked_by_user_id",                      null: false
     t.integer  "rescheduled_appointment_id"
     t.integer  "duration",                               null: false
     t.boolean  "frozenyn"
     t.string   "leo_appointment_type"
-    t.integer  "athena_appointment_type_id", default: 0, null: false
+    t.integer  "athena_appointment_type_id",             null: false
     t.integer  "family_id",                              null: false
     t.datetime "created_at",                             null: false
     t.datetime "updated_at",                             null: false
@@ -188,6 +188,24 @@ ActiveRecord::Schema.define(version: 20150727180427) do
     t.integer  "escalated_by_id"
   end
 
+  create_table "patients", force: :cascade do |t|
+    t.string   "title"
+    t.string   "first_name",                 null: false
+    t.string   "middle_initial"
+    t.string   "last_name",                  null: false
+    t.string   "suffix"
+    t.datetime "birth_date",                 null: false
+    t.string   "sex",                        null: false
+    t.integer  "family_id",                  null: false
+    t.string   "email"
+    t.string   "avatar_url"
+    t.integer  "role_id",        default: 6, null: false
+    t.datetime "deleted_at"
+  end
+
+  add_index "patients", ["deleted_at"], name: "index_patients_on_deleted_at", using: :btree
+  add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
+
   create_table "photos", force: :cascade do |t|
     t.integer  "patient_id"
     t.text     "image"
@@ -253,13 +271,10 @@ ActiveRecord::Schema.define(version: 20150727180427) do
 
   create_table "roles", force: :cascade do |t|
     t.string   "name"
-    t.integer  "resource_id"
-    t.string   "resource_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
   add_index "roles", ["name"], name: "index_roles_on_name", using: :btree
 
   create_table "sessions", force: :cascade do |t|
@@ -287,16 +302,26 @@ ActiveRecord::Schema.define(version: 20150727180427) do
   add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id", using: :btree
   add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type", using: :btree
 
+  create_table "user_roles", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "role_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "user_roles", ["role_id"], name: "index_user_roles_on_role_id", using: :btree
+  add_index "user_roles", ["user_id"], name: "index_user_roles_on_user_id", using: :btree
+
   create_table "users", force: :cascade do |t|
-    t.string   "title",                  default: ""
-    t.string   "first_name",             default: "", null: false
-    t.string   "middle_initial",         default: ""
-    t.string   "last_name",              default: "", null: false
+    t.string   "title"
+    t.string   "first_name",                         null: false
+    t.string   "middle_initial"
+    t.string   "last_name",                          null: false
     t.datetime "dob"
     t.string   "sex"
     t.integer  "practice_id"
-    t.string   "email",                  default: "", null: false
-    t.string   "encrypted_password",     default: ""
+    t.string   "email",                              null: false
+    t.string   "encrypted_password"
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "created_at"
@@ -315,6 +340,7 @@ ActiveRecord::Schema.define(version: 20150727180427) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
+    t.string   "suffix"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
