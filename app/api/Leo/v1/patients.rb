@@ -16,7 +16,7 @@ module Leo
           end
 
           after_validation do
-            @guardian = Session.find_by_authentication_token(params[:authentication_token]).user
+            @guardian = User.find(params[:user_id])
           end
 
           desc "#get get all patients of individual guardian"

@@ -26,6 +26,7 @@ module Leo
       require_relative 'sessions'
       require_relative 'users'
       require_relative 'patients'
+      require_relative 'messages'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -48,26 +49,12 @@ module Leo
 
 
       helpers do
-        def warden
-          env['warden']
-        end
-
         def authenticated
-          if warden.authenticated?
-            return true
-          elsif params[:authentication_token] and Session.find_by_authentication_token(params[:authentication_token]).try(:user)
-            return true
-          else
-            error!('401 Unauthorized', 401)
-          end
-        end
-
-        def warden
-          env['warden']
+          error!('401 Unauthorized', 401) unless current_user
         end
 
         def current_user
-          warden.user || ((Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token])
+          (Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token]
         end
       end
 
@@ -82,6 +69,7 @@ module Leo
       mount Leo::V1::Users
       mount Leo::V1::Roles
       mount Leo::V1::Patients
+      mount Leo::V1::Messages
 
       add_swagger_documentation(
           base_path: "/api",
