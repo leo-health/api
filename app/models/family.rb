@@ -1,27 +1,21 @@
 class Family < ActiveRecord::Base
-  has_many :members, foreign_key: 'family_id', class_name: 'User'
+  has_many :guardians, foreign_key: 'family_id', class_name: 'User'
   has_many :patients
-  has_many :conversations
+  has_one :conversation
 
-  after_save :ensure_default_conversation_exists
+  after_save :set_up_conversation
+
+  def members
+   guardians + patients
+  end
 
   def primary_parent
     members.order('created_at ASC').first
   end
 
-  def conversation
-    ensure_default_conversation_exists
-    conversations.first
-  end
-
   private
 
-  def ensure_default_conversation_exists
-    setup_default_conversation if conversations.empty?
-  end
-
-  def setup_default_conversation
-    conversation = conversations.create
-    conversation.participants << members
+  def set_up_conversation
+    conversation.create unless conversation
   end
 end
