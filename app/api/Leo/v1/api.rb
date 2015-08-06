@@ -27,6 +27,7 @@ module Leo
       require_relative 'users'
       require_relative 'patients'
       require_relative 'messages'
+      require_relative 'passwords'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -47,7 +48,6 @@ module Leo
         header['Access-Control-Request-Method'] = '*'
       end
 
-
       helpers do
         def authenticated
           error!('401 Unauthorized', 401) unless current_user
@@ -58,16 +58,13 @@ module Leo
         end
       end
 
-      get do
-        {message: "Welcome to the Leo API"}
-      end
-
       mount Leo::V1::Appointments
       mount Leo::V1::AppointmentSlots
       mount Leo::V1::Conversations
       mount Leo::V1::Sessions
       mount Leo::V1::Users
       mount Leo::V1::Roles
+      mount Leo::V1::Passwords
       mount Leo::V1::Patients
       mount Leo::V1::Messages
 
