@@ -36,16 +36,15 @@ module Leo
         desc "Create a Appointment"
         # post "/appointments"
         params do
-          requires :patient_id,   type: Integer, 	desc: "Leo HealthRecord Id"
-          requires :provider_id,  type: Integer, 	desc: "Leo Provider Id"
-          requires :date,         type: DateTime, desc: "Appointment Date"
-          requires :start_time,   type: String,	 	desc: "Appointment Start Time"
-          requires :duration,     type: Integer, 	desc: "Appointment Duration"
-          requires :practice_id,  type: Integer,	desc: "Practice Id for the location of the appointment"
+          requires :patient_id,     type: Integer, 	desc: "Leo HealthRecord Id"
+          requires :provider_id,    type: Integer, 	desc: "Leo Provider Id"
+          requires :start_datetime, type: DateTime, desc: "Appointment start datetime"
+          requires :duration,       type: Integer, 	desc: "Appointment Duration"
+          requires :practice_id,    type: Integer,	desc: "Practice Id for the location of the appointment"
         end
         post do
           # set up variables
-          start_datetime = DateTime.parse(params[:date] + " " + params[:start_time])
+          start_datetime = params[:start_datetime]
           provider_id = params[:provider_id]
           patient_id = params[:patient_id]
           duration = params[:duration]
