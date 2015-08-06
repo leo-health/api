@@ -6,8 +6,10 @@ module Leo
 
       include Grape::Kaminari
 
+      rescue_from :all, :backtrace => true
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
+      default_error_status 400
 
       resource :users do
 
@@ -47,23 +49,20 @@ module Leo
         post do
           dob = Chronic.try(:parse, params[:dob])
           role = Role.find(params[:role_id])
-          family = params[:family_id] ? Family.find(params[:family_id]) : Family.create!
-
-          unless family && dob && role
-            error!({error_code: 422, error_message: "unprocessable entity"},422) and return
-          end
-
           user_params = { first_name: params[:first_name],
                           last_name: params[:last_name],
                           email: params[:email],
                           password: params[:password],
                           dob: dob,
-                          family_id: family.id,
                           sex: params[:sex] }
+          
+          if role.name == "guardian"
+            family = params[:family_id] ? Family.find(params[:family_id]) : Family.create!
+            user_params.merge!(family_id: family.id)
+          end
 
           if user = User.create(user_params)
             user.roles << role
-            family.conversation.participants << user
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity

@@ -12,7 +12,6 @@ describe Leo::V1::Conversations do
     let!(:other_conversation){create(:conversation, family: user.family)}
 
     def do_request
-      byebug
       get "/api/v1/users/#{user.id}/conversations", {authentication_token: session.authentication_token}
     end
 

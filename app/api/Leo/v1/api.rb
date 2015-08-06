@@ -29,6 +29,7 @@ module Leo
       require_relative 'messages'
       require_relative 'passwords'
 
+      rescue_from :all, :backtrace => true
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
