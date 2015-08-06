@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe Leo::V1::AppointmentSlots do
 
-  describe "GET /api/v1/appointment_slots" do
+  describe "GET /api/v1/provider/${id}/appointment_slots" do
     let!(:provider_id) { 1 }
     let!(:date) { Date.today}
 
@@ -38,7 +38,7 @@ describe Leo::V1::AppointmentSlots do
     end
 
     def do_request
-      get "/api/v1/appointment_slots", {athena_provider_id: provider_id, start_date: date, end_date: date}, format: :json
+      get "/api/v1/provider/#{provider_id}/appointment_slots", {start_date: date, end_date: date}, format: :json
     end
 
     it "should return a list of open slots" do

@@ -9,31 +9,37 @@ module Leo
       error_formatter :json, Leo::V1::ErrorFormatter
       default_error_status 400
 
-      resource :appointment_slots do
-        # get "/appointment_slots"
-        desc "Return all open slots for a specified provider"
-        params do
-          requires :athena_provider_id, type: Integer, desc: "Athena provider Id"
-          requires :start_date, type: Date, desc: "Start date"
-          requires :end_date, type: Date, desc: "End date"
-        end
-        get do
-          open_slots = []
+      resource :provider do
+        route_param :athena_provider_id, type: Integer do
+          resource :appointment_slots do
+            # get "provider/{athena_provider_id}/appointment_slots"
+            desc "Return all open slots for a specified provider"
+            params do
+              requires :start_date, type: Date, desc: "Start date", allow_blank: false
+              requires :end_date, type: Date, desc: "End date", allow_blank: false
+            end
+            get do
+              open_slots = []
 
-          #todo: don't hardcode appointment times
-          osp = AppointmentSlotsHelper::OpenSlotsProcessor.new()
-          params[:start_date].upto(params[:end_date]) do |date|
-            open_slots = open_slots + osp.get_open_slots(athena_provider_id: params[:athena_provider_id], date: date, durations: [15, 20, 30, 60])
-          end
+              appointment_durations = []
+              AppointmentType.all.each { |appt_type| appointment_durations += appt_type.duration }
 
-          {
-            data: [
+              #todo: don't hardcode appointment times
+              osp = AppointmentSlotsHelper::OpenSlotsProcessor.new()
+              params[:start_date].upto(params[:end_date]) do |date|
+                open_slots = open_slots + osp.get_open_slots(athena_provider_id: params[:athena_provider_id], date: date, durations: appointment_durations)
+              end
+
               {
-                provider_id: params[:athena_provider_id],
-                slots: open_slots
+                data: [
+                  {
+                    provider_id: params[:athena_provider_id],
+                    slots: open_slots
+                  }
+                ]
               }
-            ]
-          }
+            end
+          end
         end
       end
     end
