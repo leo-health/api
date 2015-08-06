@@ -8,6 +8,7 @@ module Api
     config.active_record.raise_in_transactional_callbacks = true
     config.paths.add File.join('app', 'api'), glob: File.join('**', '*.rb')
     config.autoload_paths += Dir[Rails.root.join('app', 'api', '*')]
+    config.autoload_paths += Dir[Rails.root.join('app', 'jobs', '*')]
     config.active_job.queue_adapter = :delayed_job
     config.time_zone = 'Eastern Time (US & Canada)'
     config.middleware.insert_before 0, "Rack::Cors" do

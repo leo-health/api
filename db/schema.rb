@@ -105,6 +105,7 @@ ActiveRecord::Schema.define(version: 20150727180427) do
   end
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
+  add_index "delayed_jobs", ["queue"], name: "index_delayed_jobs_on_queue", using: :btree
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
