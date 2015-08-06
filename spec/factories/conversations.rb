@@ -1,8 +1,12 @@
 FactoryGirl.define do
   factory :conversation do
-    association :family, factory: :family
-    association { Conversation.participants }
-    # association :user_conversations, factory: :user_conversations
-    # association :participants, factory: :user
+    association :family
+
+    factory :conversation_with_staff do
+      after(:create) do |instance|
+        create(:user, :father, family: instance)
+        create(:user, :mother, family: instance)
+      end
+    end
   end
 end

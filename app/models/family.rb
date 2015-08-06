@@ -1,5 +1,5 @@
 class Family < ActiveRecord::Base
-  has_many :guardians, foreign_key: 'family_id', class_name: 'User'
+  has_many :guardians, class_name: 'User'
   has_many :patients
   has_one :conversation
 

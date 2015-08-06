@@ -25,5 +25,35 @@ FactoryGirl.define do
       sex					'F'
       after(:create) { |u| u.add_role :guardian }
     end
+
+    trait :super_user do
+      dob 				{ 48.years.ago.to_s }
+      sex					'M'
+      after(:create) { |u| u.add_role :super_user }
+    end
+
+    trait :financial do
+      dob 				{ 48.years.ago.to_s }
+      sex					'M'
+      after(:create) { |u| u.add_role :financial }
+    end
+
+    trait :clinical_support do
+      dob 				{ 48.years.ago.to_s }
+      sex					'F'
+      after(:create) { |u| u.add_role :clinical_support }
+    end
+
+    trait :customer_service do
+      dob 				{ 48.years.ago.to_s }
+      sex					'F'
+      after(:create) { |u| u.add_role :customer_service }
+    end
+
+    trait :clinical do
+      dob 				{ 48.years.ago.to_s }
+      sex					'F'
+      after(:create) { |u| u.add_role :clinical }
+    end
   end
 end
