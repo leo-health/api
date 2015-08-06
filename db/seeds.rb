@@ -12,7 +12,7 @@ ROLES = {
           # Access to clinical data for provider roles and other (sub)specialists
           clinical: 5,
           # Access to all data pertaining to the patient
-          patient: 6  
+          patient: 6
         }
 
 ROLES.each do |role, id|
