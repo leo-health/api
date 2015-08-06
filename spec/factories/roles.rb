@@ -7,7 +7,7 @@ FactoryGirl.define do
   		name  :super_user
   	end
 
-    trait :super_user do
+    trait :financial do
       id    1
       name  :financial
     end
