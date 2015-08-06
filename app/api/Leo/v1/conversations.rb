@@ -21,6 +21,9 @@ module Leo
 
           desc "Return all relevant conversations of a user"
           get do
+            if user.has_role :guardian
+              
+            end
             conversations = @user.conversations if @user
             authorize! :read, conversations
             present :conversation, conversations, with: Leo::Entities::ConversationEntity

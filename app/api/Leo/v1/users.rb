@@ -55,7 +55,7 @@ module Leo
                           password: params[:password],
                           dob: dob,
                           sex: params[:sex] }
-          
+
           if role.name == "guardian"
             family = params[:family_id] ? Family.find(params[:family_id]) : Family.create!
             user_params.merge!(family_id: family.id)
