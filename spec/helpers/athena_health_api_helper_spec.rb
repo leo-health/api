@@ -2,14 +2,18 @@ require 'rails_helper'
 require 'athena_health_api_helper'
 
 RSpec.describe AthenaHealthApiHelper, type: :helper do
-  run_athena = false
+  run_athena = (!ENV["ATHENA_KEY"].to_s.empty? && !ENV["ATHENA_SECRET"].to_s.empty?)
 
-  department_id = (ENV["ATHENA_TEST_DEPARTMENT_ID"].to_i <= 0) ? "2" : ENV["ATHENA_TEST_DEPARTMENT_ID"]
-  provider_id = (ENV["ATHENA_TEST_PROVIDER_ID"].to_i <= 0) ? "1" : ENV["ATHENA_TEST_PROVIDER_ID"]
+
+  pracetice_id = 195900
+  version = "preview1"
+  department_id = 145
+  provider_id = 71
 
   describe "Athena Health Api Connector - " do
     if run_athena
-      connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new()
+      connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new(
+        practice_id: pracetice_id, version: version)
     else
       connector = AthenaHealthApiHelper::MockConnector.new(
         appointments: [ 
@@ -49,7 +53,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
     it "get a list of open appointments" do
       res = connector.get_open_appointments(departmentid: department_id, 
         appointmenttypeid: 1, startdate: "01/01/1920", enddate: "01/01/2020")
-      #Rails.logger.info(res.to_json)
+      Rails.logger.info(res.to_json)
     end
 
     it "get a list of booked slots" do
