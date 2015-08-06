@@ -1,6 +1,6 @@
-class CreatePatients < ActiveRecord::Migration
+class CreateHealthRecords < ActiveRecord::Migration
   def change
-    create_table :patients do |t|
+    create_table :health_records do |t|
       t.integer :athena_id, index: true, default: 0, null: false
       t.belongs_to :user, index: true
 

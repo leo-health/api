@@ -1,12 +1,3 @@
-#
-# Groups:
-#   Super User:
-#     0
-#   Staff:
-#     1, 2, 3, 5
-#   Family:
-#     4, 6
-#
 ROLES = {
           # Super user / admin
           super_user: 0,
@@ -21,7 +12,7 @@ ROLES = {
           # Access to clinical data for provider roles and other (sub)specialists
           clinical: 5,
           # Access to all data pertaining to the patient
-          patient: 6
+          patient: 6  
         }
 
 ROLES.each do |role, id|
