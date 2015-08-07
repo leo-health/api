@@ -72,8 +72,8 @@ task :seed_staff => :environment do
   end
 
   staff.each do |name, attributes|
-    if User.find_by_email(attributes[:email])
-      print "*"
+    if user = User.find_by_email(attributes[:email])
+      user.has_role? name ? print "*" : user.add_role name
     else
       if user = User.create(attributes)
         user.confirm
