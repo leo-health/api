@@ -21,21 +21,13 @@ module Leo
 
           desc "Return all relevant conversations of a user"
           get do
-            if user.has_role :guardian
-              
+            if @user && @user.has_role?(:guardian)
+              conversations = Conversation.find_by_family_id(@user.family_id)
+            else
+              conversations = @user.conversations if @user
             end
-            conversations = @user.conversations if @user
             authorize! :read, conversations
             present :conversation, conversations, with: Leo::Entities::ConversationEntity
-          end
-
-          route_param :id, type: Integer do
-            desc "Retrieve a specific conversation"
-            get do
-              conversation = @user.conversations.try(:find, params[:id]) if @user
-              authorize! :read, conversation
-              present :conversation, conversation, with: Leo::Entities::ConversationWithMessagesEntity
-            end
           end
         end
       end

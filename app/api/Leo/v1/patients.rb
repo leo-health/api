@@ -19,7 +19,7 @@ module Leo
             @guardian = User.find(params[:user_id])
           end
 
-          desc "#get get all patients of individual guardian"
+          desc "#get retrieve all patients of a guardian"
           get do
             if patients = @guardian.family.patients
               present :patients, patients, with: Leo::Entities::PatientEntity
@@ -28,7 +28,7 @@ module Leo
             end
           end
 
-          desc "#post create a patient for this guardian"
+          desc "#post create a patient for a guardian"
           params do
             requires :first_name, type: String
             requires :last_name, type: String
@@ -50,7 +50,7 @@ module Leo
             present :patient, patient, with: Leo::Entities::PatientEntity
           end
 
-          desc "#update: update the patient information, guardian only"
+          desc "#update: the patient information, guardian only"
           params do
             optional :title, type: String
             optional :suffix, type: String
