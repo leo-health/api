@@ -10,6 +10,8 @@ class Ability
       can :read, Conversation, :family_id => user.family_id
     elsif user.has_role? :financial
       can :read, Conversation
+    elsif user.has_role? :clinical
+      can :read, Conversation
     elsif user.has_role? :clinical_support
       can :read, Conversation
     elsif user.has_role? :customer_service

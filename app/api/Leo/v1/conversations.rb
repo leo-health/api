@@ -15,11 +15,13 @@ module Leo
           get do
             if @user && @user.has_role?(:guardian)
               conversations = Conversation.find_by_family_id(@user.family_id)
+              authorize! :read, conversations
+              present :conversation, conversations, with: Leo::Entities::ConversationEntity
             else
               conversations = @user.conversations if @user
+              authorize! :read, Conversation
+              present :conversations, conversations, with: Leo::Entities::ConversationEntity
             end
-            authorize! :read, conversations
-            present :conversation, conversations, with: Leo::Entities::ConversationEntity
           end
         end
       end

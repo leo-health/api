@@ -59,6 +59,16 @@ describe "User" do
       it{should be_able_to(:read, Conversation.new)}
     end
 
+    context "when user has the role clinical" do
+      let!(:role){create(:role, :clinical)}
+
+      before do
+        user.add_role :clinical
+      end
+
+      it{should be_able_to(:read, Conversation.new)}
+    end
+
     context "when user has the role clinical_support" do
       let!(:role){create(:role, :clinical_support)}
 
