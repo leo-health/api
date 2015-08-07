@@ -7,8 +7,7 @@ module Leo
       expose :booked_by_user_id, documentation: {type: "integer", desc: "The Leo user id that booked this appointment." }
       expose :leo_appointment_type, documentation: {type: "string", desc: "Leo appointment type" }
       expose :appointment_status
-      expose :appointment_date, documentation: {type: "date", desc: "Appointment Date" }
-      expose :appointment_start_time, documentation: {type: "time", desc: "Appointment Start time" }
+      expose :start_datetime, documentation: { type: "datetime", desc: "Appointment Date/Time" }
       expose :duration, documentation: {type: "integer", desc: "Appointment Duration" }
     end
   end
