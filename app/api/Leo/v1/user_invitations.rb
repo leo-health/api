@@ -1,13 +1,7 @@
 module Leo
   module V1
     class UserInvitations < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
       include Grape::Kaminari
-
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
 
       resource :invitations do
         # GET users/:id/invitations

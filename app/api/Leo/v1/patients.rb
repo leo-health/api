@@ -1,13 +1,7 @@
 module Leo
   module V1
     class Patients < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
       include Grape::Kaminari
-
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
 
       namespace 'users/:user_id' do
         resource :patients do

@@ -1,14 +1,6 @@
 module Leo
   module V1
     class Conversations < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
-      rescue_from :all, :backtrace => true
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-      default_error_status 400
-
       namespace 'users/:user_id' do
         resource :conversations do
           before do

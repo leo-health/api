@@ -1,14 +1,6 @@
 module Leo
   module V1
     class AppointmentSlots < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
-      rescue_from :all, :backtrace => true
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-      default_error_status 400
-
       resource :appointment_slots do
         # get "/appointment_slots"
         desc "Return all open slots for a specified practice"

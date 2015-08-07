@@ -7,7 +7,6 @@ module Leo
       include Grape::Kaminari
 
       require_relative '../../../../app/api/Leo/entities/appointment_entity'
-      require_relative '../../../../app/api/Leo/entities/conversation_participant_entity'
       require_relative '../../../../app/api/Leo/entities/message_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
@@ -29,20 +28,10 @@ module Leo
       require_relative 'messages'
       require_relative 'passwords'
 
-      rescue_from :all, :backtrace => true
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
       default_error_status 400
-
-      rescue_from Grape::Exceptions::ValidationErrors do |e|
-        data = e.map { |k,v| {
-            params: k,
-            messages: (v.class.name == "Grape::Exceptions::Validation" ? v.to_s :  v.map(&:to_s)) }
-        }
-        resp = {status: 'error', data: data }
-        rack_response resp.to_json, 422
-      end
 
       before do
         header['Access-Control-Allow-Origin'] = '*'

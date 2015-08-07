@@ -2,8 +2,7 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Conversations do
-  let!(:guardian_role){create(:role, :guardian)}
-  let(:user){ create(:user, :father) }
+  let(:user){ create(:user) }
   let!(:session){ user.sessions.create }
 
 
@@ -12,10 +11,33 @@ describe Leo::V1::Conversations do
       get "/api/v1/users/#{user.id}/conversations", {authentication_token: session.authentication_token}
     end
 
-    it 'should only return conversations belong to the user' do
-      do_request
-      expect(response.status).to eq(200)
-      expect_json(user.family.conversation)
+    context "user is a guardian" do
+      let!(:guardian_role){create(:role, :guardian)}
+
+
+      before do
+        user.add_role :guardian
+      end
+
+      describe "when retrive own converstion" do
+        it 'should return conversations belong to the user' do
+          do_request
+          expect(response.status).to eq(200)
+        end
+      end
+
+      describe "when retrive other user conversation" do
+        let!(:other_user){ create(:user) }
+
+        def do_request
+          get "/api/v1/users/#{other_user.id}/conversations", {authentication_token: session.authentication_token}
+        end
+
+        it "should not return conversations belongs to other user" do
+          do_request
+          expect(response.status).to eq(403)
+        end
+      end
     end
   end
 end

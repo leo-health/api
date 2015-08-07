@@ -1,18 +1,9 @@
 module Leo
   module V1
     class Users < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
       include Grape::Kaminari
 
-      rescue_from :all, :backtrace => true
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-      default_error_status 400
-
       resource :users do
-
         desc "Get available users"
         paginate per_page: 20
         params do
