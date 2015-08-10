@@ -21,11 +21,7 @@ module Leo
           rack_response resp.to_json, 422
         end
 
-        rescue_from :all do |e|
-          Rails.logger.error "\n#{e.class.name} (#{e.message}):"
-          e.backtrace.each { |line| Rails.logger.error line }
-          error_response(message: 'Internal server error', status: 500)
-        end
+        rescue_from :all, :backtrace => true
       end
     end
   end

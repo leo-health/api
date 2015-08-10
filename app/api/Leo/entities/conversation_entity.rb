@@ -7,10 +7,10 @@ module Leo
       expose :created_at
       expose :updated_at
       expose :family
-      expose :last_message_created
-      expose :archived
-      expose :archived_at
-      expose :archived_by
+      expose :last_message_created_at
+      expose :state
+      expose :last_closed_at
+      expose :last_closed_by
 
       private
 

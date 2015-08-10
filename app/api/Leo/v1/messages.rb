@@ -46,65 +46,23 @@ module Leo
               unless @message = @conversation.messages.find(params[:message_id])
                 error!({error_code: 422, error_message: "The message does not exist."})
               end
+              authorize! @message
             end
+
             desc "return a message"
             get do
-              authorize! @message
               present :message, @message, with: Leo::Entities::MessageEntity
             end
 
-            desc "update a message"
+            desc "update/escalate a message"
             params do
-
+              requires :escalated_to_id, type: Integer, allow_blank: false
             end
+
             put do
-
-            end
-
-            desc "Escalate a message"
-            params do
-              requires :escalate_to_id, type: Integer, desc: "Id for the user who the message is being escalated to"
-            end
-            post "escalate" do
-              escalate_to_id = params[:escalate_to_id]
-              escalated_to = User.find_by_id(escalate_to_id)
-              if escalate_to_id.nil? or escalated_to.nil?
-                error({error_code: 422, error_message: "The user you are trying to escalate to is invalid"})
-                return
+              if escalated_to = User.find(params[:escalate_to_id])
+                @message.update_attributes(escalated_to: escalated_to)
               end
-              @message.escalated_to = escalated_to
-              @message.escalated_by = current_user
-              @message.escalated_at = DateTime.now
-              @message.save
-
-              present :message, @message, with: Leo::Entities::MessageEntity
-            end
-
-
-
-            desc "Request message marked as closed"
-            params do
-            end
-            post "request_closed" do
-              if current_user.id != @message.escalate_to_id
-                error({error_code: 403, error_message: "You are not allowed to request this message to be marked as closed."})
-                return
-              end
-              @message.resolved_requested_at = DateTime.now
-              @message.save
-              present :message, @message, with: Leo::Entities::MessageEntity
-            end
-
-            desc "Approve a request to mark message as closed"
-            params do
-            end
-            post "approve_closed" do
-              if current_user.id != @message.escalate_by_id
-                error({error_code: 403, error_message: "You are not allowed to approve a request to mark this message as closed."})
-                return
-              end
-              @message.resolved_approved_at = DateTime.now
-              @message.save
               present :message, @message, with: Leo::Entities::MessageEntity
             end
           end
