@@ -1,4 +1,5 @@
 class Message < ActiveRecord::Base
+  acts_as_paranoid
   belongs_to :conversation
   has_many :read_receipts
   belongs_to :escalated_to, class_name: 'User'

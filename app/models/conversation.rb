@@ -1,4 +1,5 @@
 class Conversation < ActiveRecord::Base
+  acts_as_paranoid
   has_many :messages
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
