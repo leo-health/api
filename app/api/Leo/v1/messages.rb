@@ -3,9 +3,8 @@ module Leo
     class Messages < Grape::API
       resource :messages do
         desc "Return all messages for current conversation"
-        # get "/messages"
         params do
-          optional :escalated,  type:   Boolean, desc: "Filter by messages that are escalated or not"
+          optional :escalated,  type: Boolean, desc: "Filter by messages that are escalated or not"
         end
         get do
           messages = @conversation.messages
@@ -84,12 +83,12 @@ module Leo
 
           end
 
-          desc "Request message marked as resolved"
+          desc "Request message marked as closed"
           params do
           end
-          post "request_resolved" do
+          post "request_closed" do
             if current_user.id != @message.escalate_to_id
-              error({error_code: 403, error_message: "You are not allowed to request this message to be marked as resolved."})
+              error({error_code: 403, error_message: "You are not allowed to request this message to be marked as closed."})
               return
             end
             @message.resolved_requested_at = DateTime.now
@@ -97,12 +96,12 @@ module Leo
             present :message, @message, with: Leo::Entities::MessageEntity
           end
 
-          desc "Approve a request to mark message as resolved"
+          desc "Approve a request to mark message as closed"
           params do
           end
-          post "approve_resolved" do
+          post "approve_closed" do
             if current_user.id != @message.escalate_by_id
-              error({error_code: 403, error_message: "You are not allowed to approve a request to mark this message as resolved."})
+              error({error_code: 403, error_message: "You are not allowed to approve a request to mark this message as closed."})
               return
             end
             @message.resolved_approved_at = DateTime.now
