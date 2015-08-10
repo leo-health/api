@@ -8,14 +8,20 @@ class Ability
     elsif user.has_role? :guardian
       can [:read, :update, :destroy], Patient, :family_id => user.family_id
       can :read, Conversation, :family_id => user.family_id
+      can :read, Message, :sender_id => user.id
+      can :create, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
     elsif user.has_role? :financial
       can [:read, :update, :destroy], Conversation
+      can [:read, :update, :destroy], Message
     elsif user.has_role? :clinical
       can [:read, :update, :destroy], Conversation
+      can [:read, :update, :destroy], Message
     elsif user.has_role? :clinical_support
       can [:read, :update, :destroy], Conversation
+      can [:read, :update, :destroy], Message
     elsif user.has_role? :customer_service
       can [:read, :update, :destroy], Conversation
+      can [:read, :update, :destroy], Message
     end
   end
 end
