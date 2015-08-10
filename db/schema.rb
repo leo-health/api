@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150810182716) do
+ActiveRecord::Schema.define(version: 20150810185641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -71,15 +71,24 @@ ActiveRecord::Schema.define(version: 20150810182716) do
   add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
+  create_table "conversation_changes", force: :cascade do |t|
+    t.integer  "conversation_id",     null: false
+    t.string   "conversation_change"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
+
   create_table "conversations", force: :cascade do |t|
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.integer  "family_id"
-    t.datetime "last_message_created"
-    t.boolean  "archived"
-    t.datetime "archived_at"
-    t.integer  "archived_by_id"
+    t.datetime "last_message_created_at"
     t.datetime "deleted_at"
+    t.string   "state",                   null: false
+    t.datetime "last_closed_at"
+    t.integer  "last_closed_by"
   end
 
   create_table "conversations_participants", id: false, force: :cascade do |t|
@@ -187,7 +196,6 @@ ActiveRecord::Schema.define(version: 20150810182716) do
     t.integer  "escalated_by_id"
     t.datetime "deleted_at"
     t.string   "type",            null: false
-    t.datetime "last_closed_at"
   end
 
   create_table "patients", force: :cascade do |t|

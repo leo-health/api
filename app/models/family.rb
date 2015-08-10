@@ -3,7 +3,7 @@ class Family < ActiveRecord::Base
   has_many :patients
   has_one :conversation
 
-  after_commit :set_up_conversation
+  after_commit :set_up_conversation, on: :create
 
   def members
    guardians + patients
@@ -16,6 +16,6 @@ class Family < ActiveRecord::Base
   private
 
   def set_up_conversation
-    Conversation.find_or_create_by(family_id: id)
+    Conversation.find_or_create_by(family_id: id, state: :open)
   end
 end

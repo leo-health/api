@@ -5,7 +5,7 @@ class ChangeMessageTypeToType < ActiveRecord::Migration
   end
 
   def down
-    remove_column :messages, :type, :string, null: false
+    remove_column :messages, :type
     add_column :messages, :message_type, :string
   end
 end
