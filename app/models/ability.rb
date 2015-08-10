@@ -9,13 +9,13 @@ class Ability
       can [:read, :update, :destroy], Patient, :family_id => user.family_id
       can :read, Conversation, :family_id => user.family_id
     elsif user.has_role? :financial
-      can :read, Conversation
+      can [:read, :update, :destroy], Conversation
     elsif user.has_role? :clinical
-      can :read, Conversation
+      can [:read, :update, :destroy], Conversation
     elsif user.has_role? :clinical_support
-      can :read, Conversation
+      can [:read, :update, :destroy], Conversation
     elsif user.has_role? :customer_service
-      can :read, Conversation
+      can [:read, :update, :destroy], Conversation
     end
   end
 end
