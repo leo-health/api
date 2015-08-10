@@ -8,7 +8,9 @@ module Leo
           end
 
           after_validation do
-            @conversation = Conversation.find(params[:conversation_id])
+            unless @conversation = Conversation.find(params[:conversation_id])
+              error!({error_code: 422, error_message: "The conversation does not exit."}, 422)
+            end
           end
 
           desc "Return all messages for a conversation"
@@ -17,62 +19,49 @@ module Leo
           end
           get do
             messages = @conversation.messages
-            unless params[:escalated].nil?
-              if params[:escalated] == true
-                messages = messages.where.not(escalated_to: nil)
-              else
-                messages = messages.where(escalated_to: nil)
-              end
+            if params[:escalated]
+              messages = messages.where.not(escalated_to_id: nil)
+            else
+              messages = messages.where(escalated_to_id: nil)
             end
             authorize! :read, Message
-            present :count, messages.count
             present :messages, messages, with: Leo::Entities::MessageEntity
-
           end
 
           desc "Create a message"
           params do
-            requires :sender_id, type: Integer, desc: "Id for the message sender"
-            requires :body, type: String, desc: "Message contents"
+            requires :body, type: String, allow_blank: false
+            requires :type, type: String, allow_blank: false
           end
+
           post do
-            sender_id = params[:sender_id]
-            sender = User.find_by_id(sender_id)
-            if sender_id.nil? or sender.nil? or sender_id != current_user.id
-              error({error_code: 422, error_message: "The sender does not exist or you don't have permission to create a message for that sender"}, 422)
-              return
+            if message = @conversation.messages.create({body: params[:body], sender: current_user, type: params[:type]})
+              authorize! message
+              present message, with: Leo::Entities::MessageEntity
             end
-
-            body = params[:body]
-            puts "The body says: #{body}, and when stripped says: #{body.strip!}"
-            if body.nil? or body.length == 0
-              error({error_code: 422, error_message: "The message body can not be empty."}, 422)
-              return
-            end
-            message = @conversation.messages.create(sender_id: sender_id, body: body)
-            present message, with: Leo::Entities::MessageEntity
           end
 
-          desc "Operate on individual messages"
           route_param :message_id do
             before do
-              id = params[:message_id]
-              # TODO: Check authorization
-              @message = @conversation.messages.where(id: id).first
-              if id.nil? or @message.nil?
-                error({error_code: 404, error_message: "The message you requested does not exist."})
-                return
+              unless @message = @conversation.messages.find(params[:message_id])
+                error!({error_code: 422, error_message: "The message does not exist."})
               end
             end
-            desc "Return a message"
-            # get "/messages/{id}"
+            desc "return a message"
             get do
-              # TODO: Check authorization
+              authorize! @message
               present :message, @message, with: Leo::Entities::MessageEntity
             end
 
+            desc "update a message"
+            params do
+
+            end
+            put do
+
+            end
+
             desc "Escalate a message"
-            # post "/messages/{id}/escalate"
             params do
               requires :escalate_to_id, type: Integer, desc: "Id for the user who the message is being escalated to"
             end
@@ -89,8 +78,9 @@ module Leo
               @message.save
 
               present :message, @message, with: Leo::Entities::MessageEntity
-
             end
+
+
 
             desc "Request message marked as closed"
             params do

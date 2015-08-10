@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150810150143) do
+ActiveRecord::Schema.define(version: 20150810182716) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -180,15 +180,14 @@ ActiveRecord::Schema.define(version: 20150810150143) do
     t.integer  "sender_id"
     t.integer  "conversation_id"
     t.text     "body"
-    t.string   "message_type"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
     t.integer  "escalated_to_id"
-    t.datetime "resolved_requested_at"
-    t.datetime "resolved_approved_at"
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
     t.datetime "deleted_at"
+    t.string   "type",            null: false
+    t.datetime "last_closed_at"
   end
 
   create_table "patients", force: :cascade do |t|

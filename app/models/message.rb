@@ -8,7 +8,7 @@ class Message < ActiveRecord::Base
 
   after_save :update_conversation_last_message_timestamp, on: [:create]
 
-  validates :conversation, :sender, presence: true
+  validates :conversation, :sender, :type, presence: true
 
   def read_by!(user)
     r = self.read_receipts.new(participant: user)

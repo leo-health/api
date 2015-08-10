@@ -11,17 +11,17 @@ class Ability
       can :read, Message, :sender_id => user.id
       can :create, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
     elsif user.has_role? :financial
-      can [:read, :update, :destroy], Conversation
-      can [:read, :update, :destroy], Message
+      can [:read, :update], Conversation
+      can [:read, :update], Message
     elsif user.has_role? :clinical
-      can [:read, :update, :destroy], Conversation
-      can [:read, :update, :destroy], Message
+      can [:read, :update], Conversation
+      can [:read, :update], Message
     elsif user.has_role? :clinical_support
-      can [:read, :update, :destroy], Conversation
-      can [:read, :update, :destroy], Message
+      can [:read, :update], Conversation
+      can [:read, :update], Message
     elsif user.has_role? :customer_service
-      can [:read, :update, :destroy], Conversation
-      can [:read, :update, :destroy], Message
+      can [:read, :update], Conversation
+      can [:read, :update], Message
     end
   end
 end

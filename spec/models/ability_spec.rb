@@ -58,11 +58,9 @@ describe "User" do
 
       it{should be_able_to(:read, Conversation.new)}
       it{should be_able_to(:update, Conversation.new)}
-      it{should be_able_to(:destroy, Conversation.new)}
 
       it{should be_able_to(:read, Message.new)}
       it{should be_able_to(:update, Message.new)}
-      it{should be_able_to(:destroy, Message.new)}
     end
 
     context "when user has the role clinical" do
@@ -74,11 +72,9 @@ describe "User" do
 
       it{should be_able_to(:read, Conversation.new)}
       it{should be_able_to(:update, Conversation.new)}
-      it{should be_able_to(:destroy, Conversation.new)}
 
       it{should be_able_to(:read, Message.new)}
       it{should be_able_to(:update, Message.new)}
-      it{should be_able_to(:destroy, Message.new)}
     end
 
     context "when user has the role clinical_support" do
@@ -90,11 +86,9 @@ describe "User" do
 
       it{should be_able_to(:read, Conversation.new)}
       it{should be_able_to(:update, Conversation.new)}
-      it{should be_able_to(:destroy, Conversation.new)}
 
       it{should be_able_to(:read, Message.new)}
       it{should be_able_to(:update, Message.new)}
-      it{should be_able_to(:destroy, Message.new)}
     end
 
     context "when user has the role customer_service" do
@@ -106,11 +100,9 @@ describe "User" do
 
       it{should be_able_to(:read, Conversation.new)}
       it{should be_able_to(:update, Conversation.new)}
-      it{should be_able_to(:destroy, Conversation.new)}
 
       it{should be_able_to(:read, Message.new)}
       it{should be_able_to(:update, Message.new)}
-      it{should be_able_to(:destroy, Message.new)}
     end
   end
 end
