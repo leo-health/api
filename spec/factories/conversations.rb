@@ -1,17 +1,17 @@
 FactoryGirl.define do
   factory :conversation do
     association :family
-    state :open
+    status :open
     trait :open do
-      state :open
+      status :open
     end
 
     trait :escalated do
-      state :escalated
+      status :escalated
     end
 
     trait :closed do
-      state :closed
+      status :closed
       last_closed_at Time.now
     end
   end
