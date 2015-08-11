@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
   has_many :sessions
   has_many :user_roles, inverse_of: :user
   has_many :roles, :through => :user_roles
-  has_many :send_messages, foreign_key: "sender_id", class_name: "Message"
+  has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
   has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
 

@@ -5,7 +5,7 @@ task :seed_staff => :environment do
       financial: 1,
       clinical_support: 2,
       customer_service: 3,
-      clinical: 5,
+      clinical: 5
   }
 
   staff = {
