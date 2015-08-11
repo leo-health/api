@@ -10,9 +10,7 @@ module Leo
           end
 
           after_validation do
-            unless @conversation = Conversation.find(params[:conversatoin_id])
-              error!({error_code: 422, error_message: "The conversation does not exit."}, 422)
-            end
+            @conversation = Conversation.find(params[:conversatoin_id])
           end
 
           desc "Return all messages for a conversation with pagination options"
@@ -39,25 +37,19 @@ module Leo
             end
           end
 
-          route_param :message_id do
-            before do
-              unless @message = @conversation.messages.find(params[:message_id])
-                error!({error_code: 422, error_message: "The message does not exist."})
-              end
-            end
+          desc "update/escalate a message"
+          params do
+            requires :escalated_to_id, type: Integer, allow_blank: false
+          end
 
-            desc "update/escalate a message"
-            params do
-              requires :escalated_to_id, type: Integer, allow_blank: false
+          put ':id' do
+            byebug
+            @message = @conversation.messages.find(params[:id])
+            authorize! :update, @message
+            if escalated_to = User.find(params[:escalate_to_id])
+              @message.escalate(escalated_to, current_user)
             end
-
-            put do
-              authorize! :update, @message
-              if escalated_to = User.find(params[:escalate_to_id])
-                @message.update_attributes(escalated_to: escalated_to)
-              end
-              present :message, @message, with: Leo::Entities::MessageEntity
-            end
+            present :message, @message, with: Leo::Entities::MessageEntity
           end
         end
       end

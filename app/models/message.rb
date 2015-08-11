@@ -15,6 +15,10 @@ class Message < ActiveRecord::Base
     r.save
   end
 
+  def escalate(escalated_to, escalated_by)
+    update_attributes(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
+  end
+
   private
 
   def update_conversation_last_message_timestamp

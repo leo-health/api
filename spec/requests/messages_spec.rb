@@ -30,7 +30,8 @@ describe Leo::V1::Messages do
     let!(:message_params){{body: "test", message_type: "text"}}
 
     def do_request
-      post "/api/v1/conversations/#{conversation.id}/messages", { body: "test", message_type: "text", authentication_token: session.authentication_token }
+      post "/api/v1/conversations/#{conversation.id}/messages",
+           { body: "test", message_type: "text", authentication_token: session.authentication_token }
     end
 
     it "should create a message for the conversation" do
@@ -39,13 +40,25 @@ describe Leo::V1::Messages do
     end
   end
 
-  describe "Put /api/v1/conversations/:conversatoin_id/messages/:message_id" do
+  describe "Put /api/v1/conversations/:conversatoin_id/messages/:id" do
+    let(:second_user){create(:user)}
+    let!(:clinical_role){create(:role, :clinical)}
+    let!(:message){create(:message, conversation: conversation, sender: user)}
+
+    before do
+      user.add_role :clinical
+      second_user.add_role :clinical
+    end
+
     def do_request
-      put "/api/v1/conversations/#{conversation.id}/messages/#{message.id}", { authentication_token: session.authentication_token }
+      put "/api/v1/conversations/#{conversation.id}/messages/#{message.id}",
+          { authentication_token: session.authentication_token, escalated_to_id: second_user.id }
+    end
 
-      it "should update the requested message" do
-
-      end
+    it "should update the requested message" do
+      do_request
+      byebug
+      expect(response.status).to eq(201)
     end
   end
 end
