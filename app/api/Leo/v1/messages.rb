@@ -43,7 +43,6 @@ module Leo
           end
 
           put ':id' do
-            byebug
             @message = @conversation.messages.find(params[:id])
             authorize! :update, @message
             if escalated_to = User.find(params[:escalate_to_id])
