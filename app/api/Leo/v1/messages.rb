@@ -43,12 +43,12 @@ module Leo
           end
 
           put ':id' do
-            @message = @conversation.messages.find(params[:id])
-            authorize! :update, @message
-            if escalated_to = User.find(params[:escalate_to_id])
-              @message.escalate(escalated_to, current_user)
+            message = @conversation.messages.find(params[:id])
+            authorize! :update, message
+            escalated_to = User.find(params[:escalated_to_id])
+            if message.escalate(escalated_to, current_user)
+              present :message, message, with: Leo::Entities::MessageEntity
             end
-            present :message, @message, with: Leo::Entities::MessageEntity
           end
         end
       end
