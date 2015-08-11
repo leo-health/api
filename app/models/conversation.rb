@@ -9,7 +9,7 @@ class Conversation < ActiveRecord::Base
 
   before_validation :set_conversation_state, on: :create
 
-  validates :family, :state, presence: true
+  validates :family, :status, presence: true
   around_update :track_conversation_change
   after_commit :load_staff, on: :create
 
@@ -20,10 +20,10 @@ class Conversation < ActiveRecord::Base
   def track_conversation_change
     changed = state_changed?
     yield
-    conversation_changes.create(conversation_change: changes.slice(:state, :updated_at)) if changed
+    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
   end
 
   def set_conversation_state
-    update_attributes(state: "open") unless state
+    update_attributes(status: "open") unless status
   end
 end

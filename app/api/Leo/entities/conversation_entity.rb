@@ -8,7 +8,7 @@ module Leo
       expose :updated_at
       expose :family
       expose :last_message_created_at
-      expose :state
+      expose :status
       expose :last_closed_at
       expose :last_closed_by
 

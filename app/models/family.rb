@@ -16,6 +16,6 @@ class Family < ActiveRecord::Base
   private
 
   def set_up_conversation
-    Conversation.find_or_create_by(family_id: id, state: :open)
+    Conversation.find_or_create_by(family_id: id, status: :open)
   end
 end

@@ -86,7 +86,7 @@ ActiveRecord::Schema.define(version: 20150810185641) do
     t.integer  "family_id"
     t.datetime "last_message_created_at"
     t.datetime "deleted_at"
-    t.string   "state",                   null: false
+    t.string   "status",                  null: false
     t.datetime "last_closed_at"
     t.integer  "last_closed_by"
   end
