@@ -1,6 +1,8 @@
 module Leo
   module V1
     class Messages < Grape::API
+      include Grape::Kaminari
+
       namespace 'conversations/:conversatoin_id' do
         resource :messages do
           before do
@@ -13,19 +15,12 @@ module Leo
             end
           end
 
-          desc "Return all messages for a conversation"
-          params do
-            optional :escalated,  type: Boolean, desc: "Filter by messages that are escalated or not"
-          end
+          desc "Return all messages for a conversation with pagination options"
+
           get do
             messages = @conversation.messages
-            if params[:escalated]
-              messages = messages.where.not(escalated_to_id: nil)
-            else
-              messages = messages.where(escalated_to_id: nil)
-            end
             authorize! :read, Message
-            present :messages, messages, with: Leo::Entities::MessageEntity
+            present :messages, paginate(messages), with: Leo::Entities::MessageEntity
           end
 
           desc "Create a message"
@@ -49,12 +44,6 @@ module Leo
               unless @message = @conversation.messages.find(params[:message_id])
                 error!({error_code: 422, error_message: "The message does not exist."})
               end
-            end
-
-            desc "return a message"
-            get do
-              authorize! :read, @message
-              present :message, @message, with: Leo::Entities::MessageEntity
             end
 
             desc "update/escalate a message"

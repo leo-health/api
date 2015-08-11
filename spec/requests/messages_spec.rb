@@ -16,7 +16,7 @@ describe Leo::V1::Messages do
     let!(:second_message){create(:message, conversation: conversation, sender: user)}
 
     def do_request
-      get "/api/v1/conversations/#{conversation.id}/messages", { authentication_token: session.authentication_token }
+      get "/api/v1/conversations/#{conversation.id}/messages?per_page=2&page=1", { authentication_token: session.authentication_token }
     end
 
     it "should get all the messages of a conversation" do
@@ -36,19 +36,6 @@ describe Leo::V1::Messages do
     it "should create a message for the conversation" do
       do_request
       expect(response.status).to eq(201)
-    end
-  end
-
-  #routes? need discuss here
-  describe "Get /api/v1/conversations/:conversatoin_id/messages/:message_id" do
-    let!(:first_message){create(:message, conversation: conversation, sender: user)}
-
-    def do_request
-      get "/api/v1/conversations/#{conversation.id}/messages/#{message.id}", { authentication_token: session.authentication_token }
-    end
-
-    it "should return the request message of the conversation" do
-
     end
   end
 
