@@ -194,8 +194,8 @@ ActiveRecord::Schema.define(version: 20150810185641) do
     t.integer  "escalated_to_id"
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
+    t.string   "message_type"
     t.datetime "deleted_at"
-    t.string   "type",            null: false
   end
 
   create_table "patients", force: :cascade do |t|

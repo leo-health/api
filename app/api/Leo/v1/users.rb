@@ -52,11 +52,14 @@ module Leo
             user_params.merge!(family_id: family.id)
           end
 
-          if user = User.create(user_params)
+          user = User.new(user_params)
+          if user.save
             user.roles << role
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
           end
         end
 
@@ -91,19 +94,6 @@ module Leo
             user = User.find(params[:id])
             authorize! :destroy, user
             user.try(:destroy)
-          end
-        end
-
-        namespace "reset_password" do
-          desc 'reset the password for user'
-
-          params do
-            requires :email, type: String, allow_blank: false
-          end
-
-          post do
-            user = User.find_by_email(params[:email])
-            user.try(:send_reset_password_instructions)
           end
         end
       end

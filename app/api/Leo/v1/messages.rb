@@ -8,7 +8,7 @@ module Leo
           end
 
           after_validation do
-            unless @conversation = Conversation.find(params[:conversation_id])
+            unless @conversation = Conversation.find(params[:conversatoin_id])
               error!({error_code: 422, error_message: "The conversation does not exit."}, 422)
             end
           end
@@ -31,13 +31,16 @@ module Leo
           desc "Create a message"
           params do
             requires :body, type: String, allow_blank: false
-            requires :type, type: String, allow_blank: false
+            requires :message_type, type: String, allow_blank: false
           end
 
           post do
-            if message = @conversation.messages.create({body: params[:body], sender: current_user, type: params[:type]})
-              authorize! message
+            message = @conversation.messages.new({body: params[:body], sender: current_user, message_type: params[:message_type]})
+            if message.save
+              authorize! :create, message
               present message, with: Leo::Entities::MessageEntity
+            else
+              error!({error_code: 422, error_message: message.errors.full_messages }, 422)
             end
           end
 
@@ -46,11 +49,11 @@ module Leo
               unless @message = @conversation.messages.find(params[:message_id])
                 error!({error_code: 422, error_message: "The message does not exist."})
               end
-              authorize! @message
             end
 
             desc "return a message"
             get do
+              authorize! :read, @message
               present :message, @message, with: Leo::Entities::MessageEntity
             end
 
@@ -60,6 +63,7 @@ module Leo
             end
 
             put do
+              authorize! :update, @message
               if escalated_to = User.find(params[:escalate_to_id])
                 @message.update_attributes(escalated_to: escalated_to)
               end

@@ -18,7 +18,7 @@ class Conversation < ActiveRecord::Base
   end
 
   def track_conversation_change
-    changed = state_changed?
+    changed = status_changed?
     yield
     conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
   end
