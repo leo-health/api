@@ -36,8 +36,6 @@ group :development, :test do
   gem 'factory_girl_rails'
   gem 'awesome_print'
   gem 'byebug'
-  gem 'letter_opener'
-  gem 'letter_opener_web', '~> 1.2.0'
   gem 'quiet_assets'
   gem 'spork'
   gem 'rspec-rails'

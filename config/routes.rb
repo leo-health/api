@@ -5,9 +5,5 @@ Rails.application.routes.draw do
   mount Leo::Root => '/'
   mount GrapeSwaggerRails::Engine => '/swagger'
 
-  if Rails.env.development?
-    mount LetterOpenerWeb::Engine, at: "/letter_opener"
-  end
-
   root 'home#index'
 end
