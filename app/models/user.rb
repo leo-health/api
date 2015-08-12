@@ -4,8 +4,7 @@ class User < ActiveRecord::Base
   has_many :escalations, foreign_key: 'escalated_to_id'
   has_many :invitations, :class_name => self.to_s, :as => :invited_by
   has_many :sessions
-  has_many :user_roles, inverse_of: :user
-  has_many :roles, :through => :user_roles
+  belongs_to :role
 
   after_initialize :set_default_practice
 
@@ -27,12 +26,7 @@ class User < ActiveRecord::Base
   end
 
   def has_role? (name)
-    !!roles.find_by_name(name)
-  end
-
-  def add_role(name)
-    role = Role.find_by_name(name)
-    roles << role if role
+    role.name == name
   end
 
   def is_patient?

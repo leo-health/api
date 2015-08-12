@@ -11,24 +11,15 @@ module Leo
 
       resource :users do
 
-        desc "Get available users"
+        desc "Get available users by role"
         paginate per_page: 20
         params do
-          optional :role,     type: String,   desc: "Return users with this role"
+          requires :role, type: String, allow_blank: false
         end
         get do
           authenticated
-          users = User.for_user(current_user)
-
-          unless params[:role].blank?
-            role=Role.find_by_name(params[:role])
-            if role.nil?
-              error!({error_code: 422, error_message: "Invalid role."}, 422)
-              return
-            end
-            users = users.with_role role.name.to_sym
-          end
-
+          users = User.where(role_id: Role.find_by_name(params[:name].id))
+          authorize! :read, User
           present :users, paginate(users), with: Leo::Entities::UserEntity
         end
 
@@ -39,31 +30,19 @@ module Leo
           requires :email,      type: String, allow_blank: false
           requires :password,   type: String, allow_blank: false
           requires :role_id,    type: Integer, allow_blank: false, role_exists: true
-          requires :dob,        type: String, allow_blank: false
+          requires :dob,        type: DateTime, allow_blank: false
           requires :sex,        type: String, values: ['M', 'F']
           optional :family_id,  type: Integer, allow_blank: false
         end
 
         post do
-          dob = Chronic.try(:parse, params[:dob])
-          role = Role.find(params[:role_id])
-          family = params[:family_id] ? Family.find(params[:family_id]) : Family.create!
-
-          unless family && dob && role
-            error!({error_code: 422, error_message: "unprocessable entity"},422) and return
+          if params[:family_id] && family = Family.find(params[:family_id])
+            user_params = declared(params).merge({family_id: family.id})
+          else
+            user_params = declared(params)
           end
 
-          user_params = { first_name: params[:first_name],
-                          last_name: params[:last_name],
-                          email: params[:email],
-                          password: params[:password],
-                          dob: dob,
-                          family_id: family.id,
-                          sex: params[:sex] }
-
           if user = User.create(user_params)
-            user.roles << role
-            family.conversation.participants << user
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
@@ -81,15 +60,17 @@ module Leo
 
           desc "#show get an individual user"
           get do
+            authorize! :read, @user
             present :user, @user, with: Leo::Entities::UserEntity
           end
 
           desc "#put update individual user"
           params do
-            optional :email, type: String, allow_blank: false
+            requires :email, type: String, allow_blank: false
           end
 
           put do
+            authorize! :update, @user
             user_params = declared(params)
             if @user.update_attributes(user_params)
               present :user, @user, with: Leo::Entities::UserEntity
@@ -98,22 +79,8 @@ module Leo
 
           desc '#delete destroy a user, super user only'
           delete do
-            user = User.find(params[:id])
-            authorize! :destroy, user
-            user.try(:destroy)
-          end
-        end
-
-        namespace "reset_password" do
-          desc 'reset the password for user'
-
-          params do
-            requires :email, type: String, allow_blank: false
-          end
-
-          post do
-            user = User.find_by_email(params[:email])
-            user.try(:send_reset_password_instructions)
+            authorize! :destroy, @user
+            @user.try(:destroy)
           end
         end
       end

@@ -5,14 +5,23 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/users" do
     let!(:role){create(:role, :guardian)}
-    let!(:family){create(:family)}
-    let!(:user_params){FactoryGirl.attributes_for(:user).merge(role_id: role.id, family_id: family.id)}
+    # let!(:family){create(:family)}
+    # let!(:user_params){FactoryGirl.attributes_for(:user).merge(role_id: role.id)}
+    let!(:user_params){{ first_name: "first_name",
+                         last_name: "last_name",
+                         email: "test@leohealth.com",
+                         password: "password",
+                         role_id: role.id,
+                         dob: 48.years.ago,
+                         sex: "M"
+                        }}
 
     def do_request
       post "/api/v1/users", user_params, format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
+      byebug
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
     end
