@@ -2,8 +2,10 @@ require 'rails_helper'
 require 'sync_service_helper'
 
 RSpec.describe SyncServiceHelper, type: :helper do
-  department_id = (ENV["ATHENA_TEST_DEPARTMENT_ID"].to_i <= 0) ? "2" : ENV["ATHENA_TEST_DEPARTMENT_ID"]
-  provider_id = (ENV["ATHENA_TEST_PROVIDER_ID"].to_i <= 0) ? "1" : ENV["ATHENA_TEST_PROVIDER_ID"]
+  pracetice_id = 195900
+  version = "preview1"
+  department_id = 145
+  provider_id = 71
 
   describe "Sync Service Helper - " do
 
@@ -49,8 +51,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-        expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
+        expect(leo_appt.start_datetime).to eq(Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M"))
         expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
         expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
         expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
@@ -92,11 +93,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-  #      expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-  #      expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
         expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
         expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-  #      expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
         expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
       end
       
@@ -135,11 +133,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-  #      expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-  #      expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
-  #      expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-  #      expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-  #      expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
         expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
       end
 
@@ -179,12 +172,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
         expect(leo_appt.appointment_status).to eq("2")
-  #      expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-  #      expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
-  #      expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-  #      expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-  #      expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
-  #      expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
       end
 
       it "sync cancelled leo appointment with missing athena appointment" do
@@ -210,8 +197,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-        expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
+        expect(leo_appt.start_datetime).to eq(Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M"))
         expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
         expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
         expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
@@ -253,11 +239,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-  #      expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-  #      expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
         expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
         expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-  #      expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
         expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
       end
 
@@ -296,11 +279,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-  #      expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-  #      expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
-  #      expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-  #      expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-  #      expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
         expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
       end
 
@@ -339,12 +317,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-  #      expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-  #      expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
-  #      expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-  #      expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-  #      expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
-  #      expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
       end
 
       it "sync rescheduled leo appointment with missing athena appointment" do
@@ -377,19 +349,12 @@ RSpec.describe SyncServiceHelper, type: :helper do
         athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
         Rails.logger.info("athena_appt: #{athena_appt.to_json}")
         expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        #expect(athena_appt.date).to eq(leo_appt.appointment_date.strftime("%m/%d/%Y"))
-        #expect(athena_appt.starttime).to eq(leo_appt.appointment_start_time.strftime("%H:%M"))
-        #expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-        #expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-        #expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
-        #expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
 
         #get updated rescheduled appt from athena
         resched_athena_appt = connector.get_appointment(appointmentid: resched_leo_appt.athena_id)
         Rails.logger.info("resched_athena_appt: #{resched_athena_appt.to_json}")
         expect(resched_athena_appt.appointmentstatus).to eq(resched_leo_appt.appointment_status)
-        expect(resched_athena_appt.date).to eq(resched_leo_appt.appointment_date.strftime("%m/%d/%Y"))
-        expect(resched_athena_appt.starttime).to eq(resched_leo_appt.appointment_start_time.strftime("%H:%M"))
+        expect(resched_leo_appt.start_datetime).to eq(Date.strptime(resched_athena_appt.date + " " + resched_athena_appt.starttime, "%m/%d/%Y %H:%M"))
         expect(resched_athena_appt.appointmenttypeid).to eq(resched_leo_appt.athena_appointment_type_id)
         expect(resched_athena_appt.departmentid).to eq(resched_leo_appt.athena_department_id)
         expect(resched_athena_appt.providerid).to eq(resched_leo_appt.athena_provider_id)

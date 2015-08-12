@@ -74,12 +74,8 @@ describe Leo::V1::Users do
     it "should not delete selected user and raise error when user do not have the access right" do
       user.roles.destroy_all
       do_request
-      expect(response.status).to eq(422)
+      expect(response.status).to eq(403)
       expect(User.count).to eq(2)
     end
-  end
-
-  describe "Get /api/v1/users/id" do
-
   end
 end

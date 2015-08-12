@@ -93,15 +93,13 @@ module Leo
             user_params = declared(params)
             if @user.update_attributes(user_params)
               present :user, @user, with: Leo::Entities::UserEntity
-            else
-              error!({errors: @user.errors.messages})
             end
           end
 
-          desc 'delete a user with admin right'
+          desc '#delete destroy a user, super user only'
           delete do
-            error!({error_code: 422}, 422) unless current_user.has_role? :super_user
             user = User.find(params[:id])
+            authorize! :destroy, user
             user.try(:destroy)
           end
         end

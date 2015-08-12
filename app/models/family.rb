@@ -1,37 +1,27 @@
 class Family < ActiveRecord::Base
-  after_save :ensure_default_conversation_exists
-
-  has_many :members, :class_name => 'User'
+  has_many :members, foreign_key: 'family_id', class_name: 'User'
+  has_many :patients
   has_many :conversations
 
+  after_save :ensure_default_conversation_exists
+
   def primary_parent
-    self.members.order('created_at ASC').first
+    members.order('created_at ASC').first
   end
 
-  #wuang-make sure the conversation.first method would grab the primary conversation
   def conversation
     ensure_default_conversation_exists
-    self.conversations.first
-  end
-
-  def guardians
-    self.members.with_role :guardian
-  end
-
-  def children
-    self.members.with_role :patient
+    conversations.first
   end
 
   private
 
   def ensure_default_conversation_exists
-    setup_default_conversation if self.conversations.count == 0
+    setup_default_conversation if conversations.empty?
   end
 
   def setup_default_conversation
-    conversation = Conversation.new
-    conversation.family = self
-    conversation.participants << self.guardians
-    conversation.save
+    conversation = conversations.create
+    conversation.participants << members
   end
 end
