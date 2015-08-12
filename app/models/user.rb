@@ -1,11 +1,13 @@
 class User < ActiveRecord::Base
   belongs_to :family
   has_many :user_conversations
-  has_many :conversations, :through => :user_conversations
-  has_many :invitations, :class_name => self.to_s, :as => :invited_by
+  has_many :conversations, through: :user_conversations
+  has_many :read_receipts, foreign_key: "reader_id"
+  has_many :read_messages, class_name: 'Message', through: :read_receipts
+  has_many :invitations, as: :invited_by
   has_many :sessions
   has_many :user_roles, inverse_of: :user
-  has_many :roles, :through => :user_roles
+  has_many :roles, through: :user_roles
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
   has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
@@ -27,6 +29,16 @@ class User < ActiveRecord::Base
     if customer = Stripe::Customer.create(:source => token, :description => self.id)
       update_attributes(stripe_customer_id: customer.id)
     end
+  end
+
+  def unread_conversations
+    return if user.has_role? :guardian
+    user_conversations.where(read: false).conversation
+  end
+
+  def escalated_conversations
+    return if user.has_role? :guardian
+    user_conversations.where(escalated: true).conversation
   end
 
   def has_role? (name)

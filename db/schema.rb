@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150810185641) do
+ActiveRecord::Schema.define(version: 20150812150131) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -274,10 +274,12 @@ ActiveRecord::Schema.define(version: 20150810185641) do
 
   create_table "read_receipts", force: :cascade do |t|
     t.integer  "message_id"
-    t.string   "participant_id"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.string   "reader_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
+
+  add_index "read_receipts", ["message_id", "reader_id"], name: "index_read_receipts_on_message_id_and_reader_id", unique: true, using: :btree
 
   create_table "roles", force: :cascade do |t|
     t.string   "name"
@@ -315,8 +317,10 @@ ActiveRecord::Schema.define(version: 20150810185641) do
   create_table "user_conversations", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "conversation_id"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.boolean  "read",            default: false, null: false
+    t.boolean  "escalated",       default: false, null: false
   end
 
   add_index "user_conversations", ["conversation_id"], name: "index_user_conversations_on_conversation_id", using: :btree

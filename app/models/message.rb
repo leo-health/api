@@ -2,6 +2,7 @@ class Message < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :conversation
   has_many :read_receipts
+  has_many :readers, class_name: 'User', through: :read_receipts
   belongs_to :escalated_to, class_name: 'User'
   belongs_to :escalated_by, class_name: 'User'
   belongs_to :sender, class_name: "User"
