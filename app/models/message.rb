@@ -7,7 +7,7 @@ class Message < ActiveRecord::Base
   belongs_to :escalated_by, class_name: 'User'
   belongs_to :sender, class_name: "User"
 
-  after_commit :update_conversation_last_message_timestamp, on: :create
+  after_commit :update_conversation_last_message_timestamp, :update_read_status_on_conversations, on: :create
 
   validates :conversation, :sender, :message_type, presence: true
 

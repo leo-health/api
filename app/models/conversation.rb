@@ -32,11 +32,10 @@ class Conversation < ActiveRecord::Base
 
   def load_initial_message
     if sender = User.find_by_email("customer_service_user@leohealth.com")
-      message = messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
-                                 sender: sender,
-                                 message_type: "text"
-                               )
+       messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
+                        sender: sender,
+                        message_type: "text"
+                       )
     end
-    update_attributes(last_message_created_at: message.created_at) if message
   end
 end
