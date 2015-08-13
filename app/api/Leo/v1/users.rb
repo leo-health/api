@@ -19,7 +19,6 @@ module Leo
         get do
           authenticated
           users = User.where(role_id: Role.find_by_name(params[:name].id))
-          authorize! :read, User
           present :users, paginate(users), with: Leo::Entities::UserEntity
         end
 
@@ -36,13 +35,8 @@ module Leo
         end
 
         post do
-          if params[:family_id] && family = Family.find(params[:family_id])
-            user_params = declared(params).merge({family_id: family.id})
-          else
-            user_params = declared(params)
-          end
-
-          if user = User.create(user_params)
+          user = User.new(declared(params))
+          if user.save
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
@@ -60,7 +54,6 @@ module Leo
 
           desc "#show get an individual user"
           get do
-            authorize! :read, @user
             present :user, @user, with: Leo::Entities::UserEntity
           end
 
@@ -70,7 +63,6 @@ module Leo
           end
 
           put do
-            authorize! :update, @user
             user_params = declared(params)
             if @user.update_attributes(user_params)
               present :user, @user, with: Leo::Entities::UserEntity

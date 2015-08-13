@@ -13,7 +13,7 @@ FactoryGirl.define do
     password_confirmation    'password'
     family_id    11
     association :family, factory: :family
-    association :role, factory: :role
+    association :role, factory: [:role, :guardian]
 
     trait :father do
       dob 				{ 48.years.ago }

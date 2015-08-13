@@ -5,8 +5,6 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/users" do
     let!(:role){create(:role, :guardian)}
-    # let!(:family){create(:family)}
-    # let!(:user_params){FactoryGirl.attributes_for(:user).merge(role_id: role.id)}
     let!(:user_params){{ first_name: "first_name",
                          last_name: "last_name",
                          email: "test@leohealth.com",
@@ -21,7 +19,6 @@ describe Leo::V1::Users do
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
-      byebug
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
     end
@@ -60,14 +57,11 @@ describe Leo::V1::Users do
   end
 
   describe "DELETE /api/v1/users/id" do
-    let(:user){create(:user)}
+    let!(:super_user){create(:role, :super_user)}
+    let!(:clinical){create(:role, :clinical)}
+    let(:user){create(:user, role: super_user)}
     let!(:session){user.sessions.create}
     let!(:deleted_user){create(:user)}
-    let!(:super_user){create(:role, :super_user)}
-
-    before do
-      user.add_role :super_user
-    end
 
     def do_request
       delete "/api/v1/users/#{deleted_user.id}", {authentication_token: session.authentication_token}
@@ -81,7 +75,7 @@ describe Leo::V1::Users do
     end
 
     it "should not delete selected user and raise error when user do not have the access right" do
-      user.roles.destroy_all
+      user.add_role :clinical
       do_request
       expect(response.status).to eq(403)
       expect(User.count).to eq(2)
