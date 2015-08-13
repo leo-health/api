@@ -11,11 +11,14 @@ class Conversation < ActiveRecord::Base
 
   validates :family, :status, presence: true
   around_update :track_conversation_change
-  after_commit :load_staff, on: :create
+  after_commit :load_staff, :load_initial_message, on: :create
 
-  def load_staff
-    #define whom are the staff members to be add into a conversation
+
+  def set_conversation_state
+    update_attributes(status: "open") unless status
   end
+
+  private
 
   def track_conversation_change
     changed = status_changed?
@@ -23,7 +26,17 @@ class Conversation < ActiveRecord::Base
     conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
   end
 
-  def set_conversation_state
-    update_attributes(status: "open") unless status
+  def load_staff
+    #neeed definitions for who will be loaded here
+  end
+
+  def load_initial_message
+    if sender = User.find_by_email("customer_service_user@leohealth.com")
+      message = messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
+                                 sender: sender,
+                                 message_type: "text"
+                               )
+    end
+    update_attributes(last_message_created_at: message.created_at) if message
   end
 end
