@@ -25,7 +25,6 @@ class User < ActiveRecord::Base
   def create_or_update_stripe_customer_id(token)
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"
 
-    # Create a Stripe Customer
     if customer = Stripe::Customer.create(:source => token, :description => self.id)
       update_attributes(stripe_customer_id: customer.id)
     end

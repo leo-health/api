@@ -27,6 +27,7 @@ module Leo
       require_relative 'patients'
       require_relative 'messages'
       require_relative 'passwords'
+      require_relative 'read_receipts'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -56,6 +57,7 @@ module Leo
       mount Leo::V1::Roles
       mount Leo::V1::Passwords
       mount Leo::V1::Patients
+      mount Leo::V1::ReadReceipts
       mount Leo::V1::Messages
 
       add_swagger_documentation(
