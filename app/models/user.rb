@@ -32,13 +32,13 @@ class User < ActiveRecord::Base
   end
 
   def unread_conversations
-    return if user.has_role? :guardian
-    user_conversations.where(read: false).conversation
+    return if has_role? :guardian
+    Conversation.where(id: user_conversations.where(read: false).pluck(:conversation_id))
   end
 
   def escalated_conversations
-    return if user.has_role? :guardian
-    user_conversations.where(escalated: true).conversation
+    return if has_role? :guardian
+    Conversation.where(id: user_conversations.where(esclated: true).pluck(:conversation_id))
   end
 
   def has_role? (name)

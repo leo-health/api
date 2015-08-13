@@ -10,7 +10,7 @@ class ReadReceipt < ActiveRecord::Base
   private
 
   def update_conversation_read_status
-    user_conversation =UserConversation.where(staff_id: reader.id, conversation_id: message.conversation_id)
-    user_conversation.try(:update_attributes, {read: true})
+    UserConversation.find_by_conversation_id_and_user_id(message.conversation_id, reader.id)
+        .try(:update_attributes, {read: true})
   end
 end
