@@ -22,6 +22,10 @@ class Message < ActiveRecord::Base
 
   private
 
+  def update_read_status_on_conversations
+    conversation.user_conversations.update_all(read: false)
+  end
+
   def update_conversation_last_message_timestamp
     conversation.update_attributes(last_message_created_at: created_at)
   end
