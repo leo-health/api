@@ -11,7 +11,6 @@ FactoryGirl.define do
     email
     password    'password'
     password_confirmation    'password'
-    family_id    11
     association :family, factory: :family
     association :role, factory: [:role, :guardian]
 
@@ -25,6 +24,31 @@ FactoryGirl.define do
       dob 				{ 45.years.ago }
       sex					'F'
       association :role, factory: [:role, :guardian]
+    end
+
+    trait :super_user do
+      family      nil
+      association :role, factory: [:role, :super_user]
+    end
+
+    trait :financial do
+      family      nil
+      association :role, factory: [:role, :financial]
+    end
+
+    trait :clinical_support do
+      family      nil
+      association :role, factory: [:role, :clinical_support]
+    end
+
+    trait :customer_service do
+      family      nil
+      association :role, factory: [:role, :customer_service]
+    end
+
+    trait :clinical do
+      family      nil
+      association :role, factory: [:role, :clinical]
     end
   end
 end

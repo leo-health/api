@@ -26,11 +26,12 @@ class User < ActiveRecord::Base
   end
 
   def add_role(name)
-    update_attributes(role: role) if role = Role.find_by_name(name)
+    new_role = Role.find_by_name(name)
+    update_attributes(role: new_role) if new_role
   end
 
   def has_role? (name)
-    role.name == name
+    role.name == name.to_s
   end
 
   def is_patient?
@@ -43,6 +44,8 @@ class User < ActiveRecord::Base
   end
 
   def set_user_family
-    update_attributes(family: Family.create) unless family
+    if has_role? :guardian
+      update_attributes(family: Family.create) unless family
+    end
   end
 end
