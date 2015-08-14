@@ -30,6 +30,16 @@ class User < ActiveRecord::Base
     end
   end
 
+  def open_conversations
+    return if has_role? :guardian
+    conversations.where(status: "open")
+  end
+
+  def closed_conversations
+    return if has_role? :guardian
+    conversations.where(status: "closed")
+  end
+
   def unread_conversations
     return if has_role? :guardian
     Conversation.where(id: user_conversations.where(read: false).pluck(:conversation_id))

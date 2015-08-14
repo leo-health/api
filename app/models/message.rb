@@ -18,8 +18,12 @@ class Message < ActiveRecord::Base
   end
 
   def escalate(escalated_to, escalated_by)
-    Conversation.find(conversation_id).staff << escalated_to
-    update_attributes(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
+    transaction do
+      conversation = Conversation.find(conversation_id)
+      conversation.staff << escalated_to
+      update_attributes!(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
+      conversation.update_attributes!(status: :escalated)
+    end
   end
 
   private
