@@ -28,14 +28,13 @@ module Leo
           requires :last_name,  type: String, allow_blank: false
           requires :email,      type: String, allow_blank: false
           requires :password,   type: String, allow_blank: false
-          requires :role_id,    type: Integer, allow_blank: false, role_exists: true
           requires :dob,        type: DateTime, allow_blank: false
           requires :sex,        type: String, values: ['M', 'F']
           optional :family_id,  type: Integer, allow_blank: false
         end
 
         post do
-          user = User.new(declared(params))
+          user = User.new(declared(params).merge({role_id: 4}))
           if user.save
             session = user.sessions.create
             present :authentication_token, session.authentication_token
