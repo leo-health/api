@@ -21,7 +21,11 @@ describe Leo::V1::Patients do
   end
 
   describe 'POST /api/v1/users/:user_id/patients' do
-    let(:patient_params){FactoryGirl.attributes_for(:patient)}
+    let(:patient_params){{first_name: "patient_first_name",
+                          last_name: "patient_last_name",
+                          birth_date: 5.years.ago,
+                          sex: "M",
+                        }}
 
     def do_request
       patient_params.merge!({authentication_token: session.authentication_token})
@@ -32,7 +36,7 @@ describe Leo::V1::Patients do
       do_request
       expect(response.status).to eq(201)
       expect_json('data.patient.first_name', patient_params[:first_name])
-      expect_json('data.patient.last_name', patient_params[:last_name])
+      expect_json('data.patient.family_id', guardian.family_id)
     end
   end
 

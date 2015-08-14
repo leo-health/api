@@ -7,11 +7,7 @@ describe "User" do
     let!(:user){create(:user)}
 
     context "when user has the role super user" do
-      let!(:role){create(:role, :super_user)}
-
-      before do
-        user.add_role :super_user
-      end
+      let!(:user){create(:user, :super_user)}
 
       it{ should be_able_to(:manage, User.new) }
       it{ should be_able_to(:manage, Patient.new) }

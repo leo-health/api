@@ -6,65 +6,43 @@ FactoryGirl.define do
   factory :user do
     first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
     last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
-    dob 				{ 29.years.ago.to_s }
+    dob 				{ 29.years.ago }
     sex					{ ['M', 'F'].sample }
     email
     password    'password'
     password_confirmation    'password'
     association :family, factory: :family
+    association :role, factory: [:role, :guardian]
 
-    trait :father do
-      title       "Mr"
-      dob 				{ 48.years.ago.to_s }
+    trait :guardian do
+      dob 				{ 48.years.ago }
       sex					'M'
-      after(:create) { |u| u.add_role :guardian }
-    end
-
-    trait :mother do
-      title       "Ms"
-      dob 				{ 45.years.ago.to_s }
-      sex					'F'
-      after(:create) { |u| u.add_role :guardian }
+      association :role, factory: [:role, :guardian]
     end
 
     trait :super_user do
-      title       "Mr"
-      dob 				{ 48.years.ago.to_s }
-      sex					'M'
       family      nil
-      after(:create) { |u| u.add_role :super_user }
+      association :role, factory: [:role, :super_user]
     end
 
     trait :financial do
-      title       "Mr"
-      dob 				{ 48.years.ago.to_s }
-      sex					'M'
       family      nil
-      after(:create) { |u| u.add_role :financial }
+      association :role, factory: [:role, :financial]
     end
 
     trait :clinical_support do
-      title       "Ms"
-      dob 				{ 48.years.ago.to_s }
-      sex					'F'
       family      nil
-      after(:create) { |u| u.add_role :clinical_support }
+      association :role, factory: [:role, :clinical_support]
     end
 
     trait :customer_service do
-      title       "Ms"
-      dob 				{ 48.years.ago.to_s }
-      sex					'F'
       family      nil
-      after(:create) { |u| u.add_role :customer_service }
+      association :role, factory: [:role, :customer_service]
     end
 
     trait :clinical do
-      title       "Dr"
-      dob 				{ 48.years.ago.to_s }
-      sex					'F'
       family      nil
-      after(:create) { |u| u.add_role :clinical }
+      association :role, factory: [:role, :clinical]
     end
   end
 end

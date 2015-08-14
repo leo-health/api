@@ -14,7 +14,6 @@ module Leo
       require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
       require_relative '../../../../app/api/Leo/entities/patient_entity'
       require_relative '../../../../app/api/Leo/entities/session_entity'
-      require_relative '../../../../lib/api/validations/role_exists'
       require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
