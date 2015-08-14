@@ -15,7 +15,7 @@ class Conversation < ActiveRecord::Base
 
 
   def set_conversation_state
-    update_attributes(status: "open") unless status
+    update_attributes(status: :open) unless status
   end
 
   private
@@ -34,7 +34,7 @@ class Conversation < ActiveRecord::Base
     if sender = User.find_by_email("customer_service_user@leohealth.com")
        messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
                         sender: sender,
-                        message_type: "text"
+                        message_type: :text
                        )
     end
   end

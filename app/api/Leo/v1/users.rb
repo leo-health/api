@@ -18,12 +18,12 @@ module Leo
         desc "#post create a user"
         params do
           requires :first_name, type: String, allow_blank: false
-          requires :last_name,  type: String, allow_blank: false
-          requires :email,      type: String, allow_blank: false
-          requires :password,   type: String, allow_blank: false
-          requires :dob,        type: DateTime, allow_blank: false
-          requires :sex,        type: String, values: ['M', 'F']
-          optional :family_id,  type: Integer, allow_blank: false
+          requires :last_name, type: String, allow_blank: false
+          requires :email, type: String, allow_blank: false
+          requires :password, type: String, allow_blank: false
+          requires :dob, type: DateTime, allow_blank: false
+          requires :sex, type: String, values: ['M', 'F']
+          optional :family_id, type: Integer, allow_blank: false
         end
 
         post do

@@ -14,7 +14,6 @@ describe Leo::V1::Conversations do
     context "user is a guardian" do
       let!(:guardian_role){create(:role, :guardian)}
 
-
       before do
         user.add_role :guardian
       end
@@ -59,4 +58,30 @@ describe Leo::V1::Conversations do
       end
     end
   end
+
+  describe "Put /api/v1/conversations/:id" do
+    let(:clinial_user){create(:user, :clinical)}
+    let!(:session){ clinial_user.sessions.create }
+    let(:conversation){ Conversation.find_by_family_id(user.family_id) }
+
+    def do_request
+      put "/api/v1/users/#{user.id}/conversations/#{conversation.id}", {authentication_token: session.authentication_token}
+    end
+
+    it "should update the specific conversation" do
+
+    end
+  end
+
+  describe "Get /api/v1/conversations" do
+
+  end
 end
+
+
+# put ":id" do
+#   conversation = Conversation.find(params[:id])
+#   if conversation.try(:update_attributes, {status: "closed"})
+#     present :conversation, conversation, with: Leo::Entities::ConversationEntity
+#   end
+# end
