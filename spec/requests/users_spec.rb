@@ -9,7 +9,6 @@ describe Leo::V1::Users do
                          last_name: "last_name",
                          email: "test@leohealth.com",
                          password: "password",
-                         role_id: role.id,
                          dob: 48.years.ago,
                          sex: "M"
                         }}
