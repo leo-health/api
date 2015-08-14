@@ -2,7 +2,6 @@ module Leo
   module V1
     module ExceptionsHandler
       extend ActiveSupport::Concern
-
       included do
         rescue_from ActiveRecord::RecordNotFound do |e|
           error_response(message: {error_code: 422, error_message: e.message}, status: 404)

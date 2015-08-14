@@ -28,11 +28,8 @@ describe Leo::V1::Conversations do
       end
 
       describe "when retrive other user conversation" do
-        let!(:other_user){ create(:user) }
-
-        before do
-          other_user.add_role :guardian
-        end
+        let!(:guardian_role){create(:role, :guardian)}
+        let!(:other_user){ create(:user, :guardian) }
 
         def do_request
           get "/api/v1/users/#{other_user.id}/conversations", {authentication_token: session.authentication_token}
