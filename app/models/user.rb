@@ -30,14 +30,9 @@ class User < ActiveRecord::Base
     end
   end
 
-  def open_conversations
+  def find_conversation_by_status(status)
     return if has_role? :guardian
-    conversations.where(status: "open")
-  end
-
-  def closed_conversations
-    return if has_role? :guardian
-    conversations.where(status: "closed")
+    conversations.where(status: status)
   end
 
   def unread_conversations
