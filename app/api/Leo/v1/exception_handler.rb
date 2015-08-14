@@ -17,8 +17,7 @@ module Leo
         end
 
         rescue_from :all do |e|
-          Rails.logger.error "\n#{e.class.name} (#{e.message}):"
-          e.backtrace.each { |line| Rails.logger.error line }
+          rescue_from :all, :backtrace => true
           error_response(message: 'Internal server error', status: 500)
         end
       end

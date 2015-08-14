@@ -6,22 +6,15 @@ describe "User" do
     subject(:ability){ Ability.new(user) }
 
     context "when user has the role super user" do
-      let!(:user){create(:user)}
-      let!(:role){create(:role, :super_user)}
-
-      before do
-        user.add_role :super_user
-      end
+      let!(:user){create(:user, :super_user)}
 
       it{ should be_able_to(:manage, User.new) }
     end
 
     context "when user has the role guardian" do
-     let!(:patient_role){create(:role, :patient)}
-     let!(:guardian_role){create(:role, :guardian)}
-     let(:patient){create(:patient)}
+     let!(:patient){create(:patient)}
      let!(:family){patient.family}
-     let!(:user){create(:user, :father, family: family)}
+     let!(:user){create(:user, :guardian, family: family)}
 
      it{should be_able_to(:read, patient)}
      it{should be_able_to(:destroy, patient)}

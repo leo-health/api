@@ -1,13 +1,15 @@
 FactoryGirl.define do
   factory :role do
-    name { ['super_user', 'super_user', 'clinical_support', 'customer_service', 'guardian', 'clinical', 'patient'].sample }
+    id    4
+    name :guardian
+    initialize_with { Role.find_or_create_by(id: id)}
 
     trait :super_user do
   		id    0
   		name  :super_user
-  	end
+    end
 
-    trait :super_user do
+    trait :financial do
       id    1
       name  :financial
     end
@@ -22,7 +24,7 @@ FactoryGirl.define do
       name  :customer_service
     end
 
-  	trait :guardian do
+    trait :guardian do
       id    4
       name  :guardian
     end
