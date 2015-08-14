@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  acts_as_paranoid
+  
   belongs_to :family
   has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
   has_many :escalations, foreign_key: 'escalated_to_id'
