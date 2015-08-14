@@ -20,6 +20,7 @@ class Message < ActiveRecord::Base
   def escalate(escalated_to, escalated_by)
     transaction do
       conversation = Conversation.find(conversation_id)
+      raise("can't escalate closed message and conversation") if conversation.status == "closed"
       conversation.staff << escalated_to
       update_attributes!(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
       conversation.update_attributes!(status: :escalated)
@@ -37,6 +38,6 @@ class Message < ActiveRecord::Base
   end
 
   def update_conversation_last_message_timestamp
-    conversation.update_attributes(last_message_created_at: created_at)
+    conversation.update_attributes(status: 'open', last_message_created_at: created_at)
   end
 end
