@@ -21,5 +21,4 @@ class Message < ActiveRecord::Base
     conversation = self.conversation
     conversation.update_attribute(:last_message_created, self.created_at)
   end
-
 end

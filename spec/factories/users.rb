@@ -6,24 +6,43 @@ FactoryGirl.define do
   factory :user do
     first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
     last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
-    dob 				{ 29.years.ago.to_s }
+    dob 				{ 29.years.ago }
     sex					{ ['M', 'F'].sample }
     email
     password    'password'
     password_confirmation    'password'
-    family_id    11
     association :family, factory: :family
+    association :role, factory: [:role, :guardian]
 
-    trait :father do
-      dob 				{ 48.years.ago.to_s }
+    trait :guardian do
+      dob 				{ 48.years.ago }
       sex					'M'
-      after(:create) { |u| u.add_role :guardian }
+      association :role, factory: [:role, :guardian]
     end
 
-    trait :mother do
-      dob 				{ 45.years.ago.to_s }
-      sex					'F'
-      after(:create) { |u| u.add_role :guardian }
+    trait :super_user do
+      family      nil
+      association :role, factory: [:role, :super_user]
+    end
+
+    trait :financial do
+      family      nil
+      association :role, factory: [:role, :financial]
+    end
+
+    trait :clinical_support do
+      family      nil
+      association :role, factory: [:role, :clinical_support]
+    end
+
+    trait :customer_service do
+      family      nil
+      association :role, factory: [:role, :customer_service]
+    end
+
+    trait :clinical do
+      family      nil
+      association :role, factory: [:role, :clinical]
     end
   end
 end
