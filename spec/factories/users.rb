@@ -14,15 +14,9 @@ FactoryGirl.define do
     association :family, factory: :family
     association :role, factory: [:role, :guardian]
 
-    trait :father do
+    trait :guardian do
       dob 				{ 48.years.ago }
       sex					'M'
-      association :role, factory: [:role, :guardian]
-    end
-
-    trait :mother do
-      dob 				{ 45.years.ago }
-      sex					'F'
       association :role, factory: [:role, :guardian]
     end
 

@@ -14,7 +14,7 @@ describe "User" do
     context "when user has the role guardian" do
      let!(:patient){create(:patient)}
      let!(:family){patient.family}
-     let!(:user){create(:user, :father, family: family)}
+     let!(:user){create(:user, :guardian, family: family)}
 
      it{should be_able_to(:read, patient)}
      it{should be_able_to(:destroy, patient)}
