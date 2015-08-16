@@ -1,5 +1,6 @@
 class Appointment < ActiveRecord::Base
   belongs_to :leo_patient, class_name: "User"
+  belongs_to :appointment_type
 
   #helpers for booked status
   def pre_checked_in?
