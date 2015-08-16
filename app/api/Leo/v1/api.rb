@@ -5,11 +5,11 @@ module Leo
       format :json
 
       include Grape::Kaminari
-
-      require_relative '../../../../app/api/Leo/entities/appointment_type_entity'
-      require_relative '../../../../app/api/Leo/entities/appointment_entity'
+      
       require_relative '../../../../app/api/Leo/entities/role_entity'
       require_relative '../../../../app/api/Leo/entities/user_entity'
+      require_relative '../../../../app/api/Leo/entities/appointment_type_entity'
+      require_relative '../../../../app/api/Leo/entities/appointment_entity'
       require_relative '../../../../app/api/Leo/entities/message_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
