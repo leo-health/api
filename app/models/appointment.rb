@@ -7,7 +7,13 @@ class Appointment < ActiveRecord::Base
   validates :duration, :athena_id, :start_datetime, :status_id, :status,
             :appointment_type, :booked_by, :provider, :patient, presence: true
 
+  validate :same_family, on: :create
+
   validates_uniqueness_of :start_datetime, scope: :provider_id
+
+  def same_family
+    errors.add(:patient_id, "patient and guradin should have same family") unless patient.family_id == booked_by.family_id
+  end
 
   def pre_checked_in?
     future? || open? || cancelled?
