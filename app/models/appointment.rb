@@ -1,8 +1,12 @@
 class Appointment < ActiveRecord::Base
-  belongs_to :leo_patient, class_name: "User"
+  belongs_to :patient
+  belongs_to :booked_by
+  belongs_to :provider
   belongs_to :appointment_type
 
-  #helpers for booked status
+  validates :duration, :athena_id, :start_datetime, :status_id, :status,
+            :appointment_type, :booked_by, :provider, :patient, presence: true
+
   def pre_checked_in?
     return future? || open? || cancelled?
   end
@@ -41,27 +45,9 @@ class Appointment < ActiveRecord::Base
 
 	def self.MAX_DURATION
 		40
-	end
+  end
+
 	def self.MIN_DURATION
 		10
-	end
-
-
-	def self.for_family(family)
-		Appointment.where(family_id: family.id)
-	end
-
-	def self.for_user(user)
-		if user.has_role? :guardian
-			Appointment.for_family(user.family)
-		elsif user.has_role? :patient
-			#TODO: Implement
-		elsif user.has_role? :clinical
-			#TODO: Implement
-		elsif user.has_role? :clinical_support
-			#TODO: Implement
-		elsif user.has_role? :super_user
-			Appointment.all
-		end
 	end
 end
