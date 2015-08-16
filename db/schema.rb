@@ -71,14 +71,24 @@ ActiveRecord::Schema.define(version: 20150814175527) do
   add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
+  create_table "conversation_changes", force: :cascade do |t|
+    t.integer  "conversation_id",     null: false
+    t.string   "conversation_change"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
+
   create_table "conversations", force: :cascade do |t|
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.integer  "family_id"
-    t.datetime "last_message_created"
-    t.boolean  "archived"
-    t.datetime "archived_at"
-    t.integer  "archived_by_id"
+    t.datetime "last_message_created_at"
+    t.datetime "deleted_at"
+    t.string   "status",                  null: false
+    t.datetime "last_closed_at"
+    t.integer  "last_closed_by"
   end
 
   create_table "conversations_participants", id: false, force: :cascade do |t|
@@ -179,14 +189,13 @@ ActiveRecord::Schema.define(version: 20150814175527) do
     t.integer  "sender_id"
     t.integer  "conversation_id"
     t.text     "body"
-    t.string   "message_type"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
     t.integer  "escalated_to_id"
-    t.datetime "resolved_requested_at"
-    t.datetime "resolved_approved_at"
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
+    t.string   "message_type"
+    t.datetime "deleted_at"
   end
 
   create_table "patients", force: :cascade do |t|
@@ -265,10 +274,12 @@ ActiveRecord::Schema.define(version: 20150814175527) do
 
   create_table "read_receipts", force: :cascade do |t|
     t.integer  "message_id"
-    t.string   "participant_id"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.string   "reader_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
+
+  add_index "read_receipts", ["message_id", "reader_id"], name: "index_read_receipts_on_message_id_and_reader_id", unique: true, using: :btree
 
   create_table "roles", force: :cascade do |t|
     t.string   "name"
@@ -302,6 +313,18 @@ ActiveRecord::Schema.define(version: 20150814175527) do
 
   add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id", using: :btree
   add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type", using: :btree
+
+  create_table "user_conversations", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "conversation_id"
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.boolean  "read",            default: false, null: false
+    t.boolean  "escalated",       default: false, null: false
+  end
+
+  add_index "user_conversations", ["conversation_id"], name: "index_user_conversations_on_conversation_id", using: :btree
+  add_index "user_conversations", ["user_id"], name: "index_user_conversations_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "title"

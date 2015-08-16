@@ -2,10 +2,15 @@ class User < ActiveRecord::Base
   acts_as_paranoid
   
   belongs_to :family
-  has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
-  has_many :escalations, foreign_key: 'escalated_to_id'
-  has_many :invitations, :class_name => self.to_s, :as => :invited_by
+  has_many :user_conversations
+  has_many :conversations, through: :user_conversations
+  has_many :read_receipts, foreign_key: "reader_id"
+  has_many :read_messages, class_name: 'Message', through: :read_receipts
+  has_many :invitations, as: :invited_by
   has_many :sessions
+  has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
+  has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
+  has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
   belongs_to :role
 
   after_initialize :set_default_practice
@@ -27,6 +32,21 @@ class User < ActiveRecord::Base
     end
   end
 
+  def find_conversation_by_status(status)
+    return if has_role? :guardian
+    conversations.where(status: status)
+  end
+
+  def unread_conversations
+    return if has_role? :guardian
+    Conversation.where(id: user_conversations.where(read: false).pluck(:conversation_id))
+  end
+
+  def escalated_conversations
+    return if has_role? :guardian
+    Conversation.where(id: user_conversations.where(esclated: true).pluck(:conversation_id))
+  end
+
   def add_role(name)
     new_role = Role.find_by_name(name)
     update_attributes(role: new_role) if new_role
@@ -36,11 +56,8 @@ class User < ActiveRecord::Base
     role.name == name.to_s
   end
 
-  def is_patient?
-    has_role? :patient
-  end
-
   private
+
   def set_default_practice
     self.practice_id ||= 1
   end
