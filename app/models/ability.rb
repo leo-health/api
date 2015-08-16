@@ -12,19 +12,20 @@ class Ability
       can :create, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
     elsif user.has_role? :financial
       can [:read, :update], Conversation
-      can :read, Message
+      can [:create, :read], Message
       can :update, Message, :escalated_at => nil
     elsif user.has_role? :clinical
       can [:read, :update], Conversation
-      can :read, Message
+      can [:create, :read], Message
       can :update, Message, :escalated_at => nil
     elsif user.has_role? :clinical_support
       can [:read, :update], Conversation
-      can :read, Message
+
+      can [:create, :read], Message
       can :update, Message, :escalated_at => nil
     elsif user.has_role? :customer_service
       can [:read, :update], Conversation
-      can :read, Message
+      can [:create, :read], Message
       can :update, Message, :escalated_at => nil
     end
   end
