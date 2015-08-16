@@ -1,34 +1,41 @@
 class Conversation < ActiveRecord::Base
+  acts_as_paranoid
   has_many :messages
-  has_and_belongs_to_many :participants, -> {uniq}, class_name: 'User', join_table: 'conversations_participants', association_foreign_key: 'participant_id'
+  has_many :user_conversations
+  has_many :staff, class_name: "User", :through => :user_conversations
+  has_many :conversation_changes
   belongs_to :family
   belongs_to :archived_by, class_name: 'User'
 
-  after_initialize :load_initial_participants
+  before_validation :set_conversation_state, on: :create
 
-  def load_initial_participants
-    # TODO: Add a default admin staff
-    # self.particpants << User.find_staff_for_user/family/child
+  validates :family, :status, presence: true
+  around_update :track_conversation_change
+  after_commit :load_staff, :load_initial_message, on: :create
 
-    # TODO: Add a default physician
-    # self.participants << User.find_physician_for_user/family/child
 
-    # self.save
+  def set_conversation_state
+    update_attributes(status: :open) unless status
   end
 
-  def self.for_user(user)
-    if user.has_role? :guardian
-      user.conversations
-    elsif user.has_role? :patient
-      #TODO: Implement
-    elsif user.has_role? :clinical
-      #TODO: Implement
-    elsif user.has_role? :clinical_support
-      #TODO: Implement
-    elsif user.has_role? :customer_service
-      #TODO: Implement
-    elsif user.has_role? :super_user
-      Conversation.all
+  private
+
+  def track_conversation_change
+    changed = status_changed?
+    yield
+    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
+  end
+
+  def load_staff
+    #neeed definitions for who will be loaded here
+  end
+
+  def load_initial_message
+    if sender = User.find_by_email("customer_service_user@leohealth.com")
+       messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
+                        sender: sender,
+                        message_type: :text
+                       )
     end
   end
 end
