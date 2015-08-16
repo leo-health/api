@@ -10,46 +10,38 @@ class Appointment < ActiveRecord::Base
   validates_uniqueness_of :start_datetime, scope: :provider_id
 
   def pre_checked_in?
-    return future? || open? || cancelled?
+    future? || open? || cancelled?
   end
 
   def post_checked_in?
-    return !pre_checked_in?
+    !pre_checked_in?
   end
 
   def booked?
-    return future? || checked_in? || checked_out? || charge_entered?
+    future? || checked_in? || checked_out? || charge_entered?
   end
 
   def cancelled?
-    return appointment_status == "x"
+    appointment_status == "x"
   end
 
   def future?
-    return appointment_status == "f"
+    appointment_status == "f"
   end
 
   def open?
-    return appointment_status == "o"
+    appointment_status == "o"
   end
 
   def checked_in?
-    return appointment_status == "2"
+    appointment_status == "2"
   end
 
   def checked_out?
-    return appointment_status == "3"
+    appointment_status == "3"
   end
 
   def charge_entered?
-    return appointment_status == "4"
+    appointment_status == "4"
   end
-
-	def self.MAX_DURATION
-		40
-  end
-
-	def self.MIN_DURATION
-		10
-	end
 end
