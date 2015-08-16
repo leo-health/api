@@ -13,6 +13,7 @@ describe "User" do
       it{ should be_able_to(:manage, Patient.new) }
       it{ should be_able_to(:manage, Conversation.new) }
       it{ should be_able_to(:manage, Message.new) }
+      it{should be_able_to(:manage, Appointment.new)}
     end
 
     context "when user has the role guardian" do
@@ -55,6 +56,10 @@ describe "User" do
         it{should_not be_able_to(:read, other_message)}
         it{should_not be_able_to(:create, other_message)}
       end
+
+      describe "ability for Appointments" do
+        # it{should be_able_to(:read, Appointment.new)}
+      end
     end
 
     context "when user has the role financial" do
@@ -77,6 +82,10 @@ describe "User" do
         it{should be_able_to(:update, Message.new)}
 
         it{should_not be_able_to(:update, message)}
+      end
+
+      describe "ability for Appointments" do
+        it{should be_able_to(:read, Appointment.new)}
       end
     end
 
@@ -101,6 +110,10 @@ describe "User" do
 
         it{should_not be_able_to(:update, message)}
       end
+
+      describe "ability for Appointments" do
+        it{should be_able_to(:read, Appointment.new)}
+      end
     end
 
     context "when user has the role clinical_support" do
@@ -123,6 +136,10 @@ describe "User" do
         it{should be_able_to(:update, Message.new)}
 
         it{should_not be_able_to(:update, message)}
+      end
+
+      describe "ability for Appointments" do
+        it{should be_able_to(:read, Appointment.new)}
       end
     end
 

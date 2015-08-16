@@ -7,6 +7,8 @@ class Appointment < ActiveRecord::Base
   validates :duration, :athena_id, :start_datetime, :status_id, :status,
             :appointment_type, :booked_by, :provider, :patient, presence: true
 
+  validates_uniqueness_of :start_datetime, scope: :provider_id
+
   def pre_checked_in?
     return future? || open? || cancelled?
   end

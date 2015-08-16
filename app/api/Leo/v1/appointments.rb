@@ -15,7 +15,6 @@ module Leo
           requires :status_id, type: Integer, allow_blank: false
           requires :status, type: String, allow_blank: false
           requires :appointment_type_id, type: Integer, allow_blank: false
-          # requires :booked_by_id, type: Integer, allow_blank: false
           requires :provider_id, type: Integer, allow_blank: false
           requires :patient_id, type: Integer, allow_blank: false
           optional :notes, type: String
