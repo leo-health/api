@@ -65,16 +65,30 @@ describe Leo::V1::Conversations do
     let(:conversation){ Conversation.find_by_family_id(user.family_id) }
 
     def do_request
-      put "/api/v1/users/#{user.id}/conversations/#{conversation.id}", {authentication_token: session.authentication_token}
+      put "/api/v1/conversations/#{conversation.id}", {authentication_token: session.authentication_token}
     end
 
     it "should update the specific conversation" do
-
+      expect(conversation.status).to eq("open")
+      do_request
+      expect(response.status).to eq(200)
+      expect_json("data.conversation.status", "closed")
     end
   end
 
   describe "Get /api/v1/conversations" do
+    let(:clinial_user){create(:user, :clinical)}
+    let!(:session){ clinial_user.sessions.create }
 
+    def do_request
+      get "/api/v1/conversations", {authentication_token: session.authentication_token}
+    end
+
+    it "should return all the conversations" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json_sizes("data.conversations", Conversation.all.count)
+    end
   end
 end
 

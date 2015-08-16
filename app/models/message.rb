@@ -20,8 +20,8 @@ class Message < ActiveRecord::Base
   def escalate(escalated_to, escalated_by)
     transaction do
       conversation = Conversation.find(conversation_id)
-      raise("can't escalate closed message and conversation") if conversation.status == "closed"
-      conversation.staff << escalated_to
+      raise("can't escalate closed message and conversation") if conversation.status == :closed
+      conversation.staff << escalated_to unless conversation.staff.where(id: escalated_to.id).exists?
       update_attributes!(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
       conversation.update_attributes!(status: :escalated)
     end
@@ -30,9 +30,11 @@ class Message < ActiveRecord::Base
   private
 
   def update_conversation_after_message_sent
-    conversation.staff << sender
+    conversation.staff << sender unless conversation.staff.where(id: sender.id).exists?
     conversation.update_attributes(status: :open, last_message_created_at: created_at) unless conversation.status == :escalated
   end
+
+
 
   def update_read_status_on_conversation
     conversation.user_conversations.update_all(read: false)
