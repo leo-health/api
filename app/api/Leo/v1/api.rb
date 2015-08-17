@@ -30,6 +30,7 @@ module Leo
       require_relative 'passwords'
       require_relative 'read_receipts'
       require_relative 'practices'
+      require_relative 'appoint_types'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -62,6 +63,7 @@ module Leo
       mount Leo::V1::Practices
       mount Leo::V1::ReadReceipts
       mount Leo::V1::Messages
+      mount Leo::V1::AppointmentTypes
 
       add_swagger_documentation(
           base_path: "/api",
