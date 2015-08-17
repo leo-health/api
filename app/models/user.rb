@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
   
   belongs_to :family
   belongs_to :role
+  has_one :provider_profies, foreign_key: "provider_id"
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
