@@ -2,6 +2,7 @@ class User < ActiveRecord::Base
   acts_as_paranoid
   
   belongs_to :family
+  belongs_to :practice
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
@@ -12,8 +13,6 @@ class User < ActiveRecord::Base
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
   has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
   belongs_to :role
-
-  after_initialize :set_default_practice
 
   devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
@@ -57,10 +56,6 @@ class User < ActiveRecord::Base
   end
 
   private
-
-  def set_default_practice
-    self.practice_id ||= 1
-  end
 
   def set_user_family
     if has_role? :guardian

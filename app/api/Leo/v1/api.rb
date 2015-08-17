@@ -9,6 +9,7 @@ module Leo
       require_relative '../../../../app/api/Leo/entities/appointment_entity'
       require_relative '../../../../app/api/Leo/entities/role_entity'
       require_relative '../../../../app/api/Leo/entities/user_entity'
+      require_relative '../../../../app/api/Leo/entities/practice_entity'
       require_relative '../../../../app/api/Leo/entities/message_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_with_messages_entity'
@@ -27,6 +28,7 @@ module Leo
       require_relative 'messages'
       require_relative 'passwords'
       require_relative 'read_receipts'
+      require_relative 'practices'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -56,6 +58,7 @@ module Leo
       mount Leo::V1::Roles
       mount Leo::V1::Passwords
       mount Leo::V1::Patients
+      mount Leo::V1::Practices
       mount Leo::V1::ReadReceipts
       mount Leo::V1::Messages
 
