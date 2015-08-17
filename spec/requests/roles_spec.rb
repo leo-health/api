@@ -3,11 +3,13 @@ require 'rails_helper'
 
 describe Leo::V1::Roles do
   describe "GET /api/v1/roles" do
+    let(:user){ create(:user, :guardian) }
+    let!(:session){ user.sessions.create }
     let!(:guardian){create(:role, :guardian)}
     let!(:patient){create(:role, :patient)}
 
     def do_request
-      get '/api/v1/roles', format: :json
+      get '/api/v1/roles', { authentication_token: session.authentication_token }
     end
 
     it "returns all roles" do

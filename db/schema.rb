@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150814175527) do
+ActiveRecord::Schema.define(version: 20150817160925) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -189,12 +189,12 @@ ActiveRecord::Schema.define(version: 20150814175527) do
     t.integer  "sender_id"
     t.integer  "conversation_id"
     t.text     "body"
+    t.string   "message_type"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.integer  "escalated_to_id"
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
-    t.string   "message_type"
     t.datetime "deleted_at"
   end
 
@@ -225,6 +225,19 @@ ActiveRecord::Schema.define(version: 20150814175527) do
   end
 
   add_index "photos", ["patient_id"], name: "index_photos_on_patient_id", using: :btree
+
+  create_table "practices", force: :cascade do |t|
+    t.string   "address_line_1"
+    t.string   "address_line_2"
+    t.string   "city"
+    t.string   "state"
+    t.string   "zip"
+    t.string   "fax"
+    t.string   "phone"
+    t.string   "email"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
 
   create_table "provider_additional_availabilities", force: :cascade do |t|
     t.integer  "athena_provider_id", default: 0, null: false
