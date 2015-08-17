@@ -4,6 +4,10 @@ module Leo
       include Grape::Kaminari
 
       resource :roles do
+        before do
+          authenticated
+        end
+
         desc "Return all roles"
         get "/" do
           present :roles, Role.all, with: Leo::Entities::RoleEntity
