@@ -32,7 +32,7 @@ describe Leo::V1::Appointments do
   end
 
   describe "Get /api/v1/appointments/:id" do
-    let(:appointment){create(:appointment, booked_by: user)}
+    let!(:appointment){create(:appointment, booked_by: user)}
 
     def do_request
       get "/api/v1/appointments/#{appointment.id}", {authentication_token: session.authentication_token}
@@ -46,14 +46,30 @@ describe Leo::V1::Appointments do
   end
 
   describe "Delete /api/v1/appointments/:id" do
-    def do_request
+    let!(:appointment){create(:appointment, booked_by: user)}
 
+    def do_request
+      delete "/api/v1/appointments/#{appointment.id}", {authentication_token: session.authentication_token}
+    end
+
+    it "should delete the requested appointment" do
+      expect{ do_request }.to change{ Appointment.count }.from(1).to(0)
+      expect(response.status).to eq(200)
     end
   end
 
   describe "Get /api/v1/users/:user_id/appointments" do
-    def do_request
+    let!(:appointment){create(:appointment, booked_by: user)}
+    let!(:other_appointment){create(:appointment, booked_by: user)}
 
+    def do_request
+      get "/api/v1/users/#{user.id}/appointments", {authentication_token: session.authentication_token}
+    end
+
+    it "should return all the appointments of the user" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json_sizes("data.appointments", 2)
     end
   end
 end
