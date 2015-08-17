@@ -30,6 +30,7 @@ module Leo
       require_relative 'passwords'
       require_relative 'read_receipts'
       require_relative 'practices'
+      require_relative 'families'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
