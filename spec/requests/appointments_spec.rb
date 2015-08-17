@@ -2,9 +2,10 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Appointments do
+  let(:user){ create(:user, :guardian) }
+  let!(:session){ user.sessions.create }
+
   describe "Post /api/v1/appointments" do
-    let(:user){ create(:user, :guardian) }
-    let!(:session){ user.sessions.create }
     let!(:appointment_type){ create(:appointment_type)}
     let!(:provider){create(:user, :clinical)}
     let!(:patient){create(:patient, family: user.family)}
@@ -31,10 +32,16 @@ describe Leo::V1::Appointments do
   end
 
   describe "Get /api/v1/appointments/:id" do
-
+    let(:appointment){create(:appointment, booked_by: user)}
 
     def do_request
+      get "/api/v1/appointments/#{appointment.id}", {authentication_token: session.authentication_token}
+    end
 
+    it "should show an appointment" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json("data.appointment.id", appointment.id)
     end
   end
 

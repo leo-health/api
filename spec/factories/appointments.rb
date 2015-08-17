@@ -7,6 +7,9 @@ FactoryGirl.define do
     association :appointment_type
     association :provider, factory: [:user, :clinical]
     association :booked_by, factory: [:user, :guardian]
-    association :patient
+    after (:build) do |appointment|
+      patient = FactoryGirl.create(:patient, family: appointment.booked_by.family)
+      appointment.patient = patient
+    end
   end
 end

@@ -12,7 +12,8 @@ class Appointment < ActiveRecord::Base
   validates_uniqueness_of :start_datetime, scope: :provider_id
 
   def same_family
-    errors.add(:patient_id, "patient and guradin should have same family") unless patient.family_id == booked_by.family_id
+    return unless (patient && booked_by)
+    errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id
   end
 
   def pre_checked_in?
