@@ -9,6 +9,7 @@ module Leo
       require_relative '../../../../app/api/Leo/entities/appointment_entity'
       require_relative '../../../../app/api/Leo/entities/role_entity'
       require_relative '../../../../app/api/Leo/entities/user_entity'
+      require_relative '../../../../app/api/Leo/entities/family_entity'
       require_relative '../../../../app/api/Leo/entities/practice_entity'
       require_relative '../../../../app/api/Leo/entities/message_entity'
       require_relative '../../../../app/api/Leo/entities/conversation_entity'
@@ -61,6 +62,7 @@ module Leo
       mount Leo::V1::Practices
       mount Leo::V1::ReadReceipts
       mount Leo::V1::Messages
+      mount Leo::V1::Families
 
       add_swagger_documentation(
           base_path: "/api",
