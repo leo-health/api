@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :read_receipt do
-    message_id 1
-    participant_id "MyString"
+    association :reader, factory: :user
+    association :message, factory: :message
   end
 end

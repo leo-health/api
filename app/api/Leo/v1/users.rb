@@ -1,16 +1,9 @@
 module Leo
   module V1
     class Users < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
       include Grape::Kaminari
 
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-
       resource :users do
-
         desc "Get available users by role"
         paginate per_page: 20
         params do
@@ -25,12 +18,12 @@ module Leo
         desc "#post create a user"
         params do
           requires :first_name, type: String, allow_blank: false
-          requires :last_name,  type: String, allow_blank: false
-          requires :email,      type: String, allow_blank: false
-          requires :password,   type: String, allow_blank: false
-          requires :dob,        type: DateTime, allow_blank: false
-          requires :sex,        type: String, values: ['M', 'F']
-          optional :family_id,  type: Integer, allow_blank: false
+          requires :last_name, type: String, allow_blank: false
+          requires :email, type: String, allow_blank: false
+          requires :password, type: String, allow_blank: false
+          requires :dob, type: DateTime, allow_blank: false
+          requires :sex, type: String, values: ['M', 'F']
+          optional :family_id, type: Integer, allow_blank: false
         end
 
         post do
@@ -39,6 +32,8 @@ module Leo
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
           end
         end
 

@@ -1,12 +1,6 @@
 module Leo
   module V1
     class Passwords < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-
       resource :passwords do
         namespace :send_reset_email do
           params do
