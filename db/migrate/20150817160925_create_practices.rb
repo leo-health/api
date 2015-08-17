@@ -1,6 +1,7 @@
 class CreatePractices < ActiveRecord::Migration
   def change
     create_table :practices do |t|
+      t.string :name, null: false
       t.string :address_line_1
       t.string :address_line_2
       t.string :city

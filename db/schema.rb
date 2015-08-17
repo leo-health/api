@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150817160925) do
+ActiveRecord::Schema.define(version: 20150817191533) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -216,17 +216,8 @@ ActiveRecord::Schema.define(version: 20150817160925) do
   add_index "patients", ["deleted_at"], name: "index_patients_on_deleted_at", using: :btree
   add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
 
-  create_table "photos", force: :cascade do |t|
-    t.integer  "patient_id"
-    t.text     "image"
-    t.datetime "taken_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  add_index "photos", ["patient_id"], name: "index_photos_on_patient_id", using: :btree
-
   create_table "practices", force: :cascade do |t|
+    t.string   "name",           null: false
     t.string   "address_line_1"
     t.string   "address_line_2"
     t.string   "city"

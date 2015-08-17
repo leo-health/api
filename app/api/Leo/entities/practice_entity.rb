@@ -2,6 +2,7 @@ module Leo
   module Entities
     class PracticeEntity < Grape::Entity
       expose :id
+      expose :name
       expose :address_line_1
       expose :address_line_2
       expose :city
