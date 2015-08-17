@@ -17,9 +17,15 @@ module Leo
           end
         end
 
-        desc "Get all the conversations"
+        desc "Get all the conversations by status"
+        params do
+          optional :status, type: String, allow_blank: false
+        end
+
         get do
+
           authorize! :read, Conversation
+          conversations = Conversation.all.order('updated_at ASC')
           present :conversations, paginate(Conversation.all), with: Leo::Entities::ConversationEntity
         end
       end
