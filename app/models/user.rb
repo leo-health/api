@@ -4,6 +4,7 @@ class User < ActiveRecord::Base
   belongs_to :family
   belongs_to :role
   has_one :provider_profies, foreign_key: "provider_id"
+  belongs_to :practice
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
@@ -15,8 +16,6 @@ class User < ActiveRecord::Base
   has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
   has_many :provider_appointments, foreign_key: "provider_id", class_name: "Appointment"
   has_many :booked_appointments, foreign_key: "booked_by_id", class_name: "Appointment"
-
-  after_initialize :set_default_practice
 
   devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable
@@ -60,10 +59,6 @@ class User < ActiveRecord::Base
   end
 
   private
-
-  def set_default_practice
-    self.practice_id ||= 1
-  end
 
   def set_user_family
     if has_role? :guardian
