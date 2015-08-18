@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   has_many :sessions
   has_many :user_roles, inverse_of: :user
   has_many :roles, :through => :user_roles
+  has_one :health_record
 
   after_initialize :set_default_practice
 
