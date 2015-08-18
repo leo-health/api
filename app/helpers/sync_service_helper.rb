@@ -211,7 +211,7 @@ module SyncServiceHelper
       User.find_each() do |user|
         if user.has_role? :patient
           begin
-            if user.patient.nil?
+            if user.health_record.nil?
               SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies.to_s, sync_id: user.id)
@@ -220,31 +220,31 @@ module SyncServiceHelper
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vaccines.to_s, sync_id: user.id)
               SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: user.id)
             else
-              if user.patient.patient_updated_at.nil? || (user.patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              if user.health_record.patient_updated_at.nil? || (user.health_record.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
                 SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: user.id)
               end
 
-              if user.patient.photos_updated_at.nil? || (user.patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              if user.health_record.photos_updated_at.nil? || (user.health_record.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
                 SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: user.id)
               end
 
-              if user.patient.allergies_updated_at.nil? || (user.patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              if user.health_record.allergies_updated_at.nil? || (user.health_record.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
                 SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies.to_s, sync_id: user.id)
               end
 
-              if user.patient.insurances_updated_at.nil? || (user.patient.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              if user.health_record.insurances_updated_at.nil? || (user.health_record.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
                 SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_insurances.to_s, sync_id: user.id)
               end
 
-              if user.patient.medications_updated_at.nil? || (user.patient.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              if user.health_record.medications_updated_at.nil? || (user.health_record.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
                 SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_medications.to_s, sync_id: user.id)
               end
 
-              if user.patient.vaccines_updated_at.nil? || (user.patient.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              if user.health_record.vaccines_updated_at.nil? || (user.health_record.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
                 SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vaccines.to_s, sync_id: user.id)
               end
 
-              if user.patient.vitals_updated_at.nil? || (user.patient.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              if user.health_record.vitals_updated_at.nil? || (user.health_record.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
                 SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: user.id)
               end
             end
@@ -263,7 +263,7 @@ module SyncServiceHelper
       #create appointment
       if leo_appt.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
-        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.leo_patient.patient.nil? || leo_appt.leo_patient.patient.athena_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.leo_patient.health_record.nil? || leo_appt.leo_patient.health_record.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_provider_id" if leo_appt.athena_provider_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_department_id" if leo_appt.athena_department_id == 0
         raise "Appointment appt.id=#{leo_appt.id} does not have a valid athena_appointment_type_id" if leo_appt.athena_appointment_type_id == 0
@@ -280,7 +280,7 @@ module SyncServiceHelper
         #book appointment
         @connector.book_appointment(
             appointmentid: leo_appt.athena_id,
-            patientid: leo_appt.leo_patient.patient.athena_id,
+            patientid: leo_appt.leo_patient.health_record.athena_id,
             reasonid: nil,
             appointmenttypeid: leo_appt.athena_appointment_type_id,
             departmentid: leo_appt.athena_department_id
@@ -308,12 +308,12 @@ module SyncServiceHelper
           @connector.reschedule_appointment(
             appointmentid: leo_appt.athena_id,
             newappointmentid: leo_resched_appt.athena_id,
-            patientid: leo_appt.leo_patient.patient.athena_id
+            patientid: leo_appt.leo_patient.health_record.athena_id
           )
         else
           #cancel
           @connector.cancel_appointment(appointmentid: leo_appt.athena_id,
-            patientid: leo_appt.leo_patient.patient.athena_id) if athena_appt.booked?
+            patientid: leo_appt.leo_patient.health_record.athena_id) if athena_appt.booked?
         end
       else
         leo_appt.appointment_status = athena_appt.appointmentstatus
@@ -460,40 +460,40 @@ module SyncServiceHelper
     def process_patient_photo(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of photos for this patients
-      photos = leo_user.patient.photos.order("id desc")
+      photos = leo_user.health_record.photos.order("id desc")
       Rails.logger.info("Syncer: synching photos=#{photos.to_json}")
 
       if photos.empty?
-        @connector.delete_patient_photo(patientid: leo_user.patient.athena_id)
+        @connector.delete_patient_photo(patientid: leo_user.health_record.athena_id)
       else
-        @connector.set_patient_photo(patientid: leo_user.patient.athena_id, image: photos.first.image)
+        @connector.set_patient_photo(patientid: leo_user.health_record.athena_id, image: photos.first.image)
       end
 
-      leo_user.patient.photos_updated_at = DateTime.now.utc
-      leo_user.patient.save!
+      leo_user.health_record.photos_updated_at = DateTime.now.utc
+      leo_user.health_record.save!
     end
 
     def process_patient_allergies(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of allergies for this patients
-      allergies = @connector.get_patient_allergies(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
+      allergies = @connector.get_patient_allergies(patientid: leo_user.health_record.athena_id, departmentid: leo_user.practice_id)
 
       #remove existing allergies for the user
-      Allergy.destroy_all(patient_id: leo_user.patient.id)
+      Allergy.destroy_all(patient_id: leo_user.health_record.id)
 
       #create and/or update the allergy records in Leo
       allergies.each do | allergy |
-        leo_allergy = Allergy.find_or_create_by(patient_id: leo_user.patient.id, athena_id: allergy[:allergenid.to_s].to_i)
+        leo_allergy = Allergy.find_or_create_by(patient_id: leo_user.health_record.id, athena_id: allergy[:allergenid.to_s].to_i)
 
-        leo_allergy.patient_id = leo_user.patient.id
+        leo_allergy.patient_id = leo_user.health_record.id
         leo_allergy.athena_id = allergy[:allergenid.to_s].to_i
         leo_allergy.allergen = allergy[:allergenname.to_s]
         leo_allergy.onset_at = DateTime.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
@@ -501,27 +501,27 @@ module SyncServiceHelper
         leo_allergy.save!
       end
 
-      leo_user.patient.allergies_updated_at = DateTime.now.utc
-      leo_user.patient.save!
+      leo_user.health_record.allergies_updated_at = DateTime.now.utc
+      leo_user.health_record.save!
     end
 
     def process_patient_medications(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of medications for this patients
-      meds = @connector.get_patient_medications(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
+      meds = @connector.get_patient_medications(patientid: leo_user.health_record.athena_id, departmentid: leo_user.practice_id)
 
       #remove existing medications for the user
-      Medication.destroy_all(patient_id: leo_user.patient.id)
+      Medication.destroy_all(patient_id: leo_user.health_record.id)
 
       #create and/or update the medication records in Leo
       meds.each do | med |
         leo_med = Medication.find_or_create_by(athena_id: med[:medicationid.to_s])
 
-        leo_med.patient_id = leo_user.patient.id
+        leo_med.patient_id = leo_user.health_record.id
         leo_med.athena_id = med[:medicationid.to_s]
         leo_med.medication = med[:medication.to_s]
         leo_med.sig = med[:unstructuredsig.to_s]
@@ -547,21 +547,21 @@ module SyncServiceHelper
         leo_med.save!
       end
 
-      leo_user.patient.medications_updated_at = DateTime.now.utc
-      leo_user.patient.save!
+      leo_user.health_record.medications_updated_at = DateTime.now.utc
+      leo_user.health_record.save!
     end
 
     def process_patient_vitals(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of vitals for this patients
-      vitals = @connector.get_patient_vitals(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
+      vitals = @connector.get_patient_vitals(patientid: leo_user.health_record.athena_id, departmentid: leo_user.practice_id)
 
       #remove existing vitals for the user
-      Vital.destroy_all(patient_id: leo_user.patient.id)
+      Vital.destroy_all(patient_id: leo_user.health_record.id)
 
       #create and/or update the vitals records in Leo
       vitals.each do | vital |
@@ -570,7 +570,7 @@ module SyncServiceHelper
 
           leo_vital = Vital.find_or_create_by(athena_id: reading[:vitalid.to_s].to_i)
 
-          leo_vital.patient_id = leo_user.patient.id
+          leo_vital.patient_id = leo_user.health_record.id
           leo_vital.athena_id = reading[:vitalid.to_s].to_i
           leo_vital.measurement = reading[:clinicalelementid.to_s]
           leo_vital.value = reading[:value.to_s]
@@ -580,28 +580,28 @@ module SyncServiceHelper
         end
       end
 
-      leo_user.patient.vitals_updated_at = DateTime.now.utc
-      leo_user.patient.save!
+      leo_user.health_record.vitals_updated_at = DateTime.now.utc
+      leo_user.health_record.save!
     end
 
     def process_patient_vaccines(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of vaccines for this patients
-      vaccs = @connector.get_patient_vaccines(patientid: leo_user.patient.athena_id, departmentid: leo_user.practice_id)
+      vaccs = @connector.get_patient_vaccines(patientid: leo_user.health_record.athena_id, departmentid: leo_user.practice_id)
 
       #remove existing vaccines for the user
-      Vaccine.destroy_all(patient_id: leo_user.patient.id)
+      Vaccine.destroy_all(patient_id: leo_user.health_record.id)
 
       #create and/or update the vaccine records in Leo
       vaccs.each do | vacc |
         if vacc[:status.to_s] == 'ADMINISTERED'
           leo_vacc = Vaccine.find_or_create_by(athena_id: vacc[:vaccineid.to_s])
 
-          leo_vacc.patient_id = leo_user.patient.id
+          leo_vacc.patient_id = leo_user.health_record.id
           leo_vacc.athena_id = vacc[:vaccineid.to_s]
           leo_vacc.vaccine = vacc[:description.to_s]
           leo_vacc.administered_at = DateTime.strptime(vacc[:administerdate.to_s], "%m/%d/%Y") if vacc[:administerdate.to_s]
@@ -610,27 +610,27 @@ module SyncServiceHelper
         end
       end
 
-      leo_user.patient.vaccines_updated_at = DateTime.now.utc
-      leo_user.patient.save!
+      leo_user.health_record.vaccines_updated_at = DateTime.now.utc
+      leo_user.health_record.save!
     end
 
     def process_patient_insurances(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.patient.nil?
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.patient.athena_id == 0
+      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of insurances for this patient
-      insurances = @connector.get_patient_insurances(patientid: leo_user.patient.athena_id)
+      insurances = @connector.get_patient_insurances(patientid: leo_user.health_record.athena_id)
 
       #remove existing insurances for the user
-      Insurance.destroy_all(patient_id: leo_user.patient.id)
+      Insurance.destroy_all(patient_id: leo_user.health_record.id)
 
       #create and/or update the vaccine records in Leo
       insurances.each do | insurance |
         leo_insurance = Insurance.find_or_create_by(athena_id: insurance[:insuranceid.to_s].to_i)
 
-        leo_insurance.patient_id = leo_user.patient.id
+        leo_insurance.patient_id = leo_user.health_record.id
         leo_insurance.athena_id = insurance[:insuranceid.to_s].to_i
         leo_insurance.plan_name = insurance[:insuranceplanname.to_s]
         leo_insurance.plan_phone = insurance[:insurancephone.to_s]
@@ -653,8 +653,8 @@ module SyncServiceHelper
         leo_insurance.save!
       end
 
-      leo_user.patient.insurances_updated_at = DateTime.now.utc
-      leo_user.patient.save!
+      leo_user.health_record.insurances_updated_at = DateTime.now.utc
+      leo_user.health_record.save!
     end
   end
 end
