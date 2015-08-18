@@ -637,7 +637,7 @@ module SyncServiceHelper
         leo_insurance.plan_type = insurance[:insurancetype.to_s]
         leo_insurance.policy_number = insurance[:policynumber.to_s]
         leo_insurance.holder_ssn = insurance[:insurancepolicyholderssn.to_s]
-        leo_insurance.holder_birth_date = insurance[:insurancepolicyholderbirthdate.to_s]
+        leo_insurance.holder_birth_date = insurance[:insurancepolicyholderdob.to_s]
         leo_insurance.holder_sex = insurance[:insurancepolicyholdersex.to_s]
         leo_insurance.holder_last_name = insurance[:insurancepolicyholderlastname.to_s]
         leo_insurance.holder_first_name = insurance[:insurancepolicyholderfirstname.to_s]
