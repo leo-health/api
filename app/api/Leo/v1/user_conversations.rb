@@ -9,7 +9,7 @@ module Leo
 
         namespace "set_priority" do
           params do
-            requires :priority, type: String, values: ["high", "low"]
+            requires :priority, type: String, values: ["high", "standard"]
             requires :conversation_id, type: Integer, allow_blank: false
             requires :user_id, type: Integer, allow_blank: false
           end
