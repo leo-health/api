@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150817215517) do
+ActiveRecord::Schema.define(version: 20150818050722) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -146,7 +146,6 @@ ActiveRecord::Schema.define(version: 20150817215517) do
     t.string   "plan_type"
     t.string   "policy_number"
     t.string   "holder_ssn"
-    t.datetime "holder_dob"
     t.string   "holder_sex"
     t.string   "holder_last_name"
     t.string   "holder_first_name"
@@ -161,6 +160,7 @@ ActiveRecord::Schema.define(version: 20150817215517) do
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
     t.integer  "patient_id"
+    t.date     "holder_birth_date"
   end
 
   add_index "insurances", ["athena_id"], name: "index_insurances_on_athena_id", using: :btree
