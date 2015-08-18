@@ -189,12 +189,12 @@ ActiveRecord::Schema.define(version: 20150814175527) do
     t.integer  "sender_id"
     t.integer  "conversation_id"
     t.text     "body"
+    t.string   "message_type"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.integer  "escalated_to_id"
     t.datetime "escalated_at"
     t.integer  "escalated_by_id"
-    t.string   "message_type"
     t.datetime "deleted_at"
   end
 
