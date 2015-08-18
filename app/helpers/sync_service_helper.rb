@@ -353,7 +353,7 @@ module SyncServiceHelper
         last_name: athena_patient.lastname,
         practice_id: athena_patient.departmentid,
         sex: "M",
-        dob: DateTime.strptime(athena_patient.dob, "%m/%d/%Y"),
+        birth_date: DateTime.strptime(athena_patient.birth_date, "%m/%d/%Y"),
         password: 'fake_pass',
         password_confirmation: 'fake_pass',
         email: Random.rand().to_s + '@leohealth.com',
@@ -372,7 +372,7 @@ module SyncServiceHelper
         last_name: athena_patient.lastname + 'Parent',
         practice_id: athena_patient.departmentid,
         sex: "M",
-        dob: 45.years.ago,
+        birth_date: 45.years.ago,
         password: 'fake_pass',
         password_confirmation: 'fake_pass',
         email: Random.rand().to_s + '@leohealth.com',
@@ -410,8 +410,8 @@ module SyncServiceHelper
 
         Rails.logger.info("Syncer: synching patient=#{leo_patient.to_json}")
 
-        patient_dob = leo_user.dob.strftime("%m/%d/%Y") if leo_user.dob
-        parent_dob = leo_parent.dob.strftime("%m/%d/%Y") if leo_parent.dob
+        patient_birth_date = leo_user.birth_date.strftime("%m/%d/%Y") if leo_user.birth_date
+        parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
 
         if leo_patient.athena_id == 0
           #create patient
@@ -421,11 +421,11 @@ module SyncServiceHelper
             middlename: leo_user.middle_initial.to_s,
             lastname: leo_user.last_name,
             sex: leo_user.sex,
-            dob: patient_dob,
+            birth_date: patient_birth_date,
             guarantorfirstname: leo_parent.first_name,
             guarantormiddlename: leo_parent.middle_initial.to_s,
             guarantorlastname: leo_parent.last_name,
-            guarantordob: parent_dob,
+            guarantorbirthdate: parent_birth_date,
             guarantoremail: leo_parent.email,
             guarantorrelationshiptopatient: 3 #3==child
             ).to_i
@@ -439,11 +439,11 @@ module SyncServiceHelper
             middlename: leo_user.middle_initial.to_s,
             lastname: leo_user.last_name,
             sex: leo_user.sex,
-            dob: patient_dob,
+            birth_date: patient_birth_date,
             guarantorfirstname: leo_parent.first_name,
             guarantormiddlename: leo_parent.middle_initial.to_s,
             guarantorlastname: leo_parent.last_name,
-            guarantordob: parent_dob,
+            guarantorbirthdate: parent_birth_date,
             guarantoremail: leo_parent.email,
             guarantorrelationshiptopatient: 3 #3==child
             )
@@ -637,7 +637,7 @@ module SyncServiceHelper
         leo_insurance.plan_type = insurance[:insurancetype.to_s]
         leo_insurance.policy_number = insurance[:policynumber.to_s]
         leo_insurance.holder_ssn = insurance[:insurancepolicyholderssn.to_s]
-        leo_insurance.holder_dob = insurance[:insurancepolicyholderdob.to_s]
+        leo_insurance.holder_birth_date = insurance[:insurancepolicyholderdob.to_s]
         leo_insurance.holder_sex = insurance[:insurancepolicyholdersex.to_s]
         leo_insurance.holder_last_name = insurance[:insurancepolicyholderlastname.to_s]
         leo_insurance.holder_first_name = insurance[:insurancepolicyholderfirstname.to_s]
@@ -658,4 +658,3 @@ module SyncServiceHelper
     end
   end
 end
-
