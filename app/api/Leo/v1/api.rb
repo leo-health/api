@@ -31,6 +31,7 @@ module Leo
       require_relative 'read_receipts'
       require_relative 'practices'
       require_relative 'families'
+      require_relative 'user_conversations'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -64,6 +65,7 @@ module Leo
       mount Leo::V1::ReadReceipts
       mount Leo::V1::Messages
       mount Leo::V1::Families
+      mount Leo::V1::UserConversations
 
       add_swagger_documentation(
           base_path: "/api",
