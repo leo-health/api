@@ -369,7 +369,7 @@ module AthenaHealthApiHelper
       firstname: ,
       lastname: ,
       sex: nil,
-      dob: ,
+      birth_date: ,
       homephone: '0000000000',
       guarantormiddlename: nil,
       guarantorlastname: nil,
@@ -377,7 +377,7 @@ module AthenaHealthApiHelper
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      guarantordob: nil,
+      guarantorbirthdate: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
@@ -393,7 +393,7 @@ module AthenaHealthApiHelper
       params[:firstname] = firstname if firstname
       params[:lastname] = lastname if lastname
       params[:sex] = sex if sex
-      params[:dob] = dob if dob
+      params[:birth_date] = birth_date if birth_date
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
       params[:homephone] = homephone if homephone
@@ -404,7 +404,7 @@ module AthenaHealthApiHelper
       params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
       params[:guarantorstate] = guarantorstate if guarantorstate
       params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
       params[:guarantoremail] = guarantoremail if guarantoremail
       params[:guarantorphone] = guarantorphone if guarantorphone
       params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
@@ -447,7 +447,7 @@ module AthenaHealthApiHelper
       firstname: ,
       lastname: ,
       sex: ,
-      dob: ,
+      birth_date: ,
       homephone: nil,
       guarantormiddlename: nil,
       guarantorlastname: nil,
@@ -455,7 +455,7 @@ module AthenaHealthApiHelper
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      guarantordob: nil,
+      guarantorbirthdate: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
@@ -471,7 +471,7 @@ module AthenaHealthApiHelper
       params[:firstname] = firstname if firstname
       params[:lastname] = lastname if lastname
       params[:sex] = sex if sex
-      params[:dob] = dob if dob
+      params[:birth_date] = birth_date if birth_date
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
       params[:homephone] = homephone if homephone
@@ -482,7 +482,7 @@ module AthenaHealthApiHelper
       params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
       params[:guarantorstate] = guarantorstate if guarantorstate
       params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
       params[:guarantoremail] = guarantoremail if guarantoremail
       params[:guarantorphone] = guarantorphone if guarantorphone
       params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
@@ -831,14 +831,14 @@ module AthenaHealthApiHelper
       firstname: ,
       lastname: ,
       sex: nil,
-      dob: ,
+      birth_date: ,
       guarantormiddlename: nil,
       guarantorlastname: nil,
       guarantoraddress1: nil,
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      guarantordob: nil,
+      guarantorbirthdate: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
@@ -853,7 +853,7 @@ module AthenaHealthApiHelper
       params[:firstname] = firstname if firstname
       params[:lastname] = lastname if lastname
       params[:sex] = sex if sex
-      params[:dob] = dob if dob
+      params[:birth_date] = birth_date if birth_date
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
 
@@ -863,7 +863,7 @@ module AthenaHealthApiHelper
       params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
       params[:guarantorstate] = guarantorstate if guarantorstate
       params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
       params[:guarantoremail] = guarantoremail if guarantoremail
       params[:guarantorphone] = guarantorphone if guarantorphone
       params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
@@ -893,14 +893,14 @@ module AthenaHealthApiHelper
       firstname: ,
       lastname: ,
       sex: ,
-      dob: ,
+      birth_date: ,
       guarantormiddlename: nil,
       guarantorlastname: nil,
       guarantoraddress1: nil,
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      guarantordob: nil,
+      guarantorbirthdate: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
@@ -917,7 +917,7 @@ module AthenaHealthApiHelper
       params[:firstname] = firstname if firstname
       params[:lastname] = lastname if lastname
       params[:sex] = sex if sex
-      params[:dob] = dob if dob
+      params[:birth_date] = birth_date if birth_date
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
       params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
@@ -926,7 +926,7 @@ module AthenaHealthApiHelper
       params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
       params[:guarantorstate] = guarantorstate if guarantorstate
       params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantordob] = guarantordob if guarantordob
+      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
       params[:guarantoremail] = guarantoremail if guarantoremail
       params[:guarantorphone] = guarantorphone if guarantorphone
       params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname

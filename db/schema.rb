@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150817191533) do
+ActiveRecord::Schema.define(version: 20150818050722) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -146,7 +146,6 @@ ActiveRecord::Schema.define(version: 20150817191533) do
     t.string   "plan_type"
     t.string   "policy_number"
     t.string   "holder_ssn"
-    t.datetime "holder_dob"
     t.string   "holder_sex"
     t.string   "holder_last_name"
     t.string   "holder_first_name"
@@ -161,6 +160,7 @@ ActiveRecord::Schema.define(version: 20150817191533) do
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
     t.integer  "patient_id"
+    t.date     "holder_birth_date"
   end
 
   add_index "insurances", ["athena_id"], name: "index_insurances_on_athena_id", using: :btree
@@ -204,13 +204,13 @@ ActiveRecord::Schema.define(version: 20150817191533) do
     t.string   "middle_initial"
     t.string   "last_name",                  null: false
     t.string   "suffix"
-    t.datetime "birth_date",                 null: false
     t.string   "sex",                        null: false
     t.integer  "family_id",                  null: false
     t.string   "email"
     t.string   "avatar_url"
     t.integer  "role_id",        default: 6, null: false
     t.datetime "deleted_at"
+    t.date     "birth_date",                 null: false
   end
 
   add_index "patients", ["deleted_at"], name: "index_patients_on_deleted_at", using: :btree
@@ -336,7 +336,6 @@ ActiveRecord::Schema.define(version: 20150817191533) do
     t.string   "first_name",                         null: false
     t.string   "middle_initial"
     t.string   "last_name",                          null: false
-    t.datetime "dob"
     t.string   "sex"
     t.integer  "practice_id"
     t.string   "email",                              null: false
@@ -362,6 +361,7 @@ ActiveRecord::Schema.define(version: 20150817191533) do
     t.string   "suffix"
     t.integer  "role_id",                            null: false
     t.datetime "deleted_at"
+    t.date     "birth_date"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
