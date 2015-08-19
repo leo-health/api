@@ -38,7 +38,9 @@ class User < ActiveRecord::Base
 
   def unread_conversations
     return if has_role? :guardian
-    Conversation.where(id: user_conversations.where(read: false).pluck(:conversation_id))
+    (Conversation.where(id: user_conversations.where(read: false, priority: :high).pluck(:conversation_id)).order('updated_at desc')).
+        merge (Conversation.where(id: user_conversations.where(read: false, priority: :standard).pluck(:conversation_id)).order('updated_at desc')).
+                  merge (Conversation.where(id: user_conversations.where(read: false, priority: :nil).pluck(:conversation_id)).order('updated_at desc'))
   end
 
   def escalated_conversations

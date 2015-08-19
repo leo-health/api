@@ -79,6 +79,18 @@ describe Leo::V1::Conversations do
   describe "Get /api/v1/conversations" do
     let(:clinial_user){create(:user, :clinical)}
     let!(:session){ clinial_user.sessions.create }
+    let!(:family ){ create(:family)}
+    let!(:family_one ){ create(:family)}
+    let!(:family_two ){ create(:family)}
+    let!(:formatter){ Leo::Entities::ConversationEntity }
+
+    before do
+      @conversation = family.conversation
+      @conversation_one = family_one.conversation
+      @conversation_one.update_attributes(status: :escalated)
+      @conversation_two = family_two.conversation
+      @conversation_two.update_attributes(status: :closed)
+    end
 
     def do_request
       get "/api/v1/conversations", {authentication_token: session.authentication_token}
@@ -87,15 +99,8 @@ describe Leo::V1::Conversations do
     it "should return all the conversations" do
       do_request
       expect(response.status).to eq(200)
-      expect_json_sizes("data.conversations", Conversation.all.count)
+      body = JSON.parse(response.body, symbolize_names: true)
+      expect(body[:data][:conversations].as_json.to_json).to eq( formatter.represent([@conversation, @conversation_one, @conversation_two ] ).as_json.to_json)
     end
   end
 end
-
-
-# put ":id" do
-#   conversation = Conversation.find(params[:id])
-#   if conversation.try(:update_attributes, {status: "closed"})
-#     present :conversation, conversation, with: Leo::Entities::ConversationEntity
-#   end
-# end

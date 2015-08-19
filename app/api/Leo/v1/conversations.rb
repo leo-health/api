@@ -17,10 +17,22 @@ module Leo
           end
         end
 
-        desc "Get all the conversations"
+        desc "Get all the conversations by status"
+        params do
+          optional :status, type: String, allow_blank: false
+        end
+
         get do
+          if params[:status]
+            conversations = Conversation.where(status: params[:status]).order('updated_at desc')
+          else
+            conversations = %i(open escalated closed).inject([]) do |conversations, status|
+              conversations << Conversation.where(status: status).order('updated_at desc')
+              conversations.flatten
+            end
+          end
           authorize! :read, Conversation
-          present :conversations, paginate(Conversation.all), with: Leo::Entities::ConversationEntity
+          present :conversations, paginate(Kaminari.paginate_array(conversations)), with: Leo::Entities::ConversationEntity
         end
       end
 
@@ -33,6 +45,10 @@ module Leo
           @user = User.find(params[:user_id])
         end
 
+        params do
+          optional :status, type: String, allow_blank: false, values: ["escalated", "read", "new"]
+        end
+
         desc "Return all relevant conversations of a user"
         get do
           if @user && @user.has_role?(:guardian)
@@ -40,7 +56,16 @@ module Leo
             authorize! :read, conversations
             present :conversation, conversations, with: Leo::Entities::ConversationEntity
           else
-            conversations = @user.conversations if @user
+            if params[:status]
+              case params[:status]
+              when :escalated
+                @user.escalated_conversations.where()
+              when :new
+                @user.unread_conversations
+              end
+            else
+              conversations = @user.conversations if @user
+            end
             authorize! :read, Conversation
             present :conversations, paginate(conversations), with: Leo::Entities::ConversationEntity
           end
