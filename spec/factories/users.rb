@@ -6,7 +6,7 @@ FactoryGirl.define do
   factory :user do
     first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
     last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
-    dob 				{ 29.years.ago }
+    birth_date  { 29.years.ago }
     sex					{ ['M', 'F'].sample }
     email
     password    'password'
@@ -15,7 +15,6 @@ FactoryGirl.define do
     association :role, factory: [:role, :guardian]
 
     trait :guardian do
-      dob 				{ 48.years.ago }
       sex					'M'
       association :role, factory: [:role, :guardian]
     end

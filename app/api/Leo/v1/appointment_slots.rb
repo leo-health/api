@@ -1,14 +1,6 @@
 module Leo
   module V1
     class AppointmentSlots < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
-      rescue_from :all, :backtrace => true
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-      default_error_status 400
-
       resource :provider do
         route_param :athena_provider_id, type: Integer do
           resource :appointment_slots do

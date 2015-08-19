@@ -1,10 +1,18 @@
 FactoryGirl.define do
   factory :conversation do
-    factory :conversation_with_participants do
-    	after(:create) do |instance|
-    		family = create(:family_with_members)
-    		instance.participants << family.members
-    	end
+    association :family
+    status :open
+    trait :open do
+      status :open
+    end
+
+    trait :escalated do
+      status :escalated
+    end
+
+    trait :closed do
+      status :closed
+      last_closed_at Time.now
     end
   end
 end
