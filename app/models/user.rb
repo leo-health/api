@@ -11,7 +11,6 @@ class User < ActiveRecord::Base
   has_many :sessions
   has_one :health_record
 
-  after_initialize :set_default_practice
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
   has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
