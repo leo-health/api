@@ -9,7 +9,7 @@ class Message < ActiveRecord::Base
 
   validates :conversation, :sender, :message_type, presence: true
 
-  after_commit :update_conversation_after_message_sent, :update_read_status_on_conversation, on: :create
+  after_commit :update_conversation_after_message_sent, on: :create
   after_commit :update_escalated_status_on_conversation, on: :update
 
   def read_by!(user)
@@ -31,14 +31,14 @@ class Message < ActiveRecord::Base
 
   def update_conversation_after_message_sent
     conversation.staff << sender unless conversation.staff.where(id: sender.id).exists?
-    conversation.update_attributes(status: :open, last_message_created_at: created_at) unless conversation.status == :escalated
-  end
-
-
-
-  def update_read_status_on_conversation
+    conversation.user_conversations.update_all(read: false)
+    unless conversation.status == :escalated
+      conversation.update_column(:status, :open)
+      conversation.update_column(:last_message_created_at, created_at)
+    end
     conversation.user_conversations.update_all(read: false)
   end
+
 
   def update_escalated_status_on_conversation
     UserConversation.find_by_conversation_id_and_user_id(conversation.id, escalated_to_id)
