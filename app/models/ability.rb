@@ -16,20 +16,24 @@ class Ability
       can [:create, :read], Message
       can :update, Message, :escalated_at => nil
       can :read, Appointment
+      can :update, UserConversation
     elsif user.has_role? :clinical
       can [:read, :update], Conversation
       can [:create, :read], Message
       can :update, Message, :escalated_at => nil
       can :read, Appointment
+      can :update, UserConversation
     elsif user.has_role? :clinical_support
       can [:read, :update], Conversation
       can [:create, :read], Message
       can :update, Message, :escalated_at => nil
       can :read, Appointment
+      can :update, UserConversation
     elsif user.has_role? :customer_service
       can [:read, :update], Conversation
       can [:create, :read], Message
       can :update, Message, :escalated_at => nil
+      can :update, UserConversation
     end
   end
 end
