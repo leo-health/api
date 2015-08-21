@@ -213,15 +213,15 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         sunday_start_time: "9:00",
         sunday_end_time: "17:00")
 
-      additional_availability = create(:provider_additional_availability, athena_provider_id: 1, 
+      additional_availability = create(:provider_additional_availability, athena_provider_id: 1,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "17:00").to_s).in_time_zone,
         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "20:00").to_s).in_time_zone)
 
-      leaves = create(:provider_leave, athena_provider_id: 1, 
+      leaves = create(:provider_leave, athena_provider_id: 1,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
 
-      appointment = create(:appointment, athena_provider_id: 1, 
+      appointment = create(:appointment, appointment: 1,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
         duration: 20)
 
@@ -262,7 +262,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
 
-      appointment = create(:appointment, athena_provider_id: 1, 
+      appointment = create(:appointment, provider_id: 1,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
         duration: 20)
 
