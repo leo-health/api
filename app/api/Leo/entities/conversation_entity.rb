@@ -3,7 +3,10 @@ module Leo
     class ConversationEntity < Grape::Entity
       expose :id
       expose :staff, with: Leo::Entities::UserEntity
-      expose :users, with: Leo::Entities::UserEntity
+      expose :users do
+        expose :guardians, with: Leo::Entities::UserEntity
+        expose :patients, with: Leo::Entities::PatientEntity
+      end
       expose :created_at
       expose :updated_at
       expose :family
@@ -14,8 +17,12 @@ module Leo
 
       private
 
-      def users
-        object.family.members
+      def guardians
+        object.family.guardians
+      end
+
+      def patients
+        object.family.patients
       end
     end
   end
