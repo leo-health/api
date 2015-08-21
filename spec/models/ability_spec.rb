@@ -75,7 +75,6 @@ describe "User" do
         it{should be_able_to(:read, provider)}
 
         it{should_not be_able_to(:read, super_user)}
-        it{should_not be_able_to(:update, provider)}
       end
 
       describe "ability for Conversation" do
@@ -102,9 +101,9 @@ describe "User" do
 
         it{should be_able_to(:read, provider)}
         it{should be_able_to(:update, provider)}
-        it{should be_able_to(:create, provider)}
-        it{should be_able_to(:destroy, provider)}
 
+        it{should_not be_able_to(:create, provider)}
+        it{should_not be_able_to(:destroy, provider)}
         it{should_not be_able_to(:read, super_user)}
       end
 
@@ -132,8 +131,6 @@ describe "User" do
 
         it{should be_able_to(:read, provider)}
         it{should be_able_to(:update, provider)}
-        it{should be_able_to(:create, provider)}
-        it{should be_able_to(:destroy, provider)}
 
         it{should_not be_able_to(:read, super_user)}
       end

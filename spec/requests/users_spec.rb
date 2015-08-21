@@ -63,7 +63,7 @@ describe Leo::V1::Users do
     end
 
     context "has the right to delete user" do
-      let(:user){create(:user, :clinical)}
+      let(:user){create(:user, :super_user)}
       let!(:session){user.sessions.create}
 
       it "should delete selected user if current user has the right" do
