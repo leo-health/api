@@ -74,7 +74,7 @@ describe Leo::V1::Users do
       end
     end
 
-    context "do not has the right to delete user" do
+    context "does not have the right to delete user" do
       let(:user){create(:user, :financial)}
       let!(:session){user.sessions.create}
 
