@@ -48,19 +48,19 @@ module Leo
 
         desc "Return all relevant conversations of a user"
         get do
-          if @user && @user.has_role?(:guardian)
+          if @user.has_role?(:guardian)
             conversation = Conversation.find_by_family_id(@user.family_id)
             authorize! :read, conversation
             present :conversation, conversation, with: Leo::Entities::ConversationEntity and return
-         end
-
-          if params[:conversation_type] && params[:conversation_type] == "escalated"
-            conversations = @user.escalated_conversations
-          elsif params[:conversation_type] && params[:conversation_type] == "new"
-            conversations = @user.unread_conversations
+          else
+            if params[:conversation_type] && params[:conversation_type] == "escalated"
+              conversations = @user.escalated_conversations
+            elsif params[:conversation_type] && params[:conversation_type] == "new"
+              conversations = @user.unread_conversations
+            end
+            authorize! :read, Conversation
+            present :conversations, paginate(conversations), with: Leo::Entities::ConversationEntity
           end
-          authorize! :read, Conversation
-          present :conversations, paginate(conversations), with: Leo::Entities::ConversationEntity
         end
       end
     end
