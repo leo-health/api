@@ -10,7 +10,7 @@ class Ability
         %w(financial clinical_support customer_service clinical).include? (user.role.name)
       end
       can [:read, :create, :update, :destroy], User, :family_id => user.family_id
-      can [:read, :update, :destroy], Patient, :family_id => user.family_id
+      can [:create, :read, :update, :destroy], Patient, :family_id => user.family_id
       can :read, Conversation, :family_id => user.family_id
       can :read, Message, :sender_id => user.id
       can :create, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id

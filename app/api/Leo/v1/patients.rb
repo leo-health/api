@@ -15,18 +15,16 @@ module Leo
 
           desc "#get retrieve all patients of a guardian"
           get do
-            if patients = @guardian.family.patients
-              present :patients, patients, with: Leo::Entities::PatientEntity
-            else
-              error!('unprocessable_entity', 422)
-            end
+            patients = @guardian.family.patients
+            authorize! :read, Patient
+            present :patients, patients, with: Leo::Entities::PatientEntity
           end
 
           desc "#post create a patient for a guardian"
           params do
-            requires :first_name, type: String
-            requires :last_name, type: String
-            requires :birth_date, type: String
+            requires :first_name, type: String, allow_blank: false
+            requires :last_name, type: String, allow_blank: false
+            requires :birth_date, type: String, allow_blank: false
             requires :sex, type: String, values: ['M', 'F']
             optional :title, type: String
             optional :suffix, type: String
@@ -35,13 +33,13 @@ module Leo
           end
 
           post do
-            if family = @guardian.family
-              patient = family.patients.create(declared(params, including_missing: false))
+            patient = @guardian.family.patients.new(declared(params, including_missing: false))
+            authorize! :create, patient
+            if patient.save
+              present :patient, patient, with: Leo::Entities::PatientEntity
             else
-              error!('unprocessable_entity', 422)
+              error!({error_code: 422, error_message: patient.errors.full_messages}, 422)
             end
-
-            present :patient, patient, with: Leo::Entities::PatientEntity
           end
 
           desc "#update: the patient information, guardian only"
@@ -63,7 +61,7 @@ module Leo
             if patient && patient.update_attributes(declared(params, include_missing: false))
               present :patient, patient, with: Leo::Entities::PatientEntity
             else
-              error!('unprocessable_entity', 422)
+              error!({error_code: 422, error_message: patient.errors.full_messages}, 422)
             end
           end
 
