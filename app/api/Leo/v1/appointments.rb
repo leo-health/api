@@ -26,6 +26,8 @@ module Leo
           authorize! :create, appointment
           if appointment.save
             present :appointment, appointment, with: Leo::Entities::AppointmentEntity
+          else
+            error!({error_code: 422, error_message: appointment.errors.full_messages }, 422)
           end
         end
 
