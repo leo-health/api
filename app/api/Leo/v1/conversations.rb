@@ -43,7 +43,7 @@ module Leo
         end
 
         params do
-          optional :status, type: String, allow_blank: false, values: ["escalated", "new"]
+          optional :conversation_type, type: String, allow_blank: false, values: ["escalated", "new"]
         end
 
         desc "Return all relevant conversations of a user"
@@ -52,12 +52,12 @@ module Leo
             conversation = Conversation.find_by_family_id(@user.family_id)
             authorize! :read, conversation
             present :conversation, conversation, with: Leo::Entities::ConversationEntity and return
-          elsif params[:status] && params[:status] == "escalated"
+         end
+
+          if params[:conversation_type] && params[:conversation_type] == "escalated"
             conversations = @user.escalated_conversations
-          elsif params[:status] && params[:status] == "new"
+          elsif params[:conversation_type] && params[:conversation_type] == "new"
             conversations = @user.unread_conversations
-          else
-            error!({error_code: 422, error_message: "status is required" }, 422)
           end
           authorize! :read, Conversation
           present :conversations, paginate(conversations), with: Leo::Entities::ConversationEntity
