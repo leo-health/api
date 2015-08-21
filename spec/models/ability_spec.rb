@@ -4,10 +4,10 @@ require "cancan/matchers"
 describe "User" do
   describe "abilities" do
     subject(:ability){ Ability.new(user) }
-    let!(:user){create(:user)}
+    let!(:super_user){build(:user, :super_user)}
 
     context "when user has the role super user" do
-      let!(:user){create(:user, :super_user)}
+      let!(:user){build(:user, :super_user)}
 
       it{ should be_able_to(:manage, User.new) }
       it{ should be_able_to(:manage, Patient.new) }
@@ -16,16 +16,25 @@ describe "User" do
     end
 
     context "when user has the role guardian" do
-      let!(:guardian_role){create(:role, :guardian)}
+      let!(:user){build(:user, :guardian)}
 
-      before do
-        user.add_role :guardian
+      describe "ability for user" do
+        let!(:provider){build(:user, :clinical)}
+        let!(:family_member){build(:user, family: user.family)}
+
+        it{should be_able_to(:read, provider)}
+        it{should be_able_to(:read, family_member)}
+        it{should be_able_to(:update, family_member)}
+        it{should be_able_to(:create, family_member)}
+        it{should be_able_to(:destroy, family_member)}
+
+        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Patient" do
-        let(:patient_role){create(:role, :patient)}
-        let!(:patient){create(:patient, family: user.family)}
-        let!(:other_patient){create(:patient)}
+        let(:patient_role){build(:role, :patient)}
+        let!(:patient){build(:patient, family: user.family)}
+        let!(:other_patient){build(:patient)}
 
         it{should be_able_to(:read, patient)}
         it{should be_able_to(:destroy, patient)}
@@ -37,8 +46,8 @@ describe "User" do
       end
 
       describe "ability for Conversation" do
-        let!(:conversation){create(:conversation, family: user.family)}
-        let!(:other_conversation){create(:conversation)}
+        let!(:conversation){build(:conversation, family: user.family)}
+        let!(:other_conversation){build(:conversation)}
 
         it{should be_able_to(:read, conversation)}
 
@@ -46,8 +55,8 @@ describe "User" do
       end
 
       describe "ability for Messages" do
-        let!(:message){create(:message, sender: user, conversation: user.family.conversation)}
-        let!(:other_message){create(:message)}
+        let!(:message){build(:message, sender: user, conversation: user.family.conversation)}
+        let!(:other_message){build(:message)}
 
         it{should be_able_to(:read, message)}
         it{should be_able_to(:create, message)}
@@ -58,10 +67,14 @@ describe "User" do
     end
 
     context "when user has the role financial" do
-      let!(:role){create(:role, :financial)}
+      let!(:user){build(:user, :financial)}
 
-      before do
-        user.add_role :financial
+      describe "ability for User" do
+        let!(:provider){build(:user, :clinical)}
+
+        it{should be_able_to(:read, provider)}
+
+        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -70,7 +83,7 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){create(:message, escalated_at: Time.now)}
+        let!(:message){build(:message, escalated_at: Time.now)}
 
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
@@ -81,10 +94,17 @@ describe "User" do
     end
 
     context "when user has the role clinical" do
-      let!(:role){create(:role, :clinical)}
+      let!(:user){build(:user, :clinical)}
 
-      before do
-        user.add_role :clinical
+      describe "ability for User" do
+        let!(:provider){build(:user, :clinical)}
+
+        it{should be_able_to(:read, provider)}
+        it{should be_able_to(:update, provider)}
+
+        it{should_not be_able_to(:create, provider)}
+        it{should_not be_able_to(:destroy, provider)}
+        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -93,7 +113,7 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){create(:message, escalated_at: Time.now)}
+        let!(:message){build(:message, escalated_at: Time.now)}
 
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
@@ -104,10 +124,15 @@ describe "User" do
     end
 
     context "when user has the role clinical_support" do
-      let!(:role){create(:role, :clinical_support)}
+      let!(:user){build(:user, :clinical_support)}
 
-      before do
-        user.add_role :clinical_support
+      describe "ability for User" do
+        let!(:provider){build(:user, :clinical)}
+
+        it{should be_able_to(:read, provider)}
+        it{should be_able_to(:update, provider)}
+
+        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -116,7 +141,7 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){create(:message, escalated_at: Time.now)}
+        let!(:message){build(:message, escalated_at: Time.now)}
 
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
@@ -127,10 +152,15 @@ describe "User" do
     end
 
     context "when user has the role customer_service" do
-      let!(:role){create(:role, :customer_service)}
+      let!(:user){build(:user, :customer_service)}
 
-      before do
-        user.add_role :customer_service
+      describe "ability for User" do
+        let!(:provider){build(:user, :clinical)}
+
+        it{should be_able_to(:read, provider)}
+
+        it{should_not be_able_to(:read, super_user)}
+        it{should_not be_able_to(:update, provider)}
       end
 
       describe "ability for Conversation" do
@@ -139,7 +169,7 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){create(:message, escalated_at: Time.now)}
+        let!(:message){build(:message, escalated_at: Time.now)}
 
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
