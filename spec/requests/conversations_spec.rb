@@ -41,7 +41,7 @@ describe Leo::V1::Conversations do
       let!(:other_user){ create(:user) }
 
       def do_request
-        get "/api/v1/users/#{clinical_user.id}/conversations", {authentication_token: session.authentication_token, conversation_type: "new"}
+        get "/api/v1/users/#{clinical_user.id}/conversations", {authentication_token: session.authentication_token, state: "new"}
       end
 
       before do

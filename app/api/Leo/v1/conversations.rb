@@ -43,7 +43,7 @@ module Leo
         end
 
         params do
-          optional :conversation_type, type: String, allow_blank: false, values: ["escalated", "new"]
+          optional :state, type: String, allow_blank: false, values: ["escalated", "new"]
         end
 
         desc "Return all relevant conversations of a user"
@@ -53,9 +53,9 @@ module Leo
             authorize! :read, conversation
             present :conversation, conversation, with: Leo::Entities::ConversationEntity and return
           else
-            if params[:conversation_type] && params[:conversation_type] == "escalated"
+            if params[:state] && params[:state] == "escalated"
               conversations = @user.escalated_conversations
-            elsif params[:conversation_type] && params[:conversation_type] == "new"
+            elsif params[:state] && params[:state] == "new"
               conversations = @user.unread_conversations
             end
             authorize! :read, Conversation
