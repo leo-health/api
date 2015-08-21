@@ -460,7 +460,7 @@ module SyncServiceHelper
     def process_patient_photo(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "missing health record  associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of photos for this patients
@@ -480,7 +480,7 @@ module SyncServiceHelper
     def process_patient_allergies(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "missing health record  associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of allergies for this patients
@@ -508,7 +508,7 @@ module SyncServiceHelper
     def process_patient_medications(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "missing health record  associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of medications for this patients
@@ -554,7 +554,7 @@ module SyncServiceHelper
     def process_patient_vitals(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "missing health record  associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of vitals for this patients
@@ -587,7 +587,7 @@ module SyncServiceHelper
     def process_patient_vaccines(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "missing health record  associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of vaccines for this patients
@@ -617,7 +617,7 @@ module SyncServiceHelper
     def process_patient_insurances(task)
       leo_user = User.find(task.sync_id)
 
-      raise "missing patient associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
+      raise "missing health record  associated with user.id=#{task.sync_id}" if leo_user.health_record.nil?
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_user.health_record.athena_id == 0
 
       #get list of insurances for this patient
