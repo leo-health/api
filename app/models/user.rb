@@ -38,12 +38,12 @@ class User < ActiveRecord::Base
 
   def unread_conversations
     return if has_role? :guardian
-    Conversation.where(id: user_conversations.where(read: false).pluck(:conversation_id))
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc).order( "user_conversations.priority desc" )
   end
 
   def escalated_conversations
     return if has_role? :guardian
-    Conversation.where(id: user_conversations.where(esclated: true).pluck(:conversation_id))
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc).order( "user_conversations.priority desc" )
   end
 
   def add_role(name)
