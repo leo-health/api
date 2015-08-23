@@ -320,7 +320,5 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
         expect(patient.patientid).to eq ("5031")
       end
     end
-
-
   end
 end
