@@ -11,7 +11,6 @@ namespace :load do
 
     staff = {
       super_user: {
-          id: 0,
           title: "Mr",
           first_name: "Super",
           last_name: "User",
@@ -25,7 +24,6 @@ namespace :load do
       },
 
       financial: {
-          id: 1,
           title: "Mr",
           first_name: "Financial",
           last_name: "User",
@@ -39,7 +37,6 @@ namespace :load do
       },
 
       clinical_support: {
-          id: 2,
           title: "Mr",
           first_name: "Clinical_support",
           last_name: "User",
@@ -53,7 +50,6 @@ namespace :load do
       },
 
       customer_service: {
-          id: 3,
           title: "Mr",
           first_name: "customer_service",
           last_name: "User",
@@ -67,7 +63,6 @@ namespace :load do
       },
 
       clinical: {
-          id: 4,
           title: "Mr",
           first_name: "clinical",
           last_name: "User",
@@ -120,7 +115,6 @@ namespace :load do
       end
 
       guardian_male = family.guardians.create(
-        id: 5,
         title: "Mr.",
         first_name: "Pierre",
         middle_initial: "E",
@@ -132,7 +126,6 @@ namespace :load do
         role: Role.find_or_create_by(id:4, name:"guardian"),
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
-
       if guardian_male.valid?
         print "gm*"
       else
@@ -141,7 +134,6 @@ namespace :load do
       end
 
       guardian_female = family.guardians.create(
-        id: 6,
         title: "Mrs.",
         first_name: "Marie",
         middle_initial: "S",

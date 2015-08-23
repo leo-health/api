@@ -13,6 +13,12 @@ class Conversation < ActiveRecord::Base
   around_update :track_conversation_change
   after_commit :load_staff, :load_initial_message, on: :create
 
+  def self.sort_conversations
+    %i(open escalated closed).inject([]) do |conversations, status|
+      conversations << self.where(status: status).order('updated_at desc')
+      conversations.flatten
+    end
+  end
 
   def set_conversation_state
     update_attributes(status: :open) unless status

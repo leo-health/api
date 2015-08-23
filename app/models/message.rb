@@ -12,11 +12,6 @@ class Message < ActiveRecord::Base
   after_commit :update_conversation_after_message_sent, on: :create
   after_commit :update_escalated_status_on_conversation, on: :update
 
-  def read_by!(user)
-    r = self.read_receipts.new(participant: user)
-    r.save
-  end
-
   def escalate(escalated_to, escalated_by)
     transaction do
       conversation = Conversation.find(conversation_id)

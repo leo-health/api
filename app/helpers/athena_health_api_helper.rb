@@ -62,30 +62,34 @@ module AthenaHealthApiHelper
     attr_reader :connection
 
     #for some reason, gzip encoding returns invalid blocks in failure cases
-    #todo: needs more investigation
-    @@common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
+    def self.common_headers
+      { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
+    end
 
-    def initialize(key: ENV["ATHENA_KEY"], secret: ENV["ATHENA_SECRET"], 
+    def initialize(
+      key: ENV["ATHENA_KEY"], 
+      secret: ENV["ATHENA_SECRET"], 
       version: ENV["ATHENA_VERSION"].to_s.empty? ? "preview1" : ENV["ATHENA_VERSION"], 
-      practice_id: ENV["ATHENA_PRACTICE_ID"].to_s.empty? ? "11060" : ENV["ATHENA_PRACTICE_ID"])
+      practice_id: ENV["ATHENA_PRACTICE_ID"].to_s.empty? ? "11060" : ENV["ATHENA_PRACTICE_ID"],
+      connection: AthenaHealthAPI::Connection.new(version, key, secret, practice_id))
 
-      @connection = AthenaHealthAPI::Connection.new(version, key, secret, practice_id)
+      @connection = connection
     end
 
     def get(path: , params: {})
-      @connection.GET(path, params, @@common_headers)
+      @connection.GET(path, params, AthenaHealthApiConnector.common_headers)
     end
 
     def put(path: , params: {})
-      @connection.PUT(path, params, @@common_headers)
+      @connection.PUT(path, params, AthenaHealthApiConnector.common_headers)
     end
 
     def post(path: , params: {})
-      @connection.POST(path, params, @@common_headers)
+      @connection.POST(path, params, AthenaHealthApiConnector.common_headers)
     end
 
     def delete(path: , params: {})
-      @connection.DELETE(path, params, @@common_headers)
+      @connection.DELETE(path, params, AthenaHealthApiConnector.common_headers)
     end
 
     # obtain information on an athena appointment
@@ -96,7 +100,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:showinsurance] = showinsurance
 
-      response = @connection.GET("appointments/#{appointmentid}", params, @@common_headers)
+      response = @connection.GET("appointments/#{appointmentid}", params, AthenaHealthApiConnector.common_headers)
 
       #410 means the appointment does not exist
       return nil if response.code.to_i == 410
@@ -112,7 +116,7 @@ module AthenaHealthApiHelper
     def delete_appointment(appointmentid: )
       params = {}
 
-      response = @connection.DELETE("appointments/#{appointmentid}", params, @@common_headers)
+      response = @connection.DELETE("appointments/#{appointmentid}", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -131,7 +135,7 @@ module AthenaHealthApiHelper
       params[:providerid] = providerid
       params[:reasonid] = reasonid if reasonid
 
-      response = @connection.POST("appointments/open", params, @@common_headers)
+      response = @connection.POST("appointments/open", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
@@ -168,7 +172,7 @@ module AthenaHealthApiHelper
       params[:patientrelationshiptopolicyholder] = patientrelationshiptopolicyholder if patientrelationshiptopolicyholder
       params[:reasonid] = reasonid if reasonid
 
-      response = @connection.PUT("appointments/#{appointmentid}", params, @@common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -184,7 +188,7 @@ module AthenaHealthApiHelper
       params[:ignoreschedulablepermission] = ignoreschedulablepermission
       params[:patientid] = patientid
 
-      response = @connection.PUT("appointments/#{appointmentid}/cancel", params, @@common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}/cancel", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -204,7 +208,7 @@ module AthenaHealthApiHelper
       params[:reasonid] = reasonid if reasonid
       params[:reschedulereason] = reschedulereason if reschedulereason
 
-      response = @connection.PUT("appointments/#{appointmentid}/reschedule", params, @@common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}/reschedule", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -216,7 +220,7 @@ module AthenaHealthApiHelper
       params[:appointmentid] = appointmentid
       params[:freeze] = freeze.to_s
 
-      response = @connection.PUT("appointments/#{appointmentid}/freeze", params, @@common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}/freeze", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -229,7 +233,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:appointmentid] = appointmentid
 
-      response = @connection.POST("appointments/#{appointmentid}/checkin", params, @@common_headers)
+      response = @connection.POST("appointments/#{appointmentid}/checkin", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -285,7 +289,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointmenttypes", params: params, 
-        headers: @@common_headers, field: :appointmenttypes, limit: limit)
+        headers: AthenaHealthApiConnector.common_headers, field: :appointmenttypes, limit: limit)
     end
 
     # get a list of available appointment reasons
@@ -301,7 +305,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/patientappointmentreasons", params: params, 
-        headers: @@common_headers, field: :patientappointmentreasons, limit: limit)
+        headers: AthenaHealthApiConnector.common_headers, field: :patientappointmentreasons, limit: limit)
     end
 
     # get a list of open appointments
@@ -325,7 +329,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/open", params: params, 
-        headers: @@common_headers, field: :appointments, limit: limit, structize: true)
+        headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
     end
 
     # get a list of booked appointments
@@ -358,7 +362,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/booked", params: params, 
-        headers: @@common_headers, field: :appointments, limit: limit, structize: true)
+        headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
     end
 
     #Create a patient: POST /preview1/:practiceid/patients
@@ -369,7 +373,7 @@ module AthenaHealthApiHelper
       firstname: ,
       lastname: ,
       sex: nil,
-      birth_date: ,
+      dob: ,
       homephone: '0000000000',
       guarantormiddlename: nil,
       guarantorlastname: nil,
@@ -377,7 +381,7 @@ module AthenaHealthApiHelper
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      guarantorbirthdate: nil,
+      guarantordob: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
@@ -393,7 +397,7 @@ module AthenaHealthApiHelper
       params[:firstname] = firstname if firstname
       params[:lastname] = lastname if lastname
       params[:sex] = sex if sex
-      params[:birth_date] = birth_date if birth_date
+      params[:dob] = dob if dob
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
       params[:homephone] = homephone if homephone
@@ -404,7 +408,7 @@ module AthenaHealthApiHelper
       params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
       params[:guarantorstate] = guarantorstate if guarantorstate
       params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
+      params[:guarantordob] = guarantordob if guarantordob
       params[:guarantoremail] = guarantoremail if guarantoremail
       params[:guarantorphone] = guarantorphone if guarantorphone
       params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
@@ -412,7 +416,7 @@ module AthenaHealthApiHelper
       params[:guarantorssn] = guarantorssn if guarantorssn
       params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
 
-      response = @connection.POST("patients", params, @@common_headers)
+      response = @connection.POST("patients", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
@@ -420,7 +424,7 @@ module AthenaHealthApiHelper
 
       raise "unexpected patient list len: #{val.length}" unless val.length == 1
 
-      return val[0][:patientid.to_s]
+      return val[0][:patientid.to_s].to_i
     end
 
     #Get a patient: GET /preview1/:practiceid/patients/:patientid
@@ -429,7 +433,7 @@ module AthenaHealthApiHelper
 
       params = {}
 
-      response = @connection.GET("patients/#{patientid}", params, @@common_headers)
+      response = @connection.GET("patients/#{patientid}", params, AthenaHealthApiConnector.common_headers)
 
       #404 means the patient does not exist
       return nil if response.code.to_i == 404
@@ -447,7 +451,7 @@ module AthenaHealthApiHelper
       firstname: ,
       lastname: ,
       sex: ,
-      birth_date: ,
+      dob: ,
       homephone: nil,
       guarantormiddlename: nil,
       guarantorlastname: nil,
@@ -455,7 +459,7 @@ module AthenaHealthApiHelper
       guarantoraddress2: nil,
       guarantorstate: nil,
       guarantorzip: nil,
-      guarantorbirthdate: nil,
+      guarantordob: nil,
       guarantoremail: ,
       guarantorphone: nil,
       departmentid: ,
@@ -471,7 +475,7 @@ module AthenaHealthApiHelper
       params[:firstname] = firstname if firstname
       params[:lastname] = lastname if lastname
       params[:sex] = sex if sex
-      params[:birth_date] = birth_date if birth_date
+      params[:dob] = dob if dob
       params[:departmentid] = departmentid if departmentid
       params[:middlename] = middlename if middlename
       params[:homephone] = homephone if homephone
@@ -482,7 +486,7 @@ module AthenaHealthApiHelper
       params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
       params[:guarantorstate] = guarantorstate if guarantorstate
       params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
+      params[:guarantordob] = guarantordob if guarantordob
       params[:guarantoremail] = guarantoremail if guarantoremail
       params[:guarantorphone] = guarantorphone if guarantorphone
       params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
@@ -490,7 +494,7 @@ module AthenaHealthApiHelper
       params[:guarantorssn] = guarantorssn if guarantorssn
       params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
 
-      response = @connection.PUT("patients/#{patientid}", params, @@common_headers)
+      response = @connection.PUT("patients/#{patientid}", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -500,7 +504,7 @@ module AthenaHealthApiHelper
 
       params = {}
 
-      response = @connection.GET("patients/#{patientid}/photo", params, @@common_headers)
+      response = @connection.GET("patients/#{patientid}/photo", params, AthenaHealthApiConnector.common_headers)
 
       #404 means the patient does not exist or no photo found
       return nil if response.code.to_i == 404
@@ -518,7 +522,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:image] = image
 
-      response = @connection.POST("patients/#{patientid}/photo", params, @@common_headers)
+      response = @connection.POST("patients/#{patientid}/photo", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -528,7 +532,7 @@ module AthenaHealthApiHelper
 
       params = {}
 
-      response = @connection.DELETE("patients/#{patientid}/photo", params, @@common_headers)
+      response = @connection.DELETE("patients/#{patientid}/photo", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -538,7 +542,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:departmentid] = departmentid
 
-      response = @connection.GET("chart/#{patientid}/allergies", params, @@common_headers)
+      response = @connection.GET("chart/#{patientid}/allergies", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
@@ -555,7 +559,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "chart/#{patientid}/vitals", params: params, 
-        headers: @@common_headers, field: :vitals)
+        headers: AthenaHealthApiConnector.common_headers, field: :vitals)
     end
 
     def get_patient_vaccines(patientid: , departmentid: )
@@ -565,7 +569,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "chart/#{patientid}/vaccines", params: params, 
-        headers: @@common_headers, field: :vaccines)
+        headers: AthenaHealthApiConnector.common_headers, field: :vaccines)
     end
 
     def get_patient_medications(patientid: , departmentid: )
@@ -573,7 +577,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:departmentid] = departmentid
 
-      response = @connection.GET("chart/#{patientid}/medications", params, @@common_headers)
+      response = @connection.GET("chart/#{patientid}/medications", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
@@ -589,394 +593,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "patients/#{patientid}/insurances", params: params, 
-        headers: @@common_headers, field: :insurances)
-    end
-  end
-
-  class MockConnector
-    @@appointment_types_default = [{
-        "shortname": "A20",
-        "name": "ANY 20",
-        "duration": "20",
-        "patientdisplayname": "ANY 20",
-        "appointmenttypeid": "1",
-        "generic": "true",
-        "patient": "true",
-        "templatetypeonly": "true"
-    }, {
-        "shortname": "WC",
-        "name": "WELL CHILD",
-        "duration": "40",
-        "patientdisplayname": "WELL CHILD",
-        "appointmenttypeid": "21",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "PROB",
-        "name": "PROBLEM",
-        "duration": "20",
-        "patientdisplayname": "PROBLEM",
-        "appointmenttypeid": "23",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }, {
-        "shortname": "VANU",
-        "name": "VACCINE\/NURSE ONLY",
-        "duration": "20",
-        "patientdisplayname": "VACCINE\/NURSE ONLY",
-        "appointmenttypeid": "22",
-        "generic": "false",
-        "patient": "true",
-        "templatetypeonly": "false"
-    }]
-
-    def self.structize(parsed)
-      entries = []
-
-      parsed.each do | val |
-        entries.push AthenaStruct.new val
-      end
-
-      return entries
-    end
-
-    def initialize(appointment_types: @@appointment_types_default, appointments: [], appointment_resons: [], patients: [], vaccines: [], medications: [], allergies: [], vitals: [])
-      @appointment_types = JSON.parse(appointment_types.to_json)
-      @appointments = MockConnector.structize(JSON.parse(appointments.to_json))
-      @appointment_resons = JSON.parse(appointment_resons.to_json)
-      @patients = JSON.parse(patients.to_json)
-      @vaccines = JSON.parse(vaccines.to_json)
-      @medications = JSON.parse(medications.to_json)
-      @allergies = JSON.parse(allergies.to_json)
-      @vitals = JSON.parse(vitals.to_json)
-    end
-
-    def get_appointment(appointmentid: , showinsurance: false)
-      matching = @appointments.select { |appt| appt.appointmentid == appointmentid }
-      return nil if matching.empty?
-      return matching.first
-    end
-
-    def delete_appointment(appointmentid: )
-      appt = get_appointment(appointmentid: appointmentid)
-      raise "Could not find appointment appt=#{appt.to_json}" if appt.nil?
-      raise "Cannot delete non-open appointment appt=#{appt.to_json}" unless appt.open?
-      @appointments.delete_if { |appt| appt.appointmentid == appointmentid }
-    end
-
-    def next_appt_id()
-      id = 1
-
-      @appointments.each do |appt|
-        id = appt.appointmentid if appt.appointmentid > id
-      end
-
-      return id + 1
-    end
-
-    def create_appointment(
-      appointmentdate: , appointmenttime:, appointmenttypeid: nil, departmentid: ,
-      providerid: , reasonid: nil)
-
-      #validate params
-      Date.strptime(appointmentdate, "%m/%d/%Y")
-      DateTime.strptime(appointmenttime, "%H:%M")
-      raise "Invalid departmentid: #{departmentid}" if departmentid.to_i <= 0
-      raise "Invalid providerid: #{providerid}" if providerid.to_i <= 0
-
-      id = next_appt_id()
-
-      @appointments.push AthenaStruct.new({ 
-        :appointmentid => next_appt_id(), 
-        :date => appointmentdate,
-        :starttime => appointmenttime,
-        :appointmenttypeid => appointmenttypeid,
-        :departmentid => departmentid,
-        :providerid => providerid,
-        :reasonid => reasonid,
-        :appointmentstatus => "o",
-        :frozenyn => false
-        })
-
-      return id
-    end
-
-    def book_appointment(appointmentid: ,
-      appointmenttypeid: nil, bookingnote: nil, departmentid: nil, ignoreschedulablepermission: true,
-      insurancecompany: nil, insurancegroupid: nil, insuranceidnumber: nil, insurancenote: nil,
-      insurancephone: nil, insuranceplanname: nil, insurancepolicyholder: nil, nopatientcase: false,
-      patientid: , patientrelationshiptopolicyholder: nil, reasonid: nil)
-
-      #validate params
-      raise "Invalid patientid: #{patientid}" if patientid.to_i <= 0
-
-      appt = get_appointment(appointmentid: appointmentid)
-      raise "Could not find appointment id=#{appointmentid}" if appt.nil?
-      raise "Appointment appt=#{appt.to_json} is not open" unless appt.open?
-      raise "Appointment appt=#{appt.to_json} is frozen" if appt.frozenyn
-      appt.appointmentstatus = "f"
-      appt.add_field(:patientid, patientid)
-      appt.add_field(:appointmenttypeid, appointmenttypeid) if appointmenttypeid
-      appt.add_field(:bookingnote, bookingnote) if bookingnote
-      appt.add_field(:departmentid, departmentid) if departmentid
-      appt.add_field(:insurancecompany, insurancecompany) if insurancecompany
-      appt.add_field(:insurancegroupid, insurancegroupid) if insurancegroupid
-      appt.add_field(:insuranceidnumber, insuranceidnumber) if insuranceidnumber
-      appt.add_field(:insurancenote, insurancenote) if insurancenote
-      appt.add_field(:insurancephone, insurancephone) if insurancephone
-      appt.add_field(:insuranceplanname, insuranceplanname) if insuranceplanname
-      appt.add_field(:insurancepolicyholder, insurancepolicyholder) if insurancepolicyholder
-      appt.add_field(:patientrelationshiptopolicyholder, patientrelationshiptopolicyholder) if patientrelationshiptopolicyholder
-      appt.add_field(:reasonid, reasonid) if reasonid
-    end
-
-    def cancel_appointment(appointmentid: ,
-      cancellationreason: nil, ignoreschedulablepermission: true, nopatientcase: false, patientid: )
-
-      #validate params
-      raise "Invalid patientid: #{patientid}" if patientid.to_i <= 0
-
-      appt = get_appointment(appointmentid: appointmentid)
-      raise "Could not find appointment id=#{appointmentid}" if appt.nil?
-      raise "Appointment appt=#{appt.to_json} is not booked" unless appt.booked?
-      appt.appointmentstatus = "x"
-    end
-
-    def reschedule_appointment(appointmentid: ,
-      ignoreschedulablepermission: true, newappointmentid: , nopatientcase: false, patientid: ,
-      reasonid: nil, reschedulereason: nil)
-
-      #validate params
-      raise "Invalid patientid: #{patientid}" if patientid.to_i <= 0
-
-      appt = get_appointment(appointmentid: appointmentid)
-      raise "Could not find appointment id=#{appointmentid}" if appt.nil?
-      raise "Appointment appt=#{appt.to_json} is not booked" unless appt.booked?
-
-      resch_appt = get_appointment(appointmentid: newappointmentid)
-      raise "Could not find appointment id=#{newappointmentid}" if resch_appt.nil?
-
-      appt.appointmentstatus = "x"
-      appt.add_field(:rescheduledappointmentid, newappointmentid) if newappointmentid
-    end
-
-    def freeze_appointment(appointmentid:, freeze:)
-      appt = get_appointment(appointmentid: appointmentid)
-      raise "Could not find appointment id=#{appointmentid}" if appt.nil?
-      appt.frozenyn = freeze
-    end
-
-    def checkin_appointment(appointmentid:)
-      appt = get_appointment(appointmentid: appointmentid)
-      raise "Could not find appointment id=#{appointmentid}" if appt.nil?
-      raise "Appointment appt=#{appt.to_json} is not future" unless appt.future?
-      appt.appointmentstatus = "2"
-    end
-
-    def get_appointment_types(hidegeneric: false, 
-      hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 5000)
-
-      return @appointment_types
-    end
-
-    def get_appointment_reasons(departmentid: , providerid: , limit: 5000)
-
-      return @appointment_resons
-    end
-
-    def get_open_appointments(
-      appointmenttypeid: nil, bypassscheduletimechecks: true, departmentid:, enddate: nil,
-      ignoreschedulablepermission: true, providerid: nil, reasonid: nil, showfrozenslots: false,
-      startdate: nil, limit: 5000)
-
-      #validate params
-      raise "Invalid departmentid: #{departmentid}" if departmentid.to_i <= 0
-      raise "Invalid departmentid: #{providerid}" if providerid && providerid.to_i <= 0
-
-      return @appointments.select { |appt| appt.open? && (showfrozenslots || !appt.frozenyn)}
-    end
-
-    def get_booked_appointments(
-      appointmenttypeid: nil, departmentid: , enddate: , endlastmodified: nil,
-      ignorerestrictions: true, patientid: nil, providerid: nil, scheduledenddate: nil,
-      scheduledstartdate: nil, showcancelled: true, showclaimdetail: false, showcopay: true,
-      showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil, 
-      limit: 5000)
-
-      #validate params
-      raise "Invalid departmentid: #{departmentid}" if departmentid.to_i <= 0
-      raise "Invalid departmentid: #{providerid}" if providerid && providerid.to_i <= 0
-
-      #todo: add time filtering
-
-      return @appointments.select { |appt| appt.booked? }
-    end
-
-    def next_patient_id()
-      id = 1
-
-      @patients.each do |patient|
-        id = patient.patientid if patient.patientid > id
-      end
-
-      return id + 1
-    end
-
-    #Create a patient: POST /preview1/:practiceid/patients
-    #returns patient id
-    def create_patient(
-      status: nil, #active, inactive, prospective, deleted
-      firstname: ,
-      lastname: ,
-      sex: nil,
-      birth_date: ,
-      guarantormiddlename: nil,
-      guarantorlastname: nil,
-      guarantoraddress1: nil,
-      guarantoraddress2: nil,
-      guarantorstate: nil,
-      guarantorzip: nil,
-      guarantorbirthdate: nil,
-      guarantoremail: ,
-      guarantorphone: nil,
-      departmentid: ,
-      guarantorfirstname: nil,
-      guarantorcity: nil,
-      middlename: nil,
-      guarantorssn: nil,
-      guarantorrelationshiptopatient: nil)
-
-      params = {}
-      params[:status] = status if status
-      params[:firstname] = firstname if firstname
-      params[:lastname] = lastname if lastname
-      params[:sex] = sex if sex
-      params[:birth_date] = birth_date if birth_date
-      params[:departmentid] = departmentid if departmentid
-      params[:middlename] = middlename if middlename
-
-      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
-      params[:guarantorlastname] = guarantorlastname if guarantorlastname
-      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
-      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
-      params[:guarantorstate] = guarantorstate if guarantorstate
-      params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
-      params[:guarantoremail] = guarantoremail if guarantoremail
-      params[:guarantorphone] = guarantorphone if guarantorphone
-      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
-      params[:guarantorcity] = guarantorcity if guarantorcity
-      params[:guarantorssn] = guarantorssn if guarantorssn
-      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
-
-      params[:patientid] = next_patient_id()
-
-      @patients.push params
-
-      return params[:patientid]
-    end
-
-    #Get a patient: GET /preview1/:practiceid/patients/:patientid
-    #returns null if patient does not exist
-    def get_patient(patientid: )
-      matching = @patients.select { |patient| patient.patientid == patientid }
-      return nil if matching.empty?
-      return matching.first
-    end
-
-    #Update a patient: PUT /preview1/:practiceid/patients/:patientid
-    def update_patient(
-      patientid: ,
-      status: nil, #active, inactive, prospective, deleted
-      firstname: ,
-      lastname: ,
-      sex: ,
-      birth_date: ,
-      guarantormiddlename: nil,
-      guarantorlastname: nil,
-      guarantoraddress1: nil,
-      guarantoraddress2: nil,
-      guarantorstate: nil,
-      guarantorzip: nil,
-      guarantorbirthdate: nil,
-      guarantoremail: ,
-      guarantorphone: nil,
-      departmentid: ,
-      guarantorfirstname: nil,
-      guarantorcity: nil,
-      middlename: nil,
-      guarantorssn: nil,
-      guarantorrelationshiptopatient: nil)
-
-      params = get_patient(patientid: patientid)
-      raise "Could not find patient #{patientid}" if patams.nil?
-
-      params[:status] = status if status
-      params[:firstname] = firstname if firstname
-      params[:lastname] = lastname if lastname
-      params[:sex] = sex if sex
-      params[:birth_date] = birth_date if birth_date
-      params[:departmentid] = departmentid if departmentid
-      params[:middlename] = middlename if middlename
-      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
-      params[:guarantorlastname] = guarantorlastname if guarantorlastname
-      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
-      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
-      params[:guarantorstate] = guarantorstate if guarantorstate
-      params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantorbirthdate] = guarantorbirthdate if guarantorbirthdate
-      params[:guarantoremail] = guarantoremail if guarantoremail
-      params[:guarantorphone] = guarantorphone if guarantorphone
-      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
-      params[:guarantorcity] = guarantorcity if guarantorcity
-      params[:guarantorssn] = guarantorssn if guarantorssn
-      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
-    end
-
-    #get a patient's photo in b64 encoded form
-    def get_patient_photo(patientid: )
-      params = get_patient(patientid: patientid)
-      raise "Could not find patient #{patientid}" if patams.nil?
-
-      return params[:photo]
-    end
-
-    #set a patient's photo in b64 encoded form
-    def set_patient_photo(patientid: , image: )
-      params = get_patient(patientid: patientid)
-      raise "Could not find patient #{patientid}" if patams.nil?
-
-      params[:photo] = image
-    end
-
-    #delete a patient's photo
-    def delete_patient_photo(patientid: )
-      params = get_patient(patientid: patientid)
-      raise "Could not find patient #{patientid}" if patams.nil?
-
-      params[:photo] = nil
-    end
-
-    def get_patient_allergies(patientid: , departmentid: )
-      matching = @allergies.select { |allergy| allergy.patientid == patientid }
-      return matching
-    end
-
-    def get_patient_vitals(patientid: , departmentid: )
-      matching = @vitals.select { |vital| vital.patientid == patientid }
-      return matching
-    end
-
-    def get_patient_vaccines(patientid: , departmentid: )
-      matching = @vaccines.select { |vaccine| vaccine.patientid == patientid }
-      return matching
-    end
-
-    def get_patient_medications(patientid: , departmentid: )
-      matching = @medications.select { |medication| medication.patientid == patientid }
-      return matching
+        headers: AthenaHealthApiConnector.common_headers, field: :insurances)
     end
   end
 end

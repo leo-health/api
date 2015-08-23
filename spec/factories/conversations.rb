@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :conversation do
-    association :family
+    association :family, strategy: :build
     status :open
     trait :open do
       status :open
