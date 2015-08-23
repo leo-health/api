@@ -1,11 +1,11 @@
 class ChangePrioriyOnUserConversations < ActiveRecord::Migration
   def up
     remove_column :user_conversations, :priority
-    add_column :user_conversations, :priority, :integer
+    add_column :user_conversations, :priority, :integer, default: 0
   end
 
   def down
-    add_column :user_conversations, :priority, :string
     remove_column :user_conversations, :priority
+    add_column :user_conversations, :priority, :string
   end
 end

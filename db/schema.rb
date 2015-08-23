@@ -326,7 +326,7 @@ ActiveRecord::Schema.define(version: 20150819210222) do
     t.datetime "updated_at",                      null: false
     t.boolean  "read",            default: false, null: false
     t.boolean  "escalated",       default: false, null: false
-    t.integer  "priority"
+    t.integer  "priority",        default: 0
   end
 
   add_index "user_conversations", ["conversation_id"], name: "index_user_conversations_on_conversation_id", using: :btree
