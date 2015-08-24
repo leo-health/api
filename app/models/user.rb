@@ -2,6 +2,8 @@ class User < ActiveRecord::Base
   acts_as_paranoid
   
   belongs_to :family
+  belongs_to :role
+  has_one :provider_profies, foreign_key: "provider_id"
   belongs_to :practice
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
@@ -14,7 +16,8 @@ class User < ActiveRecord::Base
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
   has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
-  belongs_to :role
+  has_many :provider_appointments, foreign_key: "provider_id", class_name: "Appointment"
+  has_many :booked_appointments, foreign_key: "booked_by_id", class_name: "Appointment"
 
   devise :invitable, :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable

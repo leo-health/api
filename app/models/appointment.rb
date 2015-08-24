@@ -1,66 +1,54 @@
 class Appointment < ActiveRecord::Base
-  belongs_to :leo_patient, class_name: "User"
+  belongs_to :patient
+  belongs_to :booked_by, class_name: "User"
+  belongs_to :provider, class_name: "User"
+  belongs_to :appointment_type
 
-  #helpers for booked status
+  validates :duration, :athena_id, :start_datetime, :status_id, :status,
+            :appointment_type, :booked_by, :provider, :patient, presence: true
+
+  validate :same_family, on: :create
+
+  validates_uniqueness_of :start_datetime, scope: :provider_id
+
+  def same_family
+    return unless (patient && booked_by)
+    errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id
+  end
+
   def pre_checked_in?
-    return future? || open? || cancelled?
+    future? || open? || cancelled?
   end
 
   def post_checked_in?
-    return !pre_checked_in?
+    !pre_checked_in?
   end
 
   def booked?
-    return future? || checked_in? || checked_out? || charge_entered?
+    future? || checked_in? || checked_out? || charge_entered?
   end
 
   def cancelled?
-    return appointment_status == "x"
+    status == "x"
   end
 
   def future?
-    return appointment_status == "f"
+    status == "f"
   end
 
   def open?
-    return appointment_status == "o"
+    status == "o"
   end
 
   def checked_in?
-    return appointment_status == "2"
+    status == "2"
   end
 
   def checked_out?
-    return appointment_status == "3"
+    status == "3"
   end
 
   def charge_entered?
-    return appointment_status == "4"
+    status == "4"
   end
-
-	def self.MAX_DURATION
-		40
-	end
-	def self.MIN_DURATION
-		10
-	end
-
-
-	def self.for_family(family)
-		Appointment.where(family_id: family.id)
-	end
-
-	def self.for_user(user)
-		if user.has_role? :guardian
-			Appointment.for_family(user.family)
-		elsif user.has_role? :patient
-			#TODO: Implement
-		elsif user.has_role? :clinical
-			#TODO: Implement
-		elsif user.has_role? :clinical_support
-			#TODO: Implement
-		elsif user.has_role? :super_user
-			Appointment.all
-		end
-	end
 end

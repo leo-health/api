@@ -14,6 +14,7 @@ class Ability
       can :read, Conversation, :family_id => user.family_id
       can :read, Message, :sender_id => user.id
       can :create, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
+      can [:create, :read, :destroy], Appointment, :booked_by_id => user.id
     elsif user.has_role? :financial
       can :read, User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
@@ -21,6 +22,7 @@ class Ability
       can [:read, :update], Conversation
       can [:create, :read], Message
       can :update, Message, :escalated_at => nil
+      can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :clinical
       can [:read, :update], User do |user|
@@ -29,6 +31,7 @@ class Ability
       can [:read, :update], Conversation
       can [:create, :read], Message
       can :update, Message, :escalated_at => nil
+      can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :clinical_support
       can [:read, :update], User do |user|
@@ -37,6 +40,7 @@ class Ability
       can [:read, :update], Conversation
       can [:create, :read], Message
       can :update, Message, :escalated_at => nil
+      can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :customer_service
       can :read, User do |user|
