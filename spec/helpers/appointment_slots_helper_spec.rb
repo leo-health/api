@@ -221,7 +221,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
 
-      appointment = create(:appointment, appointment: 1,
+      appointment = create(:appointment, provider_id: 1,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
         duration: 20)
 

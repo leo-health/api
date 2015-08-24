@@ -14,9 +14,8 @@ module Leo
               open_slots = []
 
               appointment_durations = []
-              AppointmentType.all.each { |appt_type| appointment_durations += appt_type.duration }
+              AppointmentType.all.each { |appt_type| appointment_durations.push(appt_type.duration) }
 
-              #todo: don't hardcode appointment times
               osp = AppointmentSlotsHelper::OpenSlotsProcessor.new()
               params[:start_date].upto(params[:end_date]) do |date|
                 open_slots = open_slots + osp.get_open_slots(athena_provider_id: params[:athena_provider_id], date: date, durations: appointment_durations)
