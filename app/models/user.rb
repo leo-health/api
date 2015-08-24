@@ -11,7 +11,6 @@ class User < ActiveRecord::Base
   has_many :read_messages, class_name: 'Message', through: :read_receipts
   has_many :invitations, as: :invited_by
   has_many :sessions
-  has_one :health_record
 
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
