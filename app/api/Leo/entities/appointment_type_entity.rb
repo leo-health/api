@@ -10,6 +10,7 @@ module Leo
       expose :long_description
 
       private
+
       def type_id
         object.id
       end
