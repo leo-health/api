@@ -12,8 +12,8 @@ class Ability
       can [:read, :create, :update, :destroy], User, :family_id => user.family_id
       can [:read, :update, :destroy], Patient, :family_id => user.family_id
       can :read, Conversation, :family_id => user.family_id
-      can :read, Message, :sender_id => user.id
-      can :create, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
+      can :read, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
+      can [:read, :create], Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
       can [:create, :read, :destroy], Appointment, :booked_by_id => user.id
     elsif user.has_role? :financial
       can :read, User do |user|

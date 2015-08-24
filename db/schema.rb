@@ -245,7 +245,7 @@ ActiveRecord::Schema.define(version: 20150819210222) do
 
   add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
 
-  create_table "provider_profies", force: :cascade do |t|
+  create_table "provider_profiles", force: :cascade do |t|
     t.integer  "provider_id", null: false
     t.string   "specialties",              array: true
     t.string   "credentials",              array: true
@@ -253,7 +253,7 @@ ActiveRecord::Schema.define(version: 20150819210222) do
     t.datetime "updated_at",  null: false
   end
 
-  add_index "provider_profies", ["provider_id"], name: "index_provider_profies_on_provider_id", unique: true, using: :btree
+  add_index "provider_profiles", ["provider_id"], name: "index_provider_profiles_on_provider_id", unique: true, using: :btree
 
   create_table "provider_schedules", force: :cascade do |t|
     t.integer  "athena_provider_id",   default: 0, null: false
