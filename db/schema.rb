@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150819143622) do
+ActiveRecord::Schema.define(version: 20150819210222) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,46 +29,38 @@ ActiveRecord::Schema.define(version: 20150819143622) do
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
 
   create_table "appointment_types", force: :cascade do |t|
-    t.integer  "athena_id",   default: 0, null: false
-    t.string   "description"
-    t.integer  "duration",                null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.integer  "athena_id",         default: 0, null: false
+    t.integer  "duration",                      null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.string   "short_description"
+    t.string   "long_description"
+    t.string   "name",                          null: false
   end
 
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
 
   create_table "appointments", force: :cascade do |t|
-    t.string   "appointment_status",                     null: false
-    t.string   "athena_appointment_type"
-    t.integer  "leo_provider_id",                        null: false
-    t.integer  "athena_provider_id",                     null: false
-    t.integer  "leo_patient_id",                         null: false
-    t.integer  "booked_by_user_id",                      null: false
-    t.integer  "rescheduled_appointment_id"
-    t.integer  "duration",                               null: false
-    t.boolean  "frozenyn"
-    t.string   "leo_appointment_type"
-    t.integer  "athena_appointment_type_id",             null: false
-    t.integer  "family_id",                              null: false
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
-    t.integer  "athena_id",                  default: 0, null: false
-    t.integer  "athena_department_id",       default: 0, null: false
+    t.integer  "duration",                        null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.integer  "athena_id",           default: 0, null: false
     t.datetime "sync_updated_at"
-    t.datetime "start_datetime",                         null: false
+    t.datetime "start_datetime",                  null: false
+    t.integer  "status_id",                       null: false
+    t.string   "status",                          null: false
+    t.integer  "appointment_type_id",             null: false
+    t.string   "notes"
+    t.integer  "booked_by_id",                    null: false
+    t.integer  "provider_id",                     null: false
+    t.integer  "patient_id",                      null: false
   end
 
-  add_index "appointments", ["athena_appointment_type_id"], name: "index_appointments_on_athena_appointment_type_id", using: :btree
-  add_index "appointments", ["athena_department_id"], name: "index_appointments_on_athena_department_id", using: :btree
+  add_index "appointments", ["appointment_type_id"], name: "index_appointments_on_appointment_type_id", using: :btree
   add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id", using: :btree
-  add_index "appointments", ["athena_provider_id"], name: "index_appointments_on_athena_provider_id", using: :btree
-  add_index "appointments", ["booked_by_user_id"], name: "index_appointments_on_booked_by_user_id", using: :btree
-  add_index "appointments", ["family_id"], name: "index_appointments_on_family_id", using: :btree
-  add_index "appointments", ["leo_appointment_type"], name: "index_appointments_on_leo_appointment_type", using: :btree
-  add_index "appointments", ["leo_patient_id"], name: "index_appointments_on_leo_patient_id", using: :btree
-  add_index "appointments", ["leo_provider_id"], name: "index_appointments_on_leo_provider_id", using: :btree
-  add_index "appointments", ["rescheduled_appointment_id"], name: "index_appointments_on_rescheduled_appointment_id", using: :btree
+  add_index "appointments", ["booked_by_id"], name: "index_appointments_on_booked_by_id", using: :btree
+  add_index "appointments", ["patient_id"], name: "index_appointments_on_patient_id", using: :btree
+  add_index "appointments", ["provider_id"], name: "index_appointments_on_provider_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
   create_table "conversation_changes", force: :cascade do |t|
@@ -253,6 +245,16 @@ ActiveRecord::Schema.define(version: 20150819143622) do
 
   add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
 
+  create_table "provider_profiles", force: :cascade do |t|
+    t.integer  "provider_id", null: false
+    t.string   "specialties",              array: true
+    t.string   "credentials",              array: true
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "provider_profiles", ["provider_id"], name: "index_provider_profiles_on_provider_id", unique: true, using: :btree
+
   create_table "provider_schedules", force: :cascade do |t|
     t.integer  "athena_provider_id",   default: 0, null: false
     t.string   "description"
@@ -326,7 +328,7 @@ ActiveRecord::Schema.define(version: 20150819143622) do
     t.datetime "updated_at",                      null: false
     t.boolean  "read",            default: false, null: false
     t.boolean  "escalated",       default: false, null: false
-    t.string   "priority"
+    t.integer  "priority",        default: 0
   end
 
   add_index "user_conversations", ["conversation_id"], name: "index_user_conversations_on_conversation_id", using: :btree

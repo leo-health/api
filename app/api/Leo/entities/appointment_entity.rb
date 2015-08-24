@@ -2,13 +2,15 @@ module Leo
   module Entities
     class AppointmentEntity < Grape::Entity
       expose :id
-      expose :leo_provider_id, documentation: {type: "integer", desc: "The Leo provider id." }
-      expose :leo_patient_id,  documentation: {type: "integer", desc: "The Leo patient id." }
-      expose :booked_by_user_id, documentation: {type: "integer", desc: "The Leo user id that booked this appointment." }
-      expose :leo_appointment_type, documentation: {type: "string", desc: "Leo appointment type" }
-      expose :appointment_status
-      expose :start_datetime, documentation: { type: "datetime", desc: "Appointment Date/Time" }
-      expose :duration, documentation: {type: "integer", desc: "Appointment Duration" }
+      expose :created_at, as: :created_datetime
+      expose :start_datetime
+      expose :status_id
+      expose :status
+      expose :appointment_type, with: Leo::Entities::AppointmentTypeEntity
+      expose :notes
+      expose :booked_by, with: Leo::Entities::UserEntity
+      expose :provider, with: Leo::Entities::UserEntity
+      expose :patient, with: Leo::Entities::PatientEntity
     end
   end
 end

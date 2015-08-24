@@ -1,79 +1,71 @@
 module Leo
   module V1
     class Appointments < Grape::API
+      include Grape::Kaminari
+
       resource :appointments do
-
-        # All requests pertaining to appointments require authentication
         before do
-          authenticated_user
+          authenticated
         end
 
-        desc "Return all relevant appointments for current user"
-        # get "/appointmeents"
-        get do
-          present Appointment.for_user(current_user), with: Leo::Entities::AppointmentEntity
-        end
-
-        desc "Return an appointment"
-        # get "/appointmeents/{id}"
+        desc "create an appointment"
         params do
-          requires :id, type: Integer, desc: "User id"
-        end
-        route_param :id do
-          get do
-            {appointments: Appointment.find(params[:id])}
-          end
+          requires :duration, type: Integer, allow_blank: false
+          requires :start_datetime, type: DateTime, allow_blank: false
+          requires :status_id, type: Integer, allow_blank: false
+          requires :status, type: String, allow_blank: false
+          requires :appointment_type_id, type: Integer, allow_blank: false
+          requires :provider_id, type: Integer, allow_blank: false
+          requires :patient_id, type: Integer, allow_blank: false
+          optional :notes, type: String
+          optional :athena_id, type: Integer
         end
 
-        desc "Create a Appointment"
-        # post "/appointments"
-        params do
-          requires :patient_id,     type: Integer, 	desc: "Leo HealthRecord Id"
-          requires :provider_id,    type: Integer, 	desc: "Leo Provider Id"
-          requires :start_datetime, type: DateTime, desc: "Appointment start datetime"
-          requires :duration,       type: Integer, 	desc: "Appointment Duration"
-          requires :practice_id,    type: Integer,	desc: "Practice Id for the location of the appointment"
-        end
         post do
-          # set up variables
-          start_datetime = params[:start_datetime]
-          provider_id = params[:provider_id]
-          patient_id = params[:patient_id]
-          duration = params[:duration]
-          practice_id = params[:practice_id]
+          appointment = current_user.booked_appointments.new(declared(params, include_missing: false))
+          authorize! :create, appointment
+          if appointment.save
+            present :appointment, appointment, with: Leo::Entities::AppointmentEntity
+          else
+            error!({error_code: 422, error_message: appointment.errors.full_messages }, 422)
+          end
+        end
 
-          if start_datetime.nil?
-            error!({error_code: 422, error_message: "The appointment date or time is not valid"}, 422)
-            return
+        desc "show an appointment"
+        get ":id" do
+          if appointment = Appointment.find(params[:id])
+            authorize! :read, appointment
+            present :appointment, appointment, with: Leo::Entities::AppointmentEntity
           end
-          if duration < Appointment.MIN_DURATION or duration > Appointment.MAX_DURATION
-            error!({error_code: 422, error_message: "The appointment duration is not valid"}, 422)
-            return
-          end
-          if User.find(provider_id).has_role? :clinical == false
-            error!({error_code: 422, error_message: "A physician with that id does not exist"}, 422)
-            return
-          end
-          if User.find(patient_id).has_role? :patient == false
-            error!({error_code: 422, error_message: "A patient with that id does not exist"}, 422)
-            return
-          end
-          #TODO: Implement a collision test for appointment start time + duration running into another appointment
-          if Appointment.where(leo_provider_id: provider_id, start_datetime: start_datetime).count > 0
-            error!({error_code: 422, error_message: "The physician is not available at that day and time"}, 422)
-            return
-          end
+        end
 
-          appointment = Appointment.create!(
-              {
-                  leo_patient_id:   patient_id,
-                  leo_provider_id:  provider_id,
-                  duration:     duration,
-                  #practice_id:  practice_id, #TODO: add practice_id to appointment model
-                  start_datetime: start_datetime,
-                  booked_by_user_id: current_user.id,
-                  family_id: current_user.family_id
-              })
+        desc "cancel an appointment"
+        delete ':id' do
+          if appointment = Appointment.find(params[:id])
+            authorize! :destroy, appointment
+            appointment.destroy
+          end
+        end
+      end
+
+      namespace 'users/:user_id/appointments' do
+        before do
+          authenticated
+        end
+
+        after_validation do
+          @user = User.find(params[:user_id])
+        end
+
+        desc "return appointments of a user"
+        get do
+          if @user.has_role? :guardian
+            appointments = @user.booked_appointments
+          elsif @user.has_role? :clinical
+            appointments = @user.provider_appointments
+          end
+          authorize! :read, Appointment
+          present :appointments, appointments, with: Leo::Entities::AppointmentEntity
         end
       end
     end

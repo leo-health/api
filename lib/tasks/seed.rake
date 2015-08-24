@@ -126,7 +126,6 @@ namespace :load do
         role: Role.find_or_create_by(id:4, name:"guardian"),
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
-
       if guardian_male.valid?
         print "gm*"
       else

@@ -14,7 +14,7 @@ describe Leo::V1::UserConversations do
     def do_request
       user_conversation_params = { user_id: provider.id,
                                    conversation_id: user.family.conversation.id,
-                                   priority: "high",
+                                   priority: 1,
                                    authentication_token: session.authentication_token
                                   }
 
@@ -24,7 +24,7 @@ describe Leo::V1::UserConversations do
     it "should update the priority of the user_conversation" do
       do_request
       expect(response.status).to eq(200)
-      expect_json("data.user_conversation.priority", "high")
+      expect_json("data.user_conversation.priority", 1)
     end
   end
 end
