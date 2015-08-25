@@ -22,37 +22,37 @@ ROLES.each do |role, id|
 end
 
 AppointmentTypes = {
-    "well visit": {
-                    id: 0,
-                    name: "well visit",
-                    duration: 30,
-                    short_description: "Regular check-up",
-                    long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
-                   },
+    well_visit: {
+      id: 0,
+      name: "well visit",
+      duration: 30,
+      short_description: "Regular check-up",
+      long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
+    },
 
-    "sick visit": {
-                    id: 1,
-                    name: "sick visit",
-                    duration: 20,
-                    short_description: "New symptom",
-                    long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
-                  },
+    sick_visit: {
+      id: 1,
+      name: "sick visit",
+      duration: 20,
+      short_description: "New symptom",
+      long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
+    },
 
-    "follow_up visit": {
-                         id: 2,
-                         name: "follow_up visit",
-                         duration: 20,
-                         short_description: "Unresolved illness or chronic condition",
-                         long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
-                        },
+    follow_up_visit: {
+      id: 2,
+      name: "follow_up visit",
+      duration: 20,
+      short_description: "Unresolved illness or chronic condition",
+      long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
+    },
 
-    "immunization visit": {
-                            id: 3,
-                            name: "immunization visit",
-                            duration: 20,
-                            short_description: "Flu shot or scheduled vaccine",
-                            long_description: "A visit with a nurse to get one or more immunizations."
-                           }
+    immunization_visit: {
+      id: 3,
+      name: "immunization visit",
+      duration: 20,
+      short_description: "Flu shot or scheduled vaccine",
+      long_description: "A visit with a nurse to get one or more immunizations."
+    }
 
 
 }
