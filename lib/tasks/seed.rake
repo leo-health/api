@@ -168,7 +168,6 @@ namespace :load do
             sex: "F",
             birth_date: i.years.ago,
             role: Role.find_or_create_by(id: 6, name:"patient"),
-            practice_id: 0,
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
             print "p*"
