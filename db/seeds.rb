@@ -62,17 +62,17 @@ AppointmentTypes.each do |name, param|
 end
 
 Practices = {
-  if_you_dare: {
+  leo_chelsea: {
     id: 0,
-    name: "If You Dare Practice",
+    name: "Leo @ Chelsea",
     address_line_1: "33w 17th St",
-    address_line_2: "5th Floor",
+    address_line_2: "5th floor",
     city: "New York",
     state: "NY",
     zip: "10011",
     fax: "10543",
     phone: "101-101-1001",
-    email: "good_practice@ifyoudare.com"
+    email: "info@leohealth.com"
   }
 }
 
