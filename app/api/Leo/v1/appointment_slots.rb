@@ -20,15 +20,12 @@ module Leo
               params[:start_date].upto(params[:end_date]) do |date|
                 open_slots = open_slots + osp.get_open_slots(athena_provider_id: params[:athena_provider_id], date: date, durations: appointment_durations)
               end
-
-              {
-                data: [
+                [
                   {
                     provider_id: params[:athena_provider_id],
                     slots: open_slots
                   }
                 ]
-              }
             end
           end
         end
