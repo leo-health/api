@@ -10,4 +10,3 @@ namespace :application do
     end
   end
 end
-
