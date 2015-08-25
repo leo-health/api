@@ -1,5 +1,20 @@
+namespace :application do
+
+  desc 'Run all db operations and seed test data'
+  task :init => :environment do
+    begin
+      ["db:drop", "db:create", "db:migrate", "db:seed", "db:test:prepare", "load:seed_staff", "load:seed_guardians"].each do |t|
+        Rake::Task[t].reenable
+        Rake::Task[t].invoke
+      end
+    end
+  end
+end
+
+
 namespace :load do
-  desc "seed staff users"
+
+  desc "Seed the database with staff users"
   task :seed_staff => :environment do
     roles = {
         super_user: 0,
@@ -101,7 +116,7 @@ namespace :load do
   end
 
   desc "Seed sample guardian users with conversations."
-  task :seed_users => :environment do
+  task :seed_guardians => :environment do
     (1..10).each do |f|
       family = Family.new
 
