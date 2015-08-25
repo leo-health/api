@@ -1,17 +1,3 @@
-namespace :application do
-
-  desc 'Run all db operations and seed test data'
-  task :init => :environment do
-    begin
-      ["db:drop", "db:create", "db:migrate", "db:seed", "db:test:prepare", "load:seed_staff", "load:seed_guardians"].each do |t|
-        Rake::Task[t].reenable
-        Rake::Task[t].invoke
-      end
-    end
-  end
-end
-
-
 namespace :load do
 
   desc "Seed the database with staff users"
@@ -175,7 +161,7 @@ namespace :load do
             middle_initial: "M.",
             last_name: "Curie",
             sex: "F",
-            birth_date: 1.years.ago,
+            birth_date: i.years.ago,
             role: Role.find_or_create_by(id: 6, name:"patient"),
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
