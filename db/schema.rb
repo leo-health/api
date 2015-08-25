@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150819210222) do
+ActiveRecord::Schema.define(version: 20150824220623) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -116,7 +116,6 @@ ActiveRecord::Schema.define(version: 20150819210222) do
 
   create_table "health_records", force: :cascade do |t|
     t.integer  "athena_id",              default: 0, null: false
-    t.integer  "user_id"
     t.datetime "patient_updated_at"
     t.datetime "medications_updated_at"
     t.datetime "vaccines_updated_at"
@@ -126,10 +125,11 @@ ActiveRecord::Schema.define(version: 20150819210222) do
     t.datetime "photos_updated_at"
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
+    t.integer  "patient_id",                         null: false
   end
 
   add_index "health_records", ["athena_id"], name: "index_health_records_on_athena_id", using: :btree
-  add_index "health_records", ["user_id"], name: "index_health_records_on_user_id", using: :btree
+  add_index "health_records", ["patient_id"], name: "index_health_records_on_patient_id", unique: true, using: :btree
 
   create_table "insurances", force: :cascade do |t|
     t.integer  "athena_id",          default: 0, null: false

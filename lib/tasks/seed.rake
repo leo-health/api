@@ -1,5 +1,6 @@
 namespace :load do
-  desc "seed staff users"
+
+  desc "Seed the database with staff users"
   task :seed_staff => :environment do
     roles = {
         super_user: 0,
@@ -116,7 +117,7 @@ namespace :load do
           print "*"
         else
           print "/"
-          puts "failed to seed staff users"
+          puts " failed to seed staff users."
           next
         end
       end
@@ -127,16 +128,15 @@ namespace :load do
       ProviderSchedule.create_with(default_schedule).find_or_create_by(athena_provider_id: attributes[:provider_id])
     end
 
-    puts "successfully seeded staff users"
+    puts " successfully seeded staff users"
   end
 
   desc "Seed sample guardian users with conversations."
-  task :seed_users => :environment do
-    (1..10).each do |f|
+  task :seed_guardians => :environment do
+    (0..4).each do |f|
       family = Family.new
 
       if family.save
-        patient_count = rand(1..6)
         print "f*"
       else
         print "x"
@@ -163,7 +163,7 @@ namespace :load do
         print "Failed to seed guardian user"
       end
 
-      guardian_female = family.guardians.create(
+      guardian_female = family.guardians.create!(
         title: "Mrs.",
         first_name: "Marie",
         middle_initial: "S",
@@ -183,24 +183,26 @@ namespace :load do
         print "Failed to seed guardian user"
       end
 
-      (0..patient_count).each do |i|
-        if patient = family.patients.create(
-          title: "",
-          first_name: "Eve "+ i.to_s,
-          middle_initial: "M.",
-          last_name: "Curie",
-          sex: "F",
-          birth_date: rand(0..21).years.ago,
-          role: Role.find_or_create_by(id: 6, name:"patient"),
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
-        )
-          print "p*"
-        else
+      if f > 0
+        (1..f).each do |i|
+          if patient = family.patients.create!(
+            title: "",
+            first_name: "Eve "+ i.to_s,
+            middle_initial: "M.",
+            last_name: "Curie",
+            sex: "F",
+            birth_date: i.years.ago,
+            role: Role.find_or_create_by(id: 6, name:"patient"),
+            avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+          )
+            print "p*"
+          else
             print "x"
             print "Failed to seed patient user"
+          end
         end
       end
-      print "\nCreated family #"+ f.to_s + " with " + patient_count.to_s + " children.\n"
+      print "\nCreated family #"+ f.to_s + " with " + f.to_s + " children.\n"
     end
   end
 end
