@@ -133,7 +133,7 @@ namespace :load do
         print "Failed to seed guardian user"
       end
 
-      guardian_female = family.guardians.create(
+      guardian_female = family.guardians.create!(
         title: "Mrs.",
         first_name: "Marie",
         middle_initial: "S",
@@ -155,7 +155,7 @@ namespace :load do
 
       if f > 0
         (1..f).each do |i|
-          if patient = family.patients.create(
+          if patient = family.patients.create!(
             title: "",
             first_name: "Eve "+ i.to_s,
             middle_initial: "M.",
@@ -166,13 +166,13 @@ namespace :load do
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
             print "p*"
+            print "\nCreated family #"+ f.to_s + " with " + i.to_s + " children.\n"
           else
-              print "x"
-              print "Failed to seed patient user"
+            print "x"
+            print "Failed to seed patient user"
           end
         end
       end
-      print "\nCreated family #"+ f.to_s + " with " + f.to_s + " children.\n"
     end
   end
 end
