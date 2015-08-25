@@ -92,13 +92,13 @@ namespace :load do
           print "*"
         else
           print "/"
-          puts "failed to seed staff users"
+          puts " failed to seed staff users."
           next
         end
       end
     end
 
-    puts "successfully seeded staff users"
+    puts " successfully seeded staff users."
   end
 
   desc "Seed sample guardian users with conversations."
@@ -166,13 +166,13 @@ namespace :load do
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
             print "p*"
-            print "\nCreated family #"+ f.to_s + " with " + i.to_s + " children.\n"
           else
             print "x"
             print "Failed to seed patient user"
           end
         end
       end
+      print "\nCreated family #"+ f.to_s + " with " + f.to_s + " children.\n"
     end
   end
 end
