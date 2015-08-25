@@ -11,22 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150824220623) do
+ActiveRecord::Schema.define(version: 20150825134341) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "allergies", force: :cascade do |t|
-    t.integer  "patient_id"
-    t.integer  "athena_id",  default: 0,  null: false
-    t.string   "allergen",   default: "", null: false
+    t.integer  "athena_id",        default: 0,  null: false
+    t.string   "allergen",         default: "", null: false
     t.datetime "onset_at"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "health_record_id",              null: false
   end
 
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
-  add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
+  add_index "allergies", ["health_record_id"], name: "index_allergies_on_health_record_id", using: :btree
 
   create_table "appointment_types", force: :cascade do |t|
     t.integer  "athena_id",         default: 0, null: false
@@ -159,23 +159,23 @@ ActiveRecord::Schema.define(version: 20150824220623) do
   add_index "insurances", ["patient_id"], name: "index_insurances_on_patient_id", using: :btree
 
   create_table "medications", force: :cascade do |t|
-    t.integer  "patient_id"
-    t.integer  "athena_id",    default: 0,  null: false
-    t.string   "medication",   default: "", null: false
-    t.string   "sig",          default: "", null: false
-    t.string   "patient_note", default: "", null: false
+    t.integer  "athena_id",        default: 0,  null: false
+    t.string   "medication",       default: "", null: false
+    t.string   "sig",              default: "", null: false
+    t.string   "patient_note",     default: "", null: false
     t.datetime "started_at"
     t.datetime "ended_at"
     t.datetime "ordered_at"
     t.datetime "filled_at"
     t.datetime "entered_at"
     t.datetime "hidden_at"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "health_record_id",              null: false
   end
 
   add_index "medications", ["athena_id"], name: "index_medications_on_athena_id", using: :btree
-  add_index "medications", ["patient_id"], name: "index_medications_on_patient_id", using: :btree
+  add_index "medications", ["health_record_id"], name: "index_medications_on_health_record_id", using: :btree
 
   create_table "messages", force: :cascade do |t|
     t.integer  "sender_id"
@@ -379,16 +379,16 @@ ActiveRecord::Schema.define(version: 20150824220623) do
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
 
   create_table "vaccines", force: :cascade do |t|
-    t.integer  "patient_id"
-    t.string   "athena_id",       default: "", null: false
-    t.string   "vaccine",         default: "", null: false
+    t.string   "athena_id",        default: "", null: false
+    t.string   "vaccine",          default: "", null: false
     t.datetime "administered_at"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "health_record_id",              null: false
   end
 
   add_index "vaccines", ["athena_id"], name: "index_vaccines_on_athena_id", using: :btree
-  add_index "vaccines", ["patient_id"], name: "index_vaccines_on_patient_id", using: :btree
+  add_index "vaccines", ["health_record_id"], name: "index_vaccines_on_health_record_id", using: :btree
 
   create_table "vitals", force: :cascade do |t|
     t.integer  "patient_id"
