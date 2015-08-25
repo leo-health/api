@@ -60,3 +60,22 @@ AppointmentTypes = {
 AppointmentTypes.each do |name, param|
   AppointmentType.create(param) unless AppointmentType.where(name: name).exists?
 end
+
+Practices = {
+  leo_chelsea: {
+    id: 0,
+    name: "Leo @ Chelsea",
+    address_line_1: "33w 17th St",
+    address_line_2: "5th floor",
+    city: "New York",
+    state: "NY",
+    zip: "10011",
+    fax: "10543",
+    phone: "101-101-1001",
+    email: "info@leohealth.com"
+  }
+}
+
+Practices.each do |name, param|
+  Practice.create(param) unless Practice.where(name: name).exists?
+end
