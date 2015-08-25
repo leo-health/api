@@ -21,6 +21,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 0,
+          practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -34,6 +35,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 1,
+          practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -47,6 +49,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 2,
+          practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -60,6 +63,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 3,
+          practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -73,6 +77,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 5,
+          practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       }
     }
@@ -119,11 +124,11 @@ namespace :load do
         first_name: "Pierre",
         middle_initial: "E",
         last_name: "Curie",
-        practice_id: 1,
         sex: "M",
         password: "pierrepierre",
         email: "pierre"+family.id.to_s+"@curie.com",
         role: Role.find_or_create_by(id:4, name:"guardian"),
+        practice_id: 0,
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
       if guardian_male.valid?
@@ -138,11 +143,11 @@ namespace :load do
         first_name: "Marie",
         middle_initial: "S",
         last_name: "Curie",
-        practice_id: 1,
         sex: "F",
         password: "mariemarie",
         email: "marie"+family.id.to_s+"@curie.com",
         role: Role.find_or_create_by(id:4, name:"guardian"),
+        practice_id: 0,
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
 
@@ -163,6 +168,7 @@ namespace :load do
             sex: "F",
             birth_date: i.years.ago,
             role: Role.find_or_create_by(id: 6, name:"patient"),
+            practice_id: 0,
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
             print "p*"
