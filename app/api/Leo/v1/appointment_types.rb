@@ -10,7 +10,7 @@ module Leo
         end
 
         get do
-          present :appointment_types, AppointmentType.all, with: Leo::Entities::AppointmentTypeEntity
+          present AppointmentType.all, with: Leo::Entities::AppointmentTypeEntity
         end
       end
     end
