@@ -119,7 +119,7 @@ namespace :load do
           user.create_provider_profile!(provider_profiles[0])
           ProviderSchedule.create!(default_schedule)
         end
-        print "*"
+        print "*".green
       else
         print "/"
         puts " failed to seed staff users. - #{user.errors.full_messages}".red
