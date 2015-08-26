@@ -17,7 +17,7 @@ describe Leo::V1::AppointmentTypes do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:appointment_types].as_json.to_json).to eq(serializer.represent(AppointmentType.all).as_json.to_json)
+      expect(body[:data].as_json.to_json).to eq(serializer.represent(AppointmentType.all).as_json.to_json)
     end
   end
 end

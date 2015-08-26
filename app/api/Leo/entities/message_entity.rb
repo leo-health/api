@@ -2,7 +2,7 @@ module Leo
   module Entities
     class MessageEntity < Grape::Entity
       expose :id
-      expose :sender_id
+      expose :sender, with: Leo::Entities::UserEntity
       expose :conversation_id
       expose :body
       expose :message_type
