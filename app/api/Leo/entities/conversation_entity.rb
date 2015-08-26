@@ -14,7 +14,7 @@ module Leo
       expose :status
       expose :last_closed_at
       expose :last_closed_by
-      expose :messages
+      expose :messages, with: Leo::Entities::MessageEntity
 
       private
 
