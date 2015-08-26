@@ -15,10 +15,10 @@ namespace :app do
   desc 'Seed test data'
   task seed: :environment do
   	begin
-  		["load:seed_staff", "load:seed_guardians"].each do |t|
-  			Rake::Task[t].execute
-  			puts "#{t} completed".green
+			["load:seed_staff", "load:seed_guardians"].each do |t|
+				Rake::Task[t].execute
+				puts "#{t} completed".green
   		end
-	end
+		end
   end
 end
