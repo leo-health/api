@@ -32,7 +32,7 @@ module Leo
       require_relative 'passwords'
       require_relative 'read_receipts'
       require_relative 'practices'
-      require_relative 'appoint_types'
+      require_relative 'appointment_types'
       require_relative 'families'
       require_relative 'user_conversations'
       require_relative 'cards'
