@@ -82,6 +82,31 @@ namespace :load do
       }
     }
 
+    provider_profiles = [{
+      provider_id: 1,
+      specialties: "",
+      credentials: ""
+    }]
+
+    default_schedule = {
+      description: "Default Schedule",
+      active: true,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    }
+
     roles.each do |name, id|
       Role.update_or_create_by_id_and_name(id, name) do |r|
         r.save
@@ -103,7 +128,12 @@ namespace :load do
       end
     end
 
-    puts " successfully seeded staff users."
+    provider_profiles.each do |attributes|
+      ProviderProfile.create_with(attributes).find_or_create_by(provider_id: attributes[:provider_id])
+      ProviderSchedule.create_with(default_schedule).find_or_create_by(athena_provider_id: attributes[:provider_id])
+    end
+
+    puts " successfully seeded staff users"
   end
 
   desc "Seed sample guardian users with conversations."
