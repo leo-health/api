@@ -117,10 +117,12 @@ namespace :load do
         user.has_role? name ? (print "*") : (user.add_role name)
       else
         if user = User.create(attributes)
-          if user.has_role? :clinical
-            provider_profiles[0][:provider_id] = user.id
-          end
           user.confirm
+          if user.has_role? :clinical
+            user.provider_profile.create_with(provider_profiles.first)
+            default_schedule[:athena_provider_id] = user.id
+            user.provider_schedule.create_with(default_schedule)
+          end
           print "*"
         else
           print "/"
@@ -128,11 +130,6 @@ namespace :load do
           false
         end
       end
-    end
-
-    provider_profiles.each do |attributes|
-      ProviderProfile.create_with(attributes).find_or_create_by(provider_id: attributes[:provider_id])
-      ProviderSchedule.create_with(default_schedule).find_or_create_by(athena_provider_id: attributes[:provider_id])
     end
 
     puts " successfully seeded staff users"
