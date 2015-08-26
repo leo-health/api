@@ -116,6 +116,7 @@ namespace :load do
       if user.valid?
         if user.has_role? :clinical
           provider_profiles[0][:provider_id] = user.id
+          default_schedule[:athena_provider_id] = user.id
           user.create_provider_profile!(provider_profiles[0])
           ProviderSchedule.create!(default_schedule)
         end
