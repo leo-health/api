@@ -1,4 +1,4 @@
-ROLES = {
+roles_seed = {
           # Super user / admin
           super_user: 0,
           # Access accounting and billing data for administrative staff
@@ -15,13 +15,13 @@ ROLES = {
           patient: 6
         }
 
-ROLES.each do |role, id|
+roles_seed.each do |role, id|
   Role.update_or_create_by_id_and_name(id, role) do |r|
     r.save
   end
 end
 
-AppointmentTypes = {
+appointment_types_seed = {
     well_visit: {
       id: 0,
       name: "well visit",
@@ -57,12 +57,12 @@ AppointmentTypes = {
 
 }
 
-AppointmentTypes.each do |name, param|
+appointment_types_seed.each do |name, param|
   AppointmentType.create(param) unless AppointmentType.where(name: name).exists?
 end
 
-Practices = {
-  leo_chelsea: {
+practices_seed = {
+  "Leo @ Chelsea": {
     id: 0,
     name: "Leo @ Chelsea",
     address_line_1: "33w 17th St",
@@ -76,6 +76,6 @@ Practices = {
   }
 }
 
-Practices.each do |name, param|
+practices_seed.each do |name, param|
   Practice.create(param) unless Practice.where(name: name).exists?
 end

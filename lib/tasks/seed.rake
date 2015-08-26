@@ -1,14 +1,18 @@
+
 namespace :load do
+
+  desc 'Seed test data'
+  task all: :environment do
+    begin
+      ["load:seed_staff", "load:seed_guardians"].each do |t|
+        Rake::Task[t].execute
+        puts "#{t} completed".green
+      end
+    end
+  end
 
   desc "Seed the database with staff users"
   task seed_staff: :environment do
-    roles = {
-        super_user: 0,
-        financial: 1,
-        clinical_support: 2,
-        customer_service: 3,
-        clinical: 5
-    }
 
     staff = {
       super_user: {
@@ -106,39 +110,32 @@ namespace :load do
       sunday_end_time: "00:00"
     }
 
-    roles.each do |name, id|
-      Role.update_or_create_by_id_and_name(id, name) do |r|
-        r.save
-      end
-    end
-
     staff.each do |name, attributes|
-      if user = User.find_by_email(attributes[:email])
-        user.has_role? name ? (print "*") : (user.add_role name)
-      else
-        if user = User.create(attributes)
-          user.confirm
-          if user.has_role? :clinical
-            user.provider_profile.create_with(provider_profiles.first)
-            default_schedule[:athena_provider_id] = user.id
-            user.provider_schedule.create_with(default_schedule)
-          end
-          print "*"
-        else
-          print "/"
-          puts " failed to seed staff users."
-          false
+      user = User.create(attributes)
+
+      if user.valid?
+        if user.has_role? :clinical
+          provider_profiles[0][:provider_id] = user.id
+          user.create_provider_profile!(provider_profiles[0])
+          ProviderSchedule.create!(default_schedule)
         end
+        print "*"
+      else
+        print "/"
+        puts " failed to seed staff users. - #{user.errors.full_messages}".red
+        false
       end
     end
-
-    puts " successfully seeded staff users"
+    puts " successfully seeded staff users".green
   end
+
+
+
 
   desc "Seed sample guardian users with conversations."
   task seed_guardians: :environment do
     (0..4).each do |f|
-      family = Family.create
+      family = Family.new
 
       if family.save
         print "f*".green
@@ -148,7 +145,7 @@ namespace :load do
         false
       end
 
-      guardian_male = family.guardians.create(
+      guardian_male = family.guardians.create!(
         title: "Mr.",
         first_name: "Pierre",
         middle_initial: "E",
@@ -156,10 +153,11 @@ namespace :load do
         sex: "M",
         password: "pierrepierre",
         email: "pierre"+family.id.to_s+"@curie.com",
-        role: Role.find_or_create_by(id:4, name:"guardian"),
+        role_id: 4,
         practice_id: 0,
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
+
       if guardian_male.valid?
         print "gm*".green
       else
@@ -176,7 +174,7 @@ namespace :load do
         sex: "F",
         password: "mariemarie",
         email: "marie"+family.id.to_s+"@curie.com",
-        role: Role.find_or_create_by(id:4, name:"guardian"),
+        role_id: 4,
         practice_id: 0,
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
@@ -198,7 +196,7 @@ namespace :load do
             last_name: "Curie",
             sex: "F",
             birth_date: i.years.ago,
-            role: Role.find_or_create_by(id: 6, name:"patient"),
+            role_id: 6,
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
             print "p*".green
