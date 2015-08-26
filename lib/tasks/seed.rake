@@ -121,16 +121,12 @@ namespace :load do
         end
         print "*".green
       else
-        print "/"
-        puts " failed to seed staff users. - #{user.errors.full_messages}".red
+        print "x"
+        puts "Failed to seed staff users - #{user.errors.full_messages}".red
         false
       end
     end
-    puts " successfully seeded staff users".green
   end
-
-
-
 
   desc "Seed sample guardian users with conversations."
   task seed_guardians: :environment do
@@ -138,10 +134,10 @@ namespace :load do
       family = Family.new
 
       if family.save
-        print "f*".green
+        print "*".green
       else
         print "x".red
-        print "Failed to create a family".red
+        print "Failed to create a family - #{family.errors.full_messages}".red
         false
       end
 
@@ -152,17 +148,17 @@ namespace :load do
         last_name: "Curie",
         sex: "M",
         password: "pierrepierre",
-        email: "pierre"+family.id.to_s+"@curie.com",
+        email: "pierre#{family.id.to_s}@curie.com",
         role_id: 4,
         practice_id: 0,
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
 
       if guardian_male.valid?
-        print "gm*".green
+        print "*".green
       else
         print "x".red
-        print "Failed to seed guardian user".red
+        print "Failed to seed guardian user - #{guardian_male.errors.full_messages}".red
         false
       end
 
@@ -173,17 +169,17 @@ namespace :load do
         last_name: "Curie",
         sex: "F",
         password: "mariemarie",
-        email: "marie"+family.id.to_s+"@curie.com",
+        email: "marie#{family.id.to_s}@curie.com",
         role_id: 4,
         practice_id: 0,
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
 
       if guardian_female.valid?
-        print "gf*".green
+        print "*".green
       else
         print "x".red
-        print "Failed to seed guardian user".red
+        print "Failed to seed guardian user - #{guardian_female.errors.full_messages}".red
         false
       end
 
@@ -191,7 +187,7 @@ namespace :load do
         (1..f).each do |i|
           if patient = family.patients.create!(
             title: "",
-            first_name: "Eve "+ i.to_s,
+            first_name: "Eve #{i.to_s}",
             middle_initial: "M.",
             last_name: "Curie",
             sex: "F",
@@ -199,15 +195,15 @@ namespace :load do
             role_id: 6,
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
-            print "p*".green
+            print "*".green
           else
             print "x".red
-            print "Failed to seed patient user".red
+            print "Failed to seed patient user - #{patient.errors.full_messages}".red
             false
           end
         end
       end
-      puts "Created family #{f.to_s} with #{f.to_s} children.".green
+      puts "Created family #{family.id.to_s} with #{family.patients.count+1} children.".green
     end
   end
 end
