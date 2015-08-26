@@ -40,10 +40,12 @@ describe "User" do
         it{should be_able_to(:read, patient)}
         it{should be_able_to(:destroy, patient)}
         it{should be_able_to(:update, patient)}
+        it{should be_able_to(:create, patient)}
 
         it{should_not be_able_to(:read, other_patient)}
         it{should_not be_able_to(:destroy, other_patient)}
         it{should_not be_able_to(:update, other_patient)}
+        it{should_not be_able_to(:create, other_patient)}
       end
 
       describe "ability for Conversation" do
