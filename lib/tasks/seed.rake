@@ -1,7 +1,7 @@
 namespace :load do
 
   desc "Seed the database with staff users"
-  task :seed_staff => :environment do
+  task seed_staff: :environment do
     roles = {
         super_user: 0,
         financial: 1,
@@ -83,7 +83,6 @@ namespace :load do
     }
 
     provider_profiles = [{
-      provider_id: 1,
       specialties: "",
       credentials: ""
     }]
@@ -118,12 +117,15 @@ namespace :load do
         user.has_role? name ? (print "*") : (user.add_role name)
       else
         if user = User.create(attributes)
+          if user.has_role? :clinical
+            provider_profiles[0][:provider_id] = user.id
+          end
           user.confirm
           print "*"
         else
           print "/"
           puts " failed to seed staff users."
-          next
+          false
         end
       end
     end
@@ -137,16 +139,16 @@ namespace :load do
   end
 
   desc "Seed sample guardian users with conversations."
-  task :seed_guardians => :environment do
+  task seed_guardians: :environment do
     (0..4).each do |f|
-      family = Family.new
+      family = Family.create
 
       if family.save
-        print "f*"
+        print "f*".green
       else
-        print "x"
-        print "Failed to create a family"
-        return false
+        print "x".red
+        print "Failed to create a family".red
+        false
       end
 
       guardian_male = family.guardians.create(
@@ -162,10 +164,11 @@ namespace :load do
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
       if guardian_male.valid?
-        print "gm*"
+        print "gm*".green
       else
-        print "x"
-        print "Failed to seed guardian user"
+        print "x".red
+        print "Failed to seed guardian user".red
+        false
       end
 
       guardian_female = family.guardians.create!(
@@ -182,10 +185,11 @@ namespace :load do
       )
 
       if guardian_female.valid?
-        print "gf*"
+        print "gf*".green
       else
-        print "x"
-        print "Failed to seed guardian user"
+        print "x".red
+        print "Failed to seed guardian user".red
+        false
       end
 
       if f > 0
@@ -200,14 +204,15 @@ namespace :load do
             role: Role.find_or_create_by(id: 6, name:"patient"),
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
-            print "p*"
+            print "p*".green
           else
-            print "x"
-            print "Failed to seed patient user"
+            print "x".red
+            print "Failed to seed patient user".red
+            false
           end
         end
       end
-      print "\nCreated family #"+ f.to_s + " with " + f.to_s + " children.\n"
+      puts "Created family #{f.to_s} with #{f.to_s} children.".green
     end
   end
 end
