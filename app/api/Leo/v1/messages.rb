@@ -3,18 +3,17 @@ module Leo
     class Messages < Grape::API
       include Grape::Kaminari
 
-      namespace 'conversations/:conversatoin_id' do
+      namespace 'conversations/:conversation_id' do
         resource :messages do
           before do
             authenticated
           end
 
           after_validation do
-            @conversation = Conversation.find(params[:conversatoin_id])
+            @conversation = Conversation.find(params[:conversation_id])
           end
 
           desc "Return all messages for a conversation with pagination options"
-
           get do
             messages = @conversation.messages
             authorize! :read, Message
