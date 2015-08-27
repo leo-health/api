@@ -5,14 +5,14 @@ namespace :session do
 		answer = STDIN.gets.chomp.to_i
 		if (family = Family.find_by_id(answer+1)) ? true:false
 			if (patients = family.patients) ? true:false
-				pp patients
+				ap patients
 			else
 				print "Error - #{patients.errors.full_messages}"
 			end
 			if(guardian = family.guardians.first) ? true:false
 				guardian.sessions.create
-				pp guardian
-				pp guardian.sessions.last
+				ap guardian
+				ap guardian.sessions.last
 			else
 				print "Error - #{guardian.errors.full_messages}"
 			end
