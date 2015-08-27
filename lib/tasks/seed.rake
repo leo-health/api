@@ -6,7 +6,7 @@ namespace :load do
     begin
       ["load:seed_staff", "load:seed_guardians"].each do |t|
         Rake::Task[t].execute
-        puts "#{t} completed".green
+        puts "#{t} completed"
       end
     end
   end
@@ -120,10 +120,10 @@ namespace :load do
           user.create_provider_profile!(provider_profiles[0])
           ProviderSchedule.create!(default_schedule)
         end
-        print "*".green
+        print "*"
       else
         print "x"
-        puts "Failed to seed staff users - #{user.errors.full_messages}".red
+        puts "Failed to seed staff users - #{user.errors.full_messages}"
         false
       end
     end
@@ -135,10 +135,10 @@ namespace :load do
       family = Family.new
 
       if family.save
-        print "*".green
+        print "*"
       else
-        print "x".red
-        print "Failed to create a family - #{family.errors.full_messages}".red
+        print "x"
+        print "Failed to create a family - #{family.errors.full_messages}"
         false
       end
 
@@ -156,10 +156,10 @@ namespace :load do
       )
 
       if guardian_male.valid?
-        print "*".green
+        print "*"
       else
-        print "x".red
-        print "Failed to seed guardian user - #{guardian_male.errors.full_messages}".red
+        print "x"
+        print "Failed to seed guardian user - #{guardian_male.errors.full_messages}"
         false
       end
 
@@ -177,10 +177,10 @@ namespace :load do
       )
 
       if guardian_female.valid?
-        print "*".green
+        print "*"
       else
-        print "x".red
-        print "Failed to seed guardian user - #{guardian_female.errors.full_messages}".red
+        print "x"
+        print "Failed to seed guardian user - #{guardian_female.errors.full_messages}"
         false
       end
 
@@ -196,15 +196,15 @@ namespace :load do
             role_id: 6,
             avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
           )
-            print "*".green
+            print "*"
           else
-            print "x".red
-            print "Failed to seed patient user - #{patient.errors.full_messages}".red
+            print "x"
+            print "Failed to seed patient user - #{patient.errors.full_messages}"
             false
           end
         end
       end
-      puts "Created family #{family.id.to_s} with #{family.patients.count+1} children.".green
+      puts "Created family #{family.id.to_s} with #{family.patients.count+1} children."
     end
   end
 end

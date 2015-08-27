@@ -14,10 +14,10 @@ namespace :session do
 				ap guardian
 				ap guardian.sessions.last
 			else
-				print "Error - #{guardian.errors.full_messages}".red
+				print "Error - #{guardian.errors.full_messages}"
 			end
     else
-      print "Error - #{family.errors.full_messages}".red
+      print "Error - #{family.errors.full_messages}"
 		end
 	end
 end
