@@ -14,7 +14,7 @@ module Leo
       expose :status
       expose :last_closed_at
       expose :last_closed_by
-      expose :messages, with: Leo::Entities::MessageEntity
+      # expose :messages, with: Leo::Entities::MessageEntity
 
       private
 
@@ -26,9 +26,9 @@ module Leo
         object.family.patients
       end
 
-      def messages
-        object.messages.order('created_at DESC')
-      end
+      # def messages
+      #   object.messages.order('created_at DESC')
+      # end
     end
   end
 end
