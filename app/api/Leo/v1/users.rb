@@ -17,22 +17,23 @@ module Leo
 
         desc "#post create a user"
         params do
-          requires :first_name, type: String, allow_blank: false
-          requires :last_name, type: String, allow_blank: false
-          requires :email, type: String, allow_blank: false
-          requires :password, type: String, allow_blank: false
-          requires :birth_date, type: Date, allow_blank: false
+          requires :first_name, type: String
+          requires :last_name, type: String
+          requires :email, type: String
+          requires :password, type: String
+          requires :birth_date, type: Date
           requires :sex, type: String, values: ['M', 'F']
-          optional :family_id, type: Integer, allow_blank: false
+          optional :family_id, type: Integer
         end
 
         post do
-          user = User.new(declared(params).merge({role_id: 4}))
+          user = User.new(declared(params, include_missing: false).merge({role_id: 4}))
           if user.save
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
           else
+            byebug
             error!({error_code: 422, error_message: user.errors.full_messages }, 422)
           end
         end
