@@ -4,5 +4,6 @@ module Leo
 
     prefix :api
     mount Leo::V1::API
+    mount Leo::Validators
   end
 end

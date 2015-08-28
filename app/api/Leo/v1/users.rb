@@ -19,7 +19,7 @@ module Leo
         params do
           requires :first_name, type: String
           requires :last_name, type: String
-          requires :email, type: String
+          requires :email, type: String, validate_email: true
           requires :password, type: String
           requires :birth_date, type: Date
           requires :sex, type: String, values: ['M', 'F']
