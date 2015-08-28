@@ -26,7 +26,7 @@ module Leo
         object.family.patients
       end
 
-      def messages
+      def last_message
         object.messages.order('created_at DESC').first
       end
     end
