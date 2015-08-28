@@ -7,7 +7,7 @@ describe Leo::V1::Users do
     let!(:role){create(:role, :guardian)}
     let!(:user_params){{ first_name: "first_name",
                          last_name: "last_name",
-                         email: "test@leohealth.com",
+                         email: "guardian@leohealth.com",
                          password: "password",
                          birth_date: 48.years.ago,
                          sex: "M"
