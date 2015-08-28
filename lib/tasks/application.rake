@@ -4,7 +4,7 @@ namespace :app do
     ["db:reset", "load:all"].each do |t|
       Rake::Task[t].invoke
       Rake::Task[t].reenable
-      puts "#{t} completed".green
+      puts "#{t} completed"
     end
   end
 end

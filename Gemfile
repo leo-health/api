@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'awesome_print'
 gem 'rails', '4.2.0'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
@@ -34,7 +35,6 @@ gem 'pusher'
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
   gem 'factory_girl_rails'
-  gem 'awesome_print'
   gem 'byebug'
   gem 'quiet_assets'
   gem 'spork'
