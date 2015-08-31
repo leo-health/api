@@ -1,5 +1,9 @@
 class Allergy < ActiveRecord::Base
-  def table_name
+  belongs_to :health_record
+
+  validates :health_record, presence: true
+
+  def self.table_name
     'allergies'
   end
 end

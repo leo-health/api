@@ -1,6 +1,5 @@
 FactoryGirl.define do
-  factory :allergy, :class => 'Allergy' do
-    
+  factory :allergy do
+    association :health_record, strategy: :build
   end
-
 end
