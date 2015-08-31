@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150824220623) do
+ActiveRecord::Schema.define(version: 20150831144635) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,11 +54,13 @@ ActiveRecord::Schema.define(version: 20150824220623) do
     t.integer  "booked_by_id",                    null: false
     t.integer  "provider_id",                     null: false
     t.integer  "patient_id",                      null: false
+    t.datetime "deleted_at"
   end
 
   add_index "appointments", ["appointment_type_id"], name: "index_appointments_on_appointment_type_id", using: :btree
   add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id", using: :btree
   add_index "appointments", ["booked_by_id"], name: "index_appointments_on_booked_by_id", using: :btree
+  add_index "appointments", ["deleted_at"], name: "index_appointments_on_deleted_at", using: :btree
   add_index "appointments", ["patient_id"], name: "index_appointments_on_patient_id", using: :btree
   add_index "appointments", ["provider_id"], name: "index_appointments_on_provider_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
