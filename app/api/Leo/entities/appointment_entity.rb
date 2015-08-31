@@ -5,7 +5,6 @@ module Leo
       expose :created_at, as: :created_datetime
       expose :start_datetime
       expose :status_id
-      expose :status
       expose :appointment_type, with: Leo::Entities::AppointmentTypeEntity
       expose :notes
       expose :booked_by, with: Leo::Entities::UserEntity

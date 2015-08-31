@@ -10,7 +10,6 @@ module Leo
 
         desc "create an appointment"
         params do
-          requires :duration, type: Integer, allow_blank: false
           requires :start_datetime, type: DateTime, allow_blank: false
           requires :status_id, type: Integer, allow_blank: false
           requires :status, type: String, allow_blank: false
@@ -22,7 +21,9 @@ module Leo
         end
 
         post do
-          appointment = current_user.booked_appointments.new(declared(params, include_missing: false))
+          duration = AppointmentType.find(params[:appointment_type_id]).duration
+          appointment_params = declared(params, include_missing: false).merge(duration: duration)
+          appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
           if appointment.save
             present :appointment, appointment, with: Leo::Entities::AppointmentEntity
