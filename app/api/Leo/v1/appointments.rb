@@ -47,6 +47,11 @@ module Leo
             appointment.destroy
           end
         end
+
+        desc "reschedule an appointment"
+        put ":id" do
+
+        end
       end
 
       namespace 'users/:user_id/appointments' do

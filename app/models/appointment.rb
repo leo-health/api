@@ -1,4 +1,6 @@
 class Appointment < ActiveRecord::Base
+  acts_as_paranoid
+
   belongs_to :patient
   belongs_to :booked_by, class_name: "User"
   belongs_to :provider, class_name: "User"
