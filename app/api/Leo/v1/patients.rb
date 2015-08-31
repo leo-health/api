@@ -9,11 +9,11 @@ module Leo
 
         desc "#post create a patient for current guardian"
         params do
+          optional :title, type: String
           requires :first_name, type: String, allow_blank: false
           requires :last_name, type: String, allow_blank: false
           requires :birth_date, type: String, allow_blank: false
           requires :sex, type: String, values: ['M', 'F']
-          optional :title, type: String
           optional :suffix, type: String
           optional :middle_initial, type: String
           optional :email, type: String
