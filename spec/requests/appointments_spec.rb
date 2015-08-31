@@ -44,11 +44,11 @@ describe Leo::V1::Appointments do
     end
   end
 
-  describe "Delete /api/v1/appointments/:id" do
+  describe "Delete /api/v1/appointments" do
     let!(:appointment){create(:appointment, booked_by: user)}
 
     def do_request
-      delete "/api/v1/appointments/#{appointment.id}", {authentication_token: session.authentication_token}
+      delete "/api/v1/appointments", {authentication_token: session.authentication_token, id: appointment.id}
     end
 
     it "should delete the requested appointment" do
@@ -57,12 +57,12 @@ describe Leo::V1::Appointments do
     end
   end
 
-  describe "Get /api/v1/users/:user_id/appointments" do
+  describe "Get /api/v1/appointments" do
     let!(:appointment){create(:appointment, booked_by: user)}
     let!(:other_appointment){create(:appointment, booked_by: user)}
 
     def do_request
-      get "/api/v1/users/#{user.id}/appointments", {authentication_token: session.authentication_token}
+      get "/api/v1/appointments", {authentication_token: session.authentication_token}
     end
 
     it "should return all the appointments of the user" do
