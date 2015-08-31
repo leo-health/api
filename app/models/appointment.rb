@@ -4,7 +4,7 @@ class Appointment < ActiveRecord::Base
   belongs_to :provider, class_name: "User"
   belongs_to :appointment_type
 
-  validates :duration, :athena_id, :start_datetime, :status_id, :status,
+  validates :duration, :athena_id, :start_datetime, :status,
             :appointment_type, :booked_by, :provider, :patient, presence: true
 
   validate :same_family, on: :create

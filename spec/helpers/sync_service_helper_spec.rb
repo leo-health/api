@@ -8,358 +8,392 @@ RSpec.describe SyncServiceHelper, type: :helper do
   provider_id = 71
 
   describe "Sync Service Helper - " do
+    let!(:connector) { double("connector") }
+    let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
 
-    if false
 
-      it "generate initial appointment sync tasks" do
-        connector = AthenaHealthApiHelper::MockConnector.new()
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        create(:appointment, athena_department_id: department_id)
-        SyncTask.destroy_all()
-
-        expect(SyncTask.all.empty?).to eq(true)
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :scan_appointments, sync_id: 0)
-        syncer.process_scan_appointments(task)
-
-        expect(SyncTask.all.empty?).to eq(false)
+    describe "process_scan_appointments" do
+      it "creates sync task for unsynced appointment" do
+        appt = FactoryGirl.create(:appointment, athena_id: 0)
+        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
+        syncer.process_scan_appointments(SyncTask.new())
       end
 
-      it "sync booked leo appointment with missing athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new()
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "f", athena_id: 0, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false)
-        expect(leo_appt.athena_id).to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(leo_appt.start_datetime).to eq(Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M"))
-        expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-        expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-        expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
-        expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
-      end
-
-      it "sync booked leo appointment with open athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new(appointments: [ 
-            {
-              :appointmentid => 1, 
-              :date => "01/01/2000",
-              :starttime => "00:00",
-              :appointmenttypeid => 2,
-              :departmentid => department_id,
-              :providerid => provider_id,
-              :reasonid => nil,
-              :appointmentstatus => "o",
-              :frozenyn => true
-            }         
-          ])
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "f", athena_id: 1, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false)
-        expect(leo_appt.athena_id).not_to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-        expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-        expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
-      end
-      
-      it "sync booked leo appointment with booked athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new(appointments: [ 
-            {
-              :appointmentid => 1, 
-              :date => "01/01/2000",
-              :starttime => "00:00",
-              :appointmenttypeid => 1,
-              :departmentid => department_id,
-              :providerid => provider_id,
-              :reasonid => nil,
-              :appointmentstatus => "f",
-              :frozenyn => false
-            }         
-          ])
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "f", athena_id: 1, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: true)
-        expect(leo_appt.athena_id).not_to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
-      end
-
-      it "sync booked leo appointment with checked_in athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new(appointments: [ 
-            {
-              :appointmentid => 1, 
-              :date => "01/01/2000",
-              :starttime => "00:00",
-              :appointmenttypeid => 1,
-              :departmentid => department_id,
-              :providerid => provider_id,
-              :reasonid => nil,
-              :appointmentstatus => "2",
-              :frozenyn => false
-            }         
-          ])
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "f", athena_id: 1, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: true)
-        expect(leo_appt.athena_id).not_to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(leo_appt.appointment_status).to eq("2")
-      end
-
-      it "sync cancelled leo appointment with missing athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new()
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "x", athena_id: 0, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false)
-        expect(leo_appt.athena_id).to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(leo_appt.start_datetime).to eq(Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M"))
-        expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-        expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-        expect(athena_appt.providerid).to eq(leo_appt.athena_provider_id)
-        expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
-      end
-
-      it "sync cancelled leo appointment with open athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new(appointments: [ 
-            {
-              :appointmentid => 1, 
-              :date => "01/01/2000",
-              :starttime => "00:00",
-              :appointmenttypeid => 2,
-              :departmentid => department_id,
-              :providerid => provider_id,
-              :reasonid => nil,
-              :appointmentstatus => "o",
-              :frozenyn => true
-            }         
-          ])
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "x", athena_id: 1, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false)
-        expect(leo_appt.athena_id).not_to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(athena_appt.appointmenttypeid).to eq(leo_appt.athena_appointment_type_id)
-        expect(athena_appt.departmentid).to eq(leo_appt.athena_department_id)
-        expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
-      end
-
-      it "sync cancelled leo appointment with booked athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new(appointments: [ 
-            {
-              :appointmentid => 1, 
-              :date => "01/01/2000",
-              :starttime => "00:00",
-              :appointmenttypeid => 2,
-              :departmentid => department_id,
-              :providerid => provider_id,
-              :reasonid => nil,
-              :appointmentstatus => "f",
-              :frozenyn => true
-            }         
-          ])
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "x", athena_id: 1, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false)
-        expect(leo_appt.athena_id).not_to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-        expect(athena_appt.frozenyn).to eq(leo_appt.frozenyn)
-      end
-
-      it "sync cancelled leo appointment with cancelled athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new(appointments: [ 
-            {
-              :appointmentid => 1, 
-              :date => "01/01/2000",
-              :starttime => "00:00",
-              :appointmenttypeid => 2,
-              :departmentid => department_id,
-              :providerid => provider_id,
-              :reasonid => nil,
-              :appointmentstatus => "x",
-              :frozenyn => true
-            }         
-          ])
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        leo_appt = create(:appointment, appointment_status: "x", athena_id: 1, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false)
-        expect(leo_appt.athena_id).not_to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-      end
-
-      it "sync rescheduled leo appointment with missing athena appointment" do
-        connector = AthenaHealthApiHelper::MockConnector.new()
-        syncer = SyncServiceHelper::Syncer.new(connector)
-
-        #create appointment in leo
-        resched_appt = create(:appointment, appointment_status: "f", athena_id: 0, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false)
-        leo_appt = create(:appointment, appointment_status: "x", athena_id: 0, athena_department_id: department_id, 
-          athena_provider_id: provider_id, frozenyn: false, rescheduled_appointment_id: resched_appt.id)
-        expect(leo_appt.athena_id).to eq(0)
-        SyncTask.destroy_all()
-
-        #generate sync task for the appointment
-        task = SyncTask.new(sync_type: :appointment, sync_id: leo_appt.id)
-        syncer.process_appointment(task)
-
-        #get updated appointment from leo
-        leo_appt = Appointment.find(leo_appt.id)
-        Rails.logger.info("leo_appt: #{leo_appt.to_json}")
-        expect(leo_appt.athena_id).not_to eq(0)
-
-        #get updated resched appointment from leo
-        resched_leo_appt = Appointment.find(resched_appt.id)
-        Rails.logger.info("resched_leo_appt: #{resched_leo_appt.to_json}")
-        expect(resched_leo_appt.athena_id).not_to eq(0)
-
-        #get updated appointment from athena
-        athena_appt = connector.get_appointment(appointmentid: leo_appt.athena_id)
-        Rails.logger.info("athena_appt: #{athena_appt.to_json}")
-        expect(athena_appt.appointmentstatus).to eq(leo_appt.appointment_status)
-
-        #get updated rescheduled appt from athena
-        resched_athena_appt = connector.get_appointment(appointmentid: resched_leo_appt.athena_id)
-        Rails.logger.info("resched_athena_appt: #{resched_athena_appt.to_json}")
-        expect(resched_athena_appt.appointmentstatus).to eq(resched_leo_appt.appointment_status)
-        expect(resched_leo_appt.start_datetime).to eq(Date.strptime(resched_athena_appt.date + " " + resched_athena_appt.starttime, "%m/%d/%Y %H:%M"))
-        expect(resched_athena_appt.appointmenttypeid).to eq(resched_leo_appt.athena_appointment_type_id)
-        expect(resched_athena_appt.departmentid).to eq(resched_leo_appt.athena_department_id)
-        expect(resched_athena_appt.providerid).to eq(resched_leo_appt.athena_provider_id)
-        expect(resched_athena_appt.frozenyn).to eq(resched_leo_appt.frozenyn)
+      it "creates sync task for stale appointment" do
+        appt = FactoryGirl.create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago)
+        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
+        syncer.process_scan_appointments(SyncTask.new())
       end
     end
+
+    describe "process_scan_remote_appointments" do
+      let!(:booked_appt) { 
+        Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
+        .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
+      }
+
+      it "creates leo appointment when missing" do
+        family = FactoryGirl.create(:family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+        provider = FactoryGirl.create(:user, :clinical)
+        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, provider_id: provider.id)
+        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
+
+        expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
+        expect(Appointment).to receive(:create)
+        syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
+      end
+    end
+
+    describe "process_appointment" do
+      it "creates athena appointment when missing" do
+        provider = FactoryGirl.create(:user, :clinical)
+        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id)
+        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
+        appointment = FactoryGirl.create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id)
+
+        appointment.patient.athena_id = 1
+        appointment.patient.save!
+
+        expect(connector).to receive("create_appointment").and_return(1000)
+        expect(connector).to receive("book_appointment")
+        expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
+          "date": "04\/18\/2009",
+          "appointmentid": "1000",
+          "departmentid": "1",
+          "appointmenttype": "Lab Work",
+          "providerid": provider_profile.athena_id.to_s,
+          "starttime": "15:25",
+          "appointmentstatus": "f",
+          "patientid": appointment.patient.athena_id.to_s,
+          "duration": "15",
+          "appointmenttypeid": appointment_type.athena_id.to_s,
+          "patientappointmenttypename": "Lab Work"
+          }))
+
+        syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
+
+        expect(appointment.reload.athena_id).to eq(1000)
+      end
+
+      it "cancels athena appointment when cancelled" do
+        provider = FactoryGirl.create(:user, :clinical)
+        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id)
+        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
+        appointment = FactoryGirl.create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, status: "x")
+
+        appointment.patient.athena_id = 1
+        appointment.patient.save!
+
+        expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
+          "date": "04\/18\/2009",
+          "appointmentid": "1000",
+          "departmentid": "1",
+          "appointmenttype": "Lab Work",
+          "providerid": provider_profile.athena_id.to_s,
+          "starttime": "15:25",
+          "appointmentstatus": "f",
+          "patientid": appointment.patient.athena_id.to_s,
+          "duration": "30",
+          "appointmenttypeid": appointment_type.athena_id.to_s,
+          "patientappointmenttypename": "Lab Work"
+          }))
+        expect(connector).to receive("cancel_appointment")
+
+        syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
+
+        appointment.reload
+        expect(appointment.athena_id).to eq(1000)
+      end
+
+      it "updates leo appointment" do
+        provider = FactoryGirl.create(:user, :clinical)
+        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id)
+        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
+        appointment = FactoryGirl.create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000)
+
+        appointment.patient.athena_id = 1
+        appointment.patient.save!
+
+        expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
+          "date": "04\/18\/2009",
+          "appointmentid": "1000",
+          "departmentid": "1",
+          "appointmenttype": "Lab Work",
+          "providerid": provider_profile.athena_id.to_s,
+          "starttime": "15:25",
+          "appointmentstatus": "f",
+          "patientid": appointment.patient.athena_id.to_s,
+          "duration": "60",
+          "appointmenttypeid": appointment_type.athena_id.to_s,
+          "patientappointmenttypename": "Lab Work"
+          }))
+
+        syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
+
+        appointment.reload
+        expect(appointment.athena_id).to eq(1000)
+        expect(appointment.duration).to eq(60)
+      end
+    end
+
+    describe "process_scan_patients" do
+      it "creates sync task for unsynced patient" do
+        family = FactoryGirl.create(:family)
+        patient = FactoryGirl.create(:patient, athena_id: 0, family_id: family.id)
+
+        syncer.process_scan_patients(SyncTask.new())
+
+        expect(SyncTask.count).to eq(7)
+      end
+
+      it "creates sync task for stale patient" do
+        family = FactoryGirl.create(:family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        syncer.process_scan_patients(SyncTask.new())
+
+        expect(SyncTask.count).to eq(7)
+      end
+    end
+
+    describe "process_patient" do
+      it "creates new patient" do
+        family = FactoryGirl.create(:family)
+        parent = FactoryGirl.create(:user, :guardian, family: family)
+        patient = FactoryGirl.create(:patient, athena_id: 0, family_id: family.id)
+
+        expect(connector).to receive("create_patient").and_return(1000)
+        syncer.process_patient(SyncTask.new(sync_id: patient.id))
+        expect(patient.reload.athena_id).to eq(1000)
+      end
+
+      it "updates stale patient" do
+        family = FactoryGirl.create(:family)
+        parent = FactoryGirl.create(:user, :guardian, family: family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("update_patient")
+        syncer.process_patient(SyncTask.new(sync_id: patient.id))
+      end
+    end
+
+    describe "process_patient_photo" do
+      it "deletes photo if none available" do
+        family = FactoryGirl.create(:family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("delete_patient_photo")
+        syncer.process_patient_photo(SyncTask.new(sync_id: patient.id))
+      end
+
+      it "sets photo if one is available" do
+        family = FactoryGirl.create(:family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+        photo = FactoryGirl.create(:photo, patient_id: patient.id)
+
+        expect(connector).to receive("set_patient_photo")
+        syncer.process_patient_photo(SyncTask.new(sync_id: patient.id))
+      end
+    end
+
+    describe "process_patient_allergies" do
+      it "creates alergy" do
+        family = FactoryGirl.create(:family)
+        parent = FactoryGirl.create(:user, :guardian, family: family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("get_patient_allergies").and_return(JSON.parse(%q(
+            [{
+                "allergenname": "Abbokinase",
+                "allergenid": "18581",
+                "reactions": [],
+                "note": "TestingNote"
+            }]
+        )))
+        syncer.process_patient_allergies(SyncTask.new(sync_id: patient.id))
+        expect(Allergy.count).to be(1)
+      end
+    end
+
+    describe "process_patient_medications" do
+      it "creates medication" do
+        family = FactoryGirl.create(:family)
+        parent = FactoryGirl.create(:user, :guardian, family: family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("get_patient_medications").and_return(JSON.parse(%q(
+                  [{
+                      "source": "jdoe",
+                      "createdby": "jdoe",
+                      "isstructuredsig": "false",
+                      "medicationid": "243360",
+                      "issafetorenew": "true",
+                      "medicationentryid": "H3",
+                      "events": [{
+                          "eventdate": "10\/15\/2009",
+                          "type": "START"
+                      }, {
+                          "eventdate": "12\/24\/2009",
+                          "type": "ENTER"
+                      }],
+                      "medication": "benzonatate 100 mg capsule"
+                  }]
+          )))
+
+        syncer.process_patient_medications(SyncTask.new(sync_id: patient.id))
+        expect(Medication.count).to be(1)
+      end
+    end
+
+    describe "process_patient_vitals" do
+      it "creates medication" do
+        family = FactoryGirl.create(:family)
+        parent = FactoryGirl.create(:user, :guardian, family: family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("get_patient_vitals").and_return(JSON.parse(%q(
+                [{
+                    "ordering": 0,
+                    "abbreviation": "BP",
+                    "readings": [
+                        [{
+                            "source": "ENCOUNTER",
+                            "value": "100",
+                            "readingid": "0",
+                            "clinicalelementid": "VITALS.BLOODPRESSURE.SYSTOLIC",
+                            "codedescription": "Systolic blood pressure",
+                            "sourceid": "22603",
+                            "readingtaken": "07\/28\/2015 03:00:56",
+                            "codeset": "LOINC",
+                            "vitalid": "1069",
+                            "code": "8480-6"
+                        }, {
+                            "source": "ENCOUNTER",
+                            "value": "90",
+                            "readingid": "0",
+                            "clinicalelementid": "VITALS.BLOODPRESSURE.DIASTOLIC",
+                            "codedescription": "Diastolic blood pressure",
+                            "sourceid": "22603",
+                            "readingtaken": "07\/28\/2015 03:00:56",
+                            "codeset": "LOINC",
+                            "vitalid": "1068",
+                            "code": "8462-4"
+                        }]
+                    ],
+                    "key": "BLOODPRESSURE"
+                }, {
+                    "ordering": 2,
+                    "abbreviation": "Ht",
+                    "readings": [
+                        [{
+                            "source": "ENCOUNTER",
+                            "value": "100",
+                            "readingid": "0",
+                            "clinicalelementid": "VITALS.HEIGHT",
+                            "codedescription": "Body height",
+                            "sourceid": "22603",
+                            "readingtaken": "07\/16\/2015 08:06:26",
+                            "codeset": "LOINC",
+                            "vitalid": "1029",
+                            "code": "8302-2"
+                        }]
+                    ],
+                    "key": "HEIGHT"
+                }, {
+                    "ordering": 3,
+                    "abbreviation": "Wt",
+                    "readings": [
+                        [{
+                            "source": "ENCOUNTER",
+                            "value": "70000",
+                            "readingid": "0",
+                            "clinicalelementid": "VITALS.WEIGHT",
+                            "codedescription": "Body weight Measured",
+                            "sourceid": "22603",
+                            "readingtaken": "07\/16\/2015 08:10:32",
+                            "codeset": "LOINC",
+                            "vitalid": "1030",
+                            "code": "3141-9"
+                        }]
+                    ],
+                    "key": "WEIGHT"
+                }]    
+          )))
+
+        syncer.process_patient_vitals(SyncTask.new(sync_id: patient.id))
+        expect(Vital.count).to be(3)
+      end
+    end
+
+    describe "process_patient_vaccines" do
+      it "creates vaccine" do
+        family = FactoryGirl.create(:family)
+        parent = FactoryGirl.create(:user, :guardian, family: family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("get_patient_vaccines").and_return(JSON.parse(%q(
+              [{
+                  "mvx": "UNK",
+                  "status": "ADMINISTERED",
+                  "administerdate": "11\/10\/1969",
+                  "vaccineid": "H121",
+                  "description": "diphtheria, tetanus toxoids and pertussis vaccine",
+                  "vaccinetype": "HISTORICAL",
+                  "cvx": "01"
+              }]
+          )))
+
+        syncer.process_patient_vaccines(SyncTask.new(sync_id: patient.id))
+        expect(Vaccine.count).to be(1)
+      end
+    end
+
+    describe "process_patient_insurances" do
+      it "creates insurance" do
+        family = FactoryGirl.create(:family)
+        parent = FactoryGirl.create(:user, :guardian, family: family)
+        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("get_patient_insurances").and_return(JSON.parse(%q(
+                [{
+                    "insurancepolicyholdercountrycode": "USA",
+                    "sequencenumber": "1",
+                    "insurancepolicyholderssn": "*****2847",
+                    "insuranceplanname": "BCBS-MA: SAVER DEDUCTIBLE (PPO)",
+                    "insurancetype": "Group Policy",
+                    "insurancepolicyholderlastname": "MORENA",
+                    "insurancephone": "(800) 443-6657",
+                    "insuranceidnumber": "123456789",
+                    "insurancepolicyholderstate": "MA",
+                    "insurancepolicyholderzip": "02465",
+                    "relationshiptoinsuredid": "1",
+                    "insuranceid": "802",
+                    "insurancepolicyholder": "TAYLOR MORENA",
+                    "insurancepolicyholderdob": "01\/17\/1969",
+                    "eligibilitylastchecked": "04\/18\/2012",
+                    "relationshiptoinsured": "Self",
+                    "eligibilitystatus": "Eligible",
+                    "insurancepolicyholderfirstname": "TAYLOR",
+                    "insurancepolicyholderaddress1": "8762 STONERIDGE CT",
+                    "insurancepackageid": "90283",
+                    "insurancepolicyholdersex": "M",
+                    "eligibilityreason": "Athena",
+                    "insurancepolicyholdercountryiso3166": "US",
+                    "eligibilitymessage": "Electronic eligibility checking is not available for the provider due to an enrollment or credentialing issue. Please call the payer to verify eligibility.",
+                    "ircname": "BCBS-MA",
+                    "insurancepolicyholdercity": "BOSTON"
+                }]
+          )))
+
+        syncer.process_patient_insurances(SyncTask.new(sync_id: patient.id))
+        expect(Insurance.count).to be(1)
+      end
+    end
+
+    #providers
+
+    #appointment types
+
   end
 end
