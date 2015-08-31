@@ -16,6 +16,7 @@ class Appointment < ActiveRecord::Base
     errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id
   end
 
+  #helpers for athena appointment statuses
   def pre_checked_in?
     future? || open? || cancelled?
   end
