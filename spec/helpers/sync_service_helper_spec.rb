@@ -14,13 +14,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_scan_appointments" do
       it "creates sync task for unsynced appointment" do
-        appt = FactoryGirl.create(:appointment, athena_id: 0)
+        appt = create(:appointment, athena_id: 0)
         expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
 
       it "creates sync task for stale appointment" do
-        appt = FactoryGirl.create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago)
+        appt = create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago)
         expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
@@ -31,14 +31,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
         .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
       }
+      let!(:family) { create(:family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
+      let!(:provider) { create(:user, :clinical) }
+      let!(:provider_profile) { create(:provider_profile, athena_id: 1, provider_id: provider.id) }
+      let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates leo appointment when missing" do
-        family = FactoryGirl.create(:family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
-        provider = FactoryGirl.create(:user, :clinical)
-        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, provider_id: provider.id)
-        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
-
         expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
         expect(Appointment).to receive(:create)
         syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
@@ -46,12 +45,14 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_appointment" do
-      it "creates athena appointment when missing" do
-        provider = FactoryGirl.create(:user, :clinical)
-        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id)
-        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
-        appointment = FactoryGirl.create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id)
+      let!(:family) { create(:family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
+      let!(:provider) { create(:user, :clinical) }
+      let!(:provider_profile) { create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id) }
+      let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
+      it "creates athena appointment when missing" do
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -77,11 +78,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "cancels athena appointment when cancelled" do
-        provider = FactoryGirl.create(:user, :clinical)
-        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id)
-        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
-        appointment = FactoryGirl.create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, status: "x")
-
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, status: "x")
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -107,11 +104,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment" do
-        provider = FactoryGirl.create(:user, :clinical)
-        provider_profile = FactoryGirl.create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id)
-        appointment_type = FactoryGirl.create(:appointment_type, :well_visit, athena_id: 1)
-        appointment = FactoryGirl.create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000)
-
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -138,9 +131,12 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_scan_patients" do
+      let!(:family) { create(:family) }
+      let!(:parent) { create(:user, :guardian, family: family) }
+
+
       it "creates sync task for unsynced patient" do
-        family = FactoryGirl.create(:family)
-        patient = FactoryGirl.create(:patient, athena_id: 0, family_id: family.id)
+        patient = create(:patient, athena_id: 0, family_id: family.id)
 
         syncer.process_scan_patients(SyncTask.new())
 
@@ -148,8 +144,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "creates sync task for stale patient" do
-        family = FactoryGirl.create(:family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+        patient = create(:patient, athena_id: 1, family_id: family.id)
 
         syncer.process_scan_patients(SyncTask.new())
 
@@ -158,10 +153,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient" do
+      let!(:family) { create(:family) }
+      let!(:parent) { create(:user, :guardian, family: family) }
+
       it "creates new patient" do
-        family = FactoryGirl.create(:family)
-        parent = FactoryGirl.create(:user, :guardian, family: family)
-        patient = FactoryGirl.create(:patient, athena_id: 0, family_id: family.id)
+        patient = create(:patient, athena_id: 0, family_id: family.id)
 
         expect(connector).to receive("create_patient").and_return(1000)
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
@@ -169,9 +165,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates stale patient" do
-        family = FactoryGirl.create(:family)
-        parent = FactoryGirl.create(:user, :guardian, family: family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+        patient = create(:patient, athena_id: 1, family_id: family.id)
 
         expect(connector).to receive("update_patient")
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
@@ -179,18 +173,16 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient_photo" do
-      it "deletes photo if none available" do
-        family = FactoryGirl.create(:family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+      let!(:family) { create(:family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
+      it "deletes photo if none available" do
         expect(connector).to receive("delete_patient_photo")
         syncer.process_patient_photo(SyncTask.new(sync_id: patient.id))
       end
 
       it "sets photo if one is available" do
-        family = FactoryGirl.create(:family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
-        photo = FactoryGirl.create(:photo, patient_id: patient.id)
+        photo = create(:photo, patient_id: patient.id)
 
         expect(connector).to receive("set_patient_photo")
         syncer.process_patient_photo(SyncTask.new(sync_id: patient.id))
@@ -198,11 +190,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient_allergies" do
-      it "creates alergy" do
-        family = FactoryGirl.create(:family)
-        parent = FactoryGirl.create(:user, :guardian, family: family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+      let!(:family) { create(:family) }
+      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
+      it "creates alergy" do
         expect(connector).to receive("get_patient_allergies").and_return(JSON.parse(%q(
             [{
                 "allergenname": "Abbokinase",
@@ -217,11 +209,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient_medications" do
-      it "creates medication" do
-        family = FactoryGirl.create(:family)
-        parent = FactoryGirl.create(:user, :guardian, family: family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+      let!(:family) { create(:family) }
+      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
+      it "creates medication" do
         expect(connector).to receive("get_patient_medications").and_return(JSON.parse(%q(
                   [{
                       "source": "jdoe",
@@ -247,11 +239,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient_vitals" do
-      it "creates medication" do
-        family = FactoryGirl.create(:family)
-        parent = FactoryGirl.create(:user, :guardian, family: family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+      let!(:family) { create(:family) }
+      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
+      it "creates medication" do
         expect(connector).to receive("get_patient_vitals").and_return(JSON.parse(%q(
                 [{
                     "ordering": 0,
@@ -327,11 +319,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient_vaccines" do
-      it "creates vaccine" do
-        family = FactoryGirl.create(:family)
-        parent = FactoryGirl.create(:user, :guardian, family: family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+      let!(:family) { create(:family) }
+      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
+      it "creates vaccine" do
         expect(connector).to receive("get_patient_vaccines").and_return(JSON.parse(%q(
               [{
                   "mvx": "UNK",
@@ -350,11 +342,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient_insurances" do
-      it "creates insurance" do
-        family = FactoryGirl.create(:family)
-        parent = FactoryGirl.create(:user, :guardian, family: family)
-        patient = FactoryGirl.create(:patient, athena_id: 1, family_id: family.id)
+      let!(:family) { create(:family) }
+      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
+      it "creates insurance" do
         expect(connector).to receive("get_patient_insurances").and_return(JSON.parse(%q(
                 [{
                     "insurancepolicyholdercountrycode": "USA",

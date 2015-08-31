@@ -1,6 +1,5 @@
 FactoryGirl.define do
   factory :medication do
-      patient_id 1
       athena_id 0
       medication "medication"
       sig "sig"

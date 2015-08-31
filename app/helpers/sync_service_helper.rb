@@ -206,7 +206,7 @@ module SyncServiceHelper
     end
 
     def process_scan_patients(task)
-      Patient.find_each() do |patient|
+      Patient.find_each do |patient|
         begin
           if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
             SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: patient.id)
