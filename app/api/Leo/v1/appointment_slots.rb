@@ -6,6 +6,9 @@ module Leo
         # get "appointment_slots?start_date=01/01/2015&end_date=02/01/2015&appointment_type_id=2&provider_id=6"
 
         desc "Return all open slots for a specified provider"
+        before do
+          authenticated
+        end
         params do
           requires :start_date, type: Date, desc: "Start date", allow_blank: false
           requires :end_date, type: Date, desc: "End date", allow_blank: false

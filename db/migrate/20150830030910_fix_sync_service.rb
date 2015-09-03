@@ -17,6 +17,7 @@ class FixSyncService < ActiveRecord::Migration
     add_column :provider_profiles, :athena_department_id, :integer, default: 0, null: false
 
     remove_column :appointments, :status_id
+    add_column :appointments, :rescheduled_id, :integer
 
     create_table :photos do |t|
       t.belongs_to :patient, index: true
@@ -54,7 +55,9 @@ class FixSyncService < ActiveRecord::Migration
     remove_column :provider_profiles, :athena_department_id
 
     add_column :appointments, :status_id, :integer, null: false
+    remove_column :appointments, :rescheduled_id, :integer
 
     drop_table :photos
+
   end
 end

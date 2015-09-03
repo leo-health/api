@@ -190,12 +190,9 @@ module SyncServiceHelper
       provider_profile = ProviderProfile.find_by!(athena_id: appt.providerid.to_i)
       appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
 
-      #booked_by_id ???
-      #notes ???
-      #rescheduled????
-
       Appointment.create(
         status: appt.appointmentstatus,
+        booked_by_id: provider_profile.provider.id,
         patient_id: patient.id,
         provider_id: provider_profile.provider.id,
         appointment_type_id: appointment_type.id,
@@ -289,9 +286,7 @@ module SyncServiceHelper
         provider_profile = ProviderProfile.find_by!(athena_id: athena_appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: athena_appt.appointmenttypeid.to_i)
 
-        #booked_by_id ???
-        #notes ???
-        #rescheduled????
+        #athena does not return booked_by_id.  we have to leave it as is
         leo_appt.status = athena_appt.appointmentstatus
         leo_appt.patient_id = patient.id
         leo_appt.provider_id = provider_profile.provider.id
@@ -299,6 +294,12 @@ module SyncServiceHelper
         leo_appt.duration = athena_appt.duration.to_i
         leo_appt.start_datetime = Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")
         leo_appt.athena_id = athena_appt.appointmentid.to_i
+
+        #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
+        if athena_appt.respond_to? :rescheduledappointmentid
+          rescheduled_appt = Appointment.find_by(athena_id: athena_appt.rescheduledappointmentid.to_i)
+          leo_appt.rescheduled_id = rescheduled_appt.id if rescheduled_appt
+        end
       end
 
       leo_appt.sync_updated_at = DateTime.now.utc

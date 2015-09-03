@@ -128,6 +128,39 @@ RSpec.describe SyncServiceHelper, type: :helper do
         expect(appointment.athena_id).to eq(1000)
         expect(appointment.duration).to eq(60)
       end
+
+      it "updates leo appointment with rescheduled_id" do
+        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000)
+        appointment.patient.athena_id = 1
+        appointment.patient.save!
+
+        resched_appointment = create(:appointment, start_datetime: DateTime.now, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1001)
+        resched_appointment.patient.athena_id = 1
+        resched_appointment.patient.save!
+
+        expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
+          "date": "04\/18\/2009",
+          "appointmentid": "1000",
+          "departmentid": "1",
+          "appointmenttype": "Lab Work",
+          "providerid": provider_profile.athena_id.to_s,
+          "starttime": "15:25",
+          "appointmentstatus": "x",
+          "rescheduledappointmentid": "1001",
+          "patientid": appointment.patient.athena_id.to_s,
+          "duration": "60",
+          "appointmenttypeid": appointment_type.athena_id.to_s,
+          "patientappointmenttypename": "Lab Work"
+          }))
+
+        syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
+
+        appointment.reload
+        expect(appointment.athena_id).to eq(1000)
+        expect(appointment.duration).to eq(60)
+        expect(appointment.status).to eq('x')
+        expect(appointment.rescheduled_id).to eq(resched_appointment.id)
+      end
     end
 
     describe "process_scan_patients" do

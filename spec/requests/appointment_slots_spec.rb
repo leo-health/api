@@ -32,14 +32,15 @@ describe Leo::V1::AppointmentSlots do
       start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
       end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
     }
-
     let!(:appointment) { create(:appointment, provider_id: provider.id,
       start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
       duration: 20)
     }
+    let(:user){ create(:user, :guardian) }
+    let!(:session){ user.sessions.create }
 
     def do_request
-      get "/api/v1/appointment_slots", { start_date: date, end_date: date, provider_id: provider.id, appointment_type_id: appointment_type.id }, format: :json
+      get "/api/v1/appointment_slots", { authentication_token: session.authentication_token, start_date: date, end_date: date, provider_id: provider.id, appointment_type_id: appointment_type.id }, format: :json
     end
 
     it "should return a list of open slots" do
@@ -51,5 +52,4 @@ describe Leo::V1::AppointmentSlots do
       expect(resp["data"][0]["slots"].size).to eq(15)
     end
   end
-
 end

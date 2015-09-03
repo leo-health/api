@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150830032123) do
+ActiveRecord::Schema.define(version: 20150830030910) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,6 +53,7 @@ ActiveRecord::Schema.define(version: 20150830032123) do
     t.integer  "booked_by_id",                    null: false
     t.integer  "provider_id",                     null: false
     t.integer  "patient_id",                      null: false
+    t.integer  "rescheduled_id"
   end
 
   add_index "appointments", ["appointment_type_id"], name: "index_appointments_on_appointment_type_id", using: :btree
