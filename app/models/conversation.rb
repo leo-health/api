@@ -31,8 +31,8 @@ class Conversation < ActiveRecord::Base
     yield
     if changed
       conversation_changes.create(conversation_change: changes.slice(:status, :updated_at))
-      channels = User.where.not(role_id: 4).inject([]){|channels, user| channels << user.email; channels}
-      Pusher.trigger(channels, 'new_status', {new_status: status})
+      channels = User.where.not(role_id: 4).inject([]){|channels, user| channels << 'newStatus' + user.email; channels}
+      Pusher.trigger(channels, 'new_status', {new_status: status, conversation_id: id})
     end
   end
 
