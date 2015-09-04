@@ -10,7 +10,7 @@ class Conversation < ActiveRecord::Base
   before_validation :set_conversation_state, on: :create
 
   validates :family, :status, presence: true
-  around_update :track_and_broadcast_conversation_change
+  around_update :track_conversation_change
   after_commit :load_staff, :load_initial_message, on: :create
 
   def self.sort_conversations
@@ -26,14 +26,10 @@ class Conversation < ActiveRecord::Base
 
   private
 
-  def track_and_broadcast_conversation_change
+  def track_conversation_change
     changed = status_changed?
     yield
-    if changed
-      conversation_changes.create(conversation_change: changes.slice(:status, :updated_at))
-      channels = User.where.not(role_id: 4).inject([]){|channels, user| channels << 'newStatus' + user.email; channels}
-      Pusher.trigger(channels, 'new_status', {new_status: status, conversation_id: id})
-    end
+    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
   end
 
   def load_staff
