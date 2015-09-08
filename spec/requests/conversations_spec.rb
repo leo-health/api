@@ -89,10 +89,10 @@ describe Leo::V1::Conversations do
 
     before do
       @conversation = family.conversation
-      @conversation_one = family_one.conversation
-      @conversation_one.update_attributes(status: :escalated)
-      @conversation_two = family_two.conversation
-      @conversation_two.update_attributes(status: :closed)
+      @escalated_conversation = family_one.conversation
+      @escalated_conversation.update_attributes(status: :escalated)
+      @closed_conversation = family_two.conversation
+      @closed_conversation.update_attributes(status: :closed)
     end
 
     def do_request
@@ -103,7 +103,7 @@ describe Leo::V1::Conversations do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data][:conversations].as_json.to_json).to eq( formatter.represent([@conversation, @conversation_one, @conversation_two ] ).as_json.to_json)
+      expect(body[:data][:conversations].as_json.to_json).to eq( formatter.represent([@conversation, @escalated_conversation, @closed_conversation ] ).as_json.to_json)
     end
   end
 end
