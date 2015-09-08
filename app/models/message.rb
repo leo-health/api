@@ -26,7 +26,7 @@ class Message < ActiveRecord::Base
 
   def broadcast_message
     message_params = as_json(include: :sender).to_json
-    channels = conversation.staff.inject([]){|channels, user| channels << ('newMessage'+user.email); channels}
+    channels = conversation.staff.inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
     Pusher.trigger(channels, 'new_message', message_params)
   end
 

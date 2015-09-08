@@ -3,7 +3,7 @@ module Leo
     class Users < Grape::API
       include Grape::Kaminari
 
-      namespace "staff"
+      namespace "staff" do
         before do
           authenticated
         end
