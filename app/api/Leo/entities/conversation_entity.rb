@@ -16,7 +16,6 @@ module Leo
       expose :last_closed_at
       expose :last_closed_by
       expose :last_message, with: Leo::Entities::MessageEntity
-      expose :conversation_changes
 
       private
 
