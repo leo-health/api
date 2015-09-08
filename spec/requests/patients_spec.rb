@@ -8,19 +8,7 @@ describe Leo::V1::Patients do
   let!(:guardian){family.reload.members.first}
   let!(:session){guardian.sessions.create}
 
-  describe 'GET /api/v1/users/:user_id/patients' do
-    def do_request
-      get "/api/v1/users/#{guardian.id}/patients", {authentication_token: session.authentication_token}
-    end
-
-    it "should return every patients belongs to the guardian" do
-      do_request
-      expect(response.status).to eq(200)
-      expect_json(family.patients)
-    end
-  end
-
-  describe 'POST /api/v1/users/:user_id/patients' do
+  describe 'POST /api/v1/patients' do
     let(:patient_params){{first_name: "patient_first_name",
                           last_name: "patient_last_name",
                           birth_date: 5.years.ago,
@@ -29,7 +17,7 @@ describe Leo::V1::Patients do
 
     def do_request
       patient_params.merge!({authentication_token: session.authentication_token})
-      post "/api/v1/users/#{guardian.id}/patients", patient_params, format: :json
+      post "/api/v1/patients", patient_params, format: :json
     end
 
     it "should add a patient to the family" do
@@ -40,11 +28,11 @@ describe Leo::V1::Patients do
     end
   end
 
-  describe 'Delete /api/v1/users/:user_id/patients/:id' do
+  describe 'Delete /api/v1/patients/:id' do
     let!(:patient){family.patients.first}
 
     def do_request
-      delete "/api/v1/users/#{guardian.id}/patients/#{patient.id}", {authentication_token: session.authentication_token}
+      delete "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token}
     end
 
     it 'should delete the indivial patient record, guardian only' do
@@ -57,7 +45,7 @@ describe Leo::V1::Patients do
     let!(:patient){family.patients.first}
 
     def do_request
-      put "/api/v1/users/#{guardian.id}/patients/#{patient.id}", {authentication_token: session.authentication_token, email: "new_email@leohealth.com"}
+      put "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, email: "new_email@leohealth.com"}
     end
 
     it 'should update the individual patient record, guardian only' do

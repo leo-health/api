@@ -7,6 +7,7 @@ module Leo
         expose :guardians, with: Leo::Entities::UserEntity
         expose :patients, with: Leo::Entities::PatientEntity
       end
+      expose :primary_guardian, with: Leo::Entities::UserEntity
       expose :created_at
       expose :updated_at
       expose :family
@@ -17,6 +18,10 @@ module Leo
       expose :last_message, with: Leo::Entities::MessageEntity
 
       private
+
+      def primary_guardian
+        object.family.guardians.order('created_at ASC').first
+      end
 
       def guardians
         object.family.guardians

@@ -55,23 +55,13 @@ module Leo
             generate_appointment
           end
         end
-      end
 
-      namespace 'users/:user_id/appointments' do
-        before do
-          authenticated
-        end
-
-        after_validation do
-          @user = User.find(params[:user_id])
-        end
-
-        desc "return appointments of a user"
+        desc "return appointments of current user"
         get do
-          if @user.has_role? :guardian
-            appointments = @user.booked_appointments
-          elsif @user.has_role? :clinical
-            appointments = @user.provider_appointments
+          if current_user.has_role? :guardian
+            appointments = current_user.booked_appointments
+          elsif current_user.has_role? :clinical
+            appointments = current_user.provider_appointments
           end
           authorize! :read, Appointment
           present :appointments, appointments, with: Leo::Entities::AppointmentEntity
