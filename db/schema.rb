@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150824220623) do
+ActiveRecord::Schema.define(version: 20150908193918) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -28,6 +28,11 @@ ActiveRecord::Schema.define(version: 20150824220623) do
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
 
+  create_table "appointment_statuses", force: :cascade do |t|
+    t.string "description"
+    t.string "status"
+  end
+
   create_table "appointment_types", force: :cascade do |t|
     t.integer  "athena_id",         default: 0, null: false
     t.integer  "duration",                      null: false
@@ -41,21 +46,21 @@ ActiveRecord::Schema.define(version: 20150824220623) do
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
 
   create_table "appointments", force: :cascade do |t|
-    t.integer  "duration",                        null: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.integer  "athena_id",           default: 0, null: false
+    t.integer  "duration",                          null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.integer  "athena_id",             default: 0, null: false
     t.datetime "sync_updated_at"
-    t.datetime "start_datetime",                  null: false
-    t.integer  "status_id",                       null: false
-    t.string   "status",                          null: false
-    t.integer  "appointment_type_id",             null: false
+    t.datetime "start_datetime",                    null: false
+    t.integer  "appointment_type_id",               null: false
     t.string   "notes"
-    t.integer  "booked_by_id",                    null: false
-    t.integer  "provider_id",                     null: false
-    t.integer  "patient_id",                      null: false
+    t.integer  "booked_by_id",                      null: false
+    t.integer  "provider_id",                       null: false
+    t.integer  "patient_id",                        null: false
+    t.integer  "appointment_status_id",             null: false
   end
 
+  add_index "appointments", ["appointment_status_id"], name: "index_appointments_on_appointment_status_id", using: :btree
   add_index "appointments", ["appointment_type_id"], name: "index_appointments_on_appointment_type_id", using: :btree
   add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id", using: :btree
   add_index "appointments", ["booked_by_id"], name: "index_appointments_on_booked_by_id", using: :btree
