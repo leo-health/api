@@ -3,13 +3,13 @@ module Leo
     class Users < Grape::API
       include Grape::Kaminari
 
-      namespace "staff" do
+      namespace "staff"
         before do
           authenticated
         end
 
         get do
-          users = User.where.not(role_id: 4)
+          users = User.includes(:role).where.not(roles: {name: :guardian})
           authorize! :read, User
           present :staff, users, with: Leo::Entities::UserEntity
         end
