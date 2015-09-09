@@ -3,13 +3,13 @@ module Leo
     class Insurers < Grape::API
 
       resource :insurers do
-        before do
-          authenticated
-        end
+        # before do
+        #   authenticated
+        # end
 
         desc "Return all insurers with plans"
         get do
-          present :insurers, Insurer.all, with: Leo::Entities::RoleEntity
+          present :insurers, Insurer.all, with: Leo::Entities::InsurerEntity
         end
       end
     end

@@ -87,9 +87,9 @@ insurance_plan_seed = [
         insurer_name:"Aetna"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 0, id: 0},
-               {plan_name: "POS", insurer_id: 0, id: 1},
-               {plan_name: "HMO", insurer_id: 0, id: 2}
+               {id: 0, plan_name: "PPO", insurer_id: 0},
+               {id: 1, plan_name: "POS", insurer_id: 0},
+               {id: 2, plan_name: "HMO", insurer_id: 0}
              ]
     },
 
@@ -99,9 +99,9 @@ insurance_plan_seed = [
         insurer_name:"Cigna"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 1, id: 3},
-               {plan_name: "POS", insurer_id: 1, id: 4},
-               {plan_name: "HMO", insurer_id: 1, id: 5}
+               {id: 3, plan_name: "PPO", insurer_id: 1},
+               {id: 4, plan_name: "POS", insurer_id: 1},
+               {id: 5, plan_name: "HMO", insurer_id: 1}
              ]
     },
 
@@ -111,9 +111,9 @@ insurance_plan_seed = [
         insurer_name:"Empire BlueCross BlueShield"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 2, id: 6},
-               {plan_name: "POS", insurer_id: 2, id: 7},
-               {plan_name: "HMO", insurer_id: 2, id: 8}
+               {id: 6, plan_name: "PPO", insurer_id: 2},
+               {id: 7, plan_name: "POS", insurer_id: 2},
+               {id: 8, plan_name: "HMO", insurer_id: 2}
              ]
     },
 
@@ -123,9 +123,9 @@ insurance_plan_seed = [
         insurer_name:"EmblemHealth"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 3, id: 9},
-               {plan_name: "POS", insurer_id: 3, id: 10},
-               {plan_name: "HMO", insurer_id: 3, id: 11}
+               {id: 9, plan_name: "PPO", insurer_id: 3},
+               {id: 10, plan_name: "POS", insurer_id: 3},
+               {id: 11, plan_name: "HMO", insurer_id: 3}
              ]
     },
 
@@ -135,8 +135,8 @@ insurance_plan_seed = [
         insurer_name:"MultiPlan"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 4, id: 12},
-               {plan_name: "POS", insurer_id: 4, id: 13}
+               {id: 12, plan_name: "PPO", insurer_id: 4},
+               {id: 13, plan_name: "POS", insurer_id: 4}
              ]
     },
 
@@ -146,9 +146,9 @@ insurance_plan_seed = [
         insurer_name:"Oxford"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 5, id: 14},
-               {plan_name: "POS", insurer_id: 5, id: 15},
-               {plan_name: "HMO", insurer_id: 5, id: 16}
+               {id: 14, plan_name: "PPO", insurer_id: 5},
+               {id: 15, plan_name: "POS", insurer_id: 5},
+               {id: 16, plan_name: "HMO", insurer_id: 5}
              ]
     },
 
@@ -158,9 +158,9 @@ insurance_plan_seed = [
         insurer_name:"The Empire Plan"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 6, id: 17},
-               {plan_name: "POS", insurer_id: 6, id: 18},
-               {plan_name: "HMO", insurer_id: 6, id: 19}
+               {id: 17, plan_name: "PPO", insurer_id: 6},
+               {id: 18, plan_name: "POS", insurer_id: 6},
+               {id: 19, plan_name: "HMO", insurer_id: 6}
              ]
     },
 
@@ -170,9 +170,9 @@ insurance_plan_seed = [
         insurer_name:"UnitedHealthcare"
       },
       plans: [
-               {plan_name: "PPO", insurer_id: 7, id: 20},
-               {plan_name: "POS", insurer_id: 7, id: 21},
-               {plan_name: "HMO", insurer_id: 7, id: 22}
+               {id: 20, plan_name: "PPO", insurer_id: 7},
+               {id: 21, plan_name: "POS", insurer_id: 7},
+               {id: 22, plan_name: "HMO", insurer_id: 7}
              ]
     }
 ]
@@ -180,6 +180,6 @@ insurance_plan_seed = [
 insurance_plan_seed.each do |insurance_plan|
   Insurer.create(insurance_plan[:insurer]) unless Insurer.where(id: insurance_plan[:insurer][:id]).exists?
   insurance_plan[:plans].each do |plan|
-    InsurancePlan.create(plan) unless Insurer.where(id: plan[:id]).exists?
+    InsurancePlan.create(plan) unless InsurancePlan.where(id: plan[:id]).exists?
   end
 end
