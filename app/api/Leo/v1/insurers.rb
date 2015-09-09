@@ -3,9 +3,9 @@ module Leo
     class Insurers < Grape::API
 
       resource :insurers do
-        # before do
-        #   authenticated
-        # end
+        before do
+          authenticated
+        end
 
         desc "Return all insurers with plans"
         get do
