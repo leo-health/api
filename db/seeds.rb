@@ -79,3 +79,107 @@ practices_seed = {
 practices_seed.each do |name, param|
   Practice.create(param) unless Practice.where(name: name).exists?
 end
+
+insurance_plan_seed = [
+    {
+      insurer: {
+        id: 0,
+        insurer_name:"Aetna"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 0, id: 0},
+               {plan_name: "POS", insurer_id: 0, id: 1},
+               {plan_name: "HMO", insurer_id: 0, id: 2}
+             ]
+    },
+
+    {
+      insurer: {
+        id: 1,
+        insurer_name:"Cigna"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 1, id: 3},
+               {plan_name: "POS", insurer_id: 1, id: 4},
+               {plan_name: "HMO", insurer_id: 1, id: 5}
+             ]
+    },
+
+    {
+      insurer: {
+        id: 2,
+        insurer_name:"Empire BlueCross BlueShield"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 2, id: 6},
+               {plan_name: "POS", insurer_id: 2, id: 7},
+               {plan_name: "HMO", insurer_id: 2, id: 8}
+             ]
+    },
+
+    {
+      insurer: {
+        id: 3,
+        insurer_name:"EmblemHealth"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 3, id: 9},
+               {plan_name: "POS", insurer_id: 3, id: 10},
+               {plan_name: "HMO", insurer_id: 3, id: 11}
+             ]
+    },
+
+    {
+      insurer: {
+        id: 4,
+        insurer_name:"MultiPlan"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 4, id: 12},
+               {plan_name: "POS", insurer_id: 4, id: 13}
+             ]
+    },
+
+    {
+      insurer: {
+        id: 5,
+        insurer_name:"Oxford"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 5, id: 14},
+               {plan_name: "POS", insurer_id: 5, id: 15},
+               {plan_name: "HMO", insurer_id: 5, id: 16}
+             ]
+    },
+
+    {
+      insurer: {
+        id: 6,
+        insurer_name:"The Empire Plan"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 6, id: 17},
+               {plan_name: "POS", insurer_id: 6, id: 18},
+               {plan_name: "HMO", insurer_id: 6, id: 19}
+             ]
+    },
+
+    {
+      insurer: {
+        id: 7,
+        insurer_name:"UnitedHealthcare"
+      },
+      plans: [
+               {plan_name: "PPO", insurer_id: 7, id: 20},
+               {plan_name: "POS", insurer_id: 7, id: 21},
+               {plan_name: "HMO", insurer_id: 7, id: 22}
+             ]
+    }
+]
+
+insurance_plan_seed.each do |insurance_plan|
+  Insurer.create(insurance_plan[:insurer]) unless Insurer.where(id: insurance_plan[:insurer][:id]).exists?
+  insurance_plan[:plans].each do |plan|
+    InsurancePlan.create(plan) unless Insurer.where(id: plan[:id]).exists?
+  end
+end
