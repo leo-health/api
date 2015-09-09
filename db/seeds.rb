@@ -21,8 +21,8 @@ roles_seed.each do |role, id|
   end
 end
 
-appointment_types_seed = {
-    well_visit: {
+appointment_types_seed = [
+    {
       id: 0,
       name: "well visit",
       duration: 30,
@@ -30,7 +30,7 @@ appointment_types_seed = {
       long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
     },
 
-    sick_visit: {
+    {
       id: 1,
       name: "sick visit",
       duration: 20,
@@ -38,7 +38,7 @@ appointment_types_seed = {
       long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
     },
 
-    follow_up_visit: {
+    {
       id: 2,
       name: "follow_up visit",
       duration: 20,
@@ -46,19 +46,17 @@ appointment_types_seed = {
       long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
     },
 
-    immunization_visit: {
+    {
       id: 3,
       name: "immunization visit",
       duration: 20,
       short_description: "Flu shot or scheduled vaccine",
       long_description: "A visit with a nurse to get one or more immunizations."
     }
+]
 
-
-}
-
-appointment_types_seed.each do |name, param|
-  AppointmentType.create(param) unless AppointmentType.where(name: name).exists?
+appointment_types_seed.each do |param|
+  AppointmentType.create(param) unless AppointmentType.where(id: param[:id]).exists?
 end
 
 practices_seed = {
@@ -79,3 +77,48 @@ practices_seed = {
 practices_seed.each do |name, param|
   Practice.create(param) unless Practice.where(name: name).exists?
 end
+
+appointment_statuses_seed = [
+    {
+      id: 0,
+      description: "cancelled",
+      status: "x"
+    },
+
+    {
+      id: 1,
+      description: "Checked In",
+      status: "2"
+    },
+
+    {
+      id: 2,
+      description: "Checked Out",
+      status: "3"
+    },
+
+    {
+      id: 3,
+      description: "Charge Enterted",
+      status: "4"
+    },
+
+    {
+      id: 4,
+      description: "Future",
+      status: "f"
+    },
+
+    {
+      id: 5,
+      description: "Open",
+      status: "o"
+    }
+]
+
+appointment_statuses_seed.each do |param|
+  AppointmentStatus.create(param) unless AppointmentStatus.where(id: param[:id]).exists?
+end
+
+
+

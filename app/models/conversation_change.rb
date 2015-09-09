@@ -9,6 +9,6 @@ class ConversationChange < ActiveRecord::Base
 
   def broadcast_conversation_change
     channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
-    Pusher.trigger(channels, 'new_status', {new_status: conversation_change, conversation_id: id})
+    Pusher.trigger(channels, 'new_status', {new_status: conversation_change, conversation_id: id}) if channels.count > 0
   end
 end
