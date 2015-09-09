@@ -13,6 +13,8 @@ module Leo
             @conversation = Conversation.find(params[:conversation_id])
           end
 
+          paginate per_page: 25
+
           desc "Return all messages for a conversation with pagination options"
           get do
             messages = @conversation.messages

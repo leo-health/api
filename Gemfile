@@ -53,6 +53,7 @@ end
 group :test do
   gem 'grape-entity-matchers'
   gem 'database_cleaner'
+  gem "pusher-fake"
 end
 
 group :production do

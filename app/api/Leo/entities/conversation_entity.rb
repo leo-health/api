@@ -16,6 +16,7 @@ module Leo
       expose :last_closed_at
       expose :last_closed_by
       expose :last_message, with: Leo::Entities::MessageEntity
+      expose :messages, with: Leo::Entities::MessageEntity
 
       private
 
@@ -33,6 +34,10 @@ module Leo
 
       def last_message
         object.messages.order('created_at DESC').first
+      end
+
+      def messages
+        object.messages.order('created_at DESC')[0..24]
       end
     end
   end
