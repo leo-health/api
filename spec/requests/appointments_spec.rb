@@ -7,13 +7,13 @@ describe Leo::V1::Appointments do
 
   describe "Post /api/v1/appointments" do
     let!(:appointment_type){ create(:appointment_type)}
+    let!(:appointment_status){ create(:appointment_status)}
     let!(:provider){create(:user, :clinical)}
     let!(:patient){create(:patient, family: user.family)}
 
     def do_request
       appointment_params = { start_datetime: Time.now,
-                             status_id: 1,
-                             status: "Future",
+                             appointment_status_id: appointment_status.id,
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,
                              patient_id: patient.id }
@@ -74,14 +74,14 @@ describe Leo::V1::Appointments do
 
   describe "Put /api/v1/appointments/id" do
     let!(:appointment_type){ create(:appointment_type)}
+    let!(:appointment_status){ create(:appointment_status)}
     let!(:provider){create(:user, :clinical)}
     let!(:patient){create(:patient, family: user.family)}
     let!(:appointment){create(:appointment, booked_by: user)}
 
     def do_request
       appointment_params = { start_datetime: Time.now,
-                             status_id: 1,
-                             status: "Future",
+                             appointment_status_id: appointment_status.id,
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,
                              patient_id: patient.id }
