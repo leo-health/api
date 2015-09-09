@@ -1,5 +1,5 @@
 class AppointmentStatus < ActiveRecord::Base
-  belongs_to :appointment
+  has_many :appointments
 
   validates :description, :status, presence: true
   validates_uniqueness_of :description, :status

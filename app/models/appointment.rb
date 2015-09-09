@@ -3,7 +3,7 @@ class Appointment < ActiveRecord::Base
   belongs_to :booked_by, class_name: "User"
   belongs_to :provider, class_name: "User"
   belongs_to :appointment_type
-  has_one :appointment_status
+  belongs_to :appointment_status
 
   validates :duration, :athena_id, :start_datetime, :appointment_status,
             :appointment_type, :booked_by, :provider, :patient, presence: true
