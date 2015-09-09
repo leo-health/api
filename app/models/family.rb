@@ -10,7 +10,7 @@ class Family < ActiveRecord::Base
   end
 
   def primary_parent
-    members.order('created_at ASC').first
+    guardians.order('created_at ASC').first
   end
 
   private

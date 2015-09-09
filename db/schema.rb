@@ -59,6 +59,7 @@ ActiveRecord::Schema.define(version: 20150908193918) do
     t.integer  "provider_id",                       null: false
     t.integer  "patient_id",                        null: false
     t.integer  "appointment_status_id",             null: false
+    t.integer  "rescheduled_id"
   end
 
   add_index "appointments", ["appointment_status_id"], name: "index_appointments_on_appointment_status_id", using: :btree
@@ -121,23 +122,6 @@ ActiveRecord::Schema.define(version: 20150908193918) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "health_records", force: :cascade do |t|
-    t.integer  "athena_id",              default: 0, null: false
-    t.datetime "patient_updated_at"
-    t.datetime "medications_updated_at"
-    t.datetime "vaccines_updated_at"
-    t.datetime "allergies_updated_at"
-    t.datetime "vitals_updated_at"
-    t.datetime "insurances_updated_at"
-    t.datetime "photos_updated_at"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.integer  "patient_id",                         null: false
-  end
-
-  add_index "health_records", ["athena_id"], name: "index_health_records_on_athena_id", using: :btree
-  add_index "health_records", ["patient_id"], name: "index_health_records_on_patient_id", unique: true, using: :btree
-
   create_table "insurances", force: :cascade do |t|
     t.integer  "athena_id",          default: 0, null: false
     t.string   "plan_name"
@@ -199,22 +183,41 @@ ActiveRecord::Schema.define(version: 20150908193918) do
 
   create_table "patients", force: :cascade do |t|
     t.string   "title"
-    t.string   "first_name",                 null: false
+    t.string   "first_name",                         null: false
     t.string   "middle_initial"
-    t.string   "last_name",                  null: false
+    t.string   "last_name",                          null: false
     t.string   "suffix"
-    t.string   "sex",                        null: false
-    t.integer  "family_id",                  null: false
+    t.string   "sex",                                null: false
+    t.integer  "family_id",                          null: false
     t.string   "email"
     t.string   "avatar_url"
-    t.integer  "role_id",        default: 6, null: false
+    t.integer  "role_id",                default: 6, null: false
     t.datetime "deleted_at"
-    t.date     "birth_date",                 null: false
+    t.date     "birth_date",                         null: false
+    t.integer  "athena_id",              default: 0, null: false
+    t.datetime "patient_updated_at"
+    t.datetime "medications_updated_at"
+    t.datetime "vaccines_updated_at"
+    t.datetime "allergies_updated_at"
+    t.datetime "vitals_updated_at"
+    t.datetime "insurances_updated_at"
+    t.datetime "photos_updated_at"
   end
 
+  add_index "patients", ["athena_id"], name: "index_patients_on_athena_id", using: :btree
   add_index "patients", ["deleted_at"], name: "index_patients_on_deleted_at", using: :btree
   add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
   add_index "patients", ["first_name", "last_name"], name: "index_patients_on_first_name_and_last_name", using: :btree
+
+  create_table "photos", force: :cascade do |t|
+    t.integer  "patient_id"
+    t.text     "image"
+    t.datetime "taken_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "photos", ["patient_id"], name: "index_photos_on_patient_id", using: :btree
 
   create_table "practices", force: :cascade do |t|
     t.string   "name",           null: false
@@ -253,11 +256,13 @@ ActiveRecord::Schema.define(version: 20150908193918) do
   add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
 
   create_table "provider_profiles", force: :cascade do |t|
-    t.integer  "provider_id", null: false
-    t.string   "specialties",              array: true
-    t.string   "credentials",              array: true
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.integer  "provider_id",                      null: false
+    t.string   "specialties",                                   array: true
+    t.string   "credentials",                                   array: true
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.integer  "athena_id",            default: 0, null: false
+    t.integer  "athena_department_id", default: 0, null: false
   end
 
   add_index "provider_profiles", ["provider_id"], name: "index_provider_profiles_on_provider_id", unique: true, using: :btree
