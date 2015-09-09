@@ -3,6 +3,18 @@ module Leo
     class Users < Grape::API
       include Grape::Kaminari
 
+      namespace "staff" do
+        before do
+          authenticated
+        end
+
+        get do
+          users = User.includes(:role).where.not(roles: {name: :guardian})
+          authorize! :read, User
+          present :staff, users, with: Leo::Entities::UserEntity
+        end
+      end
+
       resource :users do
         desc "Get available users by role"
         paginate per_page: 20

@@ -11,8 +11,8 @@ module Leo
         desc "Close a conversation"
         put ":id" do
           conversation = Conversation.find(params[:id])
-          authorize! :read, conversation
-          if conversation.update_attributes(status: "closed")
+          authorize! :update, conversation
+          if conversation.update_attributes(status: "closed", last_closed_at: Time.now, last_closed_by: current_user.id)
             present :conversation, conversation, with: Leo::Entities::ConversationEntity
           end
         end
