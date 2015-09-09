@@ -11,7 +11,6 @@ module Leo
         desc "create an appointment"
         params do
           requires :start_datetime, type: DateTime, allow_blank: false
-          requires :status_id, type: Integer, allow_blank: false
           requires :status, type: String, allow_blank: false
           requires :appointment_type_id, type: Integer, allow_blank: false
           requires :provider_id, type: Integer, allow_blank: false

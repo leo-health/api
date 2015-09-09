@@ -583,8 +583,8 @@ module AthenaHealthApiHelper
 
       val = JSON.parse(response.body)
 
-      #TODO: why do we need to do double array de-ref
-      return val[:medications.to_s][0]
+      #Athena is including each medication in an array.  Removing that extra array here
+      val[:medications.to_s].flatten
     end
 
     def get_patient_insurances(patientid:)

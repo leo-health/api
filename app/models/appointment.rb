@@ -4,7 +4,7 @@ class Appointment < ActiveRecord::Base
   belongs_to :provider, class_name: "User"
   belongs_to :appointment_type
 
-  validates :duration, :athena_id, :start_datetime, :status_id, :status,
+  validates :duration, :athena_id, :start_datetime, :status,
             :appointment_type, :booked_by, :provider, :patient, presence: true
 
   validate :same_family, on: :create
@@ -16,6 +16,7 @@ class Appointment < ActiveRecord::Base
     errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id
   end
 
+  #helpers for athena appointment statuses
   def pre_checked_in?
     future? || open? || cancelled?
   end

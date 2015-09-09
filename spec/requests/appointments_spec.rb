@@ -12,8 +12,7 @@ describe Leo::V1::Appointments do
 
     def do_request
       appointment_params = { start_datetime: Time.now,
-                             status_id: 1,
-                             status: "Future",
+                             status: "f",
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,
                              patient_id: patient.id }
