@@ -11,7 +11,7 @@ describe Leo::V1::Messages do
     user.add_role :guardian
   end
 
-  describe "Get /api/v1/conversations/:conversatoin_id/messages" do
+  describe "Get /api/v1/conversations/:conversation_id/messages" do
     let!(:first_message){create(:message, conversation: conversation, sender: user)}
     let!(:second_message){create(:message, conversation: conversation, sender: user)}
 
