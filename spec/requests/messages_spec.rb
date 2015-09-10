@@ -27,8 +27,6 @@ describe Leo::V1::Messages do
   end
 
   describe "Post /api/v1/conversations/:conversatoin_id/messages" do
-    # let!(:message_params){{body: "test", type_name: "text"}}
-
     def do_request
       post "/api/v1/conversations/#{conversation.id}/messages",
            { body: "test", type_name: "text", authentication_token: session.authentication_token }
