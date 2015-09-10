@@ -7,7 +7,7 @@ class Message < ActiveRecord::Base
   belongs_to :escalated_by, class_name: 'User'
   belongs_to :sender, class_name: "User"
 
-  validates :conversation, :sender, :message_type, presence: true
+  validates :conversation, :sender, :type_name, presence: true
 
   after_commit :update_conversation_after_message_sent, :broadcast_message, on: :create
   after_commit :update_escalated_status_on_conversation, on: :update

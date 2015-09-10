@@ -25,11 +25,11 @@ module Leo
           desc "Create a message"
           params do
             requires :body, type: String, allow_blank: false
-            requires :message_type, type: String, allow_blank: false
+            requires :type_name, type: String, allow_blank: false
           end
 
           post do
-            message = @conversation.messages.new({body: params[:body], sender: current_user, message_type: params[:message_type]})
+            message = @conversation.messages.new({body: params[:body], sender: current_user, type_name: params[:type_name]})
             if message.save
               authorize! :create, message
               present message, with: Leo::Entities::MessageEntity
