@@ -37,7 +37,7 @@ module Leo
       end
 
       def messages
-        object.messages.order('created_at DESC')[0..24]
+        object.messages.order('created_at ASC')[-25..-1]
       end
     end
   end
