@@ -11,7 +11,7 @@ describe Leo::V1::Messages do
     user.add_role :guardian
   end
 
-  describe "Get /api/v1/conversations/:conversatoin_id/messages" do
+  describe "Get /api/v1/conversations/:conversation_id/messages" do
     let!(:first_message){create(:message, conversation: conversation, sender: user)}
     let!(:second_message){create(:message, conversation: conversation, sender: user)}
 
@@ -26,12 +26,10 @@ describe Leo::V1::Messages do
     end
   end
 
-  describe "Post /api/v1/conversations/:conversatoin_id/messages" do
-    let!(:message_params){{body: "test", message_type: "text"}}
-
+  describe "Post /api/v1/conversations/:conversation_id/messages" do
     def do_request
       post "/api/v1/conversations/#{conversation.id}/messages",
-           { body: "test", message_type: "text", authentication_token: session.authentication_token }
+           { body: "test", type_name: "text", authentication_token: session.authentication_token }
     end
 
     it "should create a message for the conversation" do
@@ -40,7 +38,7 @@ describe Leo::V1::Messages do
     end
   end
 
-  describe "Put /api/v1/conversations/:conversatoin_id/messages/:id" do
+  describe "Put /api/v1/conversations/:conversation_id/messages/:id" do
     let(:second_user){create(:user)}
     let!(:session){ second_user.sessions.create }
     let!(:clinical_role){create(:role, :clinical)}
