@@ -27,11 +27,11 @@ describe Leo::V1::Messages do
   end
 
   describe "Post /api/v1/conversations/:conversatoin_id/messages" do
-    let!(:message_params){{body: "test", message_type: "text"}}
+    # let!(:message_params){{body: "test", type_name: "text"}}
 
     def do_request
       post "/api/v1/conversations/#{conversation.id}/messages",
-           { body: "test", message_type: "text", authentication_token: session.authentication_token }
+           { body: "test", type_name: "text", authentication_token: session.authentication_token }
     end
 
     it "should create a message for the conversation" do
