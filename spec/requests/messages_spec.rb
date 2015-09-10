@@ -26,7 +26,7 @@ describe Leo::V1::Messages do
     end
   end
 
-  describe "Post /api/v1/conversations/:conversatoin_id/messages" do
+  describe "Post /api/v1/conversations/:conversation_id/messages" do
     def do_request
       post "/api/v1/conversations/#{conversation.id}/messages",
            { body: "test", type_name: "text", authentication_token: session.authentication_token }
@@ -38,7 +38,7 @@ describe Leo::V1::Messages do
     end
   end
 
-  describe "Put /api/v1/conversations/:conversatoin_id/messages/:id" do
+  describe "Put /api/v1/conversations/:conversation_id/messages/:id" do
     let(:second_user){create(:user)}
     let!(:session){ second_user.sessions.create }
     let!(:clinical_role){create(:role, :clinical)}
