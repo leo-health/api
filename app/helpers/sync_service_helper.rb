@@ -189,10 +189,10 @@ module SyncServiceHelper
       patient = Patient.find_by!(athena_id: appt.patientid.to_i)
       provider_profile = ProviderProfile.find_by!(athena_id: appt.providerid.to_i)
       appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
-      appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
+      appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
 
       Appointment.create(
-        appointment_status_id: appointment_status.id,
+        appointment_status: appointment_status,
         booked_by_id: provider_profile.provider.id,
         patient_id: patient.id,
         provider_id: provider_profile.provider.id,
@@ -289,7 +289,7 @@ module SyncServiceHelper
         appointment_status = AppointmentStatus.find_by(status: athena_appt.appointmentstatus)
 
         #athena does not return booked_by_id.  we have to leave it as is
-        leo_appt.appointment_status_id = appointment_status.id
+        leo_appt.appointment_status = appointment_status
         leo_appt.patient_id = patient.id
         leo_appt.provider_id = provider_profile.provider.id
         leo_appt.appointment_type_id = appointment_type.id
