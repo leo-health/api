@@ -33,26 +33,26 @@ class Appointment < ActiveRecord::Base
   end
 
   def cancelled?
-    status == "x"
+    appointment_status.status == "x"
   end
 
   def future?
-    status == "f"
+    appointment_status.status == "f"
   end
 
   def open?
-    status == "o"
+    appointment_status.status == "o"
   end
 
   def checked_in?
-    status == "2"
+    appointment_status.status == "2"
   end
 
   def checked_out?
-    status == "3"
+    appointment_status.status == "3"
   end
 
   def charge_entered?
-    status == "4"
+    appointment_status.status == "4"
   end
 end

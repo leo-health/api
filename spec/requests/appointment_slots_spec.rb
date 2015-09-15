@@ -4,6 +4,15 @@ require 'rails_helper'
 describe Leo::V1::AppointmentSlots do
 
   describe "GET /api/v1/appointment_slots" do
+    before do
+      create(:appointment_status, :cancelled)
+      create(:appointment_status, :checked_in)
+      create(:appointment_status, :checked_out)
+      create(:appointment_status, :charge_entered)
+      create(:appointment_status, :future)
+      create(:appointment_status, :open)
+    end
+
     let!(:date) { Date.today}
     let!(:provider) { create(:user, :clinical) }
     let!(:provider_profile) { create(:provider_profile, athena_id: 1, provider_id: provider.id) }
@@ -32,7 +41,7 @@ describe Leo::V1::AppointmentSlots do
       start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
       end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
     }
-    let!(:appointment) { create(:appointment, provider_id: provider.id,
+    let!(:appointment) { create(:appointment, provider_id: provider.id, appointment_status_id: AppointmentStatus.find_by(status: 'f').id,
       start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
       duration: 20)
     }
