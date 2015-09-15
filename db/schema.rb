@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150910153055) do
+ActiveRecord::Schema.define(version: 20150915181408) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(version: 20150910153055) do
     t.string   "conversation_change"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
+    t.integer  "changed_by_id"
   end
 
   add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
@@ -80,7 +81,7 @@ ActiveRecord::Schema.define(version: 20150910153055) do
     t.datetime "deleted_at"
     t.string   "status",                  null: false
     t.datetime "last_closed_at"
-    t.integer  "last_closed_by"
+    t.integer  "last_closed_by_id"
   end
 
   create_table "conversations_participants", id: false, force: :cascade do |t|
