@@ -4,6 +4,7 @@ class Conversation < ActiveRecord::Base
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
   has_many :conversation_changes
+  belongs_to :last_closed_by, class_name: 'User'
   belongs_to :family
   belongs_to :archived_by, class_name: 'User'
 
@@ -29,7 +30,7 @@ class Conversation < ActiveRecord::Base
   def track_conversation_change
     changed = status_changed?
     yield
-    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
+    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at), changed_by: last_closed_by) if changed
   end
 
   def load_staff
