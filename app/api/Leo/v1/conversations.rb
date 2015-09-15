@@ -17,6 +17,8 @@ module Leo
           authorize! :update, conversation
           if conversation.update_attributes(status: "closed", last_closed_at: Time.now, last_closed_by: current_user.id)
             present :conversation, conversation, with: Leo::Entities::ConversationEntity
+            channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
+            Pusher.trigger(channels, 'new_status', {new_status: 'closed', conversation_id: conversation.id, closed_by: current_user}) if channels.count > 0
           end
         end
 

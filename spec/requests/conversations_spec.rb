@@ -67,6 +67,10 @@ describe Leo::V1::Conversations do
     let!(:session){ clinial_user.sessions.create }
     let(:conversation){ Conversation.find_by_family_id(user.family_id) }
 
+    before do
+      conversation.update_attributes(status: :open)
+    end
+
     def do_request
       put "/api/v1/conversations/#{conversation.id}", {authentication_token: session.authentication_token}
     end
@@ -89,6 +93,7 @@ describe Leo::V1::Conversations do
 
     before do
       @conversation = family.conversation
+      @conversation.update_attributes(status: :open)
       @escalated_conversation = family_one.conversation
       @escalated_conversation.update_attributes(status: :escalated)
       @closed_conversation = family_two.conversation
