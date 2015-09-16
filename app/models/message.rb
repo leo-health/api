@@ -9,7 +9,7 @@ class Message < ActiveRecord::Base
 
   validates :conversation, :sender, :type_name, presence: true
 
-  after_commit :update_conversation_after_message_sent, :broadcast_message, on: :create
+  after_commit :update_conversation_after_message_sent, on: :create
   after_commit :update_escalated_status_on_conversation, on: :update
 
   def escalate(escalated_to, escalated_by)
@@ -23,13 +23,6 @@ class Message < ActiveRecord::Base
   end
 
   private
-
-  def broadcast_message
-    message_params = as_json(include: :sender).to_json
-    participants = conversation.staff + conversation.family.guardians
-    channels = participants.inject([]){|channels, user| channels << "newMessage#{user.email}"; channels}
-    Pusher.trigger(channels, 'new_message', message_params) if channels.count > 0
-  end
 
   def update_conversation_after_message_sent
     return if conversation.messages.count == 1
