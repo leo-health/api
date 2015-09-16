@@ -12,7 +12,6 @@ class Conversation < ActiveRecord::Base
   before_validation :set_conversation_state, on: :create
 
   validates :family, :status, presence: true
-  around_update :track_conversation_change
   after_commit :load_staff, :load_initial_message, on: :create
 
   def self.sort_conversations
@@ -26,13 +25,12 @@ class Conversation < ActiveRecord::Base
     update_attributes(status: :open) unless status
   end
 
-  private
-
-  def track_conversation_change
-    changed = status_changed?
-    yield
-    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at), changed_by: last_closed_by) if changed
+  def broadcast_status(sender, new_status)
+    channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
+    Pusher.trigger(channels, 'new_status', {new_status: new_status, conversation_id: id, changed_by: sender}) if channels.count > 0
   end
+
+  private
 
   def load_staff
     #neeed definitions for who will be loaded here

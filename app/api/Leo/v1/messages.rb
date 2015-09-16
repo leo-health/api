@@ -37,7 +37,7 @@ module Leo
               message.broadcast_message(current_user)
               if conversation_status == :closed
                 @conversation.create_activity(:conversation_opened, owner: current_user )
-                broadcast_status(@conversation)
+                @conversation.broadcast_status(current_user, :open)
               end
             else
               error!({error_code: 422, error_message: message.errors.full_messages }, 422)
@@ -57,13 +57,6 @@ module Leo
               present :message, message, with: Leo::Entities::MessageEntity
             end
           end
-        end
-      end
-
-      helpers do
-        def broadcast_status(conversation)
-          channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
-          Pusher.trigger(channels, 'new_status', {new_status: :open, conversation_id: conversation.id, closed_by: current_user}) if channels.count > 0
         end
       end
     end

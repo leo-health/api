@@ -22,11 +22,11 @@ class Message < ActiveRecord::Base
     end
   end
 
-  def broadcast_message(user)
+  def broadcast_message(sender)
     message_params = as_json(include: :sender).to_json
     conversation = conversation
     participants = (conversation.staff + conversation.family.guardians)
-    participants.delete(user)
+    participants.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "newMessage#{user.email}"; channels}
       Pusher.trigger(channels, 'new_message', message_params)

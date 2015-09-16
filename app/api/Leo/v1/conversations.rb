@@ -18,7 +18,7 @@ module Leo
           if conversation.update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: current_user)
             present :conversation, conversation, with: Leo::Entities::ConversationEntity
             conversation.create_activity(:conversation_closed, owner: current_user)
-            broadcast_status(conversation)
+            conversation.broadcast_status(current_user, :closed)
           end
         end
 
