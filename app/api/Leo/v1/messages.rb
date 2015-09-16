@@ -19,7 +19,7 @@ module Leo
           get do
             messages = @conversation.messages.order('created_at DESC')
             authorize! :read, Message
-            present :messages, paginate(messages), with: Leo::Entities::MessageEntity
+            present paginate(messages), with: Leo::Entities::MessageEntity
           end
 
           desc "Create a message"
