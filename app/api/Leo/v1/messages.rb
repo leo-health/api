@@ -4,6 +4,8 @@ module Leo
       include Grape::Kaminari
 
       namespace 'conversations/:conversation_id' do
+        paginate per_page: 25
+
         resource :messages do
           before do
             authenticated
@@ -18,12 +20,18 @@ module Leo
               messages = @conversation.messages
               authorize! :read, Message
               system_messages = PublicActivity::Activity.where(key: "conversation.conversation_closed")
-              (system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
-              present :messages, paginate(messages), with: Leo::Entities::MessageEntity
+              full_messages =(system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
+              full_messages.map! do |message|
+                case message.class.name
+                when 'PublicActivity::Activity'
+                  {system_message: message}
+                when 'Message'
+                  {regular_message: message}
+                end
+              end
+              present paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
             end
           end
-
-          paginate per_page: 25
 
           desc "Return all messages for a conversation with pagination options"
           get do
