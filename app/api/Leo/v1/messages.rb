@@ -15,7 +15,7 @@ module Leo
             @conversation = Conversation.find(params[:conversation_id])
           end
 
-          namespace 'full_messages' do
+          namespace 'full' do
             get do
               messages = @conversation.messages
               authorize! :read, Message
@@ -54,7 +54,6 @@ module Leo
             if message.save
               present message, with: Leo::Entities::MessageEntity
               message.broadcast_message(current_user)
-              byebug
               if conversation_status.to_sym == :closed
                 @conversation.create_activity(:conversation_opened, owner: current_user )
                 @conversation.broadcast_status(current_user, :open)
