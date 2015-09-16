@@ -37,7 +37,7 @@ module Leo
       end
 
       def messages
-        object.messages.order('created_at DESC').limit(25)
+        object.messages.order('created_at ASC').last(25)
       end
     end
   end
