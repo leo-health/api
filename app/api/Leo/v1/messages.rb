@@ -29,7 +29,8 @@ module Leo
                   {regular_message: message}
                 end
               end
-              present paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
+              present :conversation_id, @conversation.id
+              present :messages, paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
             end
           end
 
