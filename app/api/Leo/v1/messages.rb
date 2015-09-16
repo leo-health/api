@@ -30,9 +30,10 @@ module Leo
 
           post do
             message = @conversation.messages.new({body: params[:body], sender: current_user, type_name: params[:type_name]})
+            authorize! :create, message
             if message.save
-              authorize! :create, message
               present message, with: Leo::Entities::MessageEntity
+              broadcast_message(message)
             else
               error!({error_code: 422, error_message: message.errors.full_messages }, 422)
             end
@@ -50,6 +51,19 @@ module Leo
             if message.escalate(escalated_to, current_user)
               present :message, message, with: Leo::Entities::MessageEntity
             end
+          end
+        end
+      end
+
+      helpers do
+        def broadcast_message(message)
+          message_params = message.as_json(include: :sender).to_json
+          conversation = message.conversation
+          participants = (conversation.staff + conversation.family.guardians)
+          participants.delete(current_user)
+          if participants.count > 0
+            channels = participants.inject([]){|channels, user| channels << "newMessage#{user.email}"; channels}
+            Pusher.trigger(channels, 'new_message', message_params)
           end
         end
       end
