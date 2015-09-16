@@ -29,11 +29,15 @@ module Leo
           end
 
           post do
+            conversation_status = @conversation.status
             message = @conversation.messages.new({body: params[:body], sender: current_user, type_name: params[:type_name]})
             authorize! :create, message
             if message.save
               present message, with: Leo::Entities::MessageEntity
               broadcast_message(message)
+              if conversation_status == :closed
+                @conversation.create_activity(:conversation_opened, owner: current_user )
+              end
             else
               error!({error_code: 422, error_message: message.errors.full_messages }, 422)
             end
@@ -65,6 +69,10 @@ module Leo
             channels = participants.inject([]){|channels, user| channels << "newMessage#{user.email}"; channels}
             Pusher.trigger(channels, 'new_message', message_params)
           end
+        end
+
+        def broadcast_status(status)
+
         end
       end
     end
