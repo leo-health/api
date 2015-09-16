@@ -17,7 +17,7 @@ module Leo
 
           desc "Return all messages for a conversation with pagination options"
           get do
-            messages = @conversation.messages
+            messages = @conversation.messages.order('created_at DESC')
             authorize! :read, Message
             present :messages, paginate(messages), with: Leo::Entities::MessageEntity
           end
