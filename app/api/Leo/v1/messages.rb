@@ -34,7 +34,7 @@ module Leo
             authorize! :create, message
             if message.save
               present message, with: Leo::Entities::MessageEntity
-              broadcast_message(message)
+              message.broadcast_message(current_user)
               if conversation_status == :closed
                 @conversation.create_activity(:conversation_opened, owner: current_user )
                 broadcast_status(@conversation)
@@ -61,17 +61,6 @@ module Leo
       end
 
       helpers do
-        def broadcast_message(message)
-          message_params = message.as_json(include: :sender).to_json
-          conversation = message.conversation
-          participants = (conversation.staff + conversation.family.guardians)
-          participants.delete(current_user)
-          if participants.count > 0
-            channels = participants.inject([]){|channels, user| channels << "newMessage#{user.email}"; channels}
-            Pusher.trigger(channels, 'new_message', message_params)
-          end
-        end
-
         def broadcast_status(conversation)
           channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
           Pusher.trigger(channels, 'new_status', {new_status: :open, conversation_id: conversation.id, closed_by: current_user}) if channels.count > 0
