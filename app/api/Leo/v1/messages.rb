@@ -13,6 +13,16 @@ module Leo
             @conversation = Conversation.find(params[:conversation_id])
           end
 
+          namespace 'full_messages' do
+            get do
+              messages = @conversation.messages
+              authorize! :read, Message
+              system_messages = PublicActivity::Activity.where(key: "conversation.conversation_closed")
+              (system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
+              present :messages, paginate(messages), with: Leo::Entities::MessageEntity
+            end
+          end
+
           paginate per_page: 25
 
           desc "Return all messages for a conversation with pagination options"
@@ -35,7 +45,8 @@ module Leo
             if message.save
               present message, with: Leo::Entities::MessageEntity
               message.broadcast_message(current_user)
-              if conversation_status == :closed
+              byebug
+              if conversation_status.to_sym == :closed
                 @conversation.create_activity(:conversation_opened, owner: current_user )
                 @conversation.broadcast_status(current_user, :open)
               end

@@ -24,7 +24,7 @@ class Message < ActiveRecord::Base
 
   def broadcast_message(sender)
     message_params = as_json(include: :sender).to_json
-    conversation = conversation
+    conversation = self.conversation
     participants = (conversation.staff + conversation.family.guardians)
     participants.delete(sender)
     if participants.count > 0

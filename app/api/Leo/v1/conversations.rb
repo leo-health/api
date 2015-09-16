@@ -11,7 +11,7 @@ module Leo
         desc "Close a conversation"
         put ":id" do
           conversation = Conversation.find(params[:id])
-          if conversation.status == :closed
+          if conversation.status.to_sym == :closed
             error!({error_code: 422, error_message: "messages is in closed status" }, 422)
           end
           authorize! :update, conversation
