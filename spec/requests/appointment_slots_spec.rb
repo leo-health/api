@@ -49,7 +49,7 @@ describe Leo::V1::AppointmentSlots do
     let!(:session){ user.sessions.create }
 
     def do_request
-      get "/api/v1/appointment_slots", { authentication_token: session.authentication_token, start_date: date.strftime("%m/%d/%Y"), end_date: date.strftime("%m/%d/%Y"), provider_id: provider.id, appointment_type_id: appointment_type.id }, format: :json
+      get "/api/v1/appointment_slots", { authentication_token: session.authentication_token, start_date: date, end_date: date, provider_id: provider.id, appointment_type_id: appointment_type.id }, format: :json
     end
 
     it "should return a list of open slots" do
