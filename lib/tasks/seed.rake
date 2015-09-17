@@ -82,13 +82,14 @@ namespace :load do
           password_confirmation: "password",
           role_id: 5,
           practice_id: 0,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
-          athena_id: 1,
-          athena_department_id: 1,
-          specialties: "",
-          credentials: ""
+          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       }
     }
+
+    provider_profiles = [{
+      specialties: "",
+      credentials: ""
+    }]
 
     default_schedule = {
       description: "Default Schedule",
@@ -110,20 +111,13 @@ namespace :load do
     }
 
     staff.each do |name, attributes|
-      user = User.create(attributes.except(:athena_id, :athena_department_id, :specialties, :credentials))
+      user = User.create(attributes)
 
       if user.valid?
         if user.has_role? :clinical
-          provider_profile = { 
-            athena_id: attributes[:athena_id], 
-            athena_department_id: attributes[:athena_department_id],
-            provider_id: user.id, 
-            specialties: attributes[:specialties], 
-            credentials: attributes[:credentials]
-          }
-          user.create_provider_profile!(provider_profile)
-
-          default_schedule[:athena_provider_id] = attributes[:athena_id]
+          provider_profiles[0][:provider_id] = user.id
+          default_schedule[:athena_provider_id] = user.id
+          user.create_provider_profile!(provider_profiles[0])
           ProviderSchedule.create!(default_schedule)
         end
         print "*"
