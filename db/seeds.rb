@@ -81,7 +81,7 @@ end
 appointment_statuses_seed = [
     {
       id: 0,
-      description: "Cancelled",
+      description: "cancelled",
       status: "x"
     },
 

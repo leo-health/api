@@ -295,9 +295,7 @@ module AppointmentSlotsHelper
       }
 
       #remove existing appointments
-      booked_statuses = AppointmentStatus.where.not(status: 'x').collect(&:id)
-
-      Appointment.where(provider_id: athena_provider_id).where("start_datetime >= ? and start_datetime <= ?", start_datetime, end_datetime).where(appointment_status_id: booked_statuses).find_each {
+      Appointment.where("provider_id = ? AND start_datetime >= ? AND start_datetime <= ? AND status IN ('f', '2', '3', '4')", athena_provider_id, start_datetime, end_datetime).find_each {
         |appt| availability -= Interval.new(appt.start_datetime, appt.duration.minutes.since(appt.start_datetime))
       }
 
