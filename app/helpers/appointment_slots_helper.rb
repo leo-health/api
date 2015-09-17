@@ -242,34 +242,12 @@ module AppointmentSlotsHelper
     end
 
     def day_schedule_to_interval(schedule, date)
-      if date.monday?
-        start_time = schedule.monday_start_time
-        end_time = schedule.monday_end_time
-      elsif date.tuesday?
-        start_time = schedule.tuesday_start_time
-        end_time = schedule.tuesday_end_time
-      elsif date.wednesday?
-        start_time = schedule.wednesday_start_time
-        end_time = schedule.wednesday_end_time
-      elsif date.thursday?
-        start_time = schedule.thursday_start_time
-        end_time = schedule.thursday_end_time
-      elsif date.friday?
-        start_time = schedule.friday_start_time
-        end_time = schedule.friday_end_time
-      elsif date.saturday?
-        start_time = schedule.saturday_start_time
-        end_time = schedule.saturday_end_time
-      else
-        start_time = schedule.sunday_start_time
-        end_time = schedule.sunday_end_time
-      end
-
-      if start_time.nil? || end_time.nil?
-        nil 
-      else
-        Interval.new(to_datetime_str(date, start_time), to_datetime_str(date, end_time))
-      end
+      date_name = date.strftime("%A").downcase
+      start_time_method = "#{date_name}_start_time"
+      end_time_method = "#{date_name}_end_time"
+      start_time = schedule.public_send(start_time_method)
+      end_time = schedule.public_send(end_time_method)
+      Interval.new(to_datetime_str(date, start_time), to_datetime_str(date, end_time)) if (start_time && end_time)
     end
 
     def get_provider_availability(athena_provider_id:, date:)
@@ -282,10 +260,10 @@ module AppointmentSlotsHelper
       schedule = ProviderSchedule.find_by!(athena_provider_id: athena_provider_id, active: true)
 
       schedule_int = day_schedule_to_interval(schedule, date)
-      availability += schedule_int if !schedule_int.nil?
+      availability += schedule_int if schedule_int
 
       #add additional availability
-      additional_availabilities = ProviderAdditionalAvailability.where("athena_provider_id = ? AND start_datetime >= ? AND start_datetime <= ?", athena_provider_id, start_datetime, end_datetime).find_each {
+      ProviderAdditionalAvailability.where("athena_provider_id = ? AND start_datetime >= ? AND start_datetime <= ?", athena_provider_id, start_datetime, end_datetime).find_each {
         |additional| availability += Interval.new(additional.start_datetime, additional.end_datetime)
       }
 
@@ -306,22 +284,18 @@ module AppointmentSlotsHelper
 
     def get_open_slots(athena_provider_id:, date:, durations:)
       availability = get_provider_availability(athena_provider_id: athena_provider_id, date: date)
-
       slots = []
-
-      durations.each { |duration|
-        availability.intervals.each { |interval|
+      durations.each do |duration|
+        availability.intervals.each do |interval|
           test_interval = Interval.new(interval.start_val, duration.minutes.since(interval.start_val))
 
           while interval.contains?(test_interval)
             slots << OpenSlot.new(test_interval.start_val, duration)
             test_interval = Interval.new(test_interval.end_val, duration.minutes.since(test_interval.end_val))
           end
-        }
-      }
-
+        end
+      end
       slots
     end
-
   end
 end
