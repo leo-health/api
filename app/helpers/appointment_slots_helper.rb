@@ -96,7 +96,7 @@ module AppointmentSlotsHelper
 
         #this will compact all the fields
         res = self - coalesced
-        res.intervals << coalesced unless coalesced.empty
+        res.intervals << coalesced unless coalesced.empty?
         res
       end
     end

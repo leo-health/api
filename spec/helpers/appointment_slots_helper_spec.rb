@@ -2,120 +2,225 @@ require 'rails_helper'
 
 RSpec.describe AppointmentSlotsHelper, type: :helper do
   describe "Interval- " do
-    it "#intersects?" do
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(11, 20)
-      expect(i1.intersects?(i2)).to be(false)
-      expect(i2.intersects?(i1)).to be(false)
+    let(:i1){AppointmentSlotsHelper::Interval.new(0, 10)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(9, 20)
-      expect(i1.intersects?(i2)).to be(true)
-      expect(i2.intersects?(i1)).to be(true)
+    describe "#intersects?" do
+      context "intervals are not intersect" do
+        context "intervals are disjoint" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(2, 8)
-      expect(i1.intersects?(i2)).to be(true)
-      expect(i2.intersects?(i1)).to be(true)
+          it "should return false" do
+            expect(i1.intersects?(i2)).to be(false)
+            expect(i2.intersects?(i1)).to be(false)
+          end
+        end
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(10, 20)
-      expect(i1.intersects?(i2)).to be(false)
-      expect(i2.intersects?(i1)).to be(false)
+        context "intervals are inclusive intersect" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(10, 20)}
+
+          it "should return false" do
+            expect(i1.intersects?(i2)).to be(false)
+            expect(i2.intersects?(i1)).to be(false)
+          end
+        end
+      end
+
+      context "intervals are intersect" do
+        context "intervals are fully inclusive" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
+
+          it "should return true" do
+            expect(i1.intersects?(i2)).to be(true)
+            expect(i2.intersects?(i1)).to be(true)
+          end
+        end
+
+        context "intervals are partially inclusive" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
+
+          it "should return true" do
+            expect(i1.intersects?(i2)).to be(true)
+            expect(i2.intersects?(i1)).to be(true)
+          end
+        end
+      end
     end
 
-    it "#intersects_inclusive?" do
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(11, 20)
-      expect(i1.intersects_inclusive?(i2)).to be(false)
-      expect(i2.intersects_inclusive?(i1)).to be(false)
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(9, 20)
-      expect(i1.intersects_inclusive?(i2)).to be(true)
-      expect(i2.intersects_inclusive?(i1)).to be(true)
+    describe "#intersects_inclusive?" do
+      context "intervals are not intersects_inclusive" do
+        context "intervals are fully disjoint" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(2, 8)
-      expect(i1.intersects_inclusive?(i2)).to be(true)
-      expect(i2.intersects_inclusive?(i1)).to be(true)
+          it "should return false" do
+            expect(i1.intersects_inclusive?(i2)).to be(false)
+            expect(i2.intersects_inclusive?(i1)).to be(false)
+          end
+        end
+      end
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(10, 20)
-      expect(i1.intersects_inclusive?(i2)).to be(true)
-      expect(i2.intersects_inclusive?(i1)).to be(true)
+      context "intervals are intersects_inclusive" do
+        context "intervals are partially inclusive" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
+
+          it "should return true" do
+            expect(i1.intersects_inclusive?(i2)).to be(true)
+            expect(i2.intersects_inclusive?(i1)).to be(true)
+          end
+        end
+
+        context "intervals are fully inclusive" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
+
+          it "should return true" do
+            expect(i1.intersects_inclusive?(i2)).to be(true)
+            expect(i2.intersects_inclusive?(i1)).to be(true)
+          end
+        end
+
+        context "intervals have single common value" do
+          let(:i2){AppointmentSlotsHelper::Interval.new(10, 20)}
+
+          it "should return true" do
+            expect(i1.intersects_inclusive?(i2)).to be(true)
+            expect(i2.intersects_inclusive?(i1)).to be(true)
+          end
+        end
+      end
     end
 
-    it "#+" do
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(11, 20)
-      expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1, i2 ]))
-      expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1, i2 ]))
+    describe "#+" do
+      let(:joined_interval){AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 20) ])}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(9, 20)
-      expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 20) ]))
-      expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 20) ]))
+      context "intervals are disjoint" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(2, 8)
-      expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 10) ]))
-      expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 10) ]))
+        it "should combine the two intervals seperately" do
+          expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1, i2 ]))
+          expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1, i2 ]))
+        end
+      end
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(10, 20)
-      expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 20) ]))
-      expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 20) ]))
+      context "intervals are partially intersect" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
+
+        it "should join the two interval" do
+          expect(i1+i2).to eq(joined_interval)
+          expect(i2+i1).to eq(joined_interval)
+        end
+      end
+
+      context "one interval is a subset of the other" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
+
+        it "should return the larger interval" do
+          expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 10) ]))
+          expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 10) ]))
+        end
+      end
+
+      context "intervals have single common value" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(10, 20)}
+
+        it "should join the two interval" do
+          expect(i1+i2).to eq(joined_interval)
+          expect(i2+i1).to eq(joined_interval)
+        end
+      end
     end
 
-    it "#-" do
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(11, 20)
-      expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1 ]))
-      expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i2 ]))
+    describe "#-" do
+      context "two intervals are disjoint" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(9, 20)
-      expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 9) ]))
-      expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(10, 20) ]))
+        it "should return the subtractor itself" do
+          expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1 ]))
+          expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i2 ]))
+        end
+      end
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(2, 8)
-      expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 2), AppointmentSlotsHelper::Interval.new(8, 10) ]))
-      expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ ]))
+      context "two intervals are partially joint" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(10, 20)
-      expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1 ]))
-      expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i2 ]))
+        it "should subtract the joint from subtractor" do
+          expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 9) ]))
+          expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(10, 20) ]))
+        end
+      end
+
+      context "two intervals are fully joint" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
+
+        it "should subtract the joint" do
+          expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ AppointmentSlotsHelper::Interval.new(0, 2), AppointmentSlotsHelper::Interval.new(8, 10) ]))
+          expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ ]))
+        end
+      end
+
+      context "intervals have single common value" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(10, 20)}
+
+        it "should return the subtractor itself" do
+          expect(i1-i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1 ]))
+          expect(i2-i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i2 ]))
+        end
+      end
     end
 
-    it "#intersect" do
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(11, 20)
-      expect(i1.intersect(i2)).to eq(nil)
-      expect(i2.intersect(i1)).to eq(nil)
+    describe "#intersect" do
+      context "two intervals are disjoint" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(9, 20)
-      expect(i1.intersect(i2)).to eq(AppointmentSlotsHelper::Interval.new(9, 10))
-      expect(i2.intersect(i1)).to eq(AppointmentSlotsHelper::Interval.new(9, 10))
+        it "should return nil" do
+          expect(i1.intersect(i2)).to eq(nil)
+          expect(i2.intersect(i1)).to eq(nil)
+        end
+      end
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(2, 8)
-      expect(i1.intersect(i2)).to eq(AppointmentSlotsHelper::Interval.new(2, 8))
-      expect(i2.intersect(i1)).to eq(AppointmentSlotsHelper::Interval.new(2, 8))
+      context "two intervals are partially joint" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
 
-      i1 = AppointmentSlotsHelper::Interval.new(0, 10)
-      i2 = AppointmentSlotsHelper::Interval.new(10, 20)
-      expect(i1.intersect(i2)).to eq(nil)
-      expect(i2.intersect(i1)).to eq(nil)
+        it "should return the joint" do
+          expect(i1.intersect(i2)).to eq(AppointmentSlotsHelper::Interval.new(9, 10))
+          expect(i2.intersect(i1)).to eq(AppointmentSlotsHelper::Interval.new(9, 10))
+        end
+      end
+
+      context "two intervals are fully joint" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
+
+        it "should return the subset" do
+          expect(i1.intersect(i2)).to eq(AppointmentSlotsHelper::Interval.new(2, 8))
+          expect(i2.intersect(i1)).to eq(AppointmentSlotsHelper::Interval.new(2, 8))
+        end
+      end
+
+      context "intervals have single common value" do
+        let(:i2){AppointmentSlotsHelper::Interval.new(10, 20)}
+
+        it "should return nil" do
+          expect(i1.intersect(i2)).to eq(nil)
+          expect(i2.intersect(i1)).to eq(nil)
+        end
+      end
     end
 
-    it "#empty?" do
-      expect(AppointmentSlotsHelper::Interval.new(0, 10).empty?).to eq(false)
-      expect(AppointmentSlotsHelper::Interval.new(10, 10).empty?).to eq(true)
-      expect(AppointmentSlotsHelper::Interval.new(11, 10).empty?).to eq(true)
+    describe "#empty?" do
+      let(:empty_interval_first){AppointmentSlotsHelper::Interval.new(10, 10)}
+      let(:empty_interval_second){AppointmentSlotsHelper::Interval.new(11, 10)}
+
+      context "non empty interval" do
+        it "should return false" do
+          expect(i1.empty?).to eq(false)
+        end
+      end
+
+      context "empty interval" do
+        it "should return true" do
+          expect(empty_interval_first.empty?).to eq(true)
+          expect(empty_interval_second.empty?).to eq(true)
+        end
+      end
     end
   end
 
