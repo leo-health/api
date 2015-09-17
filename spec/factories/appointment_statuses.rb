@@ -1,13 +1,13 @@
 FactoryGirl.define do
   factory :appointment_status do
     id    0
-    description "Cancelled"
+    description "cancelled"
     status "x"
     initialize_with { AppointmentStatus.find_or_create_by(id: id)}
 
     trait :cancelled do
       id 0
-      description "Cancelled"
+      description "cancelled"
       status "x"
     end
 
