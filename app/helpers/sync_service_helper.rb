@@ -63,9 +63,7 @@ module SyncService
 
   def self.create_debug_syncer(practice_id: 195900)
     connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new(practice_id: practice_id)
-    syncer = SyncServiceHelper::Syncer.new(connector)
-
-    return syncer
+    SyncServiceHelper::Syncer.new(connector)
   end
 end
 
@@ -106,29 +104,8 @@ module SyncServiceHelper
     # * +task+ - the sync task to process
     def process_sync_task(task)
       Rails.logger.info("Syncer: Processing task #{task.to_json}")
-
-      if task.sync_type  == :appointment.to_s
-        process_appointment(task)
-      elsif task.sync_type  == :scan_appointments.to_s
-        process_scan_appointments(task)
-      elsif task.sync_type  == :scan_remote_appointments.to_s
-        process_scan_remote_appointments(task)
-      elsif task.sync_type  == :scan_patients.to_s
-        process_scan_patients(task)
-      elsif task.sync_type  == :patient.to_s
-        process_patient(task)
-      elsif task.sync_type  == :patient_photo.to_s
-        process_patient_photo(task)
-      elsif task.sync_type  == :patient_allergies.to_s
-        process_patient_allergies(task)
-      elsif task.sync_type  == :patient_medications.to_s
-        process_patient_medications(task)
-      elsif task.sync_type  == :patient_vaccines.to_s
-        process_patient_vaccines(task)
-      elsif task.sync_type  == :patient_vitals.to_s
-        process_patient_vitals(task)
-      elsif task.sync_type  == :patient_insurances.to_s
-        process_patient_insurances(task)
+      if respond_to?('process#{task.sync_type}')
+        public_send('process#{task.sync_type}')
       else
         raise "Unknown task.sync_type entry: #{task.sync_type}"
       end
@@ -139,7 +116,7 @@ module SyncServiceHelper
     # ==== arguments
     # * +task+ - the sync task to process
     def process_scan_appointments(task)
-      Appointment.find_each() do |appt|
+      Appointment.find_each do |appt|
         begin
           if appt.athena_id == 0
             SyncTask.find_or_create_by(sync_id: appt.id, sync_type: :appointment.to_s)
@@ -203,7 +180,7 @@ module SyncServiceHelper
         athena_id: appt.appointmentid.to_i)
     end
 
-    def process_scan_patients(task)
+    def process_scan_patients
       Patient.find_each do |patient|
         begin
           if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc

@@ -2,10 +2,10 @@ require 'rails_helper'
 require 'sync_service_helper'
 
 RSpec.describe SyncServiceHelper, type: :helper do
-  pracetice_id = 195900
-  version = "preview1"
-  department_id = 145
-  provider_id = 71
+  # pracetice_id = 195900
+  # version = "preview1"
+  # department_id = 145
+  # provider_id = 71
 
   describe "Sync Service Helper - " do
     before do
@@ -175,22 +175,22 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_scan_patients" do
       let!(:family) { create(:family) }
       let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:patient){ create(:patient, athena_id: 0, family: family) }
 
-
-      it "creates sync task for unsynced patient" do
-        patient = create(:patient, athena_id: 0, family_id: family.id)
-
-        syncer.process_scan_patients(SyncTask.new())
-
-        expect(SyncTask.count).to eq(7)
+      context "for unsynced patient" do
+        it "should creates sync tasks" do
+          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+        end
       end
 
-      it "creates sync task for stale patient" do
-        patient = create(:patient, athena_id: 1, family_id: family.id)
+      context "for stale patient" do
+        before do
+          patient.update_attributes(athena_id: 1)
+        end
 
-        syncer.process_scan_patients(SyncTask.new())
-
-        expect(SyncTask.count).to eq(7)
+        it "creates sync tasks" do
+          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+        end
       end
     end
 
