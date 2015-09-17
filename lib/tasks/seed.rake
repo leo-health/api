@@ -87,42 +87,6 @@ namespace :load do
           athena_department_id: 1,
           specialties: "",
           credentials: ""
-      },
-
-      hgold: {
-          title: "Mrs",
-          first_name: "Hannah",
-          last_name: "Gold",
-          birth_date: 48.years.ago.to_s,
-          sex: "F",
-          email: "hgold@leohealth.com",
-          password: "password",
-          password_confirmation: "password",
-          role_id: 5,
-          practice_id: 0,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
-          athena_id: 4,
-          athena_department_id: 1,
-          specialties: "",
-          credentials: ""
-      },
-
-      vriese: {
-          title: "Mrs",
-          first_name: "Victoria",
-          last_name: "Riese",
-          birth_date: 48.years.ago.to_s,
-          sex: "F",
-          email: "vriese@leohealth.com",
-          password: "password",
-          password_confirmation: "password",
-          role_id: 5,
-          practice_id: 0,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
-          athena_id: 3,
-          athena_department_id: 1,
-          specialties: "",
-          credentials: ""
       }
     }
 
