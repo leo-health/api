@@ -236,9 +236,11 @@ module AppointmentSlotsHelper
       date_name = date.strftime("%A").downcase
       start_time_method = "#{date_name}_start_time"
       end_time_method = "#{date_name}_end_time"
-      start_time = schedule.public_send(start_time_method)
-      end_time = schedule.public_send(end_time_method)
-      Interval.new(to_datetime_str(date, start_time), to_datetime_str(date, end_time)) if (start_time && end_time)
+      if schedule.respond_to?(start_time_method) && schedule.respond_to?(end_time_method)
+        start_time = schedule.public_send(start_time_method)
+        end_time = schedule.public_send(end_time_method)
+        Interval.new(to_datetime_str(date, start_time), to_datetime_str(date, end_time)) if (start_time && end_time)
+      end
     end
 
     def get_provider_availability(athena_provider_id:, date:)
