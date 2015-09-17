@@ -194,6 +194,15 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
   end
   
   describe "get_provider_availability" do
+    before do
+      create(:appointment_status, :cancelled)
+      create(:appointment_status, :checked_in)
+      create(:appointment_status, :checked_out)
+      create(:appointment_status, :charge_entered)
+      create(:appointment_status, :future)
+      create(:appointment_status, :open)
+    end
+
     it "computes availability" do
       date = Date.today
 
@@ -221,7 +230,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
 
-      appointment = create(:appointment, provider_id: 1,
+      appointment = create(:appointment, provider_id: 1, appointment_status_id: AppointmentStatus.find_by(status: 'f').id,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
         duration: 20)
 
@@ -235,6 +244,15 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
   end
 
   describe "get_open_slots" do
+    before do
+      create(:appointment_status, :cancelled)
+      create(:appointment_status, :checked_in)
+      create(:appointment_status, :checked_out)
+      create(:appointment_status, :charge_entered)
+      create(:appointment_status, :future)
+      create(:appointment_status, :open)
+    end
+
     it "returns slots" do
       date = Date.today
 
@@ -262,7 +280,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
 
-      appointment = create(:appointment, provider_id: 1,
+      appointment = create(:appointment, provider_id: 1, appointment_status_id: AppointmentStatus.find_by(status: 'f').id,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
         duration: 20)
 
