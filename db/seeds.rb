@@ -99,7 +99,7 @@ appointment_statuses_seed = [
 
     {
       id: 3,
-      description: "Charge Enterted",
+      description: "Charge Entered",
       status: "4"
     },
 
@@ -119,6 +119,3 @@ appointment_statuses_seed = [
 appointment_statuses_seed.each do |param|
   AppointmentStatus.create(param) unless AppointmentStatus.where(id: param[:id]).exists?
 end
-
-
-
