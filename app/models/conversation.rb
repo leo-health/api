@@ -40,7 +40,7 @@ class Conversation < ActiveRecord::Base
     if sender = User.where(role_id: 3).first
        messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
                         sender: sender,
-                        message_type: :text
+                        type_name: :text
                        )
     end
   end

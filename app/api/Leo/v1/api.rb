@@ -7,6 +7,7 @@ module Leo
       include Grape::Kaminari
 
       require_relative '../entities/role_entity'
+      require_relative '../entities/insurer_entity'
       require_relative '../entities/user_entity'
       require_relative '../entities/appointment_status_entity'
       require_relative '../entities/appointment_type_entity'
@@ -38,6 +39,7 @@ module Leo
       require_relative 'families'
       require_relative 'user_conversations'
       require_relative 'cards'
+      require_relative 'insurers'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -74,6 +76,7 @@ module Leo
       mount Leo::V1::Families
       mount Leo::V1::UserConversations
       mount Leo::V1::Cards
+      mount Leo::V1::Insurers
 
       add_swagger_documentation(
           base_path: "/api",

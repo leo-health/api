@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150908193918) do
+ActiveRecord::Schema.define(version: 20150910153055) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -122,6 +122,15 @@ ActiveRecord::Schema.define(version: 20150908193918) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "insurance_plans", force: :cascade do |t|
+    t.integer  "insurer_id", null: false
+    t.string   "plan_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "insurance_plans", ["insurer_id"], name: "index_insurance_plans_on_insurer_id", using: :btree
+
   create_table "insurances", force: :cascade do |t|
     t.integer  "athena_id",          default: 0, null: false
     t.string   "plan_name"
@@ -149,6 +158,14 @@ ActiveRecord::Schema.define(version: 20150908193918) do
   add_index "insurances", ["athena_id"], name: "index_insurances_on_athena_id", using: :btree
   add_index "insurances", ["patient_id"], name: "index_insurances_on_patient_id", using: :btree
 
+  create_table "insurers", force: :cascade do |t|
+    t.string   "insurer_name", null: false
+    t.string   "phone"
+    t.string   "fax"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
   create_table "medications", force: :cascade do |t|
     t.integer  "patient_id"
     t.integer  "athena_id",    default: 0,  null: false
@@ -172,7 +189,7 @@ ActiveRecord::Schema.define(version: 20150908193918) do
     t.integer  "sender_id"
     t.integer  "conversation_id"
     t.text     "body"
-    t.string   "message_type"
+    t.string   "type_name"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.integer  "escalated_to_id"

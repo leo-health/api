@@ -3,6 +3,6 @@ FactoryGirl.define do
     association :sender, factory: :user, strategy: :build
     association :conversation, strategy: :build
     body "MyText"
-    message_type "MyString"
+    type_name "text"
   end
 end

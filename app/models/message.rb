@@ -7,9 +7,9 @@ class Message < ActiveRecord::Base
   belongs_to :escalated_by, class_name: 'User'
   belongs_to :sender, class_name: "User"
 
-  validates :conversation, :sender, :message_type, presence: true
+  validates :conversation, :sender, :type_name, presence: true
 
-  after_commit :update_conversation_after_message_sent, :broadcast_message, on: :create
+  after_commit :update_conversation_after_message_sent, on: :create
   after_commit :update_escalated_status_on_conversation, on: :update
 
   def escalate(escalated_to, escalated_by)
@@ -24,13 +24,8 @@ class Message < ActiveRecord::Base
 
   private
 
-  def broadcast_message
-    message_params = as_json(include: :sender).to_json
-    channels = conversation.staff.inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
-    Pusher.trigger(channels, 'new_message', message_params) if channels.count > 0
-  end
-
   def update_conversation_after_message_sent
+    return if conversation.messages.count == 1
     conversation.staff << sender unless conversation.staff.where(id: sender.id).exists?
     conversation.user_conversations.update_all(read: false)
     unless conversation.status == :escalated
