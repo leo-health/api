@@ -2,21 +2,14 @@ require 'rails_helper'
 require 'sync_service_helper'
 
 RSpec.describe SyncServiceHelper, type: :helper do
-  # pracetice_id = 195900
-  # version = "preview1"
-  # department_id = 145
-  # provider_id = 71
+  pracetice_id = 195900
+  version = "preview1"
+  department_id = 145
+  provider_id = 71
 
   describe "Sync Service Helper - " do
-    before do
-      create(:appointment_status, :cancelled)
-      create(:appointment_status, :checked_in)
-      create(:appointment_status, :checked_out)
-      create(:appointment_status, :charge_entered)
-      create(:appointment_status, :future)
-      create(:appointment_status, :open)
-    end
-
+    let(:future_appointment_status){build(:appointment_status, :future)}
+    let(:cancelled_appointment_status){build(:appointment_status, :cancelled)}
     let!(:connector) { double("connector") }
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
 
@@ -36,6 +29,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_scan_remote_appointments" do
+      let!(:future_appointment_status){create(:appointment_status, :future)}
       let!(:booked_appt) { 
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
         .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
@@ -61,7 +55,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates athena appointment when missing" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status_id: AppointmentStatus.find_by(status: 'f').id)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -87,7 +81,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "cancels athena appointment when cancelled" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status_id: AppointmentStatus.find_by(status: 'x').id)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: cancelled_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -113,7 +107,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status_id: AppointmentStatus.find_by(status: 'f').id)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -139,7 +133,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment with rescheduled_id" do
-        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status_id: AppointmentStatus.find_by(status: 'f').id)
+        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
