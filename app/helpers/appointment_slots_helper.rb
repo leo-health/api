@@ -44,12 +44,12 @@ module AppointmentSlotsHelper
     end
 
     def -(other)
-      return DiscreteIntervals.new([ Interval.new(start_val, end_val) ]) if !intersects?(other)
+      return DiscreteIntervals.new([ Interval.new(start_val, end_val) ]) unless intersects?(other)
 
       res = []
       if other.start_val <= start_val
         res_int = Interval.new(other.end_val, end_val)
-        res << res_int if !res_int.empty?
+        res << res_int unless res_int.empty?
       else
         if other.end_val <= end_val
           res_int1 = Interval.new(start_val, other.start_val)
@@ -57,7 +57,7 @@ module AppointmentSlotsHelper
           return res_int1 + res_int2
         else
           res_int = Interval.new(start_val, other.start_val)
-          res << res_int if !res_int.empty?
+          res << res_int unless res_int.empty?
         end
       end
 
@@ -66,11 +66,7 @@ module AppointmentSlotsHelper
 
     def intersect(other)
       res_int = Interval.new([start_val, other.start_val].max, [end_val, other.end_val].min)
-      if !res_int.empty?
-        res_int 
-      else
-        nil
-      end
+      (res_int.empty?) ? nil : res_int
     end
 
     def empty?
@@ -90,11 +86,9 @@ module AppointmentSlotsHelper
       if other.kind_of?(DiscreteIntervals)
         res = self
         other.intervals.each { |interval| res = res + interval }
-
         res
       else
         coalesced = Interval.new(other.start_val, other.end_val)
-
         intersecting_inclusive(other).intervals.each { | interval | 
           coalesced.start_val = [ coalesced.start_val, interval.start_val ].min
           coalesced.end_val = [ coalesced.end_val, interval.end_val ].max
@@ -102,8 +96,7 @@ module AppointmentSlotsHelper
 
         #this will compact all the fields
         res = self - coalesced
-        res.intervals << coalesced if !coalesced.empty?
-
+        res.intervals << coalesced unless coalesced.empty
         res
       end
     end
@@ -112,11 +105,9 @@ module AppointmentSlotsHelper
       if other.kind_of?(DiscreteIntervals)
         res = self
         other.each { |interval| res = res - interval }
-
         res
       else
         res = []
-
         intervals.each { |interval|
           tmp = interval - other
           res += tmp.intervals
