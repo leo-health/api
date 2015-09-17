@@ -102,7 +102,7 @@ namespace :load do
           practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 4,
-          athena_department_id: 1,
+          athena_department_id: 2,
           specialties: "",
           credentials: ""
       },
@@ -120,7 +120,7 @@ namespace :load do
           practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 3,
-          athena_department_id: 1,
+          athena_department_id: 2,
           specialties: "",
           credentials: ""
       }
