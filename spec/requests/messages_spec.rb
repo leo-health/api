@@ -22,7 +22,7 @@ describe Leo::V1::Messages do
     it "should get all the messages of a conversation" do
       do_request
       expect(response.status).to eq(200)
-      expect_json_sizes("data.messages", 2)
+      expect_json_sizes("data", 2)
     end
   end
 

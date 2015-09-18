@@ -40,11 +40,7 @@ module Leo
         end
 
         desc "cancel an appointment"
-        params do
-          requires :id, type:String
-        end
-
-        delete do
+        delete ":id" do
           if appointment = Appointment.find(params[:id])
             authorize! :destroy, appointment
             appointment.destroy
