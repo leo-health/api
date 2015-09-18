@@ -19,7 +19,7 @@ module Leo
             get do
               messages = @conversation.messages
               authorize! :read, Message
-              system_messages = PublicActivity::Activity.where(key: "conversation.conversation_closed")
+              system_messages = PublicActivity::Activity.where(key: "conversation.conversation_closed", trackable_id: @conversation.id)
               full_messages =(system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
               full_messages.map! do |message|
                 case message.class.name
