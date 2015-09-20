@@ -32,7 +32,7 @@ module Leo
         end
 
         desc "cancel an appointment"
-        delete do
+        delete ":id" do
           cancel_appointment
         end
 

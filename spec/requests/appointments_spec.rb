@@ -44,11 +44,11 @@ describe Leo::V1::Appointments do
     end
   end
 
-  describe "Delete /api/v1/appointments" do
+  describe "Delete /api/v1/appointments/:id" do
     let!(:appointment){create(:appointment, booked_by: user)}
 
     def do_request
-      delete "/api/v1/appointments", {authentication_token: session.authentication_token, id: appointment.id}
+      delete "/api/v1/appointments/#{appointment.id}", {authentication_token: session.authentication_token}
     end
 
     it "should delete the requested appointment" do
