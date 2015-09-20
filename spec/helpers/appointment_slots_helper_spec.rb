@@ -5,7 +5,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
     let(:i1){AppointmentSlotsHelper::Interval.new(0, 10)}
 
     describe "#intersects?" do
-      context "intervals are not intersect" do
+      context "intervals do not intersect" do
         context "intervals are disjoint" do
           let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
@@ -15,7 +15,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
           end
         end
 
-        context "intervals are inclusive intersect" do
+        context "intervals intersect inclusively" do
           let(:i2){AppointmentSlotsHelper::Interval.new(10, 20)}
 
           it "should return false" do
@@ -25,7 +25,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         end
       end
 
-      context "intervals are intersect" do
+      context "intervals intersect" do
         context "intervals are fully inclusive" do
           let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
 
@@ -95,7 +95,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       context "intervals are disjoint" do
         let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
-        it "should combine the two intervals seperately" do
+        it "should combine the intervals seperately" do
           expect(i1+i2).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1, i2 ]))
           expect(i2+i1).to eq(AppointmentSlotsHelper::DiscreteIntervals.new([ i1, i2 ]))
         end
@@ -104,7 +104,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       context "intervals are partially intersect" do
         let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
 
-        it "should join the two interval" do
+        it "should join the intervals" do
           expect(i1+i2).to eq(joined_interval)
           expect(i2+i1).to eq(joined_interval)
         end
@@ -122,7 +122,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       context "intervals have single common value" do
         let(:i2){AppointmentSlotsHelper::Interval.new(10, 20)}
 
-        it "should join the two interval" do
+        it "should join the intervals" do
           expect(i1+i2).to eq(joined_interval)
           expect(i2+i1).to eq(joined_interval)
         end
@@ -130,7 +130,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
     end
 
     describe "#-" do
-      context "two intervals are disjoint" do
+      context "intervals are disjoint" do
         let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
         it "should return the subtractor itself" do
@@ -139,7 +139,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         end
       end
 
-      context "two intervals are partially joint" do
+      context "intervals partially join" do
         let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
 
         it "should subtract the joint from subtractor" do
@@ -148,7 +148,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         end
       end
 
-      context "two intervals are fully joint" do
+      context "intervals fully join" do
         let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
 
         it "should subtract the joint" do
@@ -168,7 +168,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
     end
 
     describe "#intersect" do
-      context "two intervals are disjoint" do
+      context "intervals disjoin" do
         let(:i2){AppointmentSlotsHelper::Interval.new(11, 20)}
 
         it "should return nil" do
@@ -177,7 +177,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         end
       end
 
-      context "two intervals are partially joint" do
+      context "intervals partially join" do
         let(:i2){AppointmentSlotsHelper::Interval.new(9, 20)}
 
         it "should return the joint" do
@@ -186,7 +186,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
         end
       end
 
-      context "two intervals are fully joint" do
+      context "intervals fully join" do
         let(:i2){AppointmentSlotsHelper::Interval.new(2, 8)}
 
         it "should return the subset" do
@@ -319,15 +319,15 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
                             sunday_end_time: "17:00" )}
 
     let!(:additional_availability){create( :provider_additional_availability, athena_provider_id: 1,
-                                           start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "17:00").to_s).in_time_zone,
-                                           end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "20:00").to_s).in_time_zone )}
+                                           start_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 17:00").to_s).in_time_zone,
+                                           end_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 20:00").to_s).in_time_zone )}
 
     let!(:leaves){create(:provider_leave, athena_provider_id: 1,
-                         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone,
-                         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)}
+                         start_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 09:00").to_s).in_time_zone,
+                         end_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 12:00").to_s).in_time_zone)}
 
     let!(:appointment){create(:appointment, provider_id: 1, appointment_status: future_appointment_status,
-                              start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
+                              start_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 14:00").to_s).in_time_zone,
                               duration: 20)}
 
     describe "get_provider_availability" do

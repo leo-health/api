@@ -91,7 +91,7 @@ namespace :load do
 
       hgold: {
           title: "Mrs",
-          first_name: "Hannah",
+          first_name: "Erin",
           last_name: "Gold",
           birth_date: 48.years.ago.to_s,
           sex: "F",
@@ -101,7 +101,7 @@ namespace :load do
           role_id: 5,
           practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
-          athena_id: 4,
+          athena_id: 3,
           athena_department_id: 2,
           specialties: "",
           credentials: ""
@@ -113,13 +113,13 @@ namespace :load do
           last_name: "Riese",
           birth_date: 48.years.ago.to_s,
           sex: "F",
-          email: "vriese@leohealth.com",
+          email: "victoria@leohealth.com",
           password: "password",
           password_confirmation: "password",
           role_id: 5,
           practice_id: 0,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
-          athena_id: 3,
+          athena_id: 4,
           athena_department_id: 2,
           specialties: "",
           credentials: ""
