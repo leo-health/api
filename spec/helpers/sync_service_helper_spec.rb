@@ -2,11 +2,6 @@ require 'rails_helper'
 require 'sync_service_helper'
 
 RSpec.describe SyncServiceHelper, type: :helper do
-  pracetice_id = 195900
-  version = "preview1"
-  department_id = 145
-  provider_id = 71
-
   describe "Sync Service Helper - " do
     let(:future_appointment_status){build(:appointment_status, :future)}
     let(:cancelled_appointment_status){build(:appointment_status, :cancelled)}
@@ -418,10 +413,5 @@ RSpec.describe SyncServiceHelper, type: :helper do
         expect(Insurance.count).to be(1)
       end
     end
-
-    #providers
-
-    #appointment types
-
   end
 end
