@@ -138,6 +138,8 @@ ActiveRecord::Schema.define(version: 20150921010950) do
     t.datetime "updated_at",          null: false
   end
 
+  add_index "enrollments", ["email"], name: "index_enrollments_on_email", unique: true, using: :btree
+
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

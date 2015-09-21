@@ -40,6 +40,7 @@ module Leo
       require_relative 'user_conversations'
       require_relative 'cards'
       require_relative 'insurers'
+      require_relative 'enrollments'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -77,6 +78,7 @@ module Leo
       mount Leo::V1::UserConversations
       mount Leo::V1::Cards
       mount Leo::V1::Insurers
+      mount Leo::V1::Enrollments
 
       add_swagger_documentation(
           base_path: "/api",
