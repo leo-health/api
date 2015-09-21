@@ -1,5 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Enrollment, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe "ActiveModel validations" do
+    let(:enrollment){create(:enrollment)}
+    it { expect(:enrollment).to validate_presence_of(:email)}
+  end
 end

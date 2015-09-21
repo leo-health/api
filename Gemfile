@@ -54,6 +54,7 @@ group :test do
   gem 'grape-entity-matchers'
   gem 'database_cleaner'
   gem "pusher-fake"
+  gem 'shoulda-matchers'
 end
 
 group :production do
