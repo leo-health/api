@@ -22,8 +22,8 @@ class User < ActiveRecord::Base
 
   validates :password, length: {minimum: 8, allow_nil: true}
   validates :first_name, :last_name, :role, presence: true
-  validates :email, presence: true, unless: Proc.new{|u|u.password.nil?}
-  validates_uniqueness_of :email, allow_blank: true
+  validates :email, presence: true
+  validates :email, uniqueness: {scope: :deleted_at}
 
   after_commit :set_user_family, on: :create
 
