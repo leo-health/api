@@ -2,12 +2,9 @@ require 'rails_helper'
 require 'sync_service_helper'
 
 RSpec.describe SyncServiceHelper, type: :helper do
-  pracetice_id = 195900
-  version = "preview1"
-  department_id = 145
-  provider_id = 71
-
   describe "Sync Service Helper - " do
+    let(:future_appointment_status){build(:appointment_status, :future)}
+    let(:cancelled_appointment_status){build(:appointment_status, :cancelled)}
     let!(:connector) { double("connector") }
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
 
@@ -27,6 +24,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_scan_remote_appointments" do
+      let!(:future_appointment_status){create(:appointment_status, :future)}
       let!(:booked_appt) { 
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
         .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
@@ -52,7 +50,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates athena appointment when missing" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -78,7 +76,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "cancels athena appointment when cancelled" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, status: "x")
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: cancelled_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -104,7 +102,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -130,7 +128,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment with rescheduled_id" do
-        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000)
+        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -158,7 +156,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         appointment.reload
         expect(appointment.athena_id).to eq(1000)
         expect(appointment.duration).to eq(60)
-        expect(appointment.status).to eq('x')
+        expect(appointment.appointment_status_id).to eq(AppointmentStatus.find_by(status: 'x').id)
         expect(appointment.rescheduled_id).to eq(resched_appointment.id)
       end
     end
@@ -166,22 +164,22 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_scan_patients" do
       let!(:family) { create(:family) }
       let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:patient){ create(:patient, athena_id: 0, family: family) }
 
-
-      it "creates sync task for unsynced patient" do
-        patient = create(:patient, athena_id: 0, family_id: family.id)
-
-        syncer.process_scan_patients(SyncTask.new())
-
-        expect(SyncTask.count).to eq(7)
+      context "for unsynced patient" do
+        it "should creates sync tasks" do
+          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+        end
       end
 
-      it "creates sync task for stale patient" do
-        patient = create(:patient, athena_id: 1, family_id: family.id)
+      context "for stale patient" do
+        before do
+          patient.update_attributes(athena_id: 1)
+        end
 
-        syncer.process_scan_patients(SyncTask.new())
-
-        expect(SyncTask.count).to eq(7)
+        it "creates sync tasks" do
+          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+        end
       end
     end
 
@@ -415,10 +413,5 @@ RSpec.describe SyncServiceHelper, type: :helper do
         expect(Insurance.count).to be(1)
       end
     end
-
-    #providers
-
-    #appointment types
-
   end
 end

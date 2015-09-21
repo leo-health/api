@@ -10,6 +10,7 @@ module Leo
       require_relative '../entities/insurer_entity'
       require_relative '../entities/user_entity'
       require_relative '../entities/public_activity_entity'
+      require_relative '../entities/appointment_status_entity'
       require_relative '../entities/appointment_type_entity'
       require_relative '../entities/message_entity'
       require_relative '../entities/full_message_entity'

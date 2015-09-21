@@ -45,6 +45,11 @@ ActiveRecord::Schema.define(version: 20150916153749) do
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
 
+  create_table "appointment_statuses", force: :cascade do |t|
+    t.string "description"
+    t.string "status"
+  end
+
   create_table "appointment_types", force: :cascade do |t|
     t.integer  "athena_id",         default: 0, null: false
     t.integer  "duration",                      null: false
@@ -58,24 +63,27 @@ ActiveRecord::Schema.define(version: 20150916153749) do
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
 
   create_table "appointments", force: :cascade do |t|
-    t.integer  "duration",                        null: false
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.integer  "athena_id",           default: 0, null: false
+    t.integer  "duration",                          null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.integer  "athena_id",             default: 0, null: false
     t.datetime "sync_updated_at"
-    t.datetime "start_datetime",                  null: false
-    t.string   "status",                          null: false
-    t.integer  "appointment_type_id",             null: false
+    t.datetime "start_datetime",                    null: false
+    t.integer  "appointment_type_id",               null: false
     t.string   "notes"
-    t.integer  "booked_by_id",                    null: false
-    t.integer  "provider_id",                     null: false
-    t.integer  "patient_id",                      null: false
+    t.datetime "deleted_at"
+    t.integer  "booked_by_id",                      null: false
+    t.integer  "provider_id",                       null: false
+    t.integer  "patient_id",                        null: false
+    t.integer  "appointment_status_id",             null: false
     t.integer  "rescheduled_id"
   end
 
+  add_index "appointments", ["appointment_status_id"], name: "index_appointments_on_appointment_status_id", using: :btree
   add_index "appointments", ["appointment_type_id"], name: "index_appointments_on_appointment_type_id", using: :btree
   add_index "appointments", ["athena_id"], name: "index_appointments_on_athena_id", using: :btree
   add_index "appointments", ["booked_by_id"], name: "index_appointments_on_booked_by_id", using: :btree
+  add_index "appointments", ["deleted_at"], name: "index_appointments_on_deleted_at", using: :btree
   add_index "appointments", ["patient_id"], name: "index_appointments_on_patient_id", using: :btree
   add_index "appointments", ["provider_id"], name: "index_appointments_on_provider_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
