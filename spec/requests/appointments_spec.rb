@@ -7,12 +7,13 @@ describe Leo::V1::Appointments do
 
   describe "Post /api/v1/appointments" do
     let!(:appointment_type){ create(:appointment_type)}
+    let!(:appointment_status){ create(:appointment_status)}
     let!(:provider){create(:user, :clinical)}
     let!(:patient){create(:patient, family: user.family)}
 
     def do_request
       appointment_params = { start_datetime: Time.now,
-                             status: "f",
+                             appointment_status_id: appointment_status.id,
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,
                              patient_id: patient.id }
@@ -68,6 +69,32 @@ describe Leo::V1::Appointments do
       do_request
       expect(response.status).to eq(200)
       expect_json_sizes("data.appointments", 2)
+    end
+  end
+
+  describe "Put /api/v1/appointments/id" do
+    let!(:appointment_type){ create(:appointment_type)}
+    let!(:appointment_status){ create(:appointment_status)}
+    let!(:provider){create(:user, :clinical)}
+    let!(:patient){create(:patient, family: user.family)}
+    let!(:appointment){create(:appointment, booked_by: user)}
+
+    def do_request
+      appointment_params = { start_datetime: Time.now,
+                             appointment_status_id: appointment_status.id,
+                             appointment_type_id: appointment_type.id,
+                             provider_id: provider.id,
+                             patient_id: patient.id }
+
+      put "/api/v1/appointments/#{appointment.id}", appointment_params.merge({authentication_token: session.authentication_token})
+    end
+
+    it "should cancel old appointment, and create a new appointment" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json("data.appointment.booked_by.id", user.id)
+      expect_json("data.appointment.patient.id", patient.id)
+      expect_json("data.appointment.provider.id", provider.id)
     end
   end
 end

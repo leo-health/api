@@ -2,7 +2,7 @@ FactoryGirl.define do
   factory :appointment do
     duration 30
     start_datetime Time.now
-    status "f"
+    association :appointment_status
     association :appointment_type
     association :provider, factory: [:user, :clinical]
     association :booked_by, factory: [:user, :guardian]
