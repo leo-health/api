@@ -11,8 +11,7 @@ class Appointment < ActiveRecord::Base
             :appointment_type, :booked_by, :provider, :patient, presence: true
 
   validate :same_family, on: :create
-
-  validates_uniqueness_of :start_datetime, scope: :provider_id
+  validates :start_datetime, uniqueness: {scope: [:provider_id, :deleted_at]}
 
   def same_family
     return unless (patient && booked_by)
