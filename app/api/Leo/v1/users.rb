@@ -45,7 +45,6 @@ module Leo
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
           else
-            byebug
             error!({error_code: 422, error_message: user.errors.full_messages }, 422)
           end
         end

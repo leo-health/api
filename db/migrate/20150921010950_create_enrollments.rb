@@ -19,6 +19,5 @@ class CreateEnrollments < ActiveRecord::Migration
       t.integer :onboarding_group_id
       t.timestamps null: false
     end
-    add_index :enrollments, :email, unique: true
   end
 end
