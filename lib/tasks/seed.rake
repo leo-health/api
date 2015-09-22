@@ -150,11 +150,11 @@ namespace :load do
 
       if user.valid?
         if user.has_role? :clinical
-          provider_profile = { 
-            athena_id: attributes[:athena_id], 
+          provider_profile = {
+            athena_id: attributes[:athena_id],
             athena_department_id: attributes[:athena_department_id],
-            provider_id: user.id, 
-            specialties: attributes[:specialties], 
+            provider_id: user.id,
+            specialties: attributes[:specialties],
             credentials: attributes[:credentials]
           }
           user.create_provider_profile!(provider_profile)
