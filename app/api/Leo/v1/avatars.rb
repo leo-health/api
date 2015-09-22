@@ -6,12 +6,12 @@ module Leo
           authenticated
         end
 
-        # namespace "current_avatar" do
-        #   desc "get the current avatar of requested user"
-        #   get do
-        #
-        #   end
-        # end
+        namespace "current_avatar" do
+          desc "get the current avatar of requested user"
+          get do
+
+          end
+        end
 
         desc "create avatar for patient"
         params do
@@ -20,7 +20,7 @@ module Leo
         end
 
         post do
-          patient = Patient.find(params[:owner_id])
+          patient = Patient.find(params[:patient_id])
           avatar = patient.avatars.create(owner: patient, avatar: avatar_decoder(params[:avatar], patient))
           if avatar.valid?
             present :avatar, avatar
@@ -28,15 +28,15 @@ module Leo
             error!({error_code: 422, error_message: avatar.errors.full_messages }, 422)
           end
         end
+      end
 
-        helpers do
-          def avatar_decoder(avatar, patient)
-            data = StringIO.new(Base64.decode64(avatar))
-            data.class.class_eval { attr_accessor :original_filename, :content_type }
-            data.original_filename = "patient#{patient.id}upload.png"
-            data.content_type = "image/png"
-            data
-          end
+      helpers do
+        def avatar_decoder(avatar, patient)
+          data = StringIO.new(Base64.decode64(avatar))
+          data.class.class_eval { attr_accessor :original_filename, :content_type }
+          data.original_filename = "patient#{patient.id}upload.png"
+          data.content_type = "image/png"
+          data
         end
       end
     end
