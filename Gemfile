@@ -52,6 +52,7 @@ group :development do
 end
 
 group :test do
+  gem 'shoulda-matchers'
   gem 'grape-entity-matchers'
   gem 'database_cleaner'
   gem "pusher-fake"

@@ -307,6 +307,8 @@ GEM
       sprockets-rails (>= 2.0, < 4.0)
       tilt (~> 1.1)
     sexp_processor (4.6.0)
+    shoulda-matchers (2.8.0)
+      activesupport (>= 3.0.0)
     signature (0.1.8)
     simple_token_authentication (1.10.0)
       actionmailer (>= 3.2.6, < 5)
@@ -404,6 +406,7 @@ DEPENDENCIES
   rmagick (~> 2.15.4)
   rspec-rails
   sass-rails (~> 5.0)
+  shoulda-matchers
   simple_token_authentication (~> 1.0)
   spork
   spring
@@ -414,3 +417,6 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
   unicorn
   web-console (~> 2.0)
+
+BUNDLED WITH
+   1.10.4

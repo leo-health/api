@@ -8,7 +8,7 @@ module Leo
       private
 
       def avatar
-        object.avatar.avatar
+        object.avatar.try(:avatar)
       end
 
       def role

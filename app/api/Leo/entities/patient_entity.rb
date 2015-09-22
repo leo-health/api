@@ -16,7 +16,7 @@ module Leo
       end
 
       def avatar
-        object.current_avatar.avatar
+        object.current_avatar.try(:avatar)
       end
     end
   end
