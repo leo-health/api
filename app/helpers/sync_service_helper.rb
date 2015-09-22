@@ -24,7 +24,7 @@ module SyncService
       SyncTask.find_or_create_by(sync_type: :scan_patients.to_s)
       SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s)
 
-      SyncService.configuration.department_ids.each { |id| 
+      SyncService.configuration.department_ids.each { |id|
         SyncTask.find_or_create_by(sync_type: :scan_remote_appointments.to_s, sync_id: id)
       }
     end
@@ -105,7 +105,7 @@ module SyncServiceHelper
     def process_sync_task(task)
       Rails.logger.info("Syncer: Processing task #{task.to_json}")
       if respond_to?('process_#{task.sync_type}')
-        public_send('process_#{task.sync_type}')
+        public_send('process_#{task.sync_type}', task)
       else
         raise "Unknown task.sync_type entry: #{task.sync_type}"
       end
@@ -144,9 +144,9 @@ module SyncServiceHelper
       next_start_date = DateTime.now.to_s
 
       booked_appts = @connector.get_booked_appointments(
-        departmentid: task.sync_id, 
-        startdate: 1.year.ago.strftime("%m/%d/%Y"), 
-        enddate: 1.year.from_now.strftime("%m/%d/%Y"), 
+        departmentid: task.sync_id,
+        startdate: 1.year.ago.strftime("%m/%d/%Y"),
+        enddate: 1.year.from_now.strftime("%m/%d/%Y"),
         startlastmodified: start_date)
 
       booked_appts.each { |appt|
@@ -180,7 +180,7 @@ module SyncServiceHelper
         athena_id: appt.appointmentid.to_i)
     end
 
-    def process_scan_patients
+    def process_scan_patients(task)
       Patient.find_each do |patient|
         begin
           if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
