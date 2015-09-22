@@ -2,15 +2,10 @@ module Leo
   module V1
     class Avatars < Grape::API
       resource :avatars do
+        authorize_routes!
+
         before do
           authenticated
-        end
-
-        namespace "current_avatar" do
-          desc "get the current avatar of requested user"
-          get do
-
-          end
         end
 
         desc "create avatar for patient"
@@ -19,7 +14,7 @@ module Leo
           requires :avatar, type: String, allow_blank: false
         end
 
-        post do
+        post authorize: [:create, Avatar] do
           patient = Patient.find(params[:patient_id])
           avatar = patient.avatars.create(owner: patient, avatar: avatar_decoder(params[:avatar], patient))
           if avatar.valid?

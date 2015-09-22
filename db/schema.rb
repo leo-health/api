@@ -72,7 +72,7 @@ ActiveRecord::Schema.define(version: 20150922171757) do
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
   create_table "avatars", force: :cascade do |t|
-    t.string   "avatar"
+    t.string   "avatar",     null: false
     t.integer  "owner_id"
     t.string   "owner_type"
     t.datetime "created_at", null: false
