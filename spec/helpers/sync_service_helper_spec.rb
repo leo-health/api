@@ -25,7 +25,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_scan_remote_appointments" do
       let!(:future_appointment_status){create(:appointment_status, :future)}
-      let!(:booked_appt) { 
+      let!(:booked_appt) {
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
         .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
       }
@@ -168,7 +168,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       context "for unsynced patient" do
         it "should creates sync tasks" do
-          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(7)
         end
       end
 
@@ -178,7 +178,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         end
 
         it "creates sync tasks" do
-          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(7)
         end
       end
     end
@@ -341,7 +341,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
                         }]
                     ],
                     "key": "WEIGHT"
-                }]    
+                }]
           )))
 
         syncer.process_patient_vitals(SyncTask.new(sync_id: patient.id))
