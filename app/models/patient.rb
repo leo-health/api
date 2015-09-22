@@ -8,7 +8,7 @@ class Patient < ActiveRecord::Base
   has_many :vaccines
   has_many :vitals
   has_many :insurances
-  has_many :avatars, foreign_key: "owner_id"
+  has_many :avatars, as: :owner
 
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 
