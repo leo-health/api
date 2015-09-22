@@ -7,11 +7,16 @@ module Leo
       with_options(format_with: :iso_timestamp) do
         expose :birth_date
       end
+      expose :avatar
 
       private
 
       def role
         object.role.name
+      end
+
+      def avatar
+        object.current_avatar.avatar
       end
     end
   end

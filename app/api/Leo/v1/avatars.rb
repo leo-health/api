@@ -18,7 +18,7 @@ module Leo
           patient = Patient.find(params[:patient_id])
           avatar = patient.avatars.create(owner: patient, avatar: avatar_decoder(params[:avatar], patient))
           if avatar.valid?
-            present :avatar, avatar
+            present :avatar, avatar, with: Leo::Entities::AvatarEntity
           else
             error!({error_code: 422, error_message: avatar.errors.full_messages }, 422)
           end
