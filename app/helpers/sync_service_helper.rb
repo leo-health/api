@@ -104,8 +104,8 @@ module SyncServiceHelper
     # * +task+ - the sync task to process
     def process_sync_task(task)
       Rails.logger.info("Syncer: Processing task #{task.to_json}")
-      if respond_to?('process_#{task.sync_type}')
-        public_send('process_#{task.sync_type}', task)
+      if respond_to?("process_#{task.sync_type}")
+        public_send("process_#{task.sync_type}", task)
       else
         raise "Unknown task.sync_type entry: #{task.sync_type}"
       end
