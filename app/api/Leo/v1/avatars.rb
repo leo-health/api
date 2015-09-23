@@ -21,6 +21,7 @@ module Leo
           avatar = patient.avatars.new(owner: patient)
           avatar.avatar = avatar_decoder(params[:avatar], patient)
           if avatar.save
+            byebug
             present :avatar, avatar, with: Leo::Entities::AvatarEntity
           else
             error!({error_code: 422, error_message: avatar.errors.full_messages }, 422)

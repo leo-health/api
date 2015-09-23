@@ -1,4 +1,15 @@
 GIT
+  remote: git://github.com/carrierwaveuploader/carrierwave.git
+  revision: c2ee2e89d3aa447c6b81186be6d627202d33a97f
+  ref: c2ee2e8
+  specs:
+    carrierwave (0.10.0)
+      activemodel (>= 3.2.0)
+      activesupport (>= 3.2.0)
+      json (>= 1.7)
+      mime-types (>= 1.16)
+
+GIT
   remote: https://github.com/stripe/stripe-ruby
   revision: 37d1a0b8bf9cd16707bfe526ba1a76e0c6502066
   specs:
@@ -66,11 +77,6 @@ GEM
     byebug (5.0.0)
       columnize (= 0.9.0)
     cancancan (1.12.0)
-    carrierwave (0.10.0)
-      activemodel (>= 3.2.0)
-      activesupport (>= 3.2.0)
-      json (>= 1.7)
-      mime-types (>= 1.16)
     chronic (0.10.2)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -202,9 +208,10 @@ GEM
       actionpack
       activesupport
       mandrill-api (~> 1.0.9)
-    mime-types (2.6.1)
+    mime-types (2.6.2)
+    mini_magick (4.3.3)
     mini_portile (0.6.2)
-    minitest (5.7.0)
+    minitest (5.8.0)
     multi_json (1.11.1)
     multi_xml (0.5.5)
     netrc (0.10.3)
@@ -275,7 +282,6 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
-    rmagick (2.15.4)
     rspec (3.3.0)
       rspec-core (~> 3.3.0)
       rspec-expectations (~> 3.3.0)
@@ -372,7 +378,7 @@ DEPENDENCIES
   bullet
   byebug
   cancancan (~> 1.10)
-  carrierwave
+  carrierwave!
   chronic
   coffee-rails (~> 4.1.0)
   daemons
@@ -393,6 +399,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   mandrill_mailer
+  mini_magick
   paranoia (~> 2.0)
   pg
   pusher
@@ -403,7 +410,6 @@ DEPENDENCIES
   rails-footnotes
   rails_12factor
   rails_layout
-  rmagick (~> 2.15.4)
   rspec-rails
   sass-rails (~> 5.0)
   shoulda-matchers

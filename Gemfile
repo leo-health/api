@@ -22,7 +22,7 @@ gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
 gem 'mandrill_mailer'
-gem 'carrierwave'
+gem 'carrierwave', github: 'carrierwaveuploader/carrierwave', ref: 'c2ee2e8'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
@@ -31,7 +31,7 @@ gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 gem 'pusher'
-gem 'rmagick', '~> 2.15.4'
+gem "mini_magick"
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses

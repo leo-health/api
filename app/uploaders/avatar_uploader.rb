@@ -3,8 +3,8 @@
 class AvatarUploader < CarrierWave::Uploader::Base
 
   # Include RMagick or MiniMagick support:
-  include CarrierWave::RMagick
-  # include CarrierWave::MiniMagick
+  # include CarrierWave::RMagick
+  include CarrierWave::MiniMagick
 
   # Choose what kind of storage to use for this uploader:
   storage :file
@@ -25,35 +25,31 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # end
 
   # Process files as they are uploaded:
-  # process :scale => [200, 300]
-  #
-  # def scale(width, height)
-  #   # do something
-  # end
+  process :resize_to_fit => [214, 214]
 
   # Create different versions of your uploaded files:
   version :default_large do
-    process :resize_to_limit => [214, 214]
+    process :resize_to_fill => [214, 214]
   end
 
-  version :default_medium do
-    process :resize_to_limit => [144, 144]
+  version :default_medium, from_version: :default_large do
+    process :resize_to_fill => [144, 144]
   end
 
-  version :default_small do
-    process :resize_to_limit => [72, 72]
+  version :user_large, if: :is_user?, from_version: :default_medium do
+    process :resize_to_fill => [132, 132]
   end
 
-  version :user_large, if: :is_user? do
-    process :resize_to_limit => [132, 132]
+  version :user_medium, if: :is_user?, from_version: :user_large do
+    process :resize_to_fill => [88, 88]
+  end
+  debugger
+  version :default_small, from_version: :default_medium do
+    process :resize_to_fill => [72, 72]
   end
 
-  version :user_medium, if: :is_user? do
-    process :resize_to_limit => [88, 88]
-  end
-
-  version :user_small, if: :is_user? do
-    process :resize_to_limit => [44, 44]
+  version :user_small, if: :is_user?, from_version: :default_small do
+    process :resize_to_fill => [44, 44]
   end
 
   # Add a white list of extensions which are allowed to be uploaded.
