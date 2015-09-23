@@ -25,30 +25,30 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # end
 
   # Process files as they are uploaded:
-  process :resize_to_fit => [214, 214]
+  process :resize_to_fill => [214, 214]
 
   # Create different versions of your uploaded files:
   version :default_large do
     process :resize_to_fill => [214, 214]
   end
 
-  version :default_medium, from_version: :default_large do
+  version :default_medium do
     process :resize_to_fill => [144, 144]
   end
 
-  version :user_large, if: :is_user?, from_version: :default_medium do
+  version :user_large, if: :is_user? do
     process :resize_to_fill => [132, 132]
   end
 
-  version :user_medium, if: :is_user?, from_version: :user_large do
+  version :user_medium, if: :is_user? do
     process :resize_to_fill => [88, 88]
   end
-  debugger
-  version :default_small, from_version: :default_medium do
+
+  version :default_small do
     process :resize_to_fill => [72, 72]
   end
 
-  version :user_small, if: :is_user?, from_version: :default_small do
+  version :user_small, if: :is_user? do
     process :resize_to_fill => [44, 44]
   end
 

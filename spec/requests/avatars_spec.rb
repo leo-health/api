@@ -20,8 +20,8 @@ describe Leo::V1::Avatars do
       expect{ do_request }.to change{ Avatar.count }.from(0).to(1)
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
-      debugger
-      expect( body[:data][:avatar].as_json.to_json).to eq(serializer.represent(Avatar.first).as_json.to_json)
+      byebug
+      # expect( body[:data][:avatar].as_json.to_json).to eq(serializer.represent(Avatar.first).as_json.to_json)
     end
   end
 end
