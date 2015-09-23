@@ -41,7 +41,7 @@ describe Leo::V1::Patients do
     end
   end
 
-  describe 'Put /api/v1/users/:user_id/patients/:id' do
+  describe 'Put /api/v1patients/:id' do
     let!(:patient){family.patients.first}
 
     def do_request
@@ -53,6 +53,39 @@ describe Leo::V1::Patients do
       do_request
       expect(response.status).to eq(200)
       expect{patient.reload}.to change{patient.email}.from(original_email).to("new_email@leohealth.com")
+    end
+  end
+
+  describe "Get /api/v1/patients/:id" do
+    let!(:avatar){create(:avatar, owner: family.patients.first)}
+    let(:serializer){ Leo::Entities::PatientEntity }
+
+    def do_request
+      get "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, avatar_size: "default_large"}
+    end
+
+    it 'should show the patient' do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(patient.reload, {avatar_size: "default_large"}).as_json.to_json)
+    end
+  end
+
+  describe "Get /api/v1/patients" do
+    let(:patient){family.patients.first}
+    let!(:avatar){create(:avatar, owner: patient)}
+    let(:serializer){ Leo::Entities::PatientEntity }
+
+    def do_request
+      get "/api/v1/patients", {authentication_token: session.authentication_token, avatar_size: "default_large"}
+    end
+
+    it 'should show the patients' do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients, {avatar_size: "default_large"}).as_json.to_json)
     end
   end
 end

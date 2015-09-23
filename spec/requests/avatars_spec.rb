@@ -19,9 +19,6 @@ describe Leo::V1::Avatars do
     it "should create an avatar for the patient" do
       expect{ do_request }.to change{ Avatar.count }.from(0).to(1)
       expect(response.status).to eq(201)
-      body = JSON.parse(response.body, symbolize_names: true )
-      byebug
-      # expect( body[:data][:avatar].as_json.to_json).to eq(serializer.represent(Avatar.first).as_json.to_json)
     end
   end
 end

@@ -52,6 +52,28 @@ module Leo
           end
         end
 
+        desc "#show: get a patient"
+        params do
+         optional :avatar_size, type: String, values: ["default_large", "default_medium", "default_small"]
+        end
+
+        get ':id' do
+          patient = Patient.find(params[:id])
+          authorize! :read, patient
+          present :patient, patient, with: Leo::Entities::PatientEntity, avatar_size: params[:avatar_size].to_sym
+        end
+
+        desc "index: all patients of a guardian(current_user)"
+        params do
+          optional :avatar_size, type: String, values: ["default_large", "default_medium", "default_small"]
+        end
+
+        get do
+          patients = Family.find(current_user.family_id).patients
+          authorize! :read, Patient
+          present :patients, patients, with: Leo::Entities::PatientEntity, avatar_size: params[:avatar_size].to_sym
+        end
+
         desc "#delete: delete individual patient, guardian only"
         delete ':id' do
           patient = Patient.find(params[:id])
