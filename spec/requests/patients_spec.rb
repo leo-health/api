@@ -57,6 +57,7 @@ describe Leo::V1::Patients do
   end
 
   describe "Get /api/v1/patients/:id" do
+    let(:patient){family.patients.first}
     let!(:avatar){create(:avatar, owner: family.patients.first)}
     let(:serializer){ Leo::Entities::PatientEntity }
 
@@ -74,7 +75,7 @@ describe Leo::V1::Patients do
 
   describe "Get /api/v1/patients" do
     let(:patient){family.patients.first}
-    let!(:avatar){create(:avatar, owner: patient)}
+    let!(:avatar){create(:avatar, owner: family.patients.first)}
     let(:serializer){ Leo::Entities::PatientEntity }
 
     def do_request

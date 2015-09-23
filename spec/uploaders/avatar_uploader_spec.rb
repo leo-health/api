@@ -29,13 +29,13 @@ describe AvatarUploader do
 
   context 'the default_medium version' do
     it "should scale down a landscape image to fit within 144 by 144 pixels" do
-      @uploader.small.should be_no_larger_than(144, 144)
+      @uploader.default_medium.should be_no_larger_than(144, 144)
     end
   end
 
   context 'the default_small version' do
     it "should scale down a landscape image to fit within 72 by 72 pixels" do
-      @uploader.small.should be_no_larger_than(72, 72)
+      @uploader.default_small.should be_no_larger_than(72, 72)
     end
   end
 end
