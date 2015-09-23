@@ -32,15 +32,35 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # end
 
   # Create different versions of your uploaded files:
-  version :thumb do
-    process :resize_to_limit => [50, 50]
+  version :default_large do
+    process :resize_to_limit => [214, 214]
+  end
+
+  version :default_medium do
+    process :resize_to_limit => [144, 144]
+  end
+
+  version :default_small do
+    process :resize_to_limit => [72, 72]
+  end
+
+  version :user_large, if: :is_user? do
+    process :resize_to_limit => [132, 132]
+  end
+
+  version :user_medium, if: :is_user? do
+    process :resize_to_limit => [88, 88]
+  end
+
+  version :user_small, if: :is_user? do
+    process :resize_to_limit => [44, 44]
   end
 
   # Add a white list of extensions which are allowed to be uploaded.
   # For images you might use something like this:
-  # def extension_white_list
-  #   %w(jpg jpeg gif png)
-  # end
+  def extension_white_list
+    %w(jpg jpeg gif png)
+  end
 
   # Override the filename of the uploaded files:
   # Avoid using model.id or version_name here, see uploader/store.rb for details.
@@ -48,4 +68,9 @@ class AvatarUploader < CarrierWave::Uploader::Base
   #   "something.jpg" if original_filename
   # end
 
+  protected
+
+  def is_user? owner
+    model.owner_type == "User"
+  end
 end
