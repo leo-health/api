@@ -3,6 +3,7 @@ class Message < ActiveRecord::Base
   belongs_to :conversation
   has_many :read_receipts
   has_many :readers, class_name: 'User', through: :read_receipts
+  has_many :escalation_notes
   belongs_to :escalated_to, class_name: 'User'
   belongs_to :escalated_by, class_name: 'User'
   belongs_to :sender, class_name: "User"

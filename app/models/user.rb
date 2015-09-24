@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
+  has_many :assigned_escalation_notes, class_name: "EscalationNote", foreign_key: "assignee_id"
   has_many :read_messages, class_name: 'Message', through: :read_receipts
   has_many :invitations, as: :invited_by
   has_many :sessions
