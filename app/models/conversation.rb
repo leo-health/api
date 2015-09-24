@@ -4,6 +4,7 @@ class Conversation < ActiveRecord::Base
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
   has_many :conversation_changes
+  has_many :escalation_notes
   belongs_to :family
   belongs_to :archived_by, class_name: 'User'
 
@@ -23,6 +24,16 @@ class Conversation < ActiveRecord::Base
   def set_conversation_state
     update_attributes(status: :open) unless status
   end
+
+  # def escalate(escalated_to, escalated_by)
+  #   transaction do
+  #     conversation = Conversation.find(conversation_id)
+  #     raise("can't escalate closed message and conversation") if conversation.status == :closed
+  #     conversation.staff << escalated_to unless conversation.staff.where(id: escalated_to.id).exists?
+  #     update_attributes!(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
+  #     conversation.update_attributes!(status: :escalated)
+  #   end
+  # end
 
   private
 

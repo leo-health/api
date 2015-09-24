@@ -1,15 +1,15 @@
 class CreateEscalationNotes < ActiveRecord::Migration
   def change
     create_table :escalation_notes do |t|
-      t.integer :message_id, null: false
-      t.integer :assignor_id, null: false
-      t.integer :assignee_id, null: false
-      t.string :priority_level, null: false
+      t.integer :conversation_id, null: false
+      t.integer :escalated_to_id, null: false
+      t.integer :escalated_by_id, null: false
+      t.integer :priority, null: false, default: 0
       t.string :note
       t.timestamps null: false
     end
-    add_index :escalation_notes, :message_id
-    add_index :escalation_notes, :assignor_id
-    add_index :escalation_notes, :assignee_id
+    add_index :escalation_notes, :conversation_id
+    add_index :escalation_notes, :escalated_to_id
+    add_index :escalation_notes, :escalated_by_id
   end
 end

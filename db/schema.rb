@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150924153744) do
+ActiveRecord::Schema.define(version: 20150924202504) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -118,18 +118,18 @@ ActiveRecord::Schema.define(version: 20150924153744) do
   add_index "delayed_jobs", ["queue"], name: "index_delayed_jobs_on_queue", using: :btree
 
   create_table "escalation_notes", force: :cascade do |t|
-    t.integer  "message_id",     null: false
-    t.integer  "assignor_id",    null: false
-    t.integer  "assignee_id",    null: false
-    t.string   "priority_level", null: false
+    t.integer  "conversation_id",             null: false
+    t.integer  "escalated_to_id",             null: false
+    t.integer  "escalated_by_id",             null: false
+    t.integer  "priority",        default: 0, null: false
     t.string   "note"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
-  add_index "escalation_notes", ["assignee_id"], name: "index_escalation_notes_on_assignee_id", using: :btree
-  add_index "escalation_notes", ["assignor_id"], name: "index_escalation_notes_on_assignor_id", using: :btree
-  add_index "escalation_notes", ["message_id"], name: "index_escalation_notes_on_message_id", using: :btree
+  add_index "escalation_notes", ["conversation_id"], name: "index_escalation_notes_on_conversation_id", using: :btree
+  add_index "escalation_notes", ["escalated_by_id"], name: "index_escalation_notes_on_escalated_by_id", using: :btree
+  add_index "escalation_notes", ["escalated_to_id"], name: "index_escalation_notes_on_escalated_to_id", using: :btree
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -206,9 +206,6 @@ ActiveRecord::Schema.define(version: 20150924153744) do
     t.string   "type_name"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
-    t.integer  "escalated_to_id"
-    t.datetime "escalated_at"
-    t.integer  "escalated_by_id"
     t.datetime "deleted_at"
   end
 

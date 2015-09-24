@@ -3,25 +3,12 @@ class Message < ActiveRecord::Base
   belongs_to :conversation
   has_many :read_receipts
   has_many :readers, class_name: 'User', through: :read_receipts
-  has_many :escalation_notes
-  belongs_to :escalated_to, class_name: 'User'
-  belongs_to :escalated_by, class_name: 'User'
   belongs_to :sender, class_name: "User"
 
   validates :conversation, :sender, :type_name, presence: true
 
   after_commit :update_conversation_after_message_sent, on: :create
   after_commit :update_escalated_status_on_conversation, on: :update
-
-  def escalate(escalated_to, escalated_by)
-    transaction do
-      conversation = Conversation.find(conversation_id)
-      raise("can't escalate closed message and conversation") if conversation.status == :closed
-      conversation.staff << escalated_to unless conversation.staff.where(id: escalated_to.id).exists?
-      update_attributes!(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
-      conversation.update_attributes!(status: :escalated)
-    end
-  end
 
   private
 

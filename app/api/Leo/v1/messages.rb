@@ -38,20 +38,6 @@ module Leo
               error!({error_code: 422, error_message: message.errors.full_messages }, 422)
             end
           end
-
-          desc "update/escalate a message"
-          params do
-            requires :escalated_to_id, type: Integer, allow_blank: false
-          end
-
-          put ':id' do
-            message = @conversation.messages.find(params[:id])
-            authorize! :update, message
-            escalated_to = User.find(params[:escalated_to_id])
-            if message.escalate(escalated_to, current_user)
-              present :message, message, with: Leo::Entities::MessageEntity
-            end
-          end
         end
       end
 
