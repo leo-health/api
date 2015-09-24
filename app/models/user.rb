@@ -10,7 +10,6 @@ class User < ActiveRecord::Base
   has_many :read_receipts, foreign_key: "reader_id"
   has_many :assigned_escalation_notes, class_name: "EscalationNote", foreign_key: "assignee_id"
   has_many :read_messages, class_name: 'Message', through: :read_receipts
-  has_many :invitations, as: :invited_by
   has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
@@ -22,9 +21,9 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   validates :password, length: {minimum: 8, allow_nil: true}
-  validates :first_name, :last_name, :role, presence: true
-  validates :email, presence: true
-  validates :email, uniqueness: {scope: :deleted_at}
+  validates :first_name, :last_name, :role, :email, presence: true
+  # validates :email, uniqueness: {scope: :deleted_at}
+  validates_uniqueness_of :email, scope: :deleted_at
 
   after_commit :set_user_family, on: :create
 
