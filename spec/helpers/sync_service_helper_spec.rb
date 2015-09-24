@@ -190,7 +190,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "creates new patient" do
         patient = create(:patient, athena_id: 0, family_id: family.id)
 
-        expect(connector).to receive("create_patient").and_return(1000)
+        expect(connector).to receive("create_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
         expect(patient.reload.athena_id).to eq(1000)
       end
@@ -198,7 +198,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "updates stale patient" do
         patient = create(:patient, athena_id: 1, family_id: family.id)
 
-        expect(connector).to receive("update_patient")
+        expect(connector).to receive("update_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y")))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
       end
     end
