@@ -22,8 +22,7 @@ class User < ActiveRecord::Base
 
   validates :password, length: {minimum: 8, allow_nil: true}
   validates :first_name, :last_name, :role, :email, presence: true
-  # validates :email, uniqueness: {scope: :deleted_at}
-  validates_uniqueness_of :email, scope: :deleted_at
+  validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, on: :create
 
