@@ -22,7 +22,7 @@ gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
 gem 'mandrill_mailer'
-gem 'carrierwave', github: 'carrierwaveuploader/carrierwave', ref: 'c2ee2e8'
+gem 'carrierwave'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie-forbidden_attributes'
 gem 'rack-cors'

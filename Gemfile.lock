@@ -1,15 +1,4 @@
 GIT
-  remote: git://github.com/carrierwaveuploader/carrierwave.git
-  revision: c2ee2e89d3aa447c6b81186be6d627202d33a97f
-  ref: c2ee2e8
-  specs:
-    carrierwave (0.10.0)
-      activemodel (>= 3.2.0)
-      activesupport (>= 3.2.0)
-      json (>= 1.7)
-      mime-types (>= 1.16)
-
-GIT
   remote: https://github.com/stripe/stripe-ruby
   revision: 37d1a0b8bf9cd16707bfe526ba1a76e0c6502066
   specs:
@@ -77,6 +66,11 @@ GEM
     byebug (5.0.0)
       columnize (= 0.9.0)
     cancancan (1.12.0)
+    carrierwave (0.10.0)
+      activemodel (>= 3.2.0)
+      activesupport (>= 3.2.0)
+      json (>= 1.7)
+      mime-types (>= 1.16)
     chronic (0.10.2)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -378,7 +372,7 @@ DEPENDENCIES
   bullet
   byebug
   cancancan (~> 1.10)
-  carrierwave!
+  carrierwave
   chronic
   coffee-rails (~> 4.1.0)
   daemons
