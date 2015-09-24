@@ -313,7 +313,7 @@ module SyncServiceHelper
           guarantorfirstname: leo_parent.first_name,
           guarantormiddlename: leo_parent.middle_initial.to_s,
           guarantorlastname: leo_parent.last_name,
-          guarantorbirthdate: parent_birth_date,
+          guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3 #3==child
           ).to_i
@@ -331,7 +331,7 @@ module SyncServiceHelper
           guarantorfirstname: leo_parent.first_name,
           guarantormiddlename: leo_parent.middle_initial.to_s,
           guarantorlastname: leo_parent.last_name,
-          guarantorbirthdate: parent_birth_date,
+          guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3 #3==child
           )
