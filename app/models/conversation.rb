@@ -20,6 +20,11 @@ class Conversation < ActiveRecord::Base
     end
   end
 
+  def broadcast_status(sender, new_status)
+    channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
+    Pusher.trigger(channels, 'new_status', {new_status: new_status, conversation_id: id, changed_by: sender}) if channels.count > 0
+  end
+
   def escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
     return if status.to_sym == :closed
     update_attributes(status: :escalated)

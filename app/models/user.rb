@@ -39,14 +39,16 @@ class User < ActiveRecord::Base
     conversations.where(status: status)
   end
 
+  #TODO add sorting by higest priotiy here
+
   def unread_conversations
     return if has_role? :guardian
-    Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc).order( "user_conversations.priority desc" )
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
   def escalated_conversations
     return if has_role? :guardian
-    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc).order( "user_conversations.priority desc" )
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
   def add_role(name)

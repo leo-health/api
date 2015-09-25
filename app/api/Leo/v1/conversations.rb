@@ -16,7 +16,7 @@ module Leo
             if conversation.close_conversation(current_user)
               present :conversation, conversation, with: Leo::Entities::ConversationEntity
               conversation.create_activity(:conversation_closed, owner: current_user)
-              conversation.broadcast_status(current_user, :closed)
+              broadcast_status(current_user, :closed)
             else
               error!({error_code: 422, error_message: "can't close the conversation" }, 422)
             end
@@ -90,13 +90,6 @@ module Leo
             authorize! :read, Conversation
             present :conversations, paginate(conversations), with: Leo::Entities::ConversationEntity
           end
-        end
-      end
-
-      helpers do
-        def broadcast_status(sender, new_status)
-          channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
-          Pusher.trigger(channels, 'new_status', {new_status: new_status, conversation_id: id, changed_by: sender}) if channels.count > 0
         end
       end
     end

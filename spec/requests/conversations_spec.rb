@@ -62,7 +62,7 @@ describe Leo::V1::Conversations do
     end
   end
 
-  describe "Put /api/v1/conversations/:id - close a conversation" do
+  describe "Put /api/v1/conversations/:id/close" do
     let(:clinial_user){create(:user, :clinical)}
     let!(:session){ clinial_user.sessions.create }
     let(:conversation){ Conversation.find_by_family_id(user.family_id) }
@@ -72,7 +72,7 @@ describe Leo::V1::Conversations do
     end
 
     def do_request
-      put "/api/v1/conversations/#{conversation.id}", {authentication_token: session.authentication_token}
+      put "/api/v1/conversations/#{conversation.id}/close", {authentication_token: session.authentication_token}
     end
 
     it "should update the specific conversation" do
@@ -81,6 +81,10 @@ describe Leo::V1::Conversations do
       expect(response.status).to eq(200)
       expect_json("data.conversation.status", "closed")
     end
+  end
+
+  describe "Put /api/v1/conversations/:id/escalate" do
+
   end
 
   describe "Get /api/v1/conversations" do
