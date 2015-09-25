@@ -11,14 +11,14 @@ module Leo
         desc "Close a conversation"
         put ":id" do
           conversation = Conversation.find(params[:id])
-          if conversation.status == "closed"
+          if conversation.status.to_sym == :closed
             error!({error_code: 422, error_message: "messages is in closed status" }, 422)
           end
           authorize! :update, conversation
-          if conversation.update_attributes(status: "closed", last_closed_at: Time.now, last_closed_by: current_user.id)
+          if conversation.update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: current_user)
             present :conversation, conversation, with: Leo::Entities::ConversationEntity
-            channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
-            Pusher.trigger(channels, 'new_status', {new_status: 'closed', conversation_id: conversation.id, closed_by: current_user}) if channels.count > 0
+            conversation.create_activity(:conversation_closed, owner: current_user)
+            conversation.broadcast_status(current_user, :closed)
           end
         end
 
@@ -66,6 +66,13 @@ module Leo
             authorize! :read, Conversation
             present :conversations, paginate(conversations), with: Leo::Entities::ConversationEntity
           end
+        end
+      end
+
+      helpers do
+        def broadcast_status(conversation)
+          channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
+          Pusher.trigger(channels, 'new_status', {new_status: :closed, conversation_id: conversation.id, closed_by: current_user}) if channels.count > 0
         end
       end
     end

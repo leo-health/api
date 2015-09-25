@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
   belongs_to :role
   has_one :provider_profile, foreign_key: "provider_id"
   belongs_to :practice
+  has_many :conversation_changes, foreign_key: "changed_by_id"
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
