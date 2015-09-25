@@ -31,9 +31,9 @@ class Conversation < ActiveRecord::Base
   end
 
   def close_conversation(closed_by)
-    return false if status == :closed
+    return false if status.to_sym == :closed
     user_conversations.update_all(escalated: false)
-    update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: closed_by.id)
+    update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: closed_by)
   end
 
   private

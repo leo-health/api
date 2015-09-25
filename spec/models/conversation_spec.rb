@@ -54,14 +54,48 @@ describe Conversation, type: :model do
       end
     end
 
-    context 'escalate an open conversation' do
-      let(:open_conversation){ closed_conversation.update_attributes(status: :open) }
+    context 'escalate a non-closed conversation' do
+      let(:open_conversation){ build(:conversation, :open) }
 
-      it 'should create an escalation note'
+      it 'should change the conversation status from open to escalated' do
+        expect{ open_conversation. escalate_conversation( customer_service.id, clinical.id, note, priority ) }.
+          to change { open_conversation.status.to_sym }.from( :open ).to( :escalated )
+      end
+
+      it 'should create a user_conversation record to include esclated_to person in the conversation paticipants' do
+        expect{ open_conversation. escalate_conversation( customer_service.id, clinical.id, note, priority ) }.
+          to change { UserConversation.count }.from( 0 ).to( 1 )
+        expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq( true )
+      end
+
+      it 'should change create an escalation note' do
+        expect{ open_conversation. escalate_conversation( customer_service.id, clinical.id, note, priority ) }.
+            to change { EscalationNote.count }.from( 0 ).to( 1 )
+      end
+    end
+  end
+
+  describe 'close_conversation' do
+    let(:open_conversation){ build(:conversation, :open) }
+    let(:closed_by_user){ create(:user, :customer_service) }
+
+    it 'should respond to a instance of conversation class' do
+      expect(open_conversation).to respond_to(:close_conversation)
     end
 
-    context 'escalate an esclated conversation' do
+    context 'close a closed conversation' do
+      let(:closed_conversation){ build(:conversation) }
 
+      it 'should return false' do
+        expect( closed_conversation.close_conversation( closed_by_user ) ).to eq( false )
+      end
+    end
+
+    context 'close a non closed conversation' do
+      it 'should update the conversation status to closed' do
+        expect{ open_conversation.close_conversation( closed_by_user ) }.
+            to change { open_conversation.status.to_sym }.from( :open ).to( :closed )
+      end
     end
   end
 end
