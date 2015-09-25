@@ -25,6 +25,13 @@ module Leo
 
         desc 'escalate a conversation'
         namespace ':id/escalate' do
+          params do
+            requires :escalated_to_id, type: Integer, allow_blank: false
+            requires :conversation_id, type: Integer, allow_blank: false
+            requires :priority, type: Integer, allow_blank: false
+            optional :note, type: String
+          end
+
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
