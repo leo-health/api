@@ -118,18 +118,16 @@ ActiveRecord::Schema.define(version: 20150924202504) do
   add_index "delayed_jobs", ["queue"], name: "index_delayed_jobs_on_queue", using: :btree
 
   create_table "escalation_notes", force: :cascade do |t|
-    t.integer  "conversation_id",             null: false
-    t.integer  "escalated_to_id",             null: false
-    t.integer  "escalated_by_id",             null: false
-    t.integer  "priority",        default: 0, null: false
+    t.integer  "user_conversation_id",             null: false
+    t.integer  "escalated_by_id",                  null: false
+    t.integer  "priority",             default: 0, null: false
     t.string   "note"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
   end
 
-  add_index "escalation_notes", ["conversation_id"], name: "index_escalation_notes_on_conversation_id", using: :btree
   add_index "escalation_notes", ["escalated_by_id"], name: "index_escalation_notes_on_escalated_by_id", using: :btree
-  add_index "escalation_notes", ["escalated_to_id"], name: "index_escalation_notes_on_escalated_to_id", using: :btree
+  add_index "escalation_notes", ["user_conversation_id"], name: "index_escalation_notes_on_user_conversation_id", using: :btree
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -368,7 +366,6 @@ ActiveRecord::Schema.define(version: 20150924202504) do
     t.datetime "updated_at",                      null: false
     t.boolean  "read",            default: false, null: false
     t.boolean  "escalated",       default: false, null: false
-    t.integer  "priority",        default: 0
   end
 
   add_index "user_conversations", ["conversation_id"], name: "index_user_conversations_on_conversation_id", using: :btree
