@@ -21,7 +21,6 @@ class Ability
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :clinical
@@ -30,7 +29,6 @@ class Ability
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :clinical_support
@@ -39,7 +37,6 @@ class Ability
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :customer_service
@@ -48,7 +45,6 @@ class Ability
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :update, UserConversation
     end
   end
