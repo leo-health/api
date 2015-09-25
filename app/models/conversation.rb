@@ -11,7 +11,6 @@ class Conversation < ActiveRecord::Base
 
   validates :family, :status, presence: true
 
-  # before_validation :set_conversation_status, on: :create
   after_commit :load_staff, :load_initial_message, on: :create
 
   def self.sort_conversations
@@ -20,10 +19,6 @@ class Conversation < ActiveRecord::Base
       conversations.flatten
     end
   end
-
-  # def set_conversation_status
-  #   update_attributes(status: :open) unless status
-  # end
 
   def escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
     return if status == :closed
