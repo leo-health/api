@@ -176,7 +176,7 @@ module SyncServiceHelper
           provider_id: provider_profile.provider.id,
           appointment_type_id: appointment_type.id,
           duration: appt.duration,
-          start_datetime: Date.strptime(appt.date + " " + appt.starttime, "%m/%d/%Y %H:%M"),
+          start_datetime: Date.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
           sync_updated_at: DateTime.now,
           athena_id: appt.appointmentid.to_i)
       rescue => e
