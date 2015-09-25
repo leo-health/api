@@ -16,7 +16,7 @@ module Leo
             if conversation.close_conversation(current_user)
               present :conversation, conversation, with: Leo::Entities::ConversationEntity
               conversation.create_activity(:conversation_closed, owner: current_user)
-              broadcast_status(current_user, :closed)
+              conversation.broadcast_status(current_user, :closed)
             else
               error!({error_code: 422, error_message: "can't close the conversation" }, 422)
             end
