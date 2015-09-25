@@ -39,7 +39,6 @@ module Leo
       require_relative 'practices'
       require_relative 'appointment_types'
       require_relative 'families'
-      require_relative 'user_conversations'
       require_relative 'cards'
       require_relative 'insurers'
 
@@ -76,7 +75,6 @@ module Leo
       mount Leo::V1::Messages
       mount Leo::V1::AppointmentTypes
       mount Leo::V1::Families
-      mount Leo::V1::UserConversations
       mount Leo::V1::Cards
       mount Leo::V1::Insurers
 
