@@ -27,6 +27,7 @@ class Conversation < ActiveRecord::Base
   end
 
   def escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
+    return if status == :closed
     update_attributes(status: :escalated)
     user_conversation = user_conversations.find_or_create_by(user_id: escalated_to_id, escalated: true)
     if user_conversation.valid?
@@ -35,16 +36,15 @@ class Conversation < ActiveRecord::Base
     escalation_note
   end
 
-  def close_conversation
-    false if status == :closed
+  def close_conversation(closed_by)
+    return false if status == :closed
     user_conversations.update_all(escalated: false)
-    update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: current_user.id)
+    update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: closed_by.id)
   end
 
-  # def track_conversation_change
-  #   changed = status_changed?
-  #   yield
-  #   conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
+  # def broadcast_status(sender, new_status)
+  #   channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
+  #   Pusher.trigger(channels, 'new_status', {new_status: new_status, conversation_id: id, changed_by: sender}) if channels.count > 0
   # end
 
   private

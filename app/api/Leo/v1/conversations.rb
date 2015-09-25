@@ -9,15 +9,33 @@ module Leo
         end
 
         desc "Close a conversation"
-        put ":id" do
-          conversation = Conversation.find(params[:id])
-          authorize! :update, conversation
-          if conversation.close_conversation
-            present :conversation, conversation, with: Leo::Entities::ConversationEntity
-            conversation.create_activity(:conversation_closed, owner: current_user)
-            conversation.broadcast_status(current_user, :closed)
-          else
-            error!({error_code: 422, error_message: "can't close the conversation" }, 422)
+        namespace ':id/close' do
+          put do
+            conversation = Conversation.find(params[:id])
+            authorize! :update, conversation
+            if conversation.close_conversation(current_user)
+              present :conversation, conversation, with: Leo::Entities::ConversationEntity
+              conversation.create_activity(:conversation_closed, owner: current_user)
+              conversation.broadcast_status(current_user, :closed)
+            else
+              error!({error_code: 422, error_message: "can't close the conversation" }, 422)
+            end
+          end
+        end
+
+        desc 'escalate a conversation'
+        namespace ':id/escalate' do
+          put do
+            conversation = Conversation.find(params[:id])
+            authorize! :update, conversation
+            escalation_note = conversation.escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
+            if escalation_note.try(:valid?)
+              present :escalation_note, escalation_note
+              conversation.create_activity(:conversation_escalated, owner: current_user)
+              conversation.broadcast_status(current_user, :escalated)
+            else
+              error!({error_code: 422, error_message: "can't escalte the conversation" }, 422)
+            end
           end
         end
 
@@ -69,9 +87,9 @@ module Leo
       end
 
       helpers do
-        def broadcast_status(conversation)
+        def broadcast_status(sender, new_status)
           channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
-          Pusher.trigger(channels, 'new_status', {new_status: :closed, conversation_id: conversation.id, closed_by: current_user}) if channels.count > 0
+          Pusher.trigger(channels, 'new_status', {new_status: new_status, conversation_id: id, changed_by: sender}) if channels.count > 0
         end
       end
     end

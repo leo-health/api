@@ -62,7 +62,7 @@ describe Leo::V1::Conversations do
     end
   end
 
-  describe "Put /api/v1/conversations/:id" do
+  describe "Put /api/v1/conversations/:id - close a conversation" do
     let(:clinial_user){create(:user, :clinical)}
     let!(:session){ clinial_user.sessions.create }
     let(:conversation){ Conversation.find_by_family_id(user.family_id) }
