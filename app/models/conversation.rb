@@ -21,7 +21,7 @@ class Conversation < ActiveRecord::Base
   end
 
   def escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
-    return if status == :closed
+    return if status.to_sym == :closed
     update_attributes(status: :escalated)
     user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user_id: escalated_to_id)
     if user_conversation.valid?

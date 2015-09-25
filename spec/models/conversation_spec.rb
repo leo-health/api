@@ -38,6 +38,30 @@ describe Conversation, type: :model do
   end
 
   describe 'escalate_conversation' do
+    let(:closed_conversation){ build(:conversation) }
+    let(:customer_service){ create(:user, :customer_service) }
+    let(:clinical){ create(:user, :clinical) }
+    let(:note){ 'escalation note'}
+    let(:priority){ 1 }
 
+    it 'should respond to a instance of conversation class' do
+      expect(closed_conversation).to respond_to(:escalate_conversation)
+    end
+
+    context 'escalate an already closed conversation' do
+      it 'should not be able to escalate a closed conversation' do
+        expect( closed_conversation.escalate_conversation(customer_service.id, clinical.id, note, priority) ).to eq(nil)
+      end
+    end
+
+    context 'escalate an open conversation' do
+      let(:open_conversation){ closed_conversation.update_attributes(status: :open) }
+
+      it 'should create an escalation note'
+    end
+
+    context 'escalate an esclated conversation' do
+
+    end
   end
 end
