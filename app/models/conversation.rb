@@ -25,15 +25,20 @@ class Conversation < ActiveRecord::Base
     update_attributes(status: :open) unless status
   end
 
-  # def escalate(escalated_to, escalated_by)
-  #   transaction do
-  #     conversation = Conversation.find(conversation_id)
-  #     raise("can't escalate closed message and conversation") if conversation.status == :closed
-  #     conversation.staff << escalated_to unless conversation.staff.where(id: escalated_to.id).exists?
-  #     update_attributes!(escalated_to: escalated_to, escalated_by: escalated_by, escalated_at: Time.now)
-  #     conversation.update_attributes!(status: :escalated)
-  #   end
-  # end
+  def escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
+    update_attributes(status: :escalated)
+    user_conversation = user_conversations.find_or_create_by(user_id: escalated_to_id, escalated: true)
+    if user_conversation.valid?
+      escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by_id: escalated_by_id)
+    end
+    escalation_note
+  end
+
+  def close_conversation
+    false if status == :closed
+    user_conversations.update_all(escalated: false)
+    update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: current_user.id)
+  end
 
   private
 
