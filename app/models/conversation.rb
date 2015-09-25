@@ -1,17 +1,18 @@
 class Conversation < ActiveRecord::Base
+  include PublicActivity::Common
   acts_as_paranoid
   has_many :messages
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
   has_many :conversation_changes
   has_many :escalation_notes
+  belongs_to :last_closed_by, class_name: 'User'
   belongs_to :family
   belongs_to :archived_by, class_name: 'User'
 
   before_validation :set_conversation_state, on: :create
 
   validates :family, :status, presence: true
-  around_update :track_conversation_change
   after_commit :load_staff, :load_initial_message, on: :create
 
   def self.sort_conversations
@@ -40,13 +41,13 @@ class Conversation < ActiveRecord::Base
     update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: current_user.id)
   end
 
-  private
+  # def track_conversation_change
+  #   changed = status_changed?
+  #   yield
+  #   conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
+  # end
 
-  def track_conversation_change
-    changed = status_changed?
-    yield
-    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
-  end
+  private
 
   def load_staff
     #neeed definitions for who will be loaded here
