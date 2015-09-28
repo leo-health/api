@@ -25,7 +25,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_scan_remote_appointments" do
       let!(:future_appointment_status){create(:appointment_status, :future)}
-      let!(:booked_appt) { 
+      let!(:booked_appt) {
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
         .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
       }
@@ -168,7 +168,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       context "for unsynced patient" do
         it "should creates sync tasks" do
-          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(7)
         end
       end
 
@@ -178,7 +178,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         end
 
         it "creates sync tasks" do
-          expect{ syncer.process_scan_patients }.to change{ SyncTask.count }.from(0).to(7)
+          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(7)
         end
       end
     end
@@ -190,7 +190,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "creates new patient" do
         patient = create(:patient, athena_id: 0, family_id: family.id)
 
-        expect(connector).to receive("create_patient").and_return(1000)
+        expect(connector).to receive("create_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
         expect(patient.reload.athena_id).to eq(1000)
       end
@@ -198,7 +198,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "updates stale patient" do
         patient = create(:patient, athena_id: 1, family_id: family.id)
 
-        expect(connector).to receive("update_patient")
+        expect(connector).to receive("update_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y")))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
       end
     end
@@ -341,7 +341,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
                         }]
                     ],
                     "key": "WEIGHT"
-                }]    
+                }]
           )))
 
         syncer.process_patient_vitals(SyncTask.new(sync_id: patient.id))

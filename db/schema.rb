@@ -54,12 +54,12 @@ ActiveRecord::Schema.define(version: 20150921010950) do
     t.datetime "start_datetime",                    null: false
     t.integer  "appointment_type_id",               null: false
     t.string   "notes"
-    t.datetime "deleted_at"
     t.integer  "booked_by_id",                      null: false
     t.integer  "provider_id",                       null: false
     t.integer  "patient_id",                        null: false
-    t.integer  "appointment_status_id",             null: false
     t.integer  "rescheduled_id"
+    t.datetime "deleted_at"
+    t.integer  "appointment_status_id",             null: false
   end
 
   add_index "appointments", ["appointment_status_id"], name: "index_appointments_on_appointment_status_id", using: :btree
