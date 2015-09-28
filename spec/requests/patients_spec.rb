@@ -41,7 +41,7 @@ describe Leo::V1::Patients do
     end
   end
 
-  describe 'Put /api/v1patients/:id' do
+  describe 'Put /api/v1/patients/:id' do
     let!(:patient){family.patients.first}
 
     def do_request
