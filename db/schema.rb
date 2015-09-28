@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150928150324) do
+ActiveRecord::Schema.define(version: 20150928215805) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -134,9 +134,12 @@ ActiveRecord::Schema.define(version: 20150928150324) do
     t.date     "birth_date"
     t.string   "avatar_url"
     t.integer  "onboarding_group_id"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.string   "authentication_token"
   end
+
+  add_index "enrollments", ["authentication_token"], name: "index_enrollments_on_authentication_token", using: :btree
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
