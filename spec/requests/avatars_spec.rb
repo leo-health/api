@@ -9,7 +9,7 @@ describe Leo::V1::Avatars do
 
   describe "Post /api/v1/avatars" do
     def do_request
-      avatar = open(File.new(Rails.root.join('spec', 'support', 'Zen-Dog1.jpg'))){|io|io.read}
+      avatar = open(File.new(Rails.root.join('spec', 'support', 'Zen-Dog1.png'))){|io|io.read}
       encoded_avatar = Base64.encode64(avatar)
       post "/api/v1/avatars", {authentication_token: session.authentication_token,
                                patient_id: patient.id,

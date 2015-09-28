@@ -28,27 +28,27 @@ class AvatarUploader < CarrierWave::Uploader::Base
   process :resize_to_fill => [214, 214]
 
   # Create different versions of your uploaded files:
-  version :default_large do
+  version :primary_3x do
     process :resize_to_fill => [214, 214]
   end
 
-  version :default_medium do
+  version :primary_2x do
     process :resize_to_fill => [144, 144]
   end
 
-  version :user_large, if: :is_user? do
+  version :primary_1x, if: :is_user? do
     process :resize_to_fill => [132, 132]
   end
 
-  version :user_medium, if: :is_user? do
+  version :secondary_3x, if: :is_user? do
     process :resize_to_fill => [88, 88]
   end
 
-  version :default_small do
+  version :secondary_2x do
     process :resize_to_fill => [72, 72]
   end
 
-  version :user_small, if: :is_user? do
+  version :secondary_1x, if: :is_user? do
     process :resize_to_fill => [44, 44]
   end
 
