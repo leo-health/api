@@ -41,6 +41,7 @@ module Leo
       require_relative 'cards'
       require_relative 'insurers'
       require_relative 'enrollments'
+      require_relative 'patient_enrollments'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -79,6 +80,7 @@ module Leo
       mount Leo::V1::Cards
       mount Leo::V1::Insurers
       mount Leo::V1::Enrollments
+      mount Leo::V1::PatientEnrollments
 
       add_swagger_documentation(
           base_path: "/api",

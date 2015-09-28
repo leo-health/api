@@ -1,7 +1,7 @@
 class CreatePatientEnrollments < ActiveRecord::Migration
   def change
     create_table :patient_enrollments do |t|
-      t.integer :guardian_id, null: false
+      t.integer :guardian_enrollment_id, null: false
       t.string :email
       t.string :title
       t.string :first_name, null: false
@@ -12,5 +12,6 @@ class CreatePatientEnrollments < ActiveRecord::Migration
       t.string :sex, null: false
       t.timestamps null: false
     end
+    add_index :patient_enrollments, :guardian_enrollment_id
   end
 end
