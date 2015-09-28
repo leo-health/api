@@ -104,8 +104,8 @@ module SyncServiceHelper
     # * +task+ - the sync task to process
     def process_sync_task(task)
       Rails.logger.info("Syncer: Processing task #{task.to_json}")
-      if respond_to?('process_#{task.sync_type}')
-        public_send('process_#{task.sync_type}', task)
+      if respond_to?("process_#{task.sync_type}")
+        public_send("process_#{task.sync_type}", task)
       else
         raise "Unknown task.sync_type entry: #{task.sync_type}"
       end
@@ -309,11 +309,11 @@ module SyncServiceHelper
           middlename: leo_patient.middle_initial.to_s,
           lastname: leo_patient.last_name,
           sex: leo_patient.sex,
-          birth_date: patient_birth_date,
+          dob: patient_birth_date,
           guarantorfirstname: leo_parent.first_name,
           guarantormiddlename: leo_parent.middle_initial.to_s,
           guarantorlastname: leo_parent.last_name,
-          guarantorbirthdate: parent_birth_date,
+          guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3 #3==child
           ).to_i
@@ -327,11 +327,11 @@ module SyncServiceHelper
           middlename: leo_patient.middle_initial.to_s,
           lastname: leo_patient.last_name,
           sex: leo_patient.sex,
-          birth_date: patient_birth_date,
+          dob: patient_birth_date,
           guarantorfirstname: leo_parent.first_name,
           guarantormiddlename: leo_parent.middle_initial.to_s,
           guarantorlastname: leo_parent.last_name,
-          guarantorbirthdate: parent_birth_date,
+          guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3 #3==child
           )
