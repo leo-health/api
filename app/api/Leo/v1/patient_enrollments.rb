@@ -14,11 +14,11 @@ module Leo
           optional :suffix, type: String
         end
         post do
-          patient_enrollment = Enrollment.create(declared(params, include_missing: false))
+          patient_enrollment = PatientEnrollment.create(declared(params, include_missing: false))
           if patient_enrollment.valid?
             present :patient_enrollment, patient_enrollment
           else
-            error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: patient_enrollment.errors.full_messages }, 422)
           end
         end
       end

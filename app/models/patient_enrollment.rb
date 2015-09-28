@@ -1,5 +1,5 @@
 class PatientEnrollment < ActiveRecord::Base
-  belongs_to :enrollment
+  belongs_to :guardian_enrollment, class_name: 'Enrollment'
 
-  validates :enrollment, presence: true
+  validates :guardian_enrollment, presence: true
 end

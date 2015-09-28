@@ -16,19 +16,8 @@ describe Leo::V1::Enrollments do
     end
 
     it "should create an patient enrollment record" do
-      byebug
       expect{ do_request }.to change{ PatientEnrollment.count }.from(0).to(1)
       expect(response.status).to eq(201)
     end
   end
 end
-
-
-# requires :guardian_enrollment_id, type: Integer
-# requires :first_name, type: String
-# requires :last_name, type: String
-# requires :sex, type: String, values: ['M', 'F']
-# requires :birth_date, type: Date
-# optional :title, type: String
-# optional :middle_inital, type: String
-# optional :suffix, type: String
