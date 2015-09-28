@@ -54,7 +54,7 @@ module Leo
 
         desc "#show: get a patient"
         params do
-         optional :avatar_size, type: String, values: ["default_large", "default_medium", "default_small"]
+         optional :avatar_size, type: String, values: ["primary_3x", "primary_2x", "primary_1x"]
         end
 
         get ':id' do
@@ -65,7 +65,7 @@ module Leo
 
         desc "index: all patients of a guardian(current_user)"
         params do
-          optional :avatar_size, type: String, values: ["default_large", "default_medium", "default_small"]
+          optional :avatar_size, type: String, values: ["primary_3x", "primary_2x", "primary_1x"]
         end
 
         get do
