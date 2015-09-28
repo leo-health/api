@@ -8,7 +8,7 @@ SyncService.configure do |config|
   config.auto_gen_scan_tasks = !%w[ test ].include?(Rails.env)
 
   #sync service job will run at this interval
-  config.job_interval = 1.minutes
+  config.job_interval = 1.minute
 
   #patient data will be synched at this interval 
   #this does not apply to first sync.  That one is performed as soon as new data is entered in Leo.
