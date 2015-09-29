@@ -102,13 +102,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
 
       describe "ability for Appointments" do
@@ -136,13 +131,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
 
       describe "ability for Appointments" do
@@ -168,13 +158,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
 
       describe "ability for Appointments" do
@@ -200,13 +185,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
     end
   end

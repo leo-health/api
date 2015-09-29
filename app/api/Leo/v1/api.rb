@@ -10,9 +10,11 @@ module Leo
       require_relative '../entities/role_entity'
       require_relative '../entities/insurer_entity'
       require_relative '../entities/user_entity'
+      require_relative '../entities/system_entity'
       require_relative '../entities/appointment_status_entity'
       require_relative '../entities/appointment_type_entity'
       require_relative '../entities/message_entity'
+      require_relative '../entities/full_message_entity'
       require_relative '../entities/patient_entity'
       require_relative '../entities/conversation_entity'
       require_relative '../entities/conversation_with_messages_entity'
@@ -38,7 +40,6 @@ module Leo
       require_relative 'practices'
       require_relative 'appointment_types'
       require_relative 'families'
-      require_relative 'user_conversations'
       require_relative 'cards'
       require_relative 'insurers'
       require_relative 'avatars'
@@ -76,7 +77,6 @@ module Leo
       mount Leo::V1::Messages
       mount Leo::V1::AppointmentTypes
       mount Leo::V1::Families
-      mount Leo::V1::UserConversations
       mount Leo::V1::Cards
       mount Leo::V1::Insurers
       mount Leo::V1::Avatars

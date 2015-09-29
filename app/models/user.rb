@@ -4,13 +4,14 @@ class User < ActiveRecord::Base
   belongs_to :family
   belongs_to :role
   belongs_to :practice
+  has_many :conversation_changes, foreign_key: "changed_by_id"
   has_one :avatar, as: :owner
   has_one :provider_profile, foreign_key: "provider_id"
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
+  has_many :escalated_notes, class_name: "EscalationNote", foreign_key: "escalated_to_id"
   has_many :read_messages, class_name: 'Message', through: :read_receipts
-  has_many :invitations, as: :invited_by
   has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
@@ -22,9 +23,8 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   validates :password, length: {minimum: 8, allow_nil: true}
-  validates :first_name, :last_name, :role, presence: true
-  validates :email, presence: true
-  validates :email, uniqueness: {scope: :deleted_at}
+  validates :first_name, :last_name, :role, :email, presence: true
+  validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, on: :create
 
@@ -40,14 +40,16 @@ class User < ActiveRecord::Base
     conversations.where(status: status)
   end
 
+  #TODO add sorting by higest priotiy here
+
   def unread_conversations
     return if has_role? :guardian
-    Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc).order( "user_conversations.priority desc" )
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
   def escalated_conversations
     return if has_role? :guardian
-    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc).order( "user_conversations.priority desc" )
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
   def add_role(name)

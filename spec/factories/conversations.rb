@@ -1,18 +1,18 @@
 FactoryGirl.define do
   factory :conversation do
     association :family, strategy: :build
-    status :open
+    status :closed
+
     trait :open do
-      status :open
+      after(:build) do |conversation|
+        conversation.update_attributes(status: :open)
+      end
     end
 
     trait :escalated do
-      status :escalated
-    end
-
-    trait :closed do
-      status :closed
-      last_closed_at Time.now
+      after(:build) do |conversation|
+        conversation.update_attributes(status: :escalated)
+      end
     end
   end
 end

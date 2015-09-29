@@ -31,6 +31,7 @@ gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 gem 'pusher'
+gem 'public_activity'
 gem "mini_magick"
 
 group :development, :test do
@@ -42,6 +43,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'spring'
   gem 'spring-commands-rspec'
+  gem 'fuubar'
 end
 
 group :development do
