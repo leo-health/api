@@ -1,6 +1,6 @@
 module Leo
   module Entities
-    class PublicActivityEntity < Grape::Entity
+    class SystemEntity < Grape::Entity
       expose :id
       expose :trackable_id
       expose :trackable_type
