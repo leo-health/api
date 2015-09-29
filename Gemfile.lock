@@ -204,6 +204,7 @@ GEM
       activesupport
       mandrill-api (~> 1.0.9)
     mime-types (2.6.2)
+    mini_magick (4.3.3)
     mini_portile (0.6.2)
     minitest (5.8.1)
     multi_json (1.11.2)
@@ -400,6 +401,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   mandrill_mailer
+  mini_magick
   paranoia (~> 2.0)
   pg
   public_activity

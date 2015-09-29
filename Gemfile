@@ -32,6 +32,7 @@ gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 gem 'pusher'
 gem 'public_activity'
+gem "mini_magick"
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses

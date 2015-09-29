@@ -163,21 +163,27 @@ module SyncServiceHelper
     end
 
     def impl_create_leo_appt_from_athena(appt: )
-      patient = Patient.find_by!(athena_id: appt.patientid.to_i)
-      provider_profile = ProviderProfile.find_by!(athena_id: appt.providerid.to_i)
-      appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
-      appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
+      begin
+        patient = Patient.find_by!(athena_id: appt.patientid.to_i)
+        provider_profile = ProviderProfile.find_by!(athena_id: appt.providerid.to_i)
+        appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
+        appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
 
-      Appointment.create(
-        appointment_status: appointment_status,
-        booked_by_id: provider_profile.provider.id,
-        patient_id: patient.id,
-        provider_id: provider_profile.provider.id,
-        appointment_type_id: appointment_type.id,
-        duration: appt.duration,
-        start_datetime: Date.strptime(appt.date + " " + appt.starttime, "%m/%d/%Y %H:%M"),
-        sync_updated_at: DateTime.now,
-        athena_id: appt.appointmentid.to_i)
+        Appointment.create(
+          appointment_status: appointment_status,
+          booked_by_id: provider_profile.provider.id,
+          patient_id: patient.id,
+          provider_id: provider_profile.provider.id,
+          appointment_type_id: appointment_type.id,
+          duration: appt.duration,
+          start_datetime: Date.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
+          sync_updated_at: DateTime.now,
+          athena_id: appt.appointmentid.to_i)
+      rescue => e
+          Rails.logger.error "Syncer: impl_create_leo_appt_from_athena appt=#{appt.to_json} failed"
+          Rails.logger.error e.message
+          Rails.logger.error e.backtrace.join("\n")
+      end
     end
 
     def process_scan_patients(task)
@@ -309,11 +315,11 @@ module SyncServiceHelper
           middlename: leo_patient.middle_initial.to_s,
           lastname: leo_patient.last_name,
           sex: leo_patient.sex,
-          birth_date: patient_birth_date,
+          dob: patient_birth_date,
           guarantorfirstname: leo_parent.first_name,
           guarantormiddlename: leo_parent.middle_initial.to_s,
           guarantorlastname: leo_parent.last_name,
-          guarantorbirthdate: parent_birth_date,
+          guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3 #3==child
           ).to_i
@@ -327,11 +333,11 @@ module SyncServiceHelper
           middlename: leo_patient.middle_initial.to_s,
           lastname: leo_patient.last_name,
           sex: leo_patient.sex,
-          birth_date: patient_birth_date,
+          dob: patient_birth_date,
           guarantorfirstname: leo_parent.first_name,
           guarantormiddlename: leo_parent.middle_initial.to_s,
           guarantorlastname: leo_parent.last_name,
-          guarantorbirthdate: parent_birth_date,
+          guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3 #3==child
           )

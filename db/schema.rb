@@ -88,6 +88,16 @@ ActiveRecord::Schema.define(version: 20150924202504) do
   add_index "appointments", ["provider_id"], name: "index_appointments_on_provider_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
+  create_table "avatars", force: :cascade do |t|
+    t.string   "avatar"
+    t.integer  "owner_id",   null: false
+    t.string   "owner_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "avatars", ["owner_type", "owner_id"], name: "index_avatars_on_owner_type_and_owner_id", using: :btree
+
   create_table "conversation_changes", force: :cascade do |t|
     t.integer  "conversation_id",     null: false
     t.string   "conversation_change"
