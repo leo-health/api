@@ -14,12 +14,12 @@ describe Leo::V1::Enrollments do
     end
   end
 
-  describe "Put /api/v1/enrollments/:id" do
+  describe "Put /api/v1/enrollments/current" do
     let(:enrollment){ create(:enrollment)}
 
     def do_request
-      enrollment_params = {first_name: "Jack", last_name: "Cash"}
-      put "/api/v1/enrollments/#{enrollment.id}", enrollment_params
+      enrollment_params = {first_name: "Jack", last_name: "Cash", authentication_token: enrollment.authentication_token }
+      put "/api/v1/enrollments/current", enrollment_params
     end
 
     it "should update the requested enrollment" do

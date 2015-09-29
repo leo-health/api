@@ -10,7 +10,6 @@ FactoryGirl.define do
     sex					{ ['M', 'F'].sample }
     email
     password    'password'
-    password_confirmation    'password'
     association :family, factory: :family
     association :role, factory: [:role, :guardian]
 

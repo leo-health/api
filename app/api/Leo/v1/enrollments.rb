@@ -25,6 +25,7 @@ module Leo
           optional :sex, type: String, values: ['M', 'F']
           optional :stripe_customer_id, type: String
         end
+
         put :current do
           enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
           error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment

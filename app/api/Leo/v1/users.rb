@@ -16,7 +16,7 @@ module Leo
         end
       end
 
-      desc '#create user from enrollment'
+      desc "#post create a user with provided params"
       namespace :sign_up do
         params do
           requires :first_name, type: String
@@ -41,7 +41,7 @@ module Leo
       end
 
       resource :users do
-        desc "#post create a user"
+        desc '#create user from enrollment'
         before do
           @enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
           error!({error_code: 401, error_message: '401 Unauthorized' }, 401) unless @enrollment

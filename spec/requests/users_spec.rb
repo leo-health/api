@@ -2,7 +2,25 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Users do
-  describe "POST /api/v1/users/sign_up" do
+  describe "Get /api/v1/staff" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
+    let!(:clinical){ create(:user, :clinical) }
+    let(:serializer){ Leo::Entities::UserEntity }
+
+    def do_request
+      get "/api/v1/staff", { authentication_token: session.authentication_token }
+    end
+
+    it "should return the staff users" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:staff].as_json.to_json).to eq(serializer.represent([clinical]).as_json.to_json)
+    end
+  end
+
+  describe "POST /api/v1/sign_up" do
     let!(:role){create(:role, :guardian)}
     let!(:user_params){{ first_name: "first_name",
                          last_name: "last_name",
@@ -13,7 +31,7 @@ describe Leo::V1::Users do
                         }}
 
     def do_request
-      post "/api/v1/users/sign_up", user_params, format: :json
+      post "/api/v1/sign_up", user_params, format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
@@ -25,12 +43,12 @@ describe Leo::V1::Users do
   describe "POST /api/v1/users" do
     let!(:role){create(:role, :guardian)}
     let(:enrollment){ create( :enrollment,
-                              first_name: "first_name",
-                              last_name: "last_name",
-                              email: "guardian@leohealth.com",
-                              password: "password",
-                              birth_date: 48.years.ago,
-                              sex: "M"
+                               first_name: "first_name",
+                               last_name: "last_name",
+                               email: "guardian@leohealth.com",
+                               password: "password",
+                               birth_date: 48.years.ago,
+                               sex: "M"
                             )}
 
     def do_request
@@ -38,7 +56,6 @@ describe Leo::V1::Users do
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
-      byebug
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
     end
