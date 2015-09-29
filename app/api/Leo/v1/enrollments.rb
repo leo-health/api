@@ -2,9 +2,22 @@ module Leo
   module V1
     class Enrollments < Grape::API
       resource :enrollments do
+        desc "invite a secondary parent"
+        namespace :invite do
+          params do
+            requires :email, type: String
+            requires :first_name, type: String
+            requires :last_name, type: String
+          end
+
+          post do
+
+          end
+        end
+
         desc "create an enrollment"
         params do
-          requires :email, type: String, validate_email: true
+          requires :email, type: String
           requires :password, type: String
         end
 

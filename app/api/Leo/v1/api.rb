@@ -23,7 +23,6 @@ module Leo
       require_relative '../entities/card_entity'
       require_relative '../entities/family_entity'
       require_relative '../entities/session_entity'
-      require_relative '../validators/validate_email'
       require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
