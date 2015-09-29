@@ -66,6 +66,10 @@ RSpec.configure do |config|
 
   config.after(:each) do
     DatabaseCleaner.clean
+
+    if Rails.env.test? || Rails.env.cucumber?
+      FileUtils.rm_rf(Dir["#{Rails.root}/spec/support/test"])
+    end
   end
 
   # RSpec Rails can automatically mix in different behaviours to your tests
