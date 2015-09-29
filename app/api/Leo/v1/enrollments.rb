@@ -4,6 +4,10 @@ module Leo
       resource :enrollments do
         desc "invite a secondary parent"
         namespace :invite do
+          before do
+            authenticated
+          end
+
           params do
             requires :email, type: String
             requires :first_name, type: String
@@ -11,8 +15,24 @@ module Leo
           end
 
           post do
-
+            enrollment = Enrollment.create(declared(params).merge({role_id: 4, family_id: current_user.family_id}))
+            if enrollment.valid?
+              UserMailer.invite_secondary_parent(enrollment)
+            else
+              error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
+            end
           end
+        end
+
+        desc "show an enrollment record"
+        params do
+          requires :authentication_token, type: String, allow_blank: false
+        end
+
+        get :current do
+          enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
+          error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
+          present :enrollment, enrollment
         end
 
         desc "create an enrollment"
