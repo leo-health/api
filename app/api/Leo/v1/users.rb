@@ -3,7 +3,8 @@ module Leo
     class Users < Grape::API
       include Grape::Kaminari
 
-      namespace "staff" do
+      desc '#return all the staff'
+      namespace :staff do
         before do
           authenticated
         end
@@ -15,19 +16,8 @@ module Leo
         end
       end
 
-      resource :users do
-        desc "Get available users by role"
-        paginate per_page: 20
-        params do
-          requires :role, type: String, allow_blank: false
-        end
-        get do
-          authenticated
-          users = User.where(role_id: Role.find_by_name(params[:name].id))
-          present :users, paginate(users), with: Leo::Entities::UserEntity
-        end
-
-        desc "#post create a user"
+      desc '#create user from enrollment'
+      namespace :sign_up do
         params do
           requires :first_name, type: String
           requires :last_name, type: String
@@ -47,6 +37,50 @@ module Leo
           else
             error!({error_code: 422, error_message: user.errors.full_messages }, 422)
           end
+        end
+      end
+
+      resource :users do
+        desc "#post create a user"
+        before do
+          @enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
+          error!({error_code: 401, error_message: '401 Unauthorized' }, 401) unless @enrollment
+        end
+
+        post do
+          user_params = {
+              first_name: @enrollment.first_name,
+              last_name: @enrollment.last_name,
+              email: @enrollment.email,
+              birth_date: @enrollment.birth_date,
+              sex: @enrollment.sex,
+              encrypted_password: @enrollment.encrypted_password,
+              title: @enrollment.title,
+              suffix: @enrollment.suffix,
+              middle_initial: @enrollment.middle_initial,
+              stripe_customer_id: @enrollment.stripe_customer_id,
+              role_id: 4
+          }
+
+          user = User.create( user_params )
+          if user.valid?
+            session = user.sessions.create
+            present :authentication_token, session.authentication_token
+            present :user, user, with: Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
+          end
+        end
+
+        desc "Get available users by role"
+        paginate per_page: 20
+        params do
+          requires :role, type: String, allow_blank: false
+        end
+        get do
+          authenticated
+          users = User.where(role_id: Role.find_by_name(params[:name].id))
+          present :users, paginate(users), with: Leo::Entities::UserEntity
         end
 
         route_param :id do
