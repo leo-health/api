@@ -42,23 +42,20 @@ module Leo
 
       resource :users do
         desc '#create user from enrollment'
-        before do
-          @enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
-          error!({error_code: 401, error_message: '401 Unauthorized' }, 401) unless @enrollment
-        end
-
         post do
+          enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
+          error!({error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
           user_params = {
-              first_name: @enrollment.first_name,
-              last_name: @enrollment.last_name,
-              email: @enrollment.email,
-              birth_date: @enrollment.birth_date,
-              sex: @enrollment.sex,
-              encrypted_password: @enrollment.encrypted_password,
-              title: @enrollment.title,
-              suffix: @enrollment.suffix,
-              middle_initial: @enrollment.middle_initial,
-              stripe_customer_id: @enrollment.stripe_customer_id,
+              first_name: enrollment.first_name,
+              last_name: enrollment.last_name,
+              email: enrollment.email,
+              birth_date: enrollment.birth_date,
+              sex: enrollment.sex,
+              encrypted_password: enrollment.encrypted_password,
+              title: enrollment.title,
+              suffix: enrollment.suffix,
+              middle_initial: enrollment.middle_initial,
+              stripe_customer_id: enrollment.stripe_customer_id,
               role_id: 4
           }
 
@@ -72,17 +69,6 @@ module Leo
           end
         end
 
-        desc "Get available users by role"
-        paginate per_page: 20
-        params do
-          requires :role, type: String, allow_blank: false
-        end
-        get do
-          authenticated
-          users = User.where(role_id: Role.find_by_name(params[:name].id))
-          present :users, paginate(users), with: Leo::Entities::UserEntity
-        end
-
         route_param :id do
           before do
             authenticated
@@ -94,6 +80,7 @@ module Leo
 
           desc "#show get an individual user"
           get do
+            authorize! :show, @user
             present :user, @user, with: Leo::Entities::UserEntity
           end
 

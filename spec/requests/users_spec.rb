@@ -71,7 +71,7 @@ describe Leo::V1::Users do
       get "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token}, format: :json
     end
 
-    it "should update the user info, email only, for authenticated users" do
+    it "should show the requested user" do
       do_request
       expect(response.status).to eq(200)
       expect_json('data.user.id', user.id)

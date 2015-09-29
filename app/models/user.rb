@@ -22,11 +22,14 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :validatable
 
-  validates :password, length: {minimum: 8, allow_nil: true}
-  validates :first_name, :last_name, :role, :email, presence: true
+  validates :first_name, :last_name, :role, :sex, presence: true
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, on: :create
+
+  # def sign_up_from_enrollment
+  #   !!encrypted_password
+  # end
 
   def create_or_update_stripe_customer_id(token)
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"

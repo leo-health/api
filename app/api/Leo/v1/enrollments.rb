@@ -7,6 +7,7 @@ module Leo
           requires :email, type: String, validate_email: true
           requires :password, type: String
         end
+
         post do
           enrollment = Enrollment.create(declared(params).merge({role_id: 4}))
           if enrollment.valid?
