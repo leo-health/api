@@ -163,21 +163,27 @@ module SyncServiceHelper
     end
 
     def impl_create_leo_appt_from_athena(appt: )
-      patient = Patient.find_by!(athena_id: appt.patientid.to_i)
-      provider_profile = ProviderProfile.find_by!(athena_id: appt.providerid.to_i)
-      appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
-      appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
+      begin
+        patient = Patient.find_by!(athena_id: appt.patientid.to_i)
+        provider_profile = ProviderProfile.find_by!(athena_id: appt.providerid.to_i)
+        appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
+        appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
 
-      Appointment.create(
-        appointment_status: appointment_status,
-        booked_by_id: provider_profile.provider.id,
-        patient_id: patient.id,
-        provider_id: provider_profile.provider.id,
-        appointment_type_id: appointment_type.id,
-        duration: appt.duration,
-        start_datetime: Date.strptime(appt.date + " " + appt.starttime, "%m/%d/%Y %H:%M"),
-        sync_updated_at: DateTime.now,
-        athena_id: appt.appointmentid.to_i)
+        Appointment.create(
+          appointment_status: appointment_status,
+          booked_by_id: provider_profile.provider.id,
+          patient_id: patient.id,
+          provider_id: provider_profile.provider.id,
+          appointment_type_id: appointment_type.id,
+          duration: appt.duration,
+          start_datetime: Date.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
+          sync_updated_at: DateTime.now,
+          athena_id: appt.appointmentid.to_i)
+      rescue => e
+          Rails.logger.error "Syncer: impl_create_leo_appt_from_athena appt=#{appt.to_json} failed"
+          Rails.logger.error e.message
+          Rails.logger.error e.backtrace.join("\n")
+      end
     end
 
     def process_scan_patients(task)

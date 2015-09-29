@@ -16,6 +16,23 @@ ActiveRecord::Schema.define(version: 20150928215805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "activities", force: :cascade do |t|
+    t.integer  "trackable_id"
+    t.string   "trackable_type"
+    t.integer  "owner_id"
+    t.string   "owner_type"
+    t.string   "key"
+    t.text     "parameters"
+    t.integer  "recipient_id"
+    t.string   "recipient_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "activities", ["owner_id", "owner_type"], name: "index_activities_on_owner_id_and_owner_type", using: :btree
+  add_index "activities", ["recipient_id", "recipient_type"], name: "index_activities_on_recipient_id_and_recipient_type", using: :btree
+  add_index "activities", ["trackable_id", "trackable_type"], name: "index_activities_on_trackable_id_and_trackable_type", using: :btree
+
   create_table "allergies", force: :cascade do |t|
     t.integer  "patient_id"
     t.integer  "athena_id",  default: 0,  null: false
@@ -71,11 +88,22 @@ ActiveRecord::Schema.define(version: 20150928215805) do
   add_index "appointments", ["provider_id"], name: "index_appointments_on_provider_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
+  create_table "avatars", force: :cascade do |t|
+    t.string   "avatar"
+    t.integer  "owner_id",   null: false
+    t.string   "owner_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "avatars", ["owner_type", "owner_id"], name: "index_avatars_on_owner_type_and_owner_id", using: :btree
+
   create_table "conversation_changes", force: :cascade do |t|
     t.integer  "conversation_id",     null: false
     t.string   "conversation_change"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
+    t.integer  "changed_by_id"
   end
 
   add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
@@ -88,7 +116,7 @@ ActiveRecord::Schema.define(version: 20150928215805) do
     t.datetime "deleted_at"
     t.string   "status",                  null: false
     t.datetime "last_closed_at"
-    t.integer  "last_closed_by"
+    t.integer  "last_closed_by_id"
   end
 
   create_table "conversations_participants", id: false, force: :cascade do |t|
@@ -140,6 +168,18 @@ ActiveRecord::Schema.define(version: 20150928215805) do
   end
 
   add_index "enrollments", ["authentication_token"], name: "index_enrollments_on_authentication_token", using: :btree
+
+  create_table "escalation_notes", force: :cascade do |t|
+    t.integer  "user_conversation_id",             null: false
+    t.integer  "escalated_by_id",                  null: false
+    t.integer  "priority",             default: 0, null: false
+    t.string   "note"
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+  end
+
+  add_index "escalation_notes", ["escalated_by_id"], name: "index_escalation_notes_on_escalated_by_id", using: :btree
+  add_index "escalation_notes", ["user_conversation_id"], name: "index_escalation_notes_on_user_conversation_id", using: :btree
 
   create_table "families", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -216,9 +256,6 @@ ActiveRecord::Schema.define(version: 20150928215805) do
     t.string   "type_name"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
-    t.integer  "escalated_to_id"
-    t.datetime "escalated_at"
-    t.integer  "escalated_by_id"
     t.datetime "deleted_at"
   end
 
@@ -397,7 +434,6 @@ ActiveRecord::Schema.define(version: 20150928215805) do
     t.datetime "updated_at",                      null: false
     t.boolean  "read",            default: false, null: false
     t.boolean  "escalated",       default: false, null: false
-    t.integer  "priority",        default: 0
   end
 
   add_index "user_conversations", ["conversation_id"], name: "index_user_conversations_on_conversation_id", using: :btree

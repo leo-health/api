@@ -31,6 +31,8 @@ gem 'squeel'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 gem 'pusher'
+gem 'public_activity'
+gem "mini_magick"
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -41,6 +43,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'spring'
   gem 'spring-commands-rspec'
+  gem 'fuubar'
 end
 
 group :development do
@@ -51,6 +54,7 @@ group :development do
 end
 
 group :test do
+  gem 'shoulda-matchers'
   gem 'grape-entity-matchers'
   gem 'database_cleaner'
   gem "pusher-fake"

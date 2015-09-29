@@ -4,7 +4,7 @@ module Leo
       extend ActiveSupport::Concern
       included do
         rescue_from ActiveRecord::RecordNotFound do |e|
-          error_response(message: {error_code: 422, error_message: e.message}, status: 404)
+          error_response(message: {error_code: 500, error_message: e.message}, status: 500)
         end
 
         rescue_from CanCan::AccessDenied do |e|

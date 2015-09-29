@@ -7,9 +7,6 @@ module Leo
       expose :body
       expose :type_name
       expose :created_at
-      expose :escalated_to, with: Leo::Entities::UserEntity
-      expose :escalated_by, with: Leo::Entities::UserEntity
-      expose :escalated_at
       expose :read_receipts
     end
   end

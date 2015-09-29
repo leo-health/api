@@ -37,28 +37,4 @@ describe Leo::V1::Messages do
       expect(response.status).to eq(201)
     end
   end
-
-  describe "Put /api/v1/conversations/:conversation_id/messages/:id" do
-    let(:second_user){create(:user)}
-    let!(:session){ second_user.sessions.create }
-    let!(:clinical_role){create(:role, :clinical)}
-    let!(:message){create(:message, conversation: conversation, sender: user)}
-
-    before do
-      user.add_role :clinical
-      second_user.add_role :clinical
-    end
-
-    def do_request
-      put "/api/v1/conversations/#{conversation.id}/messages/#{message.id}",
-          { authentication_token: session.authentication_token, escalated_to_id: user.id }
-    end
-
-    it "should update the requested message" do
-      do_request
-      expect(response.status).to eq(200)
-      expect_json("data.message.escalated_to.id", user.id)
-      expect_json("data.message.escalated_by.id", second_user.id)
-    end
-  end
 end
