@@ -8,4 +8,8 @@ class Enrollment < ActiveRecord::Base
   before_validation :ensure_authentication_token, on: [:create, :update]
   validates :authentication_token, presence: true
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil)}
+
+  def password_required?
+    super || is_invite
+  end
 end
