@@ -15,11 +15,12 @@ module Leo
           end
 
           post do
-            enrollment = Enrollment.create(declared(params).merge({role_id: 4, family_id: current_user.family_id}))
+            enrollment = Enrollment.create(declared(params).merge({role_id: 4, family_id: current_user.family_id, is_invite: true}))
             if enrollment.valid?
-              UserMailer.invite_secondary_parent(enrollment)
+              InviteParentJob.new(enrollment.id, current_user.id).perform
+              present :invted, true
             else
-              error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
+              error!({ error_code: 422, error_message: enrollment.errors.full_messages }, 422)
             end
           end
         end

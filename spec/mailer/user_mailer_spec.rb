@@ -24,12 +24,12 @@ describe UserMailer do
     end
   end
 
-  # describe "invite secondary parent" do
-  #   let(:enrollment){ build(:enrollment) }
-  #   it "should send the secondary parent a invite" do
-  #     UserMailer.invite_secondary_parent(enrollment).deliver
-  #     email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Invite User' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
-  #     expect(email).to_not be_nil
-  #   end
-  # end
+  describe "invite secondary parent" do
+    let(:enrollment){ build(:enrollment) }
+    it "should send the secondary parent a invite" do
+      UserMailer.invite_secondary_parent(enrollment, user).deliver
+      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Invite User' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      expect(email).to_not be_nil
+    end
+  end
 end

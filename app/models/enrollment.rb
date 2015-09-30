@@ -9,7 +9,9 @@ class Enrollment < ActiveRecord::Base
   validates :authentication_token, presence: true
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil)}
 
+  private
+
   def password_required?
-    super || is_invite
+    is_invite ? false : super
   end
 end

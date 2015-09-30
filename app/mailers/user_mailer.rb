@@ -26,14 +26,15 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def invite_secondary_parent(enrollment)
+  def invite_secondary_parent(enrollment, current_user)
     mandrill_mail(
       template: 'Leo - Invite User',
       subject: 'Leo Invitation',
       to: enrollment.email,
       vars: {
         'LINK' => "http://localhost:8888/#/inviteParent?authentication_token=#{enrollment.authentication_token}",
-        'FIRST_NAME' => enrollment.first_name
+        'SECONDARY_GUARDIAN_FIRST_NAME' => enrollment.first_name,
+        'PRIMARY_GUARDIAN_FIRST_NAME' => current_user.first_name
       }
     )
   end

@@ -13,8 +13,7 @@ describe Leo::V1::Enrollments do
     end
 
     it "should send a invite to the user" do
-      do_request
-      byebug
+      expect{ do_request }.to change{ Delayed::Job.count }.from(0).to(1)
       expect(response.status).to eq(201)
     end
   end
