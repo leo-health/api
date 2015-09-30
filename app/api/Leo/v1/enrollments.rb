@@ -18,7 +18,7 @@ module Leo
             enrollment = Enrollment.create(declared(params).merge({role_id: 4, family_id: current_user.family_id, is_invite: true}))
             if enrollment.valid?
               InviteParentJob.new(enrollment.id, current_user.id).perform
-              present :invted, true
+              present :invited, true
             else
               error!({ error_code: 422, error_message: enrollment.errors.full_messages }, 422)
             end

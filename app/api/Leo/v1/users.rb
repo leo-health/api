@@ -61,6 +61,7 @@ module Leo
 
           user = User.create( user_params )
           if user.valid?
+            sign_up_patients(enrollment)
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
@@ -101,6 +102,12 @@ module Leo
             authorize! :destroy, @user
             @user.try(:destroy)
           end
+        end
+      end
+
+      helpers do
+        def sign_up_patients(enrollment)
+          enrollment.pa
         end
       end
     end

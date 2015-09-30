@@ -27,10 +27,6 @@ class User < ActiveRecord::Base
 
   after_commit :set_user_family, on: :create
 
-  # def sign_up_from_enrollment
-  #   !!encrypted_password
-  # end
-
   def create_or_update_stripe_customer_id(token)
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"
     if customer = Stripe::Customer.create(:source => token, :description => self.id)
@@ -65,6 +61,10 @@ class User < ActiveRecord::Base
   end
 
   private
+
+  def password_required?
+    encrypted_password ? false : super
+  end
 
   def set_user_family
     if has_role? :guardian
