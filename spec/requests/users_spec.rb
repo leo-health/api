@@ -20,7 +20,7 @@ describe Leo::V1::Users do
     end
   end
 
-  describe "POST /api/v1/sign_up" do
+  describe "POST /api/v1/sign_up - create user with params" do
     let!(:role){create(:role, :guardian)}
     let!(:user_params){{ first_name: "first_name",
                          last_name: "last_name",
@@ -40,7 +40,7 @@ describe Leo::V1::Users do
     end
   end
 
-  describe "POST /api/v1/users" do
+  describe "POST /api/v1/users - create user from enrollment" do
     let!(:role){create(:role, :guardian)}
     let(:enrollment){ create( :enrollment,
                                first_name: "first_name",

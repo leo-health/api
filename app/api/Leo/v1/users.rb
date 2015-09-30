@@ -61,7 +61,7 @@ module Leo
 
           user = User.create( user_params )
           if user.valid?
-            sign_up_patients(enrollment)
+            sign_up_patients(enrollment, user)
             session = user.sessions.create
             present :authentication_token, session.authentication_token
             present :user, user, with: Leo::Entities::UserEntity
@@ -106,8 +106,14 @@ module Leo
       end
 
       helpers do
-        def sign_up_patients(enrollment)
-          enrollment.pa
+        def sign_up_patients(enrollment, user)
+          Patient.transaction do
+            enrollment.patient_enrollments.each do|patient_enrollment|
+              patient_enrollment_params = patient_enrollment.attributes.merge(family_id: user.family_id)
+              patient = Patient.create(patient_enrollment_params)
+              error!({error_code: 422, error_message: patient.errors.full_messages }, 422) unless patient.valid?
+            end
+          end
         end
       end
     end

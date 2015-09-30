@@ -15,6 +15,7 @@ module Leo
           end
 
           post do
+            error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
             enrollment = Enrollment.create(declared(params).merge({role_id: 4, family_id: current_user.family_id, is_invite: true}))
             if enrollment.valid?
               InviteParentJob.new(enrollment.id, current_user.id).perform
@@ -43,6 +44,7 @@ module Leo
         end
 
         post do
+          error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
           enrollment = Enrollment.create(declared(params).merge({role_id: 4}))
           if enrollment.valid?
             present :enrollment, enrollment
@@ -69,6 +71,12 @@ module Leo
           else
             error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
           end
+        end
+      end
+
+      helpers do
+        def email_taken?(email)
+          !!User.find_by_email(email)
         end
       end
     end
