@@ -1,16 +1,16 @@
 class Conversation < ActiveRecord::Base
+  include PublicActivity::Common
   acts_as_paranoid
+
   has_many :messages
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
   has_many :conversation_changes
+  belongs_to :last_closed_by, class_name: 'User'
   belongs_to :family
-  belongs_to :archived_by, class_name: 'User'
-
-  before_validation :set_conversation_state, on: :create
 
   validates :family, :status, presence: true
-  around_update :track_conversation_change
+
   after_commit :load_staff, :load_initial_message, on: :create
 
   def self.sort_conversations
@@ -20,17 +20,28 @@ class Conversation < ActiveRecord::Base
     end
   end
 
-  def set_conversation_state
-    update_attributes(status: :open) unless status
+  def broadcast_status(sender, new_status)
+    channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newStatus#{user.email}"; channels}
+    Pusher.trigger(channels, 'new_status', {new_status: new_status, conversation_id: id, changed_by: sender}) if channels.count > 0
+  end
+
+  def escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
+    return if status.to_sym == :closed
+    update_attributes(status: :escalated)
+    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user_id: escalated_to_id)
+    if user_conversation.valid?
+      escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by_id: escalated_by_id)
+    end
+    escalation_note
+  end
+
+  def close_conversation(closed_by)
+    return false if status.to_sym == :closed
+    user_conversations.update_all(escalated: false)
+    update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: closed_by)
   end
 
   private
-
-  def track_conversation_change
-    changed = status_changed?
-    yield
-    conversation_changes.create(conversation_change: changes.slice(:status, :updated_at)) if changed
-  end
 
   def load_staff
     #neeed definitions for who will be loaded here

@@ -15,13 +15,13 @@ class Ability
       can :read, Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
       can [:read, :create], Message, :conversation_id => Conversation.find_by_family_id(user.family_id).id
       can [:create, :read, :destroy], Appointment, :booked_by_id => user.id
+      can :create, Avatar, :owner_type => "Patient", :owner_id => Family.find(user.family_id).patients.pluck(:id)
     elsif user.has_role? :financial
       can :read, User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :clinical
@@ -30,7 +30,6 @@ class Ability
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :clinical_support
@@ -39,7 +38,6 @@ class Ability
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :read, Appointment
       can :update, UserConversation
     elsif user.has_role? :customer_service
@@ -48,7 +46,6 @@ class Ability
       end
       can [:read, :update], Conversation
       can [:create, :read], Message
-      can :update, Message, :escalated_at => nil
       can :update, UserConversation
     end
   end

@@ -32,6 +32,18 @@ describe "User" do
         it{should_not be_able_to(:read, super_user)}
       end
 
+      describe "ability for avatars" do
+        let(:other_user){build(:user, :guardian)}
+        let(:patient){create(:patient, family: user.family)}
+        let(:other_patient){create(:patient, family: other_user.family)}
+        let!(:avatar){build(:avatar, owner: patient)}
+        let!(:avatar_of_patient_from_other_family){build(:avatar, owner: other_patient)}
+
+        it{should be_able_to(:create, avatar)}
+
+        it{should_not be_able_to(:create, avatar_of_patient_from_other_family)}
+      end
+
       describe "ability for Patient" do
         let(:patient_role){build(:role, :patient)}
         let!(:patient){build(:patient, family: user.family)}
@@ -90,13 +102,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
 
       describe "ability for Appointments" do
@@ -124,13 +131,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
 
       describe "ability for Appointments" do
@@ -156,13 +158,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
 
       describe "ability for Appointments" do
@@ -188,13 +185,8 @@ describe "User" do
       end
 
       describe "ability for Message" do
-        let!(:message){build(:message, escalated_at: Time.now)}
-
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
-        it{should be_able_to(:update, Message.new)}
-
-        it{should_not be_able_to(:update, message)}
       end
     end
   end
