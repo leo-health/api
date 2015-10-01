@@ -64,7 +64,8 @@ module Leo
               user = User.create!( user_params.merge(family: family) )
               enrollment.patient_enrollments.each do|patient_enrollment|
                 patient_enrollment_params = patient_enrollment.attributes.merge(family: user.family)
-                Patient.create!(patient_enrollment_params.except('guardian_enrollment_id', 'id', 'created_at', 'updated_at'))
+                patient = Patient.create!(patient_enrollment_params.except('guardian_enrollment_id', 'id', 'created_at', 'updated_at'))
+                patient.insurances.create()
               end
               session = user.sessions.create
               present :authentication_token, session.authentication_token
