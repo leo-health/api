@@ -24,6 +24,7 @@ module Leo
           requires :email, type: String
           requires :password, type: String
           requires :birth_date, type: Date
+          requires :phone_number, type: String
           requires :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
         end
@@ -54,6 +55,7 @@ module Leo
             encrypted_password: enrollment.encrypted_password,
             title: enrollment.title,
             suffix: enrollment.suffix,
+            phone_number: enrollment.phone_number,
             middle_initial: enrollment.middle_initial,
             stripe_customer_id: enrollment.stripe_customer_id,
             role_id: 4
