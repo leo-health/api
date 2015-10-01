@@ -165,7 +165,7 @@ ActiveRecord::Schema.define(version: 20150930153258) do
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
     t.string   "authentication_token"
-    t.boolean  "is_invite",            default: false
+    t.boolean  "invited_user",         default: false
   end
 
   add_index "enrollments", ["authentication_token"], name: "index_enrollments_on_authentication_token", using: :btree

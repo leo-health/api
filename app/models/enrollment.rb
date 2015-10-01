@@ -15,6 +15,6 @@ class Enrollment < ActiveRecord::Base
   private
 
   def password_required?
-    is_invite ? false : true
+    invited_user ? false : true
   end
 end
