@@ -62,6 +62,7 @@ module Leo
           optional :sex, type: String, values: ['M', 'F']
           optional :stripe_customer_id, type: String
           optional :phone_number, type: String
+          optional :insurance_plan_id, type: Integer
         end
 
         put :current do

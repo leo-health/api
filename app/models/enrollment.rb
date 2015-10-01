@@ -4,6 +4,7 @@ class Enrollment < ActiveRecord::Base
   acts_as_token_authenticatable
 
   has_many :patient_enrollments, foreign_key: "guardian_enrollment_id"
+  belongs_to :insurance_plan
 
   before_validation :ensure_authentication_token, on: [:create, :update]
   validates :authentication_token, :email, presence: true
@@ -11,6 +12,7 @@ class Enrollment < ActiveRecord::Base
   validates_format_of :email, with: Devise.email_regexp, if: :email_changed?
   validates_length_of :password, within: Devise.password_length, allow_blank: true
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
+  validates :insurance_plan, presence: true, allow_nil: true, on: :update
 
   private
 
