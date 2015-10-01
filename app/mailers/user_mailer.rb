@@ -4,8 +4,8 @@ class UserMailer < MandrillMailer::TemplateMailer
   def confirmation_instructions(user, token, opts={})
     @token = token
     mandrill_mail(
-      template: 'Leo email confirmation',
-      subject: 'Leo email confirmation',
+      template: 'Leo - Sign Up - Confirmation',
+      subject: 'Leo - Please confirm your account with us.',
       to: user.email,
       vars: {
         'FIRST_NAME' => user.first_name,
@@ -16,12 +16,12 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def reset_password_instructions(user, token, opts={})
     mandrill_mail(
-      template: 'Leo - Reset Password',
-      subject: 'Reset password instructions',
+      template: 'Leo - Password - Reset Password',
+      subject: 'Leo - Instructions to reset your password',
       to: user.email,
       vars: {
-        'LINK' => "http://localhost:8888/#/changePassword?token=#{token}",
-        'FIRST_NAME' => user.first_name
+        'FIRST_NAME' => user.first_name,
+        'LINK' => "http://localhost:8888/#/changePassword?token=#{token}"
       }
     )
   end
