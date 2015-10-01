@@ -16,8 +16,6 @@ module Leo
 
         post authorize: [:create, Avatar] do
           patient = Patient.find(params[:patient_id])
-          # avatar = patient.avatars.create(owner: patient, avatar: avatar_decoder(params[:avatar], patient))
-          # if avatar.valid?
           avatar = patient.avatars.new(owner: patient)
           avatar.avatar = avatar_decoder(params[:avatar], patient)
           if avatar.save
