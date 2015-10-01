@@ -46,27 +46,35 @@ module Leo
           enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
           error!({error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
           user_params = {
-              first_name: enrollment.first_name,
-              last_name: enrollment.last_name,
-              email: enrollment.email,
-              birth_date: enrollment.birth_date,
-              sex: enrollment.sex,
-              encrypted_password: enrollment.encrypted_password,
-              title: enrollment.title,
-              suffix: enrollment.suffix,
-              middle_initial: enrollment.middle_initial,
-              stripe_customer_id: enrollment.stripe_customer_id,
-              role_id: 4
+            first_name: enrollment.first_name,
+            last_name: enrollment.last_name,
+            email: enrollment.email,
+            birth_date: enrollment.birth_date,
+            sex: enrollment.sex,
+            encrypted_password: enrollment.encrypted_password,
+            title: enrollment.title,
+            suffix: enrollment.suffix,
+            middle_initial: enrollment.middle_initial,
+            stripe_customer_id: enrollment.stripe_customer_id,
+            role_id: 4,
+            enrollment: enrollment
           }
-
-          user = User.create( user_params )
-          if user.valid?
-            sign_up_patients(enrollment, user)
-            session = user.sessions.create
-            present :authentication_token, session.authentication_token
-            present :user, user, with: Leo::Entities::UserEntity
-          else
-            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
+          ActiveRecord::Base.transaction do
+            begin
+              family = Family.create!
+              user = User.create!( user_params.merge(family: family) )
+              enrollment.patient_enrollments.each do|patient_enrollment|
+                patient_enrollment_params = patient_enrollment.attributes.merge(family: user.family)
+                Patient.create!(patient_enrollment_params.except('guardian_enrollment_id', 'id', 'created_at', 'updated_at'))
+              end
+              session = user.sessions.create
+              present :authentication_token, session.authentication_token
+              present :user, user, with: Leo::Entities::UserEntity
+            rescue ActiveRecord::RecordInvalid => e
+              error!({error_code: 422, error_message: e.message }, 422)
+            rescue
+              error!({error_code: 500, error_message: "can't create guardian with patients" }, 500)
+            end
           end
         end
 
@@ -101,18 +109,6 @@ module Leo
           delete do
             authorize! :destroy, @user
             @user.try(:destroy)
-          end
-        end
-      end
-
-      helpers do
-        def sign_up_patients(enrollment, user)
-          Patient.transaction do
-            enrollment.patient_enrollments.each do|patient_enrollment|
-              patient_enrollment_params = patient_enrollment.attributes.merge(family_id: user.family_id)
-              patient = Patient.create(patient_enrollment_params)
-              error!({error_code: 422, error_message: patient.errors.full_messages }, 422) unless patient.valid?
-            end
           end
         end
       end

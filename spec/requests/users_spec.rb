@@ -50,14 +50,18 @@ describe Leo::V1::Users do
                                birth_date: 48.years.ago,
                                sex: "M"
                             )}
+    let!(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: enrollment) }
 
     def do_request
       post "/api/v1/users", {authentication_token: enrollment.authentication_token}, format: :json
     end
 
-    it "should create the user with a role, and return created user along with authentication_token" do
-      expect{ do_request }.to change{ User.count }.from(0).to(1)
-      expect(response.status).to eq(201)
+    context "when user sign up with valid enrollment and patient enrollment" do
+      it "should create the user with a role, and return created user along with authentication_token" do
+        expect{ do_request }.to change{ User.count }.from(0).to(1)
+        expect(response.status).to eq(201)
+        expect( Patient.count ).to eq(1)
+      end
     end
   end
 
