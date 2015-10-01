@@ -2,8 +2,25 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Users do
+  describe "Get /api/v1/staff" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
+    let!(:clinical){ create(:user, :clinical) }
+    let(:serializer){ Leo::Entities::UserEntity }
 
-  describe "POST /api/v1/users" do
+    def do_request
+      get "/api/v1/staff", { authentication_token: session.authentication_token }
+    end
+
+    it "should return the staff users" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:staff].as_json.to_json).to eq(serializer.represent([clinical]).as_json.to_json)
+    end
+  end
+
+  describe "POST /api/v1/sign_up - create user with params" do
     let!(:role){create(:role, :guardian)}
     let!(:user_params){{ first_name: "first_name",
                          last_name: "last_name",
@@ -14,7 +31,7 @@ describe Leo::V1::Users do
                         }}
 
     def do_request
-      post "/api/v1/users", user_params, format: :json
+      post "/api/v1/sign_up", user_params, format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
@@ -22,6 +39,31 @@ describe Leo::V1::Users do
       expect(response.status).to eq(201)
     end
   end
+
+  describe "POST /api/v1/users - create user from enrollment" do
+    let!(:role){create(:role, :guardian)}
+    let(:enrollment){ create( :enrollment,
+                               first_name: "first_name",
+                               last_name: "last_name",
+                               email: "guardian@leohealth.com",
+                               password: "password",
+                               birth_date: 48.years.ago,
+                               sex: "M"
+                            )}
+    let!(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: enrollment) }
+
+    def do_request
+      post "/api/v1/users", {authentication_token: enrollment.authentication_token}, format: :json
+    end
+
+    it "should create the user with a role, and return created user along with authentication_token" do
+      expect{ do_request }.to change{ User.count }.from(0).to(1)
+      expect(response.status).to eq(201)
+      expect( Patient.count ).to eq(1)
+    end
+  end
+
+
 
   describe "GET /api/v1/users/id" do
     let(:user){create(:user)}
@@ -31,7 +73,7 @@ describe Leo::V1::Users do
       get "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token}, format: :json
     end
 
-    it "should update the user info, email only, for authenticated users" do
+    it "should show the requested user" do
       do_request
       expect(response.status).to eq(200)
       expect_json('data.user.id', user.id)

@@ -23,7 +23,6 @@ module Leo
       require_relative '../entities/card_entity'
       require_relative '../entities/family_entity'
       require_relative '../entities/session_entity'
-      require_relative '../validators/validate_email'
       require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
@@ -42,6 +41,8 @@ module Leo
       require_relative 'families'
       require_relative 'cards'
       require_relative 'insurers'
+      require_relative 'enrollments'
+      require_relative 'patient_enrollments'
       require_relative 'avatars'
 
       include Leo::V1::ExceptionsHandler
@@ -79,6 +80,8 @@ module Leo
       mount Leo::V1::Families
       mount Leo::V1::Cards
       mount Leo::V1::Insurers
+      mount Leo::V1::Enrollments
+      mount Leo::V1::PatientEnrollments
       mount Leo::V1::Avatars
 
       add_swagger_documentation(

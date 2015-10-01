@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150924202504) do
+ActiveRecord::Schema.define(version: 20150930153258) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -145,6 +145,31 @@ ActiveRecord::Schema.define(version: 20150924202504) do
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
   add_index "delayed_jobs", ["queue"], name: "index_delayed_jobs_on_queue", using: :btree
 
+  create_table "enrollments", force: :cascade do |t|
+    t.string   "title"
+    t.string   "first_name"
+    t.string   "middle_initial"
+    t.string   "last_name"
+    t.string   "suffix"
+    t.string   "sex"
+    t.integer  "practice_id"
+    t.string   "email"
+    t.string   "encrypted_password"
+    t.integer  "family_id"
+    t.string   "stripe_customer_id"
+    t.integer  "role_id"
+    t.datetime "deleted_at"
+    t.date     "birth_date"
+    t.string   "avatar_url"
+    t.integer  "onboarding_group_id"
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.string   "authentication_token"
+    t.boolean  "invited_user",         default: false
+  end
+
+  add_index "enrollments", ["authentication_token"], name: "index_enrollments_on_authentication_token", using: :btree
+
   create_table "escalation_notes", force: :cascade do |t|
     t.integer  "user_conversation_id",             null: false
     t.integer  "escalated_by_id",                  null: false
@@ -234,6 +259,22 @@ ActiveRecord::Schema.define(version: 20150924202504) do
     t.datetime "updated_at",      null: false
     t.datetime "deleted_at"
   end
+
+  create_table "patient_enrollments", force: :cascade do |t|
+    t.integer  "guardian_enrollment_id", null: false
+    t.string   "email"
+    t.string   "title"
+    t.string   "first_name",             null: false
+    t.string   "middle_initial"
+    t.string   "last_name",              null: false
+    t.string   "suffix"
+    t.datetime "birth_date",             null: false
+    t.string   "sex",                    null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "patient_enrollments", ["guardian_enrollment_id"], name: "index_patient_enrollments_on_guardian_enrollment_id", using: :btree
 
   create_table "patients", force: :cascade do |t|
     t.string   "title"
@@ -401,25 +442,17 @@ ActiveRecord::Schema.define(version: 20150924202504) do
 
   create_table "users", force: :cascade do |t|
     t.string   "title"
-    t.string   "first_name",                         null: false
+    t.string   "first_name",             null: false
     t.string   "middle_initial"
-    t.string   "last_name",                          null: false
+    t.string   "last_name",              null: false
     t.string   "sex"
     t.integer  "practice_id"
-    t.string   "email",                              null: false
+    t.string   "email",                  null: false
     t.string   "encrypted_password"
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "invitation_token"
-    t.datetime "invitation_created_at"
-    t.datetime "invitation_sent_at"
-    t.datetime "invitation_accepted_at"
-    t.integer  "invitation_limit"
-    t.integer  "invited_by_id"
-    t.string   "invited_by_type"
-    t.integer  "invitations_count",      default: 0
     t.integer  "family_id"
     t.string   "stripe_customer_id"
     t.string   "confirmation_token"
@@ -427,7 +460,7 @@ ActiveRecord::Schema.define(version: 20150924202504) do
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
     t.string   "suffix"
-    t.integer  "role_id",                            null: false
+    t.integer  "role_id",                null: false
     t.datetime "deleted_at"
     t.date     "birth_date"
     t.string   "avatar_url"
@@ -437,9 +470,6 @@ ActiveRecord::Schema.define(version: 20150924202504) do
   add_index "users", ["deleted_at"], name: "index_users_on_deleted_at", using: :btree
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["first_name", "last_name"], name: "index_users_on_first_name_and_last_name", using: :btree
-  add_index "users", ["invitation_token"], name: "index_users_on_invitation_token", unique: true, using: :btree
-  add_index "users", ["invitations_count"], name: "index_users_on_invitations_count", using: :btree
-  add_index "users", ["invited_by_id"], name: "index_users_on_invited_by_id", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
 

@@ -19,11 +19,10 @@ class User < ActiveRecord::Base
   has_many :provider_appointments, foreign_key: "provider_id", class_name: "Appointment"
   has_many :booked_appointments, foreign_key: "booked_by_id", class_name: "Appointment"
 
-  devise :invitable, :database_authenticatable, :registerable, :confirmable,
-         :recoverable, :rememberable, :trackable, :validatable
+  devise :database_authenticatable, :registerable, :confirmable,
+         :recoverable, :validatable
 
-  validates :password, length: {minimum: 8, allow_nil: true}
-  validates :first_name, :last_name, :role, :email, presence: true
+  validates :first_name, :last_name, :role, :sex, presence: true
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, on: :create
@@ -62,6 +61,10 @@ class User < ActiveRecord::Base
   end
 
   private
+
+  def password_required?
+    encrypted_password ? false : super
+  end
 
   def set_user_family
     if has_role? :guardian
