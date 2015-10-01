@@ -11,9 +11,9 @@ describe Leo::V1::Avatars do
     def do_request
       avatar = open(File.new(Rails.root.join('spec', 'support', 'Zen-Dog1.png'))){|io|io.read}
       encoded_avatar = Base64.encode64(avatar)
-      post "/api/v1/avatars", {authentication_token: session.authentication_token,
-                               patient_id: patient.id,
-                               avatar: encoded_avatar }
+      post "/api/v1/avatars", { authentication_token: session.authentication_token,
+                                patient_id: patient.id,
+                                avatar: encoded_avatar }
     end
 
     it "should create an avatar for the patient" do
