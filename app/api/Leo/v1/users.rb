@@ -56,8 +56,7 @@ module Leo
             suffix: enrollment.suffix,
             middle_initial: enrollment.middle_initial,
             stripe_customer_id: enrollment.stripe_customer_id,
-            role_id: 4,
-            enrollment: enrollment
+            role_id: 4
           }
           ActiveRecord::Base.transaction do
             begin
