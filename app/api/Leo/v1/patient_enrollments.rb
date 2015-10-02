@@ -13,6 +13,7 @@ module Leo
           requires :last_name, type: String
           requires :sex, type: String, values: ['M', 'F']
           requires :birth_date, type: Date
+          optional :email, type: String
           optional :title, type: String
           optional :middle_initial, type: String
           optional :suffix, type: String
@@ -28,6 +29,7 @@ module Leo
 
         desc "update a patient enrollment record"
         params do
+          optional :email, type: String
           optional :first_name, type: String
           optional :last_name, type: String
           optional :sex, type: String, values: ['M', 'F']
