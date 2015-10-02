@@ -1,8 +1,7 @@
 require 'rubygems'
 require 'spork'
 require 'factory_girl_rails'
-#uncomment the following line to use spork with the debugger
-#require 'spork/ext/ruby-debug'
+require 'mandrill_mailer/offline'
 
 Spork.prefork do
   # Loading more in this block will cause your tests to run faster. However,

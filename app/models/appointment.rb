@@ -1,96 +1,57 @@
-# == Schema Information
-#
-# Table name: appointments
-#
-#  id                         :integer          not null, primary key
-#  appointment_status         :string           default("o"), not null
-#  athena_appointment_type    :string
-#  leo_provider_id            :integer          not null
-#  athena_provider_id         :integer          default(0), not null
-#  leo_patient_id             :integer          not null
-#  athena_patient_id          :integer          default(0), not null
-#  booked_by_user_id          :integer          not null
-#  rescheduled_appointment_id :integer
-#  duration                   :integer          not null
-#  appointment_date           :date             not null
-#  appointment_start_time     :time             not null
-#  frozenyn                   :boolean
-#  leo_appointment_type       :string
-#  athena_appointment_type_id :integer          default(0), not null
-#  family_id                  :integer          not null
-#  created_at                 :datetime         not null
-#  updated_at                 :datetime         not null
-#  athena_id                  :integer          default(0), not null
-#  athena_department_id       :integer          default(0), not null
-#
+class Appointment < ActiveRecord::Base
+  acts_as_paranoid
 
-class Appointment < ActiveRecord::Base  
-  belongs_to :leo_patient, class_name: "User"
+  belongs_to :patient
+  belongs_to :booked_by, class_name: "User"
+  belongs_to :provider, class_name: "User"
+  belongs_to :appointment_type
+  belongs_to :appointment_status
 
-  #helpers for booked status
+  validates :duration, :athena_id, :start_datetime, :appointment_status,
+            :appointment_type, :booked_by, :provider, :patient, presence: true
+
+  validate :same_family, on: :create
+  validates_uniqueness_of :start_datetime, scope: :provider_id, conditions: -> { where(deleted_at: nil)}
+
+  def same_family
+    return unless (patient && booked_by)
+    errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id
+  end
+
+  #helpers for athena appointment statuses
   def pre_checked_in?
-    return future? || open? || cancelled?
+    future? || open? || cancelled?
   end
 
   def post_checked_in?
-    return !pre_checked_in?
+    !pre_checked_in?
   end
 
   def booked?
-    return future? || checked_in? || checked_out? || charge_entered?
+    future? || checked_in? || checked_out? || charge_entered?
   end
 
   def cancelled?
-    return appointment_status == "x"
+    appointment_status.status == "x"
   end
 
   def future?
-    return appointment_status == "f"
+    appointment_status.status == "f"
   end
 
   def open?
-    return appointment_status == "o"
+    appointment_status.status == "o"
   end
 
   def checked_in?
-    return appointment_status == "2"
+    appointment_status.status == "2"
   end
 
   def checked_out?
-    return appointment_status == "3"
+    appointment_status.status == "3"
   end
 
   def charge_entered?
-    return appointment_status == "4"
+    appointment_status.status == "4"
   end
-
-	def self.MAX_DURATION
-		40
-	end
-	def self.MIN_DURATION
-		10
-	end
-	
-	
-	def self.for_family(family)
-		Appointment.where(family_id: family.id)
-	end
-
-	def self.for_user(user)
-		if user.has_role? :parent
-			Appointment.for_family(user.family)
-		elsif user.has_role? :guardian
-			Appointment.for_family(user.family)
-		elsif user.has_role? :child
-			#TODO: Implement
-		elsif user.has_role? :physician
-			#TODO: Implement
-		elsif user.has_role? :clinical_staff
-			#TODO: Implement
-		elsif user.has_role? :other_staff
-			#TODO: Implement
-		elsif user.has_role? :admin
-			Appointment.all
-		end
-	end
 end

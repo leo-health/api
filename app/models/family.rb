@@ -1,49 +1,21 @@
-# == Schema Information
-#
-# Table name: families
-#
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#
-
 class Family < ActiveRecord::Base
-  after_save :ensure_default_conversation_exists
+  has_many :guardians, class_name: 'User'
+  has_many :patients
+  has_one :conversation
 
-  has_many :members, :class_name => 'User'
-  has_many :conversations
+  after_commit :set_up_conversation, on: :create
+
+  def members
+   guardians + patients
+  end
 
   def primary_parent
-    self.members.order('created_at ASC').first
-  end
-
-  def conversation
-    ensure_default_conversation_exists
-    self.conversations.first
-  end
-
-  def parents
-    self.members.with_role :parent
-  end
-
-  def guardians
-    self.members.with_role :guardian
-  end
-
-  def children
-    self.members.with_role :child
+    guardians.order('created_at ASC').first
   end
 
   private
 
-  def ensure_default_conversation_exists
-    setup_default_conversation if self.conversations.count == 0 
-  end
-
-  def setup_default_conversation
-    conversation = Conversation.new
-    conversation.family = self
-    conversation.participants << self.parents
-    conversation.save
+  def set_up_conversation
+    Conversation.find_or_create_by(family_id: id, status: :closed)
   end
 end

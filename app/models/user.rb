@@ -1,153 +1,74 @@
-# == Schema Information
-#
-# Table name: users
-#
-#  id                     :integer          not null, primary key
-#  title                  :string           default("")
-#  first_name             :string           default(""), not null
-#  middle_initial         :string           default("")
-#  last_name              :string           default(""), not null
-#  dob                    :datetime
-#  sex                    :string
-#  practice_id            :integer
-#  email                  :string           default(""), not null
-#  encrypted_password     :string           default("")
-#  reset_password_token   :string
-#  reset_password_sent_at :datetime
-#  remember_created_at    :datetime
-#  sign_in_count          :integer          default(0), not null
-#  current_sign_in_at     :datetime
-#  last_sign_in_at        :datetime
-#  current_sign_in_ip     :string
-#  last_sign_in_ip        :string
-#  created_at             :datetime
-#  updated_at             :datetime
-#  invitation_token       :string
-#  invitation_created_at  :datetime
-#  invitation_sent_at     :datetime
-#  invitation_accepted_at :datetime
-#  invitation_limit       :integer
-#  invited_by_id          :integer
-#  invited_by_type        :string
-#  invitations_count      :integer          default(0)
-#  authentication_token   :string
-#  family_id              :integer
-#
-
 class User < ActiveRecord::Base
-  after_initialize :init
-  rolify
-  acts_as_token_authenticatable
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :invitable, :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable
-
-  validates :first_name, :last_name, presence: true
-  validates :email, presence: true, unless: :is_child?
-
-  ROLES = {
-  			# Admin is 1
-  			admin: 1,
-  			# Leo users are 10-19
-  			physician: 11,
-  			clinical_staff: 12,
-  			other_staff: 13,
-  			# Leo customers are 20-29
-  			parent: 21,
-  			child: 22,
-  			guardian: 23
-  		}
-
-  # GET /roles
-
-  has_one :patient
+  acts_as_paranoid
+  
   belongs_to :family
-  has_and_belongs_to_many :conversations, foreign_key: 'participant_id', join_table: 'conversations_participants'
-  # has_and_belongs_to_many :conversations, foreign_key: 'child_id', join_table: 'conversations_children'
-  has_many :escalations, foreign_key: 'escalated_to_id'
-  has_many :invitations, :class_name => self.to_s, :as => :invited_by
+  belongs_to :role
+  belongs_to :practice
+  has_many :conversation_changes, foreign_key: "changed_by_id"
+  has_one :avatar, as: :owner
+  has_one :provider_profile, foreign_key: "provider_id"
+  has_many :user_conversations
+  has_many :conversations, through: :user_conversations
+  has_many :read_receipts, foreign_key: "reader_id"
+  has_many :escalated_notes, class_name: "EscalationNote", foreign_key: "escalated_to_id"
+  has_many :read_messages, class_name: 'Message', through: :read_receipts
+  has_many :sessions
+  has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
+  has_many :escalated_messages, foreign_key: "escalated_by_id", class_name: "Message"
+  has_many :escalations, foreign_key: "escalated_to_id", class_name: "Message"
+  has_many :provider_appointments, foreign_key: "provider_id", class_name: "Appointment"
+  has_many :booked_appointments, foreign_key: "booked_by_id", class_name: "Appointment"
 
-  def reset_authentication_token
-  	u.update_attribute(:authentication_token, nil)
-  end
+  devise :database_authenticatable, :registerable, :confirmable,
+         :recoverable, :validatable
+
+  validates :first_name, :last_name, :role, :sex, :phone_number, presence: true
+  validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
+
+  after_commit :set_user_family, on: :create
 
   def create_or_update_stripe_customer_id(token)
     Stripe.api_key = "sk_test_hEhhIHwQbmgg9lmpMz7eTn14"
-
-    # Create a Stripe Customer
-    customer = Stripe::Customer.create(
-      :source => token,
-      :description => self.id
-    )
-    self.stripe_customer_id = customer.id
-    self.save
-  end
-
-  # Class variables, methods and properties to help better filter and retrieve records
-  def self.for_user(user)
-    # TODO. Think through this and design better
-    my_family_id = user.family_id
-    if user.has_role? :parent
-      User.joins(:roles).where{
-        (family_id.eq(my_family_id)) | (roles.name.matches 'physician' )
-      }
-      
-    elsif user.has_role? :guardian
-      User.joins(:roles).where{
-        (family_id.eq(my_family_id)) | (roles.name.matches 'physician' )
-      }
-      
-    elsif user.has_role? :child
-      [user]
-    elsif user.has_role? :physician
-      #TODO: Implement
-    elsif user.has_role? :clinical_staff
-      #TODO: Implement
-    elsif user.has_role? :other_staff
-      #TODO: Implement
-    elsif user.has_role? :admin
-      User.all
+    if customer = Stripe::Customer.create(:source => token, :description => self.id)
+      update_attributes(stripe_customer_id: customer.id)
     end
   end
 
-  # Helper methods to render attributes in a more friednly way
-
-  def is_child?
-    self.has_role? :child 
+  def find_conversation_by_status(status)
+    return if has_role? :guardian
+    conversations.where(status: status)
   end
 
-  def email_required?
-    if self.is_child?
-      false
-    else
-      super
-    end
+  #TODO add sorting by higest priotiy here
+
+  def unread_conversations
+    return if has_role? :guardian
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
   end
+
+  def escalated_conversations
+    return if has_role? :guardian
+    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
+  end
+
+  def add_role(name)
+    new_role = Role.find_by_name(name)
+    update_attributes(role: new_role) if new_role
+  end
+
+  def has_role? (name)
+    role.name == name.to_s
+  end
+
+  private
 
   def password_required?
-    if self.is_child?
-      false
-    else
-      super
+    encrypted_password ? false : super
+  end
+
+  def set_user_family
+    if has_role? :guardian
+      update_attributes(family: Family.create) unless family
     end
   end
-
-  def primary_role
-    if self.roles and self.roles.count > 0
-      self.roles.first.name 
-    else
-      nil
-    end
-  end
-
-  # Since we only have one practice, default practice id to 1. Eventually we would like to capture this at registration or base the default value on patient visit history.
-  def init
-    self.practice_id ||= 1
-  end
-
-  def to_debug
-    self.to_yaml
-  end
-
 end

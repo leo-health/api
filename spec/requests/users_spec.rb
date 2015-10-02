@@ -1,84 +1,132 @@
 require 'airborne'
+require 'rails_helper'
 
-describe 'Creating families and managing users -', trans_off: true do
-	before(:each) do 
-		create(:user, authentication_token: 'yAZ_3VHjVzt8uoi7uD7z')
-	end
+describe Leo::V1::Users do
+  describe "Get /api/v1/staff" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
+    let!(:clinical){ create(:user, :clinical) }
+    let(:serializer){ Leo::Entities::UserEntity }
 
-	it 'should allow you to get a list of roles' do
-    create(:role, :parent)
-		get '/api/v1/roles', format: :json
-		expect_json({data: {roles: [{id: 21, name: "parent"}]}})
-	end
+    def do_request
+      get "/api/v1/staff", { authentication_token: session.authentication_token }
+    end
+
+    it "should return the staff users" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:staff].as_json.to_json).to eq(serializer.represent([clinical]).as_json.to_json)
+    end
+  end
+
+  describe "POST /api/v1/sign_up - create user with params" do
+    let!(:role){create(:role, :guardian)}
+    let!(:user_params){{ first_name: "first_name",
+                         last_name: "last_name",
+                         email: "guardian@leohealth.com",
+                         password: "password",
+                         birth_date: 48.years.ago,
+                         sex: "M",
+                         phone_number: "12344555"
+                        }}
+
+    def do_request
+      post "/api/v1/sign_up", user_params, format: :json
+    end
+
+    it "should create the user with a role, and return created user along with authentication_token" do
+      expect{ do_request }.to change{ User.count }.from(0).to(1)
+      expect(response.status).to eq(201)
+    end
+  end
+
+  describe "POST /api/v1/users - create user from enrollment" do
+    let!(:role){create(:role, :guardian)}
+    let(:enrollment){ create( :enrollment,
+                               first_name: "first_name",
+                               last_name: "last_name",
+                               email: "guardian@leohealth.com",
+                               password: "password",
+                               birth_date: 48.years.ago,
+                               sex: "M",
+                               phone_number: "12344555"
+                             )}
+    let!(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: enrollment) }
+
+    def do_request
+      post "/api/v1/users", {authentication_token: enrollment.authentication_token}, format: :json
+    end
+
+    it "should create the user with a role, and return created user along with authentication_token" do
+      expect{ do_request }.to change{ User.count }.from(0).to(1)
+      expect(response.status).to eq(201)
+      expect( Patient.count ).to eq(1)
+    end
+  end
 
 
-	it 'should allow you to create a parent when not signed in' do
-		create(:role, :parent)
-		@post_data = FactoryGirl.attributes_for(:user, :father)
-		@post_data[:role] = :parent
-		post '/api/v1/users', @post_data, format: :json
-		parsed = JSON.parse(response.body)
-		user = parsed["data"]["user"]
-		expect(response).to have_http_status(201)
-		expect_json({data: 
-						{user: 
-							{ 	first_name: @post_data[:first_name], 
-								last_name: @post_data[:last_name], 
-								sex: @post_data[:sex]
-							}
-						}
-					})		
-	end
 
-	describe "manage your family when logged in -" do
-		before(:each) do
-			# Login the existing user and make sure that was successful
-			@login_params = { email: 'danish@leohealth.com', password: 'fake_pass' }
-			post '/api/v1/sessions', @login_params, format: :json
-			parsed = JSON.parse(response.body)
-			expect_json_types({'data': {user: :object}})
-			expect_json_types({'data': {user: {id: :integer}}})
+  describe "GET /api/v1/users/id" do
+    let(:user){create(:user)}
+    let!(:session){user.sessions.create}
 
-			# Extract the user id and the auth token
-			@user_id = parsed["data"]["user"]["id"]
-			@auth_params = { access_token: parsed["data"]["token"]}
-		end
+    def do_request
+      get "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token}, format: :json
+    end
 
-		it 'should successfully create a user when you invite another parent to join your family' do
-			create(:role, :parent)
-			# Set up post params with the parent to be invited and the token
-			@invite_params = FactoryGirl.attributes_for(:user, :mother)
-			@invite_params[:role] = :parent
-			@post_params = @invite_params.merge(@auth_params)
+    it "should show the requested user" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json('data.user.id', user.id)
+    end
+  end
 
-			# Set up the url and make the post request
-			url = "/api/v1/users/#{@user_id}/invitations"
-			post url, @post_params, format: :json
+  describe "PUT /api/v1/users/id" do
+    let(:user){create(:user)}
+    let!(:session){user.sessions.create}
+    let!(:email){'new_email@leohealth.com'}
 
-			# parse the results and make sure they are valid
-			parsed = JSON.parse(response.body)
-			user = parsed["data"]["user"]
-			expect(response).to have_http_status(201)
-			expect(user['first_name']).to eq(@invite_params[:first_name]) 
-			expect(user['last_name']).to eq(@invite_params[:last_name]) 
-		end
+    def do_request
+      put "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token, email: email}, format: :json
+    end
 
-		it 'should allow you to add children to your family' do
-			# Set up post params with the parent to be invited and the token
-			@child_params = FactoryGirl.attributes_for(:user, :first_child)
-			@post_params = @child_params.merge(@auth_params)
+    it "should update the user info, email only, for authenticated users" do
+      original_email = user.email
+      do_request
+      expect(response.status).to eq(200)
+      expect{user.reload.confirm}.to change{user.email}.from(original_email).to(email)
+    end
+  end
 
-			# Set up the url and make the post request
-			url = "/api/v1/users/#{@user_id}/children"
-			post url, @post_params, format: :json
-			print_response
-			# parse the results and make sure they are valid
-			parsed = JSON.parse(response.body)
-			user = parsed["data"]["user"]
-			
-			expect(response).to have_http_status(201)
-			expect(user['first_name']).to eq(@child_params[:first_name]) 
-			expect(user['last_name']).to eq(@child_params[:last_name])
-		end
-	end
+  describe "DELETE /api/v1/users/id" do
+    let!(:deleted_user){create(:user)}
+
+    def do_request
+      delete "/api/v1/users/#{deleted_user.id}", {authentication_token: session.authentication_token}
+    end
+
+    context "has the right to delete user" do
+      let(:user){create(:user, :super_user)}
+      let!(:session){user.sessions.create}
+
+      it "should delete selected user if current user has the right" do
+        expect(User.count).to eq(2)
+        do_request
+        expect(response.status).to eq(200)
+        expect(User.count).to eq(1)
+      end
+    end
+
+    context "does not have the right to delete user" do
+      let(:user){create(:user, :financial)}
+      let!(:session){user.sessions.create}
+
+      it "should not delete selected user and raise error when user do not have the access right" do
+        do_request
+        expect(response.status).to eq(403)
+        expect(User.count).to eq(2)
+      end
+    end
+  end
 end

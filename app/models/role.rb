@@ -1,22 +1,7 @@
-# == Schema Information
-#
-# Table name: roles
-#
-#  id            :integer          not null, primary key
-#  name          :string
-#  resource_id   :integer
-#  resource_type :string
-#  created_at    :datetime
-#  updated_at    :datetime
-#
-
 class Role < ActiveRecord::Base
-  has_and_belongs_to_many :users, :join_table => :users_roles
-  belongs_to :resource, :polymorphic => true
+  has_many :users
+  has_many :patients
 
-  validates :resource_type,
-            :inclusion => { :in => Rolify.resource_types },
-            :allow_nil => true
-
-  scopify
+  validates :name, presence: true
+  validates_uniqueness_of :name
 end

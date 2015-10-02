@@ -28,6 +28,6 @@ class ProcessSyncTasksJob
   end
 
   def self.scheduled?
-    Delayed::Job.where("handler LIKE ?", "%ProcessSyncTasksJob%").count > 0
+    Delayed::Job.where("handler LIKE ? AND failed_at IS NULL", "%ProcessSyncTasksJob%").count > 0
   end
 end
