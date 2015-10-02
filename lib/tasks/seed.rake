@@ -26,6 +26,7 @@ namespace :load do
           password_confirmation: "password",
           role_id: 0,
           practice_id: 0,
+          phone_number: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -40,6 +41,7 @@ namespace :load do
           password_confirmation: "password",
           role_id: 1,
           practice_id: 0,
+          phone_number: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -54,6 +56,7 @@ namespace :load do
           password_confirmation: "password",
           role_id: 2,
           practice_id: 0,
+          phone_number: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -68,6 +71,7 @@ namespace :load do
           password_confirmation: "password",
           role_id: 3,
           practice_id: 0,
+          phone_number: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
@@ -86,6 +90,7 @@ namespace :load do
           athena_id: 1,
           athena_department_id: 1,
           specialties: "",
+          phone_number: '1234567890',
           credentials: ""
       },
 
@@ -104,6 +109,7 @@ namespace :load do
           athena_id: 3,
           athena_department_id: 2,
           specialties: "",
+          phone_number: '1234567890',
           credentials: ""
       },
 
@@ -122,6 +128,7 @@ namespace :load do
           athena_id: 4,
           athena_department_id: 2,
           specialties: "",
+          phone_number: '1234567890',
           credentials: ""
       }
     }
@@ -194,6 +201,7 @@ namespace :load do
         email: "pierre#{family.id.to_s}@curie.com",
         role_id: 4,
         practice_id: 0,
+        phone_number: '1234567890',
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
 
@@ -215,6 +223,7 @@ namespace :load do
         email: "marie#{family.id.to_s}@curie.com",
         role_id: 4,
         practice_id: 0,
+        phone_number: '1234567890',
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
 
