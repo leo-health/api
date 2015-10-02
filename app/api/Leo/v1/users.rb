@@ -24,6 +24,7 @@ module Leo
           requires :email, type: String
           requires :password, type: String
           requires :birth_date, type: Date
+          requires :phone_number, type: String
           requires :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
         end
@@ -54,6 +55,7 @@ module Leo
             encrypted_password: enrollment.encrypted_password,
             title: enrollment.title,
             suffix: enrollment.suffix,
+            phone_number: enrollment.phone_number,
             middle_initial: enrollment.middle_initial,
             stripe_customer_id: enrollment.stripe_customer_id,
             role_id: 4
@@ -64,7 +66,10 @@ module Leo
               user = User.create!( user_params.merge(family: family) )
               enrollment.patient_enrollments.each do|patient_enrollment|
                 patient_enrollment_params = patient_enrollment.attributes.merge(family: user.family)
-                Patient.create!(patient_enrollment_params.except('guardian_enrollment_id', 'id', 'created_at', 'updated_at'))
+                patient = Patient.create!(patient_enrollment_params.except('guardian_enrollment_id', 'id', 'created_at', 'updated_at'))
+                if insurance_plan = enrollment.insurance_plan
+                  patient.insurances.create(plan_name: insurance_plan.plan_name, primary: 1)
+                end
               end
               session = user.sessions.create
               present :authentication_token, session.authentication_token

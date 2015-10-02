@@ -27,7 +27,8 @@ describe Leo::V1::Users do
                          email: "guardian@leohealth.com",
                          password: "password",
                          birth_date: 48.years.ago,
-                         sex: "M"
+                         sex: "M",
+                         phone_number: "12344555"
                         }}
 
     def do_request
@@ -48,8 +49,9 @@ describe Leo::V1::Users do
                                email: "guardian@leohealth.com",
                                password: "password",
                                birth_date: 48.years.ago,
-                               sex: "M"
-                            )}
+                               sex: "M",
+                               phone_number: "12344555"
+                             )}
     let!(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: enrollment) }
 
     def do_request
