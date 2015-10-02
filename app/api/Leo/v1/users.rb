@@ -68,7 +68,7 @@ module Leo
                 patient_enrollment_params = patient_enrollment.attributes.merge(family: user.family)
                 patient = Patient.create!(patient_enrollment_params.except('guardian_enrollment_id', 'id', 'created_at', 'updated_at'))
                 if insurance_plan = enrollment.insurance_plan
-                  patient.insurances.create(plan_name: insurance_plan.plan_name, primay: 1)
+                  patient.insurances.create(plan_name: insurance_plan.plan_name, primary: 1)
                 end
               end
               session = user.sessions.create
