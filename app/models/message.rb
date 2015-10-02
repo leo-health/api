@@ -11,13 +11,13 @@ class Message < ActiveRecord::Base
   after_commit :update_escalated_status_on_conversation, on: :update
 
   def broadcast_message(sender)
-    message_params = as_json(include: :sender).to_json
+    message_id = id
     conversation = self.conversation
     participants = (conversation.staff + conversation.family.guardians)
     participants.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "newMessage#{user.email}"; channels}
-      Pusher.trigger(channels, 'new_message', message_params)
+      Pusher.trigger(channels, 'new_message', message_id)
     end
   end
 

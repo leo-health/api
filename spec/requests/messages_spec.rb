@@ -2,13 +2,24 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Messages do
-  let(:user){create(:user)}
+  let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
   let!(:conversation){ user.family.conversation }
-  let!(:guardian_role){create(:role, :guardian)}
 
-  before do
-    user.add_role :guardian
+  describe "Get /api/v1/conversations/:conversation_id/messages/full" do
+    let!(:first_message){create(:message, conversation: conversation, sender: user)}
+    let(:serializer){ Leo::Entities::FullMessageEntity }
+
+    def do_request
+      get "/api/v1/conversations/#{conversation.id}/messages/full", { authentication_token: session.authentication_token }
+    end
+
+    it "should return message with system messages(close/escaltion actions)" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([{regular_message: first_message}]).as_json.to_json )
+    end
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
@@ -23,6 +34,20 @@ describe Leo::V1::Messages do
       do_request
       expect(response.status).to eq(200)
       expect_json_sizes("data", 2)
+    end
+  end
+
+  describe "Get /api/v1/messages/:id" do
+    let(:message){ create(:message) }
+
+    def do_request
+      get "/api/v1/messages/#{message.id}", { authentication_token: session.authentication_token }
+    end
+
+    it 'should return a single message' do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json('data.message_body', message.body)
     end
   end
 

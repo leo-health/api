@@ -3,6 +3,19 @@ module Leo
     class Messages < Grape::API
       include Grape::Kaminari
 
+      desc 'Return a single message'
+      namespace 'messages' do
+        before do
+          authenticated
+        end
+
+        get ':id' do
+          message = Message.find(params[:id])
+          authorize! :read, Message
+          present :message_body, message.body
+        end
+      end
+
       namespace 'conversations/:conversation_id' do
         paginate per_page: 25
 
