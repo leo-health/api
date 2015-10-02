@@ -6,7 +6,7 @@ describe Leo::V1::Enrollments do
     let(:guardian_enrollment){ create(:enrollment) }
 
     def do_request
-      enrollment_params = { guardian_enrollment_id: guardian_enrollment.id,
+      enrollment_params = { authentication_token: guardian_enrollment.authentication_token,
                             first_name: 'Tom',
                             last_name: 'BigTree',
                             sex: 'M',
@@ -18,6 +18,24 @@ describe Leo::V1::Enrollments do
     it "should create an patient enrollment record" do
       expect{ do_request }.to change{ PatientEnrollment.count }.from(0).to(1)
       expect(response.status).to eq(201)
+    end
+  end
+
+  describe "PUT /api/v1/patient_enrollments/:id" do
+    let(:patient_enrollment){ create(:patient_enrollment) }
+
+    def do_request
+      enrollment_params = { authentication_token: patient_enrollment.guardian_enrollment.authentication_token,
+                            first_name: 'Jack',
+                           }
+      put "/api/v1/patient_enrollments/#{patient_enrollment.id}", enrollment_params
+    end
+
+    it "should update an patient enrollment" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect( body[:data][:patient_enrollment])
     end
   end
 end
