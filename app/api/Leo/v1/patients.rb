@@ -22,11 +22,7 @@ module Leo
         post do
           patient = current_user.family.patients.new(declared(params, including_missing: false))
           authorize! :create, patient
-          if patient.save
-            present :patient, patient, with: Leo::Entities::PatientEntity
-          else
-            error!({error_code: 422, error_message: patient.errors.full_messages}, 422)
-          end
+          render_success patient
         end
 
         desc "#update: the patient information, guardian only"

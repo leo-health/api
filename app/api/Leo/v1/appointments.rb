@@ -72,11 +72,7 @@ module Leo
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
-          if appointment.save
-            present :appointment, appointment, with: Leo::Entities::AppointmentEntity
-          else
-            error!({error_code: 422, error_message: appointment.errors.full_messages }, 422)
-          end
+          render_success appointment
         end
 
         def cancel_appointment
