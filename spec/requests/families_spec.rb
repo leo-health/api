@@ -5,7 +5,7 @@ describe Leo::V1::Conversations do
   let(:user){ create(:user, :guardian) }
   let!(:session){ user.sessions.create }
   let!(:patient){ create(:patient, family: user.family) }
-  let!(:serializer){ Leo::Entities::FamilyEntity }
+  let(:serializer){ Leo::Entities::FamilyEntity }
 
   describe "Get /api/v1/family" do
     def do_request

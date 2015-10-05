@@ -6,6 +6,7 @@ module Leo
 
       include Grape::Kaminari
 
+      require_relative '../entities/escalation_note_entity'
       require_relative '../entities/avatar_entity'
       require_relative '../entities/role_entity'
       require_relative '../entities/insurer_entity'
