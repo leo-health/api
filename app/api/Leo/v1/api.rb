@@ -47,7 +47,6 @@ module Leo
       require_relative 'avatars'
       require_relative 'escalation_notes'
 
-
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
