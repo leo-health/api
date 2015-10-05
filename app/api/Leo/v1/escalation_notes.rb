@@ -12,6 +12,7 @@ module Leo
         end
 
         get 'escalation_notes' do
+          authorize! :read, EscalationNote
           escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversations: {conversation_id: params[:conversation_id]})
           present :escalation_notes, escalation_notes, with: Leo::Entities::EscalationNoteEntity
         end
