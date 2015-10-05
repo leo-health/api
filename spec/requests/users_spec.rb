@@ -8,7 +8,7 @@ describe Leo::V1::Users do
                       password: "password",
                       birth_date: 48.years.ago,
                       sex: "M",
-                      phone_number: "12344555"
+                      phone_number: "1234445555"
   }}
 
   describe "Get /api/v1/staff" do
