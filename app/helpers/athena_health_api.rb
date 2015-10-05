@@ -55,8 +55,7 @@ module AthenaHealthAPI
 
     @@last_token = nil
 
-    attr_reader :version
-    attr_reader :practiceid
+    attr_reader :version, :practiceid
 
     # Connects to the host, and authenticates to the specified API version using key and secret.
     #
@@ -255,7 +254,5 @@ module AthenaHealthAPI
       request = Net::HTTP::Delete.new(path_join(@version, @practiceid, url))
       return call(request, {}, headers)
     end
-    
   end
-  
 end

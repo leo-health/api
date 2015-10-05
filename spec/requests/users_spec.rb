@@ -2,6 +2,15 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Users do
+  let(:user_params){{ first_name: "first_name",
+                      last_name: "last_name",
+                      email: "guardian@leohealth.com",
+                      password: "password",
+                      birth_date: 48.years.ago,
+                      sex: "M",
+                      phone_number: "1234445555"
+  }}
+
   describe "Get /api/v1/staff" do
     let(:guardian){ create(:user, :guardian) }
     let(:session){ guardian.sessions.create }
@@ -22,14 +31,6 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/sign_up - create user with params" do
     let!(:role){create(:role, :guardian)}
-    let!(:user_params){{ first_name: "first_name",
-                         last_name: "last_name",
-                         email: "guardian@leohealth.com",
-                         password: "password",
-                         birth_date: 48.years.ago,
-                         sex: "M",
-                         phone_number: "12344555"
-                        }}
 
     def do_request
       post "/api/v1/sign_up", user_params, format: :json
@@ -43,19 +44,16 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/users - create user from enrollment" do
     let!(:role){create(:role, :guardian)}
-    let(:enrollment){ create( :enrollment,
-                               first_name: "first_name",
-                               last_name: "last_name",
-                               email: "guardian@leohealth.com",
-                               password: "password",
-                               birth_date: 48.years.ago,
-                               sex: "M",
-                               phone_number: "12344555"
-                             )}
-    let!(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: enrollment) }
+    let(:patient_params){[{ patient: {
+                              first_name: "Patient",
+                              last_name: "Params",
+                              birth_date: Time.now,
+                              sex: "M" },
+                            insurance: { plan_name: 'PPO'}
+    }]}
 
     def do_request
-      post "/api/v1/users", {authentication_token: enrollment.authentication_token}, format: :json
+      post "/api/v1/users", {user_params: user_params, patient_params: patient_params}, format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
