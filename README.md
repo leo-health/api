@@ -1,4 +1,4 @@
-[![Circle CI](https://circleci.com/gh/leo-health/api/tree/develop.svg?style=svg)](https://circleci.com/gh/leo-health/api/tree/develop)
+[![Code Climate](https://codeclimate.com/repos/560ece1b695680474e006336/badges/8a6d0f411a2cb27cbc93/gpa.svg)](https://codeclimate.com/repos/560ece1b695680474e006336/feed)
 # api
 
 This is the core api for the leo-health services.
