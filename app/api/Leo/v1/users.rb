@@ -44,11 +44,10 @@ module Leo
       resource :users do
         desc '#create user from enrollment'
         params do
+          requires :authentication_token, type: String, allow_blank: false
           requires :guardian, type: Hash do
             requires :first_name, type: String
             requires :last_name, type: String
-            requires :email, type: String
-            requires :password, type: String
             requires :birth_date, type: Date
             requires :phone_number, type: String
             requires :sex, type: String, values: ['M', 'F']
@@ -69,8 +68,9 @@ module Leo
         post do
           ActiveRecord::Base.transaction do
             begin
+              enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
               family = Family.create!
-              user = User.create!( params[:guardian].merge(family: family, role_id: 4) )
+              user = User.create!( params[:guardian].merge(family: family, role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
               insurance_plan = InsurancePlan.find(params[:insurance_plan][:id])
               insurance_params = { primary: 1,
                                    plan_name: insurance_plan.plan_name,
