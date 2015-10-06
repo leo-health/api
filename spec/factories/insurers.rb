@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :insurers do
+  factory :insurer do
     insurer_name "Blue Cross"
     phone "88888888888"
     fax "44444444444"

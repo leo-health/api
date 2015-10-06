@@ -44,17 +44,20 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/users - create user from enrollment" do
     let!(:role){create(:role, :guardian)}
+    let(:insurance_plan){create(:insurance_plan)}
 
     let(:patients){[{ patient: { first_name: "Patient",
                                  last_name: "Params",
                                  birth_date: Time.now,
                                  sex: "M"
-                                },
-                      insurance_plan: { id: 1}
+                                }
     }]}
 
+    let(:insurance_plan){ create(:insurance_plan) }
+
+
     def do_request
-      post "/api/v1/users", {guardian: user_params, patients: patient_params}, format: :json
+      post "/api/v1/users", {guardian: user_params, patients: patients, insurance_plan: {id: insurance_plan.id}}, format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do

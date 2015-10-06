@@ -56,7 +56,7 @@ module Leo
         get ':id' do
           patient = Patient.find(params[:id])
           authorize! :read, patient
-          present :patient, patient, with: Leo::Entities::PatientEntity, avatar_size: params[:avatar_size].to_sym
+          present :patient, patient, with: Leo::Entities::PatientEntity, avatar_size: params[:avatar_size].try(:to_sym)
         end
 
         desc "index: all patients of a guardian(current_user)"

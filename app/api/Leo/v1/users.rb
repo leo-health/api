@@ -61,9 +61,10 @@ module Leo
               requires :birth_date, type: Date
               requires :sex, type: String, values: ['M', 'F']
             end
-            requires :insurance_plan, type: Hash do
-              requires :id, type: Integer
-            end
+          end
+
+          requires :insurance_plan, type: Hash do
+            requires :id, type: Integer
           end
         end
 
@@ -71,11 +72,18 @@ module Leo
           ActiveRecord::Base.transaction do
             begin
               family = Family.create!
-              user = User.create!( params[:user_params].merge(family: family, role_id: 4) )
-              insurance_plan = InsurancePlan.find(params[:insurance_plan_id])
-              params[:patient_params].each do |patient_param|
+              user = User.create!( params[:guardian].merge(family: family, role_id: 4) )
+              insurance_plan = InsurancePlan.find(params[:insurance_plan][:id])
+              insurance_params = { primary: 1,
+                                   plan_name: insurance_plan.plan_name,
+                                   holder_first_name: user.first_name,
+                                   holder_last_name: user.last_name,
+                                   holder_sex: user.sex,
+                                   holder_birth_date: user.birth_date
+              }
+              params[:patients].each do |patient_param|
                 patient = family.patients.create!(patient_param[:patient])
-                patient.insurances.create!({ primary: 1, plan_name: insurance_plan.name })
+                patient.insurances.create!(insurance_params)
               end
               session = user.sessions.create
               present :authentication_token, session.authentication_token
@@ -104,7 +112,7 @@ module Leo
 
           get do
             authorize! :show, @user
-            present :user, @user, with: Leo::Entities::UserEntity, avatar_size: params[:avatar_size].to_sym
+            present :user, @user, with: Leo::Entities::UserEntity, avatar_size: params[:avatar_size].try(:to_sym)
           end
 
           desc "#put update individual user"
