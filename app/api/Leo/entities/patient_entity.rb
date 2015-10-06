@@ -18,6 +18,8 @@ module Leo
       def avatar
         if object.current_avatar && options[:avatar_size]
          object.current_avatar.avatar.url(options[:avatar_size])
+        else
+          object.current_avatar.try(:avatar)
         end
       end
     end
