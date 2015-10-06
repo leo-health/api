@@ -97,9 +97,13 @@ module Leo
           end
 
           desc "#show get an individual user"
+          params do
+            optional :avatar_size, type: String, values: ["primary_3x", "primary_2x", "primary_1x", "secondary_3x", "secondary_2x", "secondary_1x"]
+          end
+
           get do
             authorize! :show, @user
-            present :user, @user, with: Leo::Entities::UserEntity
+            present :user, @user, with: Leo::Entities::UserEntity, avatar_size: params[:avatar_size].to_sym
           end
 
           desc "#put update individual user"
