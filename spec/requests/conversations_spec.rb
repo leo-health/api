@@ -72,14 +72,16 @@ describe Leo::V1::Conversations do
     end
 
     def do_request
-      put "/api/v1/conversations/#{conversation.id}/close", {authentication_token: session.authentication_token}
+      put "/api/v1/conversations/#{conversation.id}/close", {authentication_token: session.authentication_token, note: "close conversation"}
     end
 
     it "should update the specific conversation" do
+      expect(CloseConversationNote.count).to eq(0)
       expect(conversation.status).to eq("open")
       do_request
       expect(response.status).to eq(200)
       expect_json("data.conversation.status", "closed")
+      expect(CloseConversationNote.count).to eq(1)
     end
   end
 

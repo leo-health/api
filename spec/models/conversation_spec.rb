@@ -6,6 +6,7 @@ describe Conversation, type: :model do
 		it{ is_expected.to have_many(:user_conversations) }
 		it{ is_expected.to have_many(:staff).class_name('User').through(:user_conversations) }
     it{ is_expected.to have_many(:conversation_changes) }
+    it{ is_expected.to have_many(:close_conversation_notes) }
 
     it{ is_expected.to belong_to(:last_closed_by).class_name('User') }
     it{ is_expected.to belong_to(:family) }
@@ -78,6 +79,7 @@ describe Conversation, type: :model do
   describe 'close_conversation' do
     let(:open_conversation){ build(:conversation, :open) }
     let(:closed_by_user){ create(:user, :customer_service) }
+    let(:note){ 'close the conversation'}
 
     it 'should respond to a instance of conversation class' do
       expect(open_conversation).to respond_to(:close_conversation)
@@ -87,14 +89,21 @@ describe Conversation, type: :model do
       let(:closed_conversation){ build(:conversation) }
 
       it 'should return false' do
-        expect( closed_conversation.close_conversation( closed_by_user ) ).to eq( false )
+        expect( closed_conversation.close_conversation( closed_by_user, note ) ).to eq( false )
       end
     end
 
     context 'close a non closed conversation' do
       it 'should update the conversation status to closed' do
-        expect{ open_conversation.close_conversation( closed_by_user ) }.
+        expect{ open_conversation.close_conversation( closed_by_user, note ) }.
             to change { open_conversation.status.to_sym }.from( :open ).to( :closed )
+      end
+
+      it 'should create a note' do
+        expect{ open_conversation.close_conversation( closed_by_user, note ) }.
+            to change{ CloseConversationNote.count }.from(0).to(1)
+
+        expect( CloseConversationNote.first.note ).to eq(note)
       end
     end
   end
