@@ -23,7 +23,7 @@ module Leo
           requires :last_name, type: String
           requires :email, type: String
           requires :password, type: String
-          requires :phone_number, type: String
+          requires :phone, type: String
           requires :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
         end
@@ -47,7 +47,7 @@ module Leo
           requires :guardian, type: Hash do
             requires :first_name, type: String
             requires :last_name, type: String
-            requires :phone_number, type: String
+            requires :phone, type: String
             requires :sex, type: String, values: ['M', 'F']
           end
 
