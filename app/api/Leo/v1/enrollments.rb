@@ -61,7 +61,7 @@ module Leo
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
           optional :stripe_customer_id, type: String
-          optional :phone_number, type: String
+          optional :phone, type: String
           optional :insurance_plan_id, type: Integer
         end
 

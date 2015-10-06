@@ -23,8 +23,7 @@ module Leo
           requires :last_name, type: String
           requires :email, type: String
           requires :password, type: String
-          requires :birth_date, type: Date
-          requires :phone_number, type: String
+          requires :phone, type: String
           requires :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
         end
@@ -48,8 +47,7 @@ module Leo
           requires :guardian, type: Hash do
             requires :first_name, type: String
             requires :last_name, type: String
-            requires :birth_date, type: Date
-            requires :phone_number, type: String
+            requires :phone, type: String
             requires :sex, type: String, values: ['M', 'F']
           end
 
@@ -76,8 +74,7 @@ module Leo
                                    plan_name: insurance_plan.plan_name,
                                    holder_first_name: user.first_name,
                                    holder_last_name: user.last_name,
-                                   holder_sex: user.sex,
-                                   holder_birth_date: user.birth_date
+                                   holder_sex: user.sex
               }
               params[:patients].each do |patient_param|
                 patient = family.patients.create!(patient_param)

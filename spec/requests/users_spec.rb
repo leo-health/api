@@ -6,9 +6,8 @@ describe Leo::V1::Users do
                       last_name: "last_name",
                       email: "guardian@leohealth.com",
                       password: "password",
-                      birth_date: 48.years.ago,
                       sex: "M",
-                      phone_number: "1234445555"
+                      phone: "1234445555"
   }}
 
   describe "Get /api/v1/staff" do
@@ -48,7 +47,6 @@ describe Leo::V1::Users do
     let(:insurance_plan){create(:insurance_plan)}
     let(:patients){[{ first_name: "Patient",
                       last_name: "Params",
-                      birth_date: Time.now,
                       sex: "M"
                      }
     ]}
@@ -57,7 +55,7 @@ describe Leo::V1::Users do
                         last_name: "last_name",
                         birth_date: 48.years.ago,
                         sex: "M",
-                        phone_number: "1234445555"
+                        phone: "1234445555"
     }}
 
     let(:insurance_plan){ create(:insurance_plan) }
