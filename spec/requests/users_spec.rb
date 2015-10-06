@@ -61,7 +61,7 @@ describe Leo::V1::Users do
     }}
 
     let(:insurance_plan){ create(:insurance_plan) }
-
+    let(:serializer){ Leo::Entities::UserEntity }
 
     def do_request
       post "/api/v1/users", {guardian: user_params, patients: patients, insurance_plan: {id: insurance_plan.id}, authentication_token: enrollment.authentication_token}, format: :json
@@ -71,6 +71,7 @@ describe Leo::V1::Users do
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
       expect( Patient.count ).to eq(1)
+      expect( Insurance.count ).to eq(1)
     end
   end
 
