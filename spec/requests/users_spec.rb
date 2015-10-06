@@ -47,14 +47,13 @@ describe Leo::V1::Users do
     let(:insurance_plan){create(:insurance_plan)}
     let(:patients){[{ first_name: "Patient",
                       last_name: "Params",
-                      sex: "M"
+                      sex: "M",
+                      birth_date: 1.years.ago,
                      }
     ]}
 
     let(:user_params){{ first_name: "first_name",
                         last_name: "last_name",
-                        birth_date: 48.years.ago,
-                        sex: "M",
                         phone: "1234445555"
     }}
 

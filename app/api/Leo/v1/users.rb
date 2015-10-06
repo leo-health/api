@@ -24,7 +24,8 @@ module Leo
           requires :email, type: String
           requires :password, type: String
           requires :phone, type: String
-          requires :sex, type: String, values: ['M', 'F']
+          optional :birth_date, type: Date
+          optional :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
         end
 
@@ -48,7 +49,6 @@ module Leo
             requires :first_name, type: String
             requires :last_name, type: String
             requires :phone, type: String
-            requires :sex, type: String, values: ['M', 'F']
           end
 
           requires :patients, type: Array do
