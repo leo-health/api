@@ -10,10 +10,14 @@ module Leo
 
         desc "Close a conversation"
         namespace ':id/close' do
+          params do
+            optional :note, type: String
+          end
+
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
-            if conversation.close_conversation(current_user)
+            if conversation.close_conversation(current_user, params[:note])
               present :conversation, conversation, with: Leo::Entities::ConversationEntity
               conversation.create_activity(:conversation_closed, owner: current_user)
               conversation.broadcast_status(current_user, :closed)

@@ -6,6 +6,7 @@ class Conversation < ActiveRecord::Base
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
   has_many :conversation_changes
+  has_many :close_conversation_notes
   belongs_to :last_closed_by, class_name: 'User'
   belongs_to :family
 
@@ -35,10 +36,11 @@ class Conversation < ActiveRecord::Base
     escalation_note
   end
 
-  def close_conversation(closed_by)
+  def close_conversation(closed_by, note)
     return false if status.to_sym == :closed
     user_conversations.update_all(escalated: false)
     update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: closed_by)
+    close_conversation_notes.create(conversation_id: id, note: note, closed_by: closed_by)
   end
 
   private
