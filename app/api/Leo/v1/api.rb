@@ -68,6 +68,14 @@ module Leo
         def current_user
           (Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token]
         end
+
+        def render_success object
+          if object.save
+            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize
+          else
+            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+          end
+        end
       end
 
       mount Leo::V1::Appointments

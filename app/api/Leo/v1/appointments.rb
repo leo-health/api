@@ -4,19 +4,25 @@ module Leo
       include Grape::Kaminari
 
       resource :appointments do
+        helpers do
+          params :appointment_params do
+            requires :start_datetime, type: DateTime, allow_blank: false
+            requires :appointment_status_id, type: Integer, allow_blank: false
+            requires :appointment_type_id, type: Integer, allow_blank: false
+            requires :provider_id, type: Integer, allow_blank: false
+            requires :patient_id, type: Integer, allow_blank: false
+            optional :notes, type: String
+            optional :athena_id, type: Integer
+          end
+        end
+
         before do
           authenticated
         end
 
         desc "create an appointment"
         params do
-          requires :start_datetime, type: DateTime, allow_blank: false
-          requires :appointment_status_id, type: Integer, allow_blank: false
-          requires :appointment_type_id, type: Integer, allow_blank: false
-          requires :provider_id, type: Integer, allow_blank: false
-          requires :patient_id, type: Integer, allow_blank: false
-          optional :notes, type: String
-          optional :athena_id, type: Integer
+          use :appointment_params
         end
 
         post do
@@ -38,13 +44,7 @@ module Leo
 
         desc "reschedule an appointment"
         params do
-          requires :start_datetime, type: DateTime, allow_blank: false
-          requires :appointment_status_id, type: Integer, allow_blank: false
-          requires :appointment_type_id, type: Integer, allow_blank: false
-          requires :provider_id, type: Integer, allow_blank: false
-          requires :patient_id, type: Integer, allow_blank: false
-          optional :notes, type: String
-          optional :athena_id, type: Integer
+          use :appointment_params
         end
 
         put ":id" do
@@ -72,11 +72,7 @@ module Leo
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
-          if appointment.save
-            present :appointment, appointment, with: Leo::Entities::AppointmentEntity
-          else
-            error!({error_code: 422, error_message: appointment.errors.full_messages }, 422)
-          end
+          render_success appointment
         end
 
         def cancel_appointment
