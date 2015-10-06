@@ -24,7 +24,8 @@ module Leo
           requires :email, type: String
           requires :password, type: String
           requires :phone, type: String
-          requires :sex, type: String, values: ['M', 'F']
+          optional :birth_date, type: Date
+          optional :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
         end
 
@@ -48,7 +49,9 @@ module Leo
             requires :first_name, type: String
             requires :last_name, type: String
             requires :phone, type: String
-            requires :sex, type: String, values: ['M', 'F']
+            optional :birth_date, type: Date
+            optional :sex, type: String, values: ['M', 'F']
+            optional :middle_initial, type: String
           end
 
           requires :patients, type: Array do
@@ -56,6 +59,8 @@ module Leo
             requires :last_name, type: String
             requires :birth_date, type: Date
             requires :sex, type: String, values: ['M', 'F']
+            optional :birth_date, type: Date
+            optional :middle_initial, type: String
           end
 
           requires :insurance_plan, type: Hash do
@@ -66,9 +71,10 @@ module Leo
         post do
           ActiveRecord::Base.transaction do
             begin
+              declared_params = declared(params)
               enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
               family = Family.create!
-              user = User.create!( params[:guardian].merge(family: family, role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
+              user = User.create!( declared_params[:guardian].merge(family: family, role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
               insurance_plan = InsurancePlan.find(params[:insurance_plan][:id])
               insurance_params = { primary: 1,
                                    plan_name: insurance_plan.plan_name,
@@ -76,7 +82,7 @@ module Leo
                                    holder_last_name: user.last_name,
                                    holder_sex: user.sex
               }
-              params[:patients].each do |patient_param|
+              declared_params[:patients].each do |patient_param|
                 patient = family.patients.create!(patient_param)
                 patient.insurances.create!(insurance_params)
               end
