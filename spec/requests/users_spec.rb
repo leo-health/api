@@ -46,12 +46,12 @@ describe Leo::V1::Users do
     let!(:role){create(:role, :guardian)}
     let(:insurance_plan){create(:insurance_plan)}
 
-    let(:patients){[{ patient: { first_name: "Patient",
-                                 last_name: "Params",
-                                 birth_date: Time.now,
-                                 sex: "M"
-                                }
-    }]}
+    let(:patients){[{ first_name: "Patient",
+                      last_name: "Params",
+                      birth_date: Time.now,
+                      sex: "M"
+                     }
+    ]}
 
     let(:insurance_plan){ create(:insurance_plan) }
 

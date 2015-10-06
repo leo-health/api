@@ -55,12 +55,10 @@ module Leo
           end
 
           requires :patients, type: Array do
-            requires :patient, type: Hash do
-              requires :first_name, type: String
-              requires :last_name, type: String
-              requires :birth_date, type: Date
-              requires :sex, type: String, values: ['M', 'F']
-            end
+            requires :first_name, type: String
+            requires :last_name, type: String
+            requires :birth_date, type: Date
+            requires :sex, type: String, values: ['M', 'F']
           end
 
           requires :insurance_plan, type: Hash do
@@ -82,7 +80,7 @@ module Leo
                                    holder_birth_date: user.birth_date
               }
               params[:patients].each do |patient_param|
-                patient = family.patients.create!(patient_param[:patient])
+                patient = family.patients.create!(patient_param)
                 patient.insurances.create!(insurance_params)
               end
               session = user.sessions.create
