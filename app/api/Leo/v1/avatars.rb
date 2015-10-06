@@ -2,8 +2,6 @@ module Leo
   module V1
     class Avatars < Grape::API
       resource :avatars do
-        authorize_routes!
-
         before do
           authenticated
         end
