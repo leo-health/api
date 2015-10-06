@@ -8,7 +8,10 @@ module Leo
       end
       expose :medication
       expose :sig
-      expose :patient_note
+      expose :note
+      expose :dose
+      expose :route
+      expose :frequency
     end
   end
 end

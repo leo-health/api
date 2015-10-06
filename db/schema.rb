@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151001195003) do
+ActiveRecord::Schema.define(version: 20151006125955) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,8 @@ ActiveRecord::Schema.define(version: 20151001195003) do
     t.datetime "onset_at"
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
+    t.string   "severity",   default: "", null: false
+    t.string   "note",       default: "", null: false
   end
 
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
@@ -235,18 +237,21 @@ ActiveRecord::Schema.define(version: 20151001195003) do
 
   create_table "medications", force: :cascade do |t|
     t.integer  "patient_id"
-    t.integer  "athena_id",    default: 0,  null: false
-    t.string   "medication",   default: "", null: false
-    t.string   "sig",          default: "", null: false
-    t.string   "patient_note", default: "", null: false
+    t.integer  "athena_id",  default: 0,  null: false
+    t.string   "medication", default: "", null: false
+    t.string   "sig",        default: "", null: false
     t.datetime "started_at"
     t.datetime "ended_at"
     t.datetime "ordered_at"
     t.datetime "filled_at"
     t.datetime "entered_at"
     t.datetime "hidden_at"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+    t.string   "dose",       default: "", null: false
+    t.string   "route",      default: "", null: false
+    t.string   "frequency",  default: "", null: false
+    t.string   "note",       default: "", null: false
   end
 
   add_index "medications", ["athena_id"], name: "index_medications_on_athena_id", using: :btree

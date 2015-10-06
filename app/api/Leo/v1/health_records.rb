@@ -15,8 +15,15 @@ module Leo
           namespace 'vitals' do
             # get "patients/{patient_id}/vitals/height"
             desc "get height"
+            params do
+              requires :start_date, type: String, desc: "Start date", allow_blank: false
+              requires :end_date, type: String, desc: "End date", allow_blank: false
+            end
             get 'height' do
-              vitals = Vital.where(patient_id: @patient.id, measurement: "HEIGHT").order(:taken_at).collect() {
+              start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
+              end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
+
+              vitals = Vital.where(patient_id: @patient.id, measurement: "HEIGHT").where(taken_at: start_date..end_date).order(:taken_at).order(:taken_at).collect() {
                 |vital| { :taken_at => vital.taken_at, :value => vital.value, :percentile => 0 }
               }
               present :heights, vitals, with: Leo::Entities::VitalEntity
@@ -24,8 +31,15 @@ module Leo
 
             # get "patients/{patient_id}/vitals/weight"
             desc "get weight"
+            params do
+              requires :start_date, type: String, desc: "Start date", allow_blank: false
+              requires :end_date, type: String, desc: "End date", allow_blank: false
+            end
             get :weight do
-              vitals = Vital.where(patient_id: @patient.id, measurement: "WEIGHT").order(:taken_at).collect() {
+              start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
+              end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
+
+              vitals = Vital.where(patient_id: @patient.id, measurement: "WEIGHT").where(taken_at: start_date..end_date).order(:taken_at).collect() {
                 |vital| { :taken_at => vital.taken_at, :value => vital.value, :percentile => 0 }
               }
               present :weights, vitals, with: Leo::Entities::VitalEntity

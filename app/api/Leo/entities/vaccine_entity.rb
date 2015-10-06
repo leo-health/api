@@ -1,14 +1,11 @@
 module Leo
   module Entities
-    class ImmunizationEntity < Grape::Entity
+    class VaccineEntity < Grape::Entity
       format_with(:iso_timestamp) { |dt| dt.nil? ? nil : dt.iso8601 }
       with_options(format_with: :iso_timestamp) do
-        expose :started_at
-        expose :entered_at
+        expose :administered_at
       end
-      expose :medication
-      expose :sig
-      expose :patient_note
+      expose :vaccine
     end
   end
 end

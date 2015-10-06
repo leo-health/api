@@ -6,6 +6,8 @@ module Leo
         expose :onset_at
       end
       expose :allergen
+      expose :severity
+      expose :note
     end
   end
 end

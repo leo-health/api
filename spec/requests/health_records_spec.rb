@@ -17,7 +17,7 @@ describe Leo::V1::HealthRecords do
     }
 
     def do_request
-      get "/api/v1/patients/#{patient.id}/vitals/height", { authentication_token: session.authentication_token }, format: :json
+      get "/api/v1/patients/#{patient.id}/vitals/height", { authentication_token: session.authentication_token, start_date: 10.years.ago.strftime("%m/%d/%Y"), end_date: DateTime.now.strftime("%m/%d/%Y") }, format: :json
     end
 
     it "should return a list of heights" do
@@ -40,7 +40,7 @@ describe Leo::V1::HealthRecords do
     }
 
     def do_request
-      get "/api/v1/patients/#{patient.id}/vitals/weight", { authentication_token: session.authentication_token }, format: :json
+      get "/api/v1/patients/#{patient.id}/vitals/weight", { authentication_token: session.authentication_token, start_date: 10.years.ago.strftime("%m/%d/%Y"), end_date: DateTime.now.strftime("%m/%d/%Y") }, format: :json
     end
 
     it "should return a list of weights" do

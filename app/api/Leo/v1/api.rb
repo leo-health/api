@@ -26,7 +26,7 @@ module Leo
       require_relative '../entities/vital_entity'
       require_relative '../entities/allergy_entity'
       require_relative '../entities/medication_entity'
-      require_relative '../entities/immunization_entity'
+      require_relative '../entities/vaccine_entity'
       require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
