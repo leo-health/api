@@ -44,7 +44,7 @@ module Leo
       resource :users do
         desc '#create user from enrollment'
         params do
-          requires :user_params, type: Hash do
+          requires :guardian, type: Hash do
             requires :first_name, type: String
             requires :last_name, type: String
             requires :email, type: String
@@ -54,15 +54,15 @@ module Leo
             requires :sex, type: String, values: ['M', 'F']
           end
 
-          requires :patient_params, type: Array do
+          requires :patients, type: Array do
             requires :patient, type: Hash do
               requires :first_name, type: String
               requires :last_name, type: String
               requires :birth_date, type: Date
               requires :sex, type: String, values: ['M', 'F']
             end
-            requires :insurance, type: Hash do
-              requires :plan_name, type: String
+            requires :insurance_plan, type: Hash do
+              requires :id, type: Integer
             end
           end
         end
@@ -72,9 +72,10 @@ module Leo
             begin
               family = Family.create!
               user = User.create!( params[:user_params].merge(family: family, role_id: 4) )
+              insurance_plan = InsurancePlan.find(params[:insurance_plan_id])
               params[:patient_params].each do |patient_param|
                 patient = family.patients.create!(patient_param[:patient])
-                patient.insurances.create!(patient_param[:insurance].merge(primary: 1))
+                patient.insurances.create!({ primary: 1, plan_name: insurance_plan.name })
               end
               session = user.sessions.create
               present :authentication_token, session.authentication_token
