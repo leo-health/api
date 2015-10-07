@@ -88,6 +88,7 @@ module Leo
               end
               session = user.sessions.create
               present :authentication_token, session.authentication_token
+              present :patients, family.patients, with: Leo::Entities::PatientEntity
               present :user, user, with: Leo::Entities::UserEntity
             rescue ActiveRecord::RecordInvalid => e
               error!({error_code: 422, error_message: e.message }, 422)

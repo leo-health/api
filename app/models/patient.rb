@@ -10,7 +10,7 @@ class Patient < ActiveRecord::Base
   has_many :insurances
   has_many :avatars, as: :owner
 
-  validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
+  validates :first_name, :last_name, :birth_date, :sex, :family, :role, presence: true
 
   def current_avatar
     avatars.order("created_at DESC").first
