@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151006125955) do
+ActiveRecord::Schema.define(version: 20151006154903) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -190,6 +190,19 @@ ActiveRecord::Schema.define(version: 20151006125955) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "height_growth_curves", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer  "days",       null: false
+    t.string   "sex",        null: false
+    t.float    "l",          null: false
+    t.float    "m",          null: false
+    t.float    "s",          null: false
+  end
+
+  add_index "height_growth_curves", ["days"], name: "index_height_growth_curves_on_days", using: :btree
+  add_index "height_growth_curves", ["sex"], name: "index_height_growth_curves_on_sex", using: :btree
 
   create_table "insurance_plans", force: :cascade do |t|
     t.integer  "insurer_id", null: false
@@ -505,5 +518,18 @@ ActiveRecord::Schema.define(version: 20151006125955) do
 
   add_index "vitals", ["athena_id"], name: "index_vitals_on_athena_id", using: :btree
   add_index "vitals", ["patient_id"], name: "index_vitals_on_patient_id", using: :btree
+
+  create_table "weight_growth_curves", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer  "days",       null: false
+    t.string   "sex",        null: false
+    t.float    "l",          null: false
+    t.float    "m",          null: false
+    t.float    "s",          null: false
+  end
+
+  add_index "weight_growth_curves", ["days"], name: "index_weight_growth_curves_on_days", using: :btree
+  add_index "weight_growth_curves", ["sex"], name: "index_weight_growth_curves_on_sex", using: :btree
 
 end

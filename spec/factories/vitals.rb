@@ -5,13 +5,13 @@ FactoryGirl.define do
     association :patient, factory: :patient
 
     trait :height do
-      measurement 'HEIGHT'
-      value { [1, 2, 3, 4, 5, 6, 7, 8, 9].sample }
+      measurement 'VITALS.HEIGHT'
+      value { [25, 50, 75, 100, 125, 150].sample }
     end
 
     trait :weight do
-      measurement 'WEIGHT'
-      value { [10, 20, 30, 40, 50, 60, 70, 80, 90].sample }
+      measurement 'VITALS.WEIGHT'
+      value { [10, 20, 30, 40, 50, 60].sample }
     end
   end
 end
