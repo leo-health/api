@@ -32,7 +32,10 @@ module Leo
             get do
               messages = @conversation.messages
               authorize! :read, Message
-              system_messages = PublicActivity::Activity.where(key: "conversation.conversation_closed", trackable_id: @conversation.id)
+              #find all escalation notes and conversation close notes
+              close_conversation_notes = @conversation.close_conversation_notes
+              escalation_notes =
+
               full_messages =(system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
               full_messages.map! do |message|
                 case message.class.name

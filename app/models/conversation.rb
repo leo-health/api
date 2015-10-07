@@ -1,5 +1,4 @@
 class Conversation < ActiveRecord::Base
-  include PublicActivity::Common
   acts_as_paranoid
 
   has_many :messages

@@ -11,7 +11,7 @@ module Leo
         desc "Close a conversation"
         namespace ':id/close' do
           params do
-            optional :note, type: String
+            requires :note, type: String
           end
 
           put do
@@ -19,7 +19,6 @@ module Leo
             authorize! :update, conversation
             if conversation.close_conversation(current_user, params[:note])
               present :conversation, conversation, with: Leo::Entities::ConversationEntity
-              conversation.create_activity(:conversation_closed, owner: current_user)
               conversation.broadcast_status(current_user, :closed)
             else
               error!({error_code: 422, error_message: "can't close the conversation" }, 422)
@@ -42,7 +41,6 @@ module Leo
             escalation_note = conversation.escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
             if escalation_note.try(:valid?)
               present :escalation_note, escalation_note
-              conversation.create_activity(:conversation_escalated, owner: current_user)
               conversation.broadcast_status(current_user, :escalated)
             else
               error!({error_code: 422, error_message: "can't escalte the conversation" }, 422)
