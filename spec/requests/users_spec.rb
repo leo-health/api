@@ -42,7 +42,8 @@ describe Leo::V1::Users do
   end
 
   describe "POST /api/v1/users - create user from enrollment" do
-    let!(:role){create(:role, :guardian)}
+    let!(:guardian_role){create(:role, :guardian)}
+    let!(:patient_role){create(:role, :patient)}
     let(:enrollment){create(:enrollment, email: "bigtree@gmail.com", password: "password")}
     let(:insurance_plan){create(:insurance_plan)}
     let(:patients){[{ first_name: "Patient",
