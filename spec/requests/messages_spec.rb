@@ -9,6 +9,11 @@ describe Leo::V1::Messages do
   describe "Get /api/v1/conversations/:conversation_id/messages/full" do
     let!(:first_message){create(:message, conversation: conversation, sender: user)}
     let(:serializer){ Leo::Entities::FullMessageEntity }
+    let(:customer)
+
+    before do
+      first_message.conversation.escalate_conversation(user.id, )
+    end
 
     def do_request
       get "/api/v1/conversations/#{conversation.id}/messages/full", { authentication_token: session.authentication_token }
@@ -18,7 +23,7 @@ describe Leo::V1::Messages do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([{regular_message: first_message}]).as_json.to_json )
+      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([first_message]).as_json.to_json )
     end
   end
 

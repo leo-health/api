@@ -32,18 +32,9 @@ module Leo
             get do
               messages = @conversation.messages
               authorize! :read, Message
-              #find all escalation notes and conversation close notes
               close_conversation_notes = @conversation.close_conversation_notes
               escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversation: {conversation_id: @conversation.id})
-              full_messages =(system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
-              full_messages.map! do |message|
-                case message.class.name
-                when 'PublicActivity::Activity'
-                  {system_message: message}
-                when 'Message'
-                  {regular_message: message}
-                end
-              end
+              full_messages =(messages + close_conversation_notes + escalation_notes).sort{|x, y|y.created_at <=> x.created_at}
               present :conversation_id, @conversation.id
               present :messages, paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
             end
