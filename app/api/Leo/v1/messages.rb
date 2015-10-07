@@ -34,8 +34,7 @@ module Leo
               authorize! :read, Message
               #find all escalation notes and conversation close notes
               close_conversation_notes = @conversation.close_conversation_notes
-              escalation_notes =
-
+              escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversation: {conversation_id: @conversation.id})
               full_messages =(system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
               full_messages.map! do |message|
                 case message.class.name
