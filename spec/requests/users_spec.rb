@@ -6,9 +6,8 @@ describe Leo::V1::Users do
                       last_name: "last_name",
                       email: "guardian@leohealth.com",
                       password: "password",
-                      birth_date: 48.years.ago,
                       sex: "M",
-                      phone_number: "1234445555"
+                      phone: "1234445555"
   }}
 
   describe "Get /api/v1/staff" do
@@ -44,22 +43,32 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/users - create user from enrollment" do
     let!(:role){create(:role, :guardian)}
-    let(:patient_params){[{ patient: {
-                              first_name: "Patient",
-                              last_name: "Params",
-                              birth_date: Time.now,
-                              sex: "M" },
-                            insurance: { plan_name: 'PPO'}
-    }]}
+    let(:enrollment){create(:enrollment, email: "bigtree@gmail.com", password: "password")}
+    let(:insurance_plan){create(:insurance_plan)}
+    let(:patients){[{ first_name: "Patient",
+                      last_name: "Params",
+                      sex: "M",
+                      birth_date: 1.years.ago,
+                     }
+    ]}
+
+    let(:user_params){{ first_name: "first_name",
+                        last_name: "last_name",
+                        phone: "1234445555"
+    }}
+
+    let(:insurance_plan){ create(:insurance_plan) }
+    let(:serializer){ Leo::Entities::UserEntity }
 
     def do_request
-      post "/api/v1/users", {user_params: user_params, patient_params: patient_params}, format: :json
+      post "/api/v1/users", {guardian: user_params, patients: patients, insurance_plan: {id: insurance_plan.id}, authentication_token: enrollment.authentication_token}, format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
       expect( Patient.count ).to eq(1)
+      expect( Insurance.count ).to eq(1)
     end
   end
 

@@ -8,7 +8,11 @@ module Leo
       private
 
       def avatar
-        object.avatar.try(:avatar)
+        if object.avatar && options[:avatar_size]
+          object.avatar.avatar.url(options[:avatar_size])
+        else
+          object.avatar.try(:avatar)
+        end
       end
 
       def role

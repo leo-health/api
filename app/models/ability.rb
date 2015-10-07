@@ -24,6 +24,7 @@ class Ability
       can [:create, :read], Message
       can :read, Appointment
       can :update, UserConversation
+      can :read, EscalationNote
     elsif user.has_role? :clinical
       can [:read, :update], User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
@@ -32,6 +33,7 @@ class Ability
       can [:create, :read], Message
       can :read, Appointment
       can :update, UserConversation
+      can :read, EscalationNote
     elsif user.has_role? :clinical_support
       can [:read, :update], User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
@@ -40,6 +42,7 @@ class Ability
       can [:create, :read], Message
       can :read, Appointment
       can :update, UserConversation
+      can :read, EscalationNote
     elsif user.has_role? :customer_service
       can :read, User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
@@ -47,6 +50,7 @@ class Ability
       can [:read, :update], Conversation
       can [:create, :read], Message
       can :update, UserConversation
+      can :read, EscalationNote
     end
   end
 end

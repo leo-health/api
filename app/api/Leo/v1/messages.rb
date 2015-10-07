@@ -12,7 +12,7 @@ module Leo
         get ':id' do
           message = Message.find(params[:id])
           authorize! :read, Message
-          present :message_body, message.body
+          present message, with: Leo::Entities::MessageEntity
         end
       end
 

@@ -23,9 +23,9 @@ module Leo
           requires :last_name, type: String
           requires :email, type: String
           requires :password, type: String
-          requires :birth_date, type: Date
-          requires :phone_number, type: String
-          requires :sex, type: String, values: ['M', 'F']
+          requires :phone, type: String
+          optional :birth_date, type: Date
+          optional :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
         end
 
@@ -44,37 +44,47 @@ module Leo
       resource :users do
         desc '#create user from enrollment'
         params do
-          requires :user_params, type: Hash do
+          requires :authentication_token, type: String, allow_blank: false
+          requires :guardian, type: Hash do
             requires :first_name, type: String
             requires :last_name, type: String
-            requires :email, type: String
-            requires :password, type: String
-            requires :birth_date, type: Date
-            requires :phone_number, type: String
-            requires :sex, type: String, values: ['M', 'F']
+            requires :phone, type: String
+            optional :birth_date, type: Date
+            optional :sex, type: String, values: ['M', 'F']
+            optional :middle_initial, type: String
           end
 
-          requires :patient_params, type: Array do
-            requires :patient, type: Hash do
-              requires :first_name, type: String
-              requires :last_name, type: String
-              requires :birth_date, type: Date
-              requires :sex, type: String, values: ['M', 'F']
-            end
-            requires :insurance, type: Hash do
-              requires :plan_name, type: String
-            end
+          requires :patients, type: Array do
+            requires :first_name, type: String
+            requires :last_name, type: String
+            requires :birth_date, type: Date
+            requires :sex, type: String, values: ['M', 'F']
+            optional :birth_date, type: Date
+            optional :middle_initial, type: String
+          end
+
+          requires :insurance_plan, type: Hash do
+            requires :id, type: Integer
           end
         end
 
         post do
           ActiveRecord::Base.transaction do
             begin
+              declared_params = declared(params)
+              enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
               family = Family.create!
-              user = User.create!( params[:user_params].merge(family: family, role_id: 4) )
-              params[:patient_params].each do |patient_param|
-                patient = family.patients.create!(patient_param[:patient])
-                patient.insurances.create!(patient_param[:insurance].merge(primary: 1))
+              user = User.create!( declared_params[:guardian].merge(family: family, role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
+              insurance_plan = InsurancePlan.find(params[:insurance_plan][:id])
+              insurance_params = { primary: 1,
+                                   plan_name: insurance_plan.plan_name,
+                                   holder_first_name: user.first_name,
+                                   holder_last_name: user.last_name,
+                                   holder_sex: user.sex
+              }
+              declared_params[:patients].each do |patient_param|
+                patient = family.patients.create!(patient_param)
+                patient.insurances.create!(insurance_params)
               end
               session = user.sessions.create
               present :authentication_token, session.authentication_token
@@ -97,9 +107,13 @@ module Leo
           end
 
           desc "#show get an individual user"
+          params do
+            optional :avatar_size, type: String, values: ["primary_3x", "primary_2x", "primary_1x", "secondary_3x", "secondary_2x", "secondary_1x"]
+          end
+
           get do
             authorize! :show, @user
-            present :user, @user, with: Leo::Entities::UserEntity
+            present :user, @user, with: Leo::Entities::UserEntity, avatar_size: params[:avatar_size].try(:to_sym)
           end
 
           desc "#put update individual user"

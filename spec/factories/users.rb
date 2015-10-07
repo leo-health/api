@@ -9,7 +9,7 @@ FactoryGirl.define do
     birth_date  { 29.years.ago }
     sex					{ ['M', 'F'].sample }
     email
-    phone_number '1234567890'
+    phone '1234567890'
     password     'password'
     association :family, factory: :family
     association :role, factory: [:role, :guardian]

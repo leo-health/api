@@ -6,6 +6,7 @@ module Leo
 
       include Grape::Kaminari
 
+      require_relative '../entities/escalation_note_entity'
       require_relative '../entities/avatar_entity'
       require_relative '../entities/role_entity'
       require_relative '../entities/insurer_entity'
@@ -49,6 +50,7 @@ module Leo
       require_relative 'patient_enrollments'
       require_relative 'avatars'
       require_relative 'health_records'
+      require_relative 'escalation_notes'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -97,6 +99,7 @@ module Leo
       mount Leo::V1::PatientEnrollments
       mount Leo::V1::Avatars
       mount Leo::V1::HealthRecords
+      mount Leo::V1::EscalationNotes
 
       add_swagger_documentation(
           base_path: "/api",
