@@ -56,8 +56,8 @@ module Leo
           # get "patients/{patient_id}/immunizations"
           desc "get immunizations"
           get 'immunizations' do
-              imunizations = Immunization.where(patient_id: @patient.id, ended_at: nil).order(:started_at)
-              present :imunizations, imunizations, with: Leo::Entities::ImmunizationEntity
+              imunizations = Vaccine.where(patient_id: @patient.id).order(:administered_at)
+              present :imunizations, imunizations, with: Leo::Entities::VaccineEntity
           end
 
           # get "patients/{patient_id}/vitals/medications"
