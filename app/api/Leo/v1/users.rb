@@ -45,56 +45,20 @@ module Leo
         desc '#create user from enrollment'
         params do
           requires :authentication_token, type: String, allow_blank: false
-          requires :guardian, type: Hash do
-            requires :first_name, type: String
-            requires :last_name, type: String
-            requires :phone, type: String
-            optional :birth_date, type: Date
-            optional :sex, type: String, values: ['M', 'F']
-            optional :middle_initial, type: String
-          end
-
-          requires :patients, type: Array do
-            requires :first_name, type: String
-            requires :last_name, type: String
-            requires :birth_date, type: Date
-            requires :sex, type: String, values: ['M', 'F']
-            optional :birth_date, type: Date
-            optional :middle_initial, type: String
-          end
-
-          requires :insurance_plan, type: Hash do
-            requires :id, type: Integer
-          end
+          requires :first_name, type: String
+          requires :last_name, type: String
+          requires :phone, type: String
+          optional :birth_date, type: Date
+          optional :sex, type: String, values: ['M', 'F']
+          optional :middle_initial, type: String
         end
 
         post do
-          ActiveRecord::Base.transaction do
-            begin
-              declared_params = declared(params)
-              enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
-              family = Family.create!
-              user = User.create!( declared_params[:guardian].merge(family: family, role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
-              insurance_plan = InsurancePlan.find(params[:insurance_plan][:id])
-              insurance_params = { primary: 1,
-                                   plan_name: insurance_plan.plan_name,
-                                   holder_first_name: user.first_name,
-                                   holder_last_name: user.last_name,
-                                   holder_sex: user.sex
-              }
-              declared_params[:patients].each do |patient_param|
-                patient = family.patients.create!(patient_param)
-                patient.insurances.create!(insurance_params)
-              end
-              session = user.sessions.create
-              present :authentication_token, session.authentication_token
-              present :family, family, with: Leo::Entities::FamilyEntity
-            rescue ActiveRecord::RecordInvalid => e
-              error!({error_code: 422, error_message: e.message }, 422)
-            rescue
-              error!({error_code: 500, error_message: "can't create guardian with patients" }, 500)
-            end
-          end
+          enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
+          user = User.new( declared(params).merge(role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
+          render_success user
+          session = user.sessions.create
+          present :authentication_token, session.authentication_token
         end
 
         route_param :id do
