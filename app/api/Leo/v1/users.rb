@@ -44,7 +44,6 @@ module Leo
       resource :users do
         desc '#create user from enrollment'
         params do
-          requires :authentication_token, type: String, allow_blank: false
           requires :first_name, type: String
           requires :last_name, type: String
           requires :phone, type: String
