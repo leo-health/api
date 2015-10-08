@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   acts_as_paranoid
+  scope :members, ->{ where(email: nil)}
   
   belongs_to :family
   belongs_to :role
