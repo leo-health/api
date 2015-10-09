@@ -25,6 +25,11 @@ class User < ActiveRecord::Base
 
   after_commit :set_user_family, on: :create
 
+  def find_conversation_by_status(status)
+    return if has_role? :guardian
+    conversations.where(status: status)
+  end
+
   def unread_conversations
     return if has_role? :guardian
     Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
@@ -33,11 +38,6 @@ class User < ActiveRecord::Base
   def escalated_conversations
     return if has_role? :guardian
     Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
-  end
-
-  def find_conversation_by_status(status)
-    return if has_role? :guardian
-    conversations.where(status: status)
   end
 
   #TODO add sorting by higest priotiy here
