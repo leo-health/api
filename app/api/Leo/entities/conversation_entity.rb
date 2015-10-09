@@ -12,7 +12,7 @@ module Leo
       expose :updated_at
       expose :family
       expose :last_message_created_at
-      expose :status
+      expose :state
       expose :last_closed_at
       expose :last_closed_by
       expose :last_message, with: Leo::Entities::MessageEntity
