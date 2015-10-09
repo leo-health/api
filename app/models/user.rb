@@ -4,17 +4,17 @@ class User < ActiveRecord::Base
   belongs_to :family
   belongs_to :role
   belongs_to :practice
+
   has_one :avatar, as: :owner
   has_one :provider_profile, foreign_key: "provider_id"
-  has_many :provider_appointments, foreign_key: "provider_id", class_name: "Appointment"
-  has_many :escalated_notes, class_name: "EscalationNote", foreign_key: "escalated_to_id"
-  has_many :conversation_changes, foreign_key: "changed_by_id"
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
+  has_many :escalated_notes, class_name: "EscalationNote", foreign_key: "escalated_to_id"
   has_many :read_messages, class_name: 'Message', through: :read_receipts
   has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
+  has_many :provider_appointments, foreign_key: "provider_id", class_name: "Appointment"
 
 
   devise :database_authenticatable, :registerable, :confirmable,
@@ -25,6 +25,11 @@ class User < ActiveRecord::Base
 
   after_commit :set_user_family, on: :create
 
+  def find_conversation_by_status(status)
+    return if has_role? :guardian
+    conversations.where(status: status)
+  end
+
   def unread_conversations
     return if has_role? :guardian
     Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
@@ -33,11 +38,6 @@ class User < ActiveRecord::Base
   def escalated_conversations
     return if has_role? :guardian
     Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
-  end
-
-  def find_conversation_by_status(status)
-    return if has_role? :guardian
-    conversations.where(status: status)
   end
 
   #TODO add sorting by higest priotiy here
