@@ -9,10 +9,12 @@ describe Leo::V1::Messages do
   describe "Get /api/v1/conversations/:conversation_id/messages/full" do
     let!(:first_message){create(:message, conversation: conversation, sender: user)}
     let(:serializer){ Leo::Entities::FullMessageEntity }
-    let(:customer)
+    let(:customer_service){create(:user, :customer_service)}
+    let(:clinical){create(:user, :clinical)}
 
     before do
-      first_message.conversation.escalate_conversation(user.id, )
+      byebug
+      conversation.escalate_conversation(customer_service.id, clinical.id, "note")
     end
 
     def do_request
@@ -21,8 +23,10 @@ describe Leo::V1::Messages do
 
     it "should return message with system messages(close/escaltion actions)" do
       do_request
+      byebug
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
+      byebug
       expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([first_message]).as_json.to_json )
     end
   end

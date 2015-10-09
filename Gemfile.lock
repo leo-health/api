@@ -343,6 +343,7 @@ GEM
       activerecord (>= 3.0)
       activesupport (>= 3.0)
       polyamorous (~> 1.1.0)
+    state_machine (1.2.0)
     thin (1.6.4)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -430,6 +431,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   squeel
+  state_machine
   stripe!
   turbolinks
   uglifier (>= 1.3.0)

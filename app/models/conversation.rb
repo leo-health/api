@@ -12,6 +12,7 @@ class Conversation < ActiveRecord::Base
   validates :family, :status, presence: true
 
   after_commit :load_staff, :load_initial_message, on: :create
+  after_update :create_escalation_note, if: :escalated_conversation?
 
   def self.sort_conversations
     %i(open escalated closed).inject([]) do |conversations, status|
@@ -25,24 +26,39 @@ class Conversation < ActiveRecord::Base
     Pusher.trigger(channels, 'new_status', {new_status: new_status, conversation_id: id, changed_by: sender}) if channels.count > 0
   end
 
-  def escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
-    return if status.to_sym == :closed
-    update_attributes(status: :escalated)
-    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user_id: escalated_to_id)
+  def escalate_conversation
+
+  end
+
+  def escalate_conversation(escalated_by, escalated_to, note, priority=0)
+    return if ( closed? || escalated_by.has_role?(:guardian) || escalated_to.has_role?(:guardian) )
+    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
     if user_conversation.valid?
-      escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by_id: escalated_by_id)
+      escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by: escalated_by)
+      if escalation_note.valid?
+      update_attributes(status: :escalated)
+      byebug
+      end
     end
     escalation_note
   end
 
   def close_conversation(closed_by, note)
-    return false if status.to_sym == :closed
+    return false if closed?
     user_conversations.update_all(escalated: false)
     update_attributes(status: :closed, last_closed_at: Time.now, last_closed_by: closed_by)
-    close_conversation_notes.create(conversation_id: id, note: note, closed_by: closed_by)
+    close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
   end
 
   private
+
+  def escalated_conversation?
+
+  end
+
+  def closed?
+    status.to_sym == :closed
+  end
 
   def load_staff
     #neeed definitions for who will be loaded here
