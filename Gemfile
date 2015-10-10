@@ -33,6 +33,7 @@ gem 'pg'
 gem 'pusher'
 gem 'public_activity'
 gem "mini_magick"
+gem 'grocer'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
