@@ -19,11 +19,22 @@ class Conversation < ActiveRecord::Base
     end
 
     after_transition on: :escalate do |conversation, trans|
-      conversation.create_escalation_note
+      escalation_params = trans.args
+      conversation.create_escalation_note(escalation_params.note, escalation_params.priority, escalation_params.escalated_by)
+    end
+
+    before_transition on: :close do |conversation, trans|
+      conversation.user_conversations.update_all(escalated: false)
+      conversation.update_attributes(last_closed_at: Time.now, last_closed_by: trans.args.closed_by)
+    end
+
+    after_transition on: :close do |conversation, trans|
+      close_params = trans.args
+      conversation.create_close_note(note, closed_by)
     end
 
     event :escalate do
-      transition open: :escalated
+      transition [:open, :escalated] => :escalated
     end
 
     event :close do
@@ -37,15 +48,15 @@ class Conversation < ActiveRecord::Base
 
   def escalate_message_to_staff(escalated_to)
     return if escalated_to.has_role? :guardian
-    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
+    user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
   end
 
   def create_escalation_note(note, priority, escalated_by)
     escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by: escalated_by)
   end
 
-  def escalate_message_to_staff
-    puts trasition.args
+  def create_close_note(note, closed_by)
+    close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
   end
 
   def self.sort_conversations
@@ -64,24 +75,6 @@ class Conversation < ActiveRecord::Base
     puts "hahaha"
   end
 
-  # def close_conversation(closed_by, note)
-  #   return false if closed?
-  #   user_conversations.update_all(escalated: false)
-  #   update_attributes(state: :closed, last_closed_at: Time.now, last_closed_by: closed_by)
-  #   close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
-  # end
-
-  # def escalate_conversation(escalated_by, escalated_to, note, priority=0)
-  #   return if ( closed? || escalated_by.has_role?(:guardian) || escalated_to.has_role?(:guardian) )
-  #   user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
-  #   if user_conversation.valid?
-  #     escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by: escalated_by)
-  #     if escalation_note.valid?
-  #     update_attributes(state: :escalated)
-  #     end
-  #   end
-  #   escalation_note
-  # end
 
   private
 
