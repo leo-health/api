@@ -7,5 +7,4 @@ FactoryGirl.define do
       started_at DateTime.now
       ordered_at DateTime.now
   end
-
 end

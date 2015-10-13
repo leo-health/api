@@ -34,6 +34,7 @@ gem 'pusher'
 gem 'public_activity'
 gem "mini_magick"
 gem 'state_machines'
+gem 'grocer'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -55,6 +56,7 @@ group :development do
 end
 
 group :test do
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers'
   gem 'grape-entity-matchers'
   gem 'database_cleaner'
