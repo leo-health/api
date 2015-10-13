@@ -6,7 +6,6 @@ class Conversation < ActiveRecord::Base
   has_many :staff, class_name: "User", :through => :user_conversations
   has_many :conversation_changes
   has_many :close_conversation_notes
-  belongs_to :last_closed_by, class_name: 'User'
   belongs_to :family
 
   validates :family, :state, presence: true
@@ -26,7 +25,7 @@ class Conversation < ActiveRecord::Base
     end
 
     before_transition on: :close do |conversation, trans|
-      close_conversation_with_note(note, closed_by)
+      conversation.close_conversation_with_note(note, closed_by)
     end
 
     event :escalate do
@@ -37,18 +36,8 @@ class Conversation < ActiveRecord::Base
       transition [:open, :escalated] => :closed
     end
 
-    state :closed do
-      def create_close_note(note, closed_by)
-        close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
-      end
-    end
-
-    state :escalated do
-      def create_escalation_note(note, priority, escalated_by)
-        escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by: escalated_by)
-      end
-    end
-
+    state :closed
+    state :escalated
     state :open
   end
 
@@ -65,8 +54,8 @@ class Conversation < ActiveRecord::Base
 
   def close_conversation_with_note(note, closed_by)
     conversation.user_conversations.update_all(escalated: false)
-    conversation.update_attributes(last_closed_at: Time.now, last_closed_by: closed_by)
-    close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
+    close_conversation_note = close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
+    close_conversation_note.valid?
   end
 
 

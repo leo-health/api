@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151013155805) do
+ActiveRecord::Schema.define(version: 20151013171925) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -100,7 +100,7 @@ ActiveRecord::Schema.define(version: 20151013155805) do
 
   add_index "avatars", ["owner_type", "owner_id"], name: "index_avatars_on_owner_type_and_owner_id", using: :btree
 
-  create_table "close_conversation_notes", force: :cascade do |t|
+  create_table "closure_notes", force: :cascade do |t|
     t.integer  "conversation_id", null: false
     t.integer  "closed_by_id",    null: false
     t.string   "note"
