@@ -13,24 +13,20 @@ class Conversation < ActiveRecord::Base
 
   after_commit :load_staff, :load_initial_message, on: :create
 
+  def self.sort_conversations
+    %i(open escalated closed).inject([]) do |conversations, state|
+      conversations << self.where(state: state).order('updated_at desc')
+      conversations.flatten
+    end
+  end
+
   state_machine :state, initial: :closed do
     before_transition on: :escalate do |conversation, trans|
       conversation.escalate_message_to_staff(trans.args.escalated_to)
     end
 
-    after_transition on: :escalate do |conversation, trans|
-      escalation_params = trans.args
-      conversation.create_escalation_note(escalation_params.note, escalation_params.priority, escalation_params.escalated_by)
-    end
-
     before_transition on: :close do |conversation, trans|
-      conversation.user_conversations.update_all(escalated: false)
-      conversation.update_attributes(last_closed_at: Time.now, last_closed_by: trans.args.closed_by)
-    end
-
-    after_transition on: :close do |conversation, trans|
-      close_params = trans.args
-      conversation.create_close_note(note, closed_by)
+      close_conversation_with_note(note, closed_by)
     end
 
     event :escalate do
@@ -56,25 +52,23 @@ class Conversation < ActiveRecord::Base
     state :open
   end
 
-  def escalate_message_to_staff(escalated_to)
-    return if escalated_to.has_role? :guardian
-    user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
+  def escalate_conversation_to_staff(escalated_to, note, priority, escalated_by)
+    return false if escalated_to.has_role? :guardian
+    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
+    if user.conversation.valid?
+      escalation_note = user_conversation.escalation_notes.create!(note: note, priority: priority, escalated_by: escalated_by)
+      escalation_note.valid?
+    else
+      false
+    end
   end
 
-  def create_escalation_note(note, priority, escalated_by)
-    escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by: escalated_by)
-  end
-
-  def create_close_note(note, closed_by)
+  def close_conversation_with_note(note, closed_by)
+    conversation.user_conversations.update_all(escalated: false)
+    conversation.update_attributes(last_closed_at: Time.now, last_closed_by: closed_by)
     close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
   end
 
-  def self.sort_conversations
-    %i(open escalated closed).inject([]) do |conversations, state|
-      conversations << self.where(state: state).order('updated_at desc')
-      conversations.flatten
-    end
-  end
 
   def broadcast_state(sender, new_state)
     channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newState#{user.email}"; channels}
