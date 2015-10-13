@@ -1,4 +1,4 @@
-class CloseConversationNote < ActiveRecord::Base
+class ClosureNote < ActiveRecord::Base
   belongs_to :conversation
   belongs_to :closed_by, ->{where('role_id != ?', 4)}, class_name: 'User'
 

@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :close_conversation_note do
+  factory :closure_note do
     
   end
 

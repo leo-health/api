@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe CloseConversationNote, type: :model do
+RSpec.describe ClosureNote, type: :model do
   it{ is_expected.to belong_to(:conversation) }
   it{ is_expected.to belong_to(:closed_by).class_name('User') }
 
