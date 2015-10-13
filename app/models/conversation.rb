@@ -61,6 +61,13 @@ class Conversation < ActiveRecord::Base
     user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
   end
 
+  def create_escalation_note(note, priority, escalated_by)
+    escalation_note = user_conversation.escalation_notes.create(note: note, priority: priority, escalated_by: escalated_by)
+  end
+
+  def create_close_note(note, closed_by)
+    close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
+  end
 
   def self.sort_conversations
     %i(open escalated closed).inject([]) do |conversations, state|
