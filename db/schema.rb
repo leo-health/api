@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151012171755) do
+ActiveRecord::Schema.define(version: 20151013155805) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -124,8 +124,6 @@ ActiveRecord::Schema.define(version: 20151012171755) do
     t.integer  "family_id"
     t.datetime "last_message_created_at"
     t.datetime "deleted_at"
-    t.datetime "last_closed_at"
-    t.integer  "last_closed_by_id"
     t.string   "state",                   default: "closed"
   end
 
