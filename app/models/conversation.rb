@@ -1,4 +1,5 @@
 class Conversation < ActiveRecord::Base
+  include AASM
   acts_as_paranoid
 
   has_many :messages
@@ -12,6 +13,10 @@ class Conversation < ActiveRecord::Base
 
   after_commit :load_staff, :load_initial_message, on: :create
 
+  def initialize
+    super()
+  end
+
   def self.sort_conversations
     %i(open escalated closed).inject([]) do |conversations, state|
       conversations << self.where(state: state).order('updated_at desc')
@@ -19,45 +24,37 @@ class Conversation < ActiveRecord::Base
     end
   end
 
-  state_machine :state, initial: :closed do
-    before_transition on: :escalate do |conversation, trans|
-      conversation.escalate_message_to_staff(trans.args.escalated_to)
-    end
-
-    before_transition on: :close do |conversation, trans|
-      conversation.close_conversation_with_note(note, closed_by)
-    end
+  aasm :whiny_transitions => false, :column => :state do
+    state :closed, :initial => true
+    state :escalated
+    state :open
 
     event :escalate do
-      transition [:open, :escalated] => :escalated
+      transitions :from => [:open, :escalated], :to => :escalated, :after => :what
     end
 
     event :close do
-      transition [:open, :escalated] => :closed
+      transitions :from => [:open, :escalated], :to => :closed
     end
 
-    state :closed
-    state :escalated
-    state :open
+
+    # before_transition on: :escalate do |conversation, transition|
+    #   byebug
+    #   block.call
+    #   conversation.escalate_conversation_to_staff(transition.args.first)
+    # end
+    #
+    # before_transition on: :close do |conversation, transition|
+    #   conversation.close_conversation(transition.args.first)
+    # end
   end
 
-  def escalate_conversation_to_staff(escalated_to, note, priority, escalated_by)
-    return false if escalated_to.has_role? :guardian
-    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(user: escalated_to)
-    if user.conversation.valid?
-      escalation_note = user_conversation.escalation_notes.create!(note: note, priority: priority, escalated_by: escalated_by)
-      escalation_note.valid?
-    else
-      false
+  def what
+    ActiveRecord::Base.transaction do
+      Role.create!(name: "fuck")
+      raise "shit"
     end
   end
-
-  def close_conversation_with_note(note, closed_by)
-    conversation.user_conversations.update_all(escalated: false)
-    close_conversation_note = close_conversation_notes.create(conversation: self, note: note, closed_by: closed_by)
-    close_conversation_note.valid?
-  end
-
 
   def broadcast_state(sender, new_state)
     channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newState#{user.email}"; channels}
@@ -66,8 +63,23 @@ class Conversation < ActiveRecord::Base
 
   private
 
-  def closed?
-    state.to_sym == :closed
+  # escalation_params = {escalated_to: staff, note: 'note', priority: 1, escalated_by: staff}
+  def escalate_conversation_to_staff(escalation_params)
+    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(staff: escalation_params[:escalated_to])
+    if user_conversation.valid?
+      escalation_note_params = escalation_params.except(:escalated_to)
+      escalation_note = user_conversation.escalation_notes.create!(escalation_note_params)
+      escalation_note.valid?
+    else
+      false
+    end
+  end
+
+  # close_params = {note: note, closed_by: closed_by}
+  def close_conversation(close_params)
+    conversation.user_conversations.update_all(escalated: false)
+    close_conversation_note = close_conversation_notes.create(conversation: self, note: close_params[:note], closed_by: close_params[:closed_by])
+    close_conversation_note.valid?
   end
 
   def load_staff

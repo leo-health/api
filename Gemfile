@@ -34,6 +34,7 @@ gem 'pusher'
 gem 'public_activity'
 gem "mini_magick"
 gem 'state_machines'
+gem 'aasm'
 gem 'grocer'
 
 group :development, :test do

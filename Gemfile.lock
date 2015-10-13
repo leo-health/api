@@ -9,6 +9,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    aasm (4.3.0)
     actionmailer (4.2.0)
       actionpack (= 4.2.0)
       actionview (= 4.2.0)
@@ -386,6 +387,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aasm
   airborne
   awesome_print
   bullet

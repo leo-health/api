@@ -46,9 +46,86 @@ describe Conversation, type: :model do
     end
 
     describe "before transition hook for close event" do
-      it "should "
+      it "should call #close_conversation on a conversation instance" do
+
+      end
+    end
+
+    describe "escalate" do
+      let(:customer_service){ create(:user, :customer_service) }
+      let(:clinical){ create(:user, :clinical) }
+      let(:note){ 'escalation note'}
+      let(:priority){ 1 }
+
+      context "open conversation" do
+        let(:open_conversation){ build(:conversation, :open) }
+        let(:escalation_params){{ escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service }}
+
+        it 'should create a user_conversation and a escalation_note record, then return true' do
+          expect( UserConversation.count ).to eq(0)
+          expect( EscalationNote.count ).to eq(0)
+          expect( open_conversation.escalate(escalation_params) ).to eq(true)
+          expect( UserConversation.count ).to eq(1)
+          expect( EscalationNote.count ).to eq(1)
+          expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq(true)
+        end
+      end
+
+      context 'escalated conversation' do
+        it "should escalate an esclated conversation to antoher staff" do
+
+        end
+      end
+
+      context 'closed conversation' do
+        it "should not escalate an closed conversation" do
+
+        end
+      end
+    end
+
+    describe "close" do
+      it "should close an open conversation" do
+
+      end
+
+      it "should close an escalated conversation" do
+
+      end
+
+      it "should not close a closed conversation" do
+
+      end
     end
   end
+end
+
+  # describe '#escalate_conversation_to_staff' do
+  #   let(:open_conversation){ build(:conversation, :open) }
+  #   let(:customer_service){ create(:user, :customer_service) }
+  #   let(:clinical){ create(:user, :clinical) }
+  #   let(:note){ 'escalation note'}
+  #   let(:priority){ 1 }
+  #
+  #   context 'escalate a non-closed conversation' do
+  #     let(:escalation_params){{ escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service }}
+  #
+  #     it 'should create a user_conversation and a escalation_note record, then return true' do
+  #       expect( UserConversation.count ).to eq(0)
+  #       expect( EscalationNote.count ).to eq(0)
+  #       expect( open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(true))
+  #       expect( UserConversation.count ).to eq(1)
+  #       expect( EscalationNote.count ).to eq(1)
+  #       expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq(true)
+  #     end
+  #   end
+  # end
+  #
+  # describe '#close_conversation' do
+  #   it 'should update user_conversations, create a closure note and return true' do
+  #     # expect(open_conversation)
+  #   end
+  # end
 
   # describe 'escalate_conversation' do
   #   let(:closed_conversation){ build(:conversation) }
@@ -119,4 +196,4 @@ describe Conversation, type: :model do
   #     end
   #   end
   # end
-end
+
