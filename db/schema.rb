@@ -469,6 +469,7 @@ ActiveRecord::Schema.define(version: 20151012171755) do
     t.date     "birth_date"
     t.string   "avatar_url"
     t.string   "phone"
+    t.string   "type"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

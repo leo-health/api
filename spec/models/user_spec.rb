@@ -15,10 +15,7 @@ RSpec.describe User, type: :model do
     it{ is_expected.to have_many(:read_messages).class_name('Message').with_foreign_key('read_receipts') }
     it{ is_expected.to have_many(:sessions) }
     it{ is_expected.to have_many(:sent_messages).class_name('Message').with_foreign_key('sender_id') }
-    it{ is_expected.to have_many(:escalated_messages).class_name('Message').with_foreign_key('escalated_by_id') }
-    it{ is_expected.to have_many(:escalations).class_name('Message').with_foreign_key('escalated_to_id') }
     it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id') }
-    it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id') }
   end
 
   describe "validations" do

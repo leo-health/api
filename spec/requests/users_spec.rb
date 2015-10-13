@@ -43,33 +43,22 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/users - create user from enrollment" do
     let!(:guardian_role){create(:role, :guardian)}
-    let!(:patient_role){create(:role, :patient)}
     let(:enrollment){create(:enrollment, email: "bigtree@gmail.com", password: "password")}
-    let(:insurance_plan){create(:insurance_plan)}
-    let(:patients){[{ first_name: "Patient",
-                      last_name: "Params",
-                      sex: "M",
-                      birth_date: 1.years.ago,
-                     }
-    ]}
-
+    let(:serializer){ Leo::Entities::UserEntity }
     let(:user_params){{ first_name: "first_name",
                         last_name: "last_name",
                         phone: "1234445555"
     }}
 
-    let(:insurance_plan){ create(:insurance_plan) }
-    let(:serializer){ Leo::Entities::FamilyEntity }
-
     def do_request
-      post "/api/v1/users", {guardian: user_params, patients: patients, insurance_plan: {id: insurance_plan.id}, authentication_token: enrollment.authentication_token}, format: :json
+      post "/api/v1/users", user_params.merge!(authentication_token: enrollment.authentication_token), format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true)
-      expect( body[:data][:family].as_json.to_json ).to eq( serializer.represent( Family.first ).as_json.to_json )
+      expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent( User.first ).as_json.to_json )
     end
   end
 
