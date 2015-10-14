@@ -7,10 +7,6 @@ require 'database_cleaner'
 require 'pusher-fake/support/rspec'
 require 'codeclimate-test-reporter'
 
-CodeClimate::TestReporter.configure do |config|
-  config.path_prefix = "app"
-end
-
 CodeClimate::TestReporter.start
 # Add additional requires below this line. Rails is not loaded until this point!
 
