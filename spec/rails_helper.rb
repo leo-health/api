@@ -8,7 +8,6 @@ require 'pusher-fake/support/rspec'
 require 'codeclimate-test-reporter'
 
 CodeClimate::TestReporter.configure do |config|
-  config.path_prefix = "app"
 end
 
 CodeClimate::TestReporter.start
