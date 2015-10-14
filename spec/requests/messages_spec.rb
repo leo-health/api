@@ -39,6 +39,7 @@ describe Leo::V1::Messages do
 
   describe "Get /api/v1/messages/:id" do
     let(:message){ create(:message) }
+    let(:serializer){ Leo::Entities::MessageEntity }
 
     def do_request
       get "/api/v1/messages/#{message.id}", { authentication_token: session.authentication_token }
@@ -47,7 +48,8 @@ describe Leo::V1::Messages do
     it 'should return a single message' do
       do_request
       expect(response.status).to eq(200)
-      expect_json('data.message_body', message.body)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data].as_json.to_json).to eq(serializer.represent(message).as_json.to_json)
     end
   end
 
