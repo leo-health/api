@@ -4,7 +4,14 @@ require 'spec_helper'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rspec/rails'
 require 'database_cleaner'
-require "pusher-fake/support/rspec"
+require 'pusher-fake/support/rspec'
+require 'codeclimate-test-reporter'
+
+CodeClimate::TestReporter.configure do |config|
+  config.path_prefix = "app"
+end
+
+CodeClimate::TestReporter.start
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -35,7 +42,7 @@ RSpec.configure do |config|
   # examples within a transaction, remove the following line or assign false
   # instead of true.
   # config.use_transactional_fixtures = true
-  config.use_transactional_fixtures = false 
+  config.use_transactional_fixtures = false
 
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)
@@ -43,7 +50,7 @@ RSpec.configure do |config|
   config.before type: :request do
     DatabaseCleaner.strategy = :truncation
   end
-   
+
   config.after type: :request  do
     DatabaseCleaner.strategy = :transaction
   end
@@ -51,7 +58,7 @@ RSpec.configure do |config|
   config.before(:each) do
     # if group.metadata[:trans_off]
       DatabaseCleaner.strategy = :truncation
-    # else      
+    # else
     #   DatabaseCleaner.strategy = :transaction
     # end
   end
