@@ -2,7 +2,7 @@ require 'rubygems'
 require 'spork'
 require 'factory_girl_rails'
 require 'mandrill_mailer/offline'
-require "codeclimate-test-reporter"
+require 'codeclimate-test-reporter'
 
 CodeClimate::TestReporter.start
 
