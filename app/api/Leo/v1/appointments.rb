@@ -11,6 +11,7 @@ module Leo
             requires :appointment_type_id, type: Integer, allow_blank: false
             requires :provider_id, type: Integer, allow_blank: false
             requires :patient_id, type: Integer, allow_blank: false
+            requires :practice_id, type: Integer, allow_blank: false
             optional :notes, type: String
             optional :athena_id, type: Integer
           end

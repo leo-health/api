@@ -6,9 +6,10 @@ class Appointment < ActiveRecord::Base
   belongs_to :provider, class_name: "User"
   belongs_to :appointment_type
   belongs_to :appointment_status
+  belongs_to :practice
 
   validates :duration, :athena_id, :start_datetime, :appointment_status,
-            :appointment_type, :booked_by, :provider, :patient, presence: true
+            :appointment_type, :booked_by, :provider, :patient, :practice, presence: true
 
   validate :same_family, on: :create
   validates_uniqueness_of :start_datetime, scope: :provider_id, conditions: -> { where(deleted_at: nil)}

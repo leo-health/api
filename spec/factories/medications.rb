@@ -8,5 +8,4 @@ FactoryGirl.define do
     ordered_at { [ 1.year.ago, 2.years.ago, 3.years.ago, 4.years.ago, DateTime.now ].sample }
     association :patient, factory: :patient
   end
-
 end

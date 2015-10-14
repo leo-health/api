@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151012134328) do
+ActiveRecord::Schema.define(version: 20151012171755) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,12 +73,13 @@ ActiveRecord::Schema.define(version: 20151012134328) do
     t.datetime "start_datetime",                    null: false
     t.integer  "appointment_type_id",               null: false
     t.string   "notes"
-    t.datetime "deleted_at"
     t.integer  "booked_by_id",                      null: false
     t.integer  "provider_id",                       null: false
     t.integer  "patient_id",                        null: false
-    t.integer  "appointment_status_id",             null: false
     t.integer  "rescheduled_id"
+    t.datetime "deleted_at"
+    t.integer  "appointment_status_id",             null: false
+    t.integer  "practice_id",                       null: false
   end
 
   add_index "appointments", ["appointment_status_id"], name: "index_appointments_on_appointment_status_id", using: :btree
@@ -87,6 +88,7 @@ ActiveRecord::Schema.define(version: 20151012134328) do
   add_index "appointments", ["booked_by_id"], name: "index_appointments_on_booked_by_id", using: :btree
   add_index "appointments", ["deleted_at"], name: "index_appointments_on_deleted_at", using: :btree
   add_index "appointments", ["patient_id"], name: "index_appointments_on_patient_id", using: :btree
+  add_index "appointments", ["practice_id"], name: "index_appointments_on_practice_id", using: :btree
   add_index "appointments", ["provider_id"], name: "index_appointments_on_provider_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
@@ -498,6 +500,7 @@ ActiveRecord::Schema.define(version: 20151012134328) do
     t.date     "birth_date"
     t.string   "avatar_url"
     t.string   "phone"
+    t.string   "type"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

@@ -59,7 +59,7 @@ module Leo
           present :patient, patient, with: Leo::Entities::PatientEntity, avatar_size: params[:avatar_size].try(:to_sym)
         end
 
-        desc "index: all patients of a guardian(current_user)"
+        desc "#index: all patients of a guardian(current_user)"
         params do
           optional :avatar_size, type: String, values: ["primary_3x", "primary_2x", "primary_1x"]
         end

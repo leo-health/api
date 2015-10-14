@@ -26,6 +26,7 @@ module Leo
           end
 
           if session = user.sessions.create
+            present user.class.name.to_sym.downcase, user, with: Leo::Entities::UserEntity
             present	:session, session, with: Leo::Entities::SessionEntity
           end
         end
