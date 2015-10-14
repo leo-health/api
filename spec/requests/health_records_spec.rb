@@ -8,61 +8,6 @@ describe Leo::V1::HealthRecords do
   let!(:session){ user.sessions.create }
   let!(:patient){ create(:patient, family: user.family) }
 
-  before(:all) do
-    optionsWho = { :col_sep => "\t", :headers => true }
-    optionsCdc = { :headers => true }
-
-    HeightGrowthCurve.delete_all
-
-    #populate boys 0-24 months height
-    CSV.foreach("lib/assets/percentile/lhfa_boys_p_exp.txt", optionsWho) do |row|
-      entry = HeightGrowthCurve.new({ :sex=> "M", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
-      entry.save if (entry.days <= 712)
-    end
-
-    #populate girls 0-24 months height
-    CSV.foreach("lib/assets/percentile/lhfa_girls_p_exp.txt", optionsWho) do |row|
-      entry = HeightGrowthCurve.new({ :sex=> "F", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
-      entry.save if (entry.days <= 712)
-    end
-
-    #populate boys & girls 2-20 years height
-    CSV.foreach("lib/assets/percentile/statage.csv", optionsCdc) do |row|
-      entry = HeightGrowthCurve.new({ 
-        :sex=> (row["Sex"] == "1" ? "M" : "F"), 
-        :days => (row["Agemos"].to_i * 365 / 12), 
-        :l => row["L"], 
-        :m => row["M"], 
-        :s => row["S"]})
-      entry.save if (entry.days > 712 && row["Agemos"] != "24")
-    end
-
-    WeightGrowthCurve.delete_all
-
-    #populate boys 0-24 months weight
-    CSV.foreach("lib/assets/percentile/wfa_boys_p_exp.txt", optionsWho) do |row|
-      entry = WeightGrowthCurve.new({ :sex=> "M", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
-      entry.save if (entry.days <= 712)
-    end
-
-    #populate girls 0-24 months weight
-    CSV.foreach("lib/assets/percentile/wfa_girls_p_exp.txt", optionsWho) do |row|
-      entry = WeightGrowthCurve.new({ :sex=> "F", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
-      entry.save if (entry.days <= 712)
-    end
-
-    #populate boys & girls 2-20 years weight
-    CSV.foreach("lib/assets/percentile/wtage.csv", optionsCdc) do |row|
-      entry = WeightGrowthCurve.new({ 
-        :sex=> (row["Sex"] == "1" ? "M" : "F"), 
-        :days => (row["Agemos"].to_i * 365 / 12), 
-        :l => row["L"], 
-        :m => row["M"], 
-        :s => row["S"]})
-      entry.save if (entry.days > 712 && row["Agemos"] != "24")
-    end
-  end
-
   describe "GET /api/v1/patients/:id/vitals/height" do
     let!(:heights) {
       [ 
@@ -177,6 +122,75 @@ describe Leo::V1::HealthRecords do
       expect(resp["status"]).to eq("ok")
       expect(resp["data"].size).to eq(1)
       expect(resp["data"]["immunizations"].size).to eq(4)
+    end
+  end
+
+  describe "GET /api/v1/patients/:id/notes" do
+    let!(:notes) {
+      [ 
+        create(:user_generated_health_record, patient: patient, user: user), 
+        create(:user_generated_health_record, patient: patient, user: user), 
+        create(:user_generated_health_record, patient: patient, user: user),
+        create(:user_generated_health_record, patient: patient, user: user, deleted_at: DateTime.now) 
+      ]
+    }
+
+    def do_request
+      get "/api/v1/patients/#{patient.id}/notes", { authentication_token: session.authentication_token }, format: :json
+    end
+
+    it "should return a list of notes" do
+      do_request
+      expect(response.status).to eq(200)
+      resp = JSON.parse(response.body)
+      expect(resp["status"]).to eq("ok")
+      expect(resp["data"].size).to eq(1)
+      expect(resp["data"]["notes"].size).to eq(3)
+    end
+  end
+
+  describe "GET /api/v1/patients/:id/notes/:note_id" do
+    let!(:note) { create(:user_generated_health_record, patient: patient, user: user) }
+
+    def do_request
+      get "/api/v1/patients/#{patient.id}/notes/#{note.id}", { authentication_token: session.authentication_token }, format: :json
+    end
+
+    it "should return a requested note" do
+      do_request
+      expect(response.status).to eq(200)
+      resp = JSON.parse(response.body)
+      expect(resp["status"]).to eq("ok")
+      expect(resp["data"].size).to eq(1)
+      expect(resp["data"]["note"]["id"]).to eq(note.id)
+    end
+  end
+
+  describe "POST /api/v1/patients/:id/notes" do
+    def do_request
+      post "/api/v1/patients/#{patient.id}/notes", { authentication_token: session.authentication_token, note: "note text" }, format: :json
+    end
+
+    it "should create a note" do
+      do_request
+      expect(response.status).to eq(201)
+    end
+  end
+
+  describe "PUT /api/v1/patients/:id/notes/:note_id" do
+    let!(:note) { create(:user_generated_health_record, patient: patient, user: user) }
+
+    def do_request
+      put "/api/v1/patients/#{patient.id}/notes/#{note.id}", { authentication_token: session.authentication_token, note: "note text 2" }, format: :json
+    end
+
+    it "update a note" do
+      do_request
+      resp = JSON.parse(response.body)
+      expect(response.status).to eq(200)
+      expect(resp["status"]).to eq("ok")
+      expect(resp["data"].size).to eq(1)
+      expect(resp["data"]["note"]["note"]).to eq("note text 2")
     end
   end
 end

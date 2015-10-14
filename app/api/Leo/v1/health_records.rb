@@ -68,6 +68,44 @@ module Leo
           end
 
           namespace 'notes' do
+            # get "patients/{patient_id}/notes"
+            desc "get all notes"
+            get do
+              notes = UserGeneratedHealthRecord.where(patient_id: @patient.id, deleted_at: nil)
+              present :notes, notes, with: Leo::Entities::UserGeneratedHealthRecordEntity
+            end
+
+            # post "patients/{patient_id}/notes"
+            desc "create a new note"
+            params do
+              requires :note, type: String, allow_blank: false
+            end
+            post do
+              note = UserGeneratedHealthRecord.create(note: params[:note], user: current_user, patient: @patient)
+              present :note, note, with: Leo::Entities::UserGeneratedHealthRecordEntity
+            end
+
+            route_param :note_id do
+              after_validation do
+                @note = UserGeneratedHealthRecord.find(params[:note_id])
+              end
+
+              # get "patients/{patient_id}/notes/{note_id}"
+              desc "get a note"
+              get do
+                present :note, @note, with: Leo::Entities::UserGeneratedHealthRecordEntity
+              end
+
+              desc "update a note"
+              params do
+                requires :note, type: String
+              end
+              put do
+                @note.note = params[:note]
+                @note.save!
+                present :note, @note, with: Leo::Entities::UserGeneratedHealthRecordEntity
+              end
+            end
           end
         end
       end

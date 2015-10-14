@@ -223,3 +223,60 @@ insurance_plan_seed.each do |insurance_plan|
     InsurancePlan.create(plan) unless InsurancePlan.where(id: plan[:id]).exists?
   end
 end
+
+#Seed the database with growth curves
+begin
+  folder = "lib/assets/percentile/oct_2015"
+  optionsWho = { :col_sep => "\t", :headers => true }
+  optionsCdc = { :headers => true }
+
+  HeightGrowthCurve.delete_all
+
+  #populate boys 0-24 months height
+  CSV.foreach("#{folder}/lhfa_boys_p_exp.txt", optionsWho) do |row|
+    entry = HeightGrowthCurve.new({ :sex=> "M", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry.save if (entry.days <= 712)
+  end
+
+  #populate girls 0-24 months height
+  CSV.foreach("#{folder}/lhfa_girls_p_exp.txt", optionsWho) do |row|
+    entry = HeightGrowthCurve.new({ :sex=> "F", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry.save if (entry.days <= 712)
+  end
+
+  #populate boys & girls 2-20 years height
+  CSV.foreach("#{folder}/statage.csv", optionsCdc) do |row|
+    entry = HeightGrowthCurve.new({ 
+      :sex=> (row["Sex"] == "1" ? "M" : "F"), 
+      :days => (row["Agemos"].to_i * 365 / 12), 
+      :l => row["L"], 
+      :m => row["M"], 
+      :s => row["S"]})
+    entry.save if (entry.days > 712 && row["Agemos"] != "24")
+  end
+
+  WeightGrowthCurve.delete_all
+
+  #populate boys 0-24 months weight
+  CSV.foreach("#{folder}/wfa_boys_p_exp.txt", optionsWho) do |row|
+    entry = WeightGrowthCurve.new({ :sex=> "M", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry.save if (entry.days <= 712)
+  end
+
+  #populate girls 0-24 months weight
+  CSV.foreach("#{folder}/wfa_girls_p_exp.txt", optionsWho) do |row|
+    entry = WeightGrowthCurve.new({ :sex=> "F", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry.save if (entry.days <= 712)
+  end
+
+  #populate boys & girls 2-20 years weight
+  CSV.foreach("#{folder}/wtage.csv", optionsCdc) do |row|
+    entry = WeightGrowthCurve.new({ 
+      :sex=> (row["Sex"] == "1" ? "M" : "F"), 
+      :days => (row["Agemos"].to_i * 365 / 12), 
+      :l => row["L"], 
+      :m => row["M"], 
+      :s => row["S"]})
+    entry.save if (entry.days > 712 && row["Agemos"] != "24")
+  end
+end
