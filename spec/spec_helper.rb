@@ -4,6 +4,9 @@ require 'factory_girl_rails'
 require 'mandrill_mailer/offline'
 require 'codeclimate-test-reporter'
 
+CodeClimate::TestReporter.configure do |config|
+end
+
 CodeClimate::TestReporter.start
 
 Spork.prefork do
