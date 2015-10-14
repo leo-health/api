@@ -13,10 +13,6 @@ class Conversation < ActiveRecord::Base
 
   after_commit :load_staff, :load_initial_message, on: :create
 
-  def initialize
-    super()
-  end
-
   def self.sort_conversations
     %i(open escalated closed).inject([]) do |conversations, state|
       conversations << self.where(state: state).order('updated_at desc')
@@ -30,30 +26,35 @@ class Conversation < ActiveRecord::Base
     state :open
 
     event :escalate do
-      transitions :from => [:open, :escalated], :to => :escalated, :after => :what
+      transitions :from => [:open, :escalated], :to => :escalated, :guard => :escalate_conversation_to_staff
     end
 
     event :close do
-      transitions :from => [:open, :escalated], :to => :closed
+      transitions :from => [:open, :escalated], :to => :closed, :guard => :close_conversation
     end
-
-
-    # before_transition on: :escalate do |conversation, transition|
-    #   byebug
-    #   block.call
-    #   conversation.escalate_conversation_to_staff(transition.args.first)
-    # end
-    #
-    # before_transition on: :close do |conversation, transition|
-    #   conversation.close_conversation(transition.args.first)
-    # end
   end
 
-  def what
+  def escalate_conversation_to_staff(escalation_params)
+    # NOTE: escalation_params = {escalated_to: staff, note: 'note', priority: 1, escalated_by: staff}
     ActiveRecord::Base.transaction do
-      Role.create!(name: "fuck")
-      raise "shit"
+      user_conversation = user_conversations.create_with(escalated: true).find_or_create_by!(staff: escalation_params[:escalated_to])
+      escalation_note_params = escalation_params.except(:escalated_to)
+      user_conversation.escalation_notes.create!(escalation_note_params)
+      true
     end
+  rescue
+    false
+  end
+
+  def close_conversation(close_params)
+    # NOTE: close_params = {closed_by: staff, note: 'note'}
+    ActiveRecord::Base.transaction do
+      user_conversations.each{|i| i.update_attributes!(escalated: false)}
+      closure_notes.create!(conversation: self, note: close_params[:note], closed_by: close_params[:closed_by])
+      true
+    end
+  rescue
+    false
   end
 
   def broadcast_state(sender, new_state)
@@ -62,25 +63,6 @@ class Conversation < ActiveRecord::Base
   end
 
   private
-
-  # escalation_params = {escalated_to: staff, note: 'note', priority: 1, escalated_by: staff}
-  def escalate_conversation_to_staff(escalation_params)
-    user_conversation = user_conversations.create_with(escalated: true).find_or_create_by(staff: escalation_params[:escalated_to])
-    if user_conversation.valid?
-      escalation_note_params = escalation_params.except(:escalated_to)
-      escalation_note = user_conversation.escalation_notes.create!(escalation_note_params)
-      escalation_note.valid?
-    else
-      false
-    end
-  end
-
-  # close_params = {note: note, closed_by: closed_by}
-  def close_conversation(close_params)
-    conversation.user_conversations.update_all(escalated: false)
-    close_conversation_note = close_conversation_notes.create(conversation: self, note: close_params[:note], closed_by: close_params[:closed_by])
-    close_conversation_note.valid?
-  end
 
   def load_staff
     #neeed definitions for who will be loaded here
