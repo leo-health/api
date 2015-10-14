@@ -8,13 +8,12 @@ describe Conversation, type: :model do
     it{ is_expected.to have_many(:conversation_changes) }
     it{ is_expected.to have_many(:closure_notes) }
 
-    it{ is_expected.to belong_to(:last_closed_by).class_name('User') }
     it{ is_expected.to belong_to(:family) }
   end
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:family) }
-    it { is_expected.to validate_presence_of(:status) }
+    it { is_expected.to validate_presence_of(:state) }
   end
 
   describe 'self.sort_conversations' do
@@ -26,10 +25,10 @@ describe Conversation, type: :model do
     let!(:latest_escalated_conversation){ create(:conversation, updated_at: 5.minutes.ago) }
 
     before do
-      open_conversation.update_attributes(status: :open)
-      latest_open_conversation.update_attributes(status: :open)
-      escalated_conversation.update_attributes(status: :escalated)
-      latest_escalated_conversation.update_attributes(status: :escalated)
+      open_conversation.update_attributes(state: :open)
+      latest_open_conversation.update_attributes(state: :open)
+      escalated_conversation.update_attributes(state: :escalated)
+      latest_escalated_conversation.update_attributes(state: :escalated)
     end
 
     it "should sort the conversations by status filed in oepn, escalated, closed order, and updated_at filed in descending order" do

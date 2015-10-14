@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe Leo::V1::EscalationNotes do
   let(:clinical){ create(:user, :clinical) }
-  let(:conversation){ create(:conversation, status: :open) }
+  let(:conversation){ create(:conversation, state: :open) }
   let(:customer_service){ create(:user, :customer_service) }
   let(:session){ clinical.sessions.create }
   let(:serializer){ Leo::Entities::EscalationNoteEntity }
