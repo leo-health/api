@@ -34,7 +34,7 @@ class Conversation < ActiveRecord::Base
     end
 
     event :close do
-      after do
+      after do |args|
         broadcast_state(self.state, args[:closed_by])
       end
 

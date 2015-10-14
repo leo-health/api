@@ -30,7 +30,6 @@ module Leo
         namespace ':id/escalate' do
           params do
             requires :escalated_to_id, type: Integer, allow_blank: false
-            requires :conversation_id, type: Integer, allow_blank: false
             requires :priority, type: Integer, allow_blank: false
             optional :note, type: String
           end
@@ -38,24 +37,24 @@ module Leo
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
-            escalation_note = conversation.escalate_conversation(escalated_by_id, escalated_to_id, note, priority)
-            if escalation_note.try(:valid?)
-              present :escalation_note, escalation_note
-              conversation.broadcast_status(current_user, :escalated)
+            escalated_to = User.find(params[:escalated_to_id])
+            escalate_params = {escalated_to: escalated_to, note: params[:note], priority: params[:priority], escalated_by: current_user}
+            if conversation.escalate(escalate_params)
+              present :conversation, conversation, with: Leo::Entities::ConversationEntity
             else
               error!({error_code: 422, error_message: "can't escalte the conversation" }, 422)
             end
           end
         end
 
-        desc "Get all the conversations by status"
+        desc "Get all the conversations by state"
         params do
-          optional :status, type: String, allow_blank: false
+          optional :state, type: String, allow_blank: false
         end
 
         get do
-          if params[:status]
-            conversations = Conversation.where(status: params[:status]).order('updated_at desc')
+          if params[:state]
+            conversations = Conversation.where(state: params[:state]).order('updated_at desc')
           else
             conversations = Conversation.sort_conversations
           end
