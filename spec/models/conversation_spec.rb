@@ -39,62 +39,76 @@ describe Conversation, type: :model do
   end
 
   describe "state machines - conversations" do
-    describe "before transition hook for escalate event" do
-      it "should call #escalate_message_to_staff on a conversation instance" do
-
-      end
-    end
-
-    describe "before transition hook for close event" do
-      it "should call #close_conversation on a conversation instance" do
-
-      end
-    end
-
     describe "escalate" do
       let(:customer_service){ create(:user, :customer_service) }
       let(:clinical){ create(:user, :clinical) }
       let(:note){ 'escalation note'}
       let(:priority){ 1 }
+      let(:escalation_params){{ escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service }}
 
       context "open conversation" do
         let(:open_conversation){ build(:conversation, :open) }
-        let(:escalation_params){{ escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service }}
 
-        it 'should create a user_conversation and a escalation_note record, then return true' do
-          expect( UserConversation.count ).to eq(0)
-          expect( EscalationNote.count ).to eq(0)
+        it 'should change conversation status' do
+          expect( open_conversation.state.to_sym ).to eq(:open)
           expect( open_conversation.escalate(escalation_params) ).to eq(true)
-          expect( UserConversation.count ).to eq(1)
-          expect( EscalationNote.count ).to eq(1)
-          expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq(true)
+          expect( open_conversation.state.to_sym ).to eq(:escalated)
         end
       end
 
       context 'escalated conversation' do
-        it "should escalate an esclated conversation to antoher staff" do
+        let(:escalated_conversation){ build(:conversation, :escalated) }
 
+        it "should change conversation status" do
+          expect( escalated_conversation.state.to_sym ).to eq(:escalated)
+          expect( escalated_conversation.escalate(escalation_params) ).to eq(true)
+          expect( escalated_conversation.state.to_sym ).to eq(:escalated)
         end
       end
 
       context 'closed conversation' do
-        it "should not escalate an closed conversation" do
+        let(:closed_conversation){ build(:conversation) }
 
+        it "should not change the status" do
+          expect( closed_conversation.state.to_sym ).to eq(:closed)
+          expect( closed_conversation.escalate(escalation_params) ).to eq(false)
+          expect( closed_conversation.state.to_sym ).to eq(:closed)
         end
       end
     end
 
     describe "close" do
-      it "should close an open conversation" do
+      let(:note){ 'close the conversation'}
+      let(:clinical){ create(:user, :clinical) }
+      let(:customer_service){ create(:user, :customer_service) }
+      let(:close_params){{closed_by: customer_service, note: note}}
 
+      context 'open_conversation' do
+        let(:open_conversation){ build(:conversation, :open) }
+
+        it "should change conversation status to false" do
+          expect( open_conversation.state.to_sym ).to eq(:open)
+          expect( open_conversation.close(close_params) ).to eq(true)
+          expect( open_conversation.state.to_sym ).to eq(:closed)
+        end
       end
 
-      it "should close an escalated conversation" do
+      context 'escalated conversation' do
+        let(:escalated_conversation){ build(:conversation, :escalated) }
 
+        it "should change conversation status to false" do
+          expect( escalated_conversation.state.to_sym ).to eq(:escalated)
+          expect( escalated_conversation.close(close_params) ).to eq(true)
+          expect( escalated_conversation.state.to_sym ).to eq(:closed)
+        end
       end
 
-      it "should not close a closed conversation" do
+      context 'closed conversation' do
+        let(:closed_conversation){ build(:conversation) }
 
+        it "should return false" do
+          expect( closed_conversation.close(close_params) ).to eq(false)
+        end
       end
     end
   end
