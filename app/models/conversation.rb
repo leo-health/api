@@ -26,10 +26,18 @@ class Conversation < ActiveRecord::Base
     state :open
 
     event :escalate do
+      after do |args|
+        broadcast_state(self.state, args[:escalated_by], args[:escalated_to])
+      end
+
       transitions :from => [:open, :escalated], :to => :escalated, :guard => :escalate_conversation_to_staff
     end
 
     event :close do
+      after do
+        broadcast_state(self.state, args[:closed_by])
+      end
+
       transitions :from => [:open, :escalated], :to => :closed, :guard => :close_conversation
     end
   end
@@ -57,9 +65,9 @@ class Conversation < ActiveRecord::Base
     false
   end
 
-  def broadcast_state(sender, new_state)
+  def broadcast_state(new_state, changed_by, changed_to = nil)
     channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newState#{user.email}"; channels}
-    Pusher.trigger(channels, 'new_state', {new_state: new_state, conversation_id: id, changed_by: sender}) if channels.count > 0
+    Pusher.trigger(channels, 'new_state', {new_state: new_state, conversation_id: id, changed_by: changed_by, change_to: changed_to}) if channels.count > 0
   end
 
   private

@@ -17,9 +17,9 @@ module Leo
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
-            if conversation.close_conversation(current_user, params[:note])
+            close_params = {closed_by: current_user, note: params[:note]}
+            if conversation.close(close_params)
               present :conversation, conversation, with: Leo::Entities::ConversationEntity
-              conversation.broadcast_status(current_user, :closed)
             else
               error!({error_code: 422, error_message: "can't close the conversation" }, 422)
             end
