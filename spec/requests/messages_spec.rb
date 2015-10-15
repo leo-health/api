@@ -5,8 +5,9 @@ describe Leo::V1::Messages do
   let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
   let!(:conversation){ user.family.conversation }
+  let(:serializer){ Leo::Entities::MessageEntity }
 
-  describe "Get /api/v1/conversations/:conversation_id/messages/full" do
+  describe "Get /api/v1/conversations/:conversation_id/messages/message_and_notes" do
     let!(:first_message){create(:message, conversation: conversation, sender: user)}
     let(:serializer){ Leo::Entities::FullMessageEntity }
     let(:customer_service){create(:user, :customer_service)}
@@ -17,15 +18,13 @@ describe Leo::V1::Messages do
     end
 
     def do_request
-      get "/api/v1/conversations/#{conversation.id}/messages/full", { authentication_token: session.authentication_token }
+      get "/api/v1/conversations/#{conversation.id}/messages/message_and_notes", { authentication_token: session.authentication_token }
     end
 
     it "should return message with system messages(close/escaltion actions)" do
       do_request
-      byebug
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      byebug
       expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([first_message]).as_json.to_json )
     end
   end
@@ -41,13 +40,13 @@ describe Leo::V1::Messages do
     it "should get all the messages of a conversation" do
       do_request
       expect(response.status).to eq(200)
-      expect_json_sizes("data", 2)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data].as_json.to_json).to eq(serializer.represent([second_message, first_message]).as_json.to_json)
     end
   end
 
   describe "Get /api/v1/messages/:id" do
     let(:message){ create(:message) }
-    let(:serializer){ Leo::Entities::MessageEntity }
 
     def do_request
       get "/api/v1/messages/#{message.id}", { authentication_token: session.authentication_token }
@@ -63,13 +62,14 @@ describe Leo::V1::Messages do
 
   describe "Post /api/v1/conversations/:conversation_id/messages" do
     def do_request
-      post "/api/v1/conversations/#{conversation.id}/messages",
-           { body: "test", type_name: "text", authentication_token: session.authentication_token }
+      post "/api/v1/conversations/#{conversation.id}/messages", { body: "test", type_name: "text", authentication_token: session.authentication_token }
     end
 
     it "should create a message for the conversation" do
       do_request
       expect(response.status).to eq(201)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.first).as_json.to_json)
     end
   end
 end

@@ -20,6 +20,7 @@ class Conversation < ActiveRecord::Base
     end
   end
 
+  #state machine via https://github.com/aasm/aasm
   aasm :whiny_transitions => false, :column => :state do
     state :closed, :initial => true
     state :escalated
