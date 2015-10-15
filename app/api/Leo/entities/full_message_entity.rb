@@ -21,15 +21,8 @@ module Leo
         end
       end
 
-      def text_field
-        case object.class.name
-        when 'Message'
-          object.body
-        when 'EscalationNote'
-          object.note
-        when 'CloseConversationNote'
-          object.note
-        end
+      def message_body
+        object.body if object.class.name == 'Message'
       end
 
       def message_type
