@@ -15,14 +15,15 @@ describe Leo::V1::EscalationNotes do
     end
 
     before do
-      @escalation_note = conversation.escalate_conversation(clinical.id, customer_service.id, 'test note', 1)
+      escalate_params = {escalated_to: clinical, note: "note", priority: 1, escalated_by: customer_service}
+      conversation.escalate!(escalate_params)
     end
 
     it 'should return all the escalation notes belongs to the conversation' do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:escalation_notes].as_json.to_json).to eq(serializer.represent([@escalation_note.reload]).as_json.to_json)
+      expect(body[:data][:escalation_notes].as_json.to_json).to eq(serializer.represent([EscalationNote.first]).as_json.to_json)
     end
   end
 end

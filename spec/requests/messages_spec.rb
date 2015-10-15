@@ -13,7 +13,6 @@ describe Leo::V1::Messages do
     let(:clinical){create(:user, :clinical)}
 
     before do
-      byebug
       conversation.escalate_conversation(customer_service.id, clinical.id, "note")
     end
 

@@ -5,6 +5,7 @@ describe Leo::V1::Conversations do
   let(:user){ create(:user) }
   let!(:customer_service){ create(:user, :customer_service) }
   let!(:session){ user.sessions.create }
+  let!(:serializer){ Leo::Entities::ConversationEntity }
 
   describe "Get /api/v1/users/:user_id/conversations" do
     context "user is a guardian" do
@@ -16,7 +17,8 @@ describe Leo::V1::Conversations do
         it 'should return conversations belong to the user' do
           do_request
           expect(response.status).to eq(200)
-          expect_json("data.conversation.family.id", user.family_id)
+          body = JSON.parse(response.body, symbolize_names: true )
+          expect( body[:data][:conversation].as_json.to_json).to eq(serializer.represent(user.family.conversation).as_json.to_json)
         end
       end
 
@@ -45,18 +47,19 @@ describe Leo::V1::Conversations do
       end
 
       before do
-        conversation_one = Conversation.find_by_family_id(user.family_id)
-        conversation_one.staff << clinical_user
-        conversation_one.messages.first.read_receipts.create(reader: user)
-        conversation_two = Conversation.find_by_family_id(other_user.family_id)
-        conversation_two.staff << clinical_user
+        @conversation_one = Conversation.find_by_family_id(user.family_id)
+        @conversation_one.staff << clinical_user
+        @conversation_one.messages.first.read_receipts.create(reader: user)
+        @conversation_two = Conversation.find_by_family_id(other_user.family_id)
+        @conversation_two.staff << clinical_user
       end
 
       describe "fetch all conversations of the user" do
         it "should show all conversations of user" do
           do_request
           expect(response.status).to eq(200)
-          expect_json_sizes("data.conversations", 2)
+          body = JSON.parse(response.body, symbolize_names: true )
+          expect( body[:data][:conversations].as_json.to_json).to eq(serializer.represent([@conversation_one, @conversation_two]).as_json.to_json)
         end
       end
     end
@@ -76,12 +79,10 @@ describe Leo::V1::Conversations do
     end
 
     it "should update the specific conversation" do
-      # expect(CloseConversationNote.count).to eq(0)
-      # expect(conversation.state).to eq("open")
       do_request
       expect(response.status).to eq(200)
-      # expect_json("data.conversation.state", "closed")
-      # expect(CloseConversationNote.count).to eq(1)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect( body[:data][:conversation].as_json.to_json).to eq(serializer.represent(conversation.reload).as_json.to_json)
     end
   end
 
@@ -102,6 +103,8 @@ describe Leo::V1::Conversations do
     it "should update the specific conversation" do
       do_request
       expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect( body[:data][:conversation].as_json.to_json).to eq(serializer.represent(conversation.reload).as_json.to_json)
     end
   end
 
