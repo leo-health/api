@@ -3,7 +3,7 @@ module Leo
     class FullMessageEntity < Grape::Entity
       expose :id
       expose :created_by, with: Leo::Entities::UserEntity
-      expose :text_field
+      expose :message_body
       expose :created_at
       expose :message_type
       expose :escalated_to, with: Leo::Entities::UserEntity
@@ -16,7 +16,7 @@ module Leo
           object.sender
         when 'EscalationNote'
           object.escalated_by
-        when 'CloseConversationNote'
+        when 'ClosureNote'
           object.closed_by
         end
       end
@@ -31,7 +31,7 @@ module Leo
           :message
         when 'EscalationNote'
           :escalation
-        when 'CloseConversationNote'
+        when 'ClosureNote'
           :close
         end
       end
