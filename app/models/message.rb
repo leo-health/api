@@ -5,10 +5,8 @@ class Message < ActiveRecord::Base
   has_many :readers, class_name: 'User', through: :read_receipts
   belongs_to :sender, class_name: "User"
 
-  validates :conversation, :sender, :type_name, presence: true
-
+  validates :conversation, :sender, :type_name, :body, presence: true
   after_commit :update_conversation_after_message_sent, on: :create
-  after_commit :update_escalated_status_on_conversation, on: :update
 
   def broadcast_message(sender)
     message_id = id
@@ -32,11 +30,5 @@ class Message < ActiveRecord::Base
       conversation.update_column(:last_message_created_at, created_at)
     end
     conversation.user_conversations.update_all(read: false)
-  end
-
-
-  def update_escalated_status_on_conversation
-    UserConversation.find_by_conversation_id_and_user_id(conversation.id, escalated_to_id)
-        .try(:update_attributes, {escalated: true})
   end
 end

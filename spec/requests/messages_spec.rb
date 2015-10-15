@@ -7,25 +7,27 @@ describe Leo::V1::Messages do
   let!(:conversation){ user.family.conversation }
   let(:serializer){ Leo::Entities::MessageEntity }
 
-  describe "Get /api/v1/conversations/:conversation_id/messages/message_and_notes" do
-    let!(:first_message){create(:message, conversation: conversation, sender: user)}
+  describe "Get /api/v1/conversations/:conversation_id/messages/full" do
+    let!(:first_message){conversation.messages.create(body: "message1", type_name: "text", sender: user)}
+    let!(:second_message){conversation.messages.create(body: "message2", type_name: "text", sender: user)}
     let(:serializer){ Leo::Entities::FullMessageEntity }
     let(:customer_service){create(:user, :customer_service)}
     let(:clinical){create(:user, :clinical)}
 
     before do
-      conversation.escalate_conversation(customer_service.id, clinical.id, "note")
+      escalate_params = {escalated_to: clinical, note: "note", priority: 1, escalated_by: customer_service}
+      conversation.escalate!(escalate_params)
     end
 
     def do_request
-      get "/api/v1/conversations/#{conversation.id}/messages/message_and_notes", { authentication_token: session.authentication_token }
+      get "/api/v1/conversations/#{conversation.id}/messages/full", { authentication_token: session.authentication_token }
     end
 
     it "should return message with system messages(close/escaltion actions)" do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([first_message]).as_json.to_json )
+      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
     end
   end
 

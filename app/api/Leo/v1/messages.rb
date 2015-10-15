@@ -28,7 +28,7 @@ module Leo
             @conversation = Conversation.find(params[:conversation_id])
           end
 
-          namespace 'message_and_notes' do
+          namespace 'full' do
             get do
               messages = @conversation.messages
               authorize! :read, Message
