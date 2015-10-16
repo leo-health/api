@@ -6,7 +6,7 @@ class Message < ActiveRecord::Base
   belongs_to :sender, class_name: "User"
 
   validates :conversation, :sender, :type_name, :body, presence: true
-  after_commit :update_conversation_after_message_sent, on: :create
+  after_commit :update_conversation_after_message_sent, :set_last_message_created_at, on: :create
 
   def broadcast_message(sender)
     message_id = id
@@ -21,13 +21,16 @@ class Message < ActiveRecord::Base
 
   private
 
+  def set_last_message_created_at
+    conversation.update_column(:last_message_created_at, created_at)
+  end
+
   def update_conversation_after_message_sent
     return if conversation.messages.count == 1
     conversation.staff << sender unless conversation.staff.where(id: sender.id).exists?
     conversation.user_conversations.update_all(read: false)
     unless conversation.state.to_sym == :escalated
       conversation.update_column(:state, :open)
-      conversation.update_column(:last_message_created_at, created_at)
     end
     conversation.user_conversations.update_all(read: false)
   end
