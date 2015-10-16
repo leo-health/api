@@ -15,7 +15,7 @@ class Message < ActiveRecord::Base
     participants.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "newMessage#{user.email}"; channels}
-      Pusher.trigger(channels, 'new_message', message_id)
+      Pusher.trigger(channels, 'new_message', {message_id: message_id, conversation_id: conversation.id})
     end
   end
 
