@@ -28,7 +28,7 @@ class Conversation < ActiveRecord::Base
 
     event :escalate do
       after do |args|
-        broadcast_state(:EscalationNote, args[:escalated_by], args[:note], args[:escalated_to])
+        broadcast_state(:escalation, args[:escalated_by], args[:note], args[:escalated_to])
       end
 
       transitions :from => [:open, :escalated], :to => :escalated, :guard => :escalate_conversation_to_staff
@@ -36,7 +36,7 @@ class Conversation < ActiveRecord::Base
 
     event :close do
       after do |args|
-        broadcast_state(:ClosureNote, args[:closed_by], args[:note])
+        broadcast_state(:close, args[:closed_by], args[:note])
       end
 
       transitions :from => [:open, :escalated], :to => :closed, :guard => :close_conversation
