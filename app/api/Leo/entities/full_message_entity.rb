@@ -10,6 +10,14 @@ module Leo
 
       private
 
+      def conversation_id
+        if object.class.name == 'EscalationNote'
+          object.user_conversation.conversation
+        else
+          object.conversation.id
+        end
+      end
+
       def created_by
         case object.class.name
         when 'Message'

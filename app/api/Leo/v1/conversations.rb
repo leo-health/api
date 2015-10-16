@@ -19,7 +19,11 @@ module Leo
             authorize! :update, conversation
             close_params = {closed_by: current_user, note: params[:note]}
             if conversation.close!(close_params)
-              present :conversation, conversation, with: Leo::Entities::ConversationEntity
+              # present :conversation, conversation, with: Leo::Entities::ConversationEntity
+              present :conversation_id, conversation.id
+              present :created_by, current_user
+              present :note, params[:note]
+              present :message_type, 'ClosureNote'
             else
               error!({error_code: 422, error_message: "can't close the conversation" }, 422)
             end
@@ -40,7 +44,11 @@ module Leo
             escalated_to = User.find(params[:escalated_to_id])
             escalate_params = {escalated_to: escalated_to, note: params[:note], priority: params[:priority], escalated_by: current_user}
             if conversation.escalate!(escalate_params)
-              present :conversation, conversation, with: Leo::Entities::ConversationEntity
+              present :escalated_to, escalated_to
+              present :note, params[:note]
+              present :conversation_id, conversation.id
+              present :created_by, current_user
+              present :message_type, 'EscalationNote'
             else
               error!({error_code: 422, error_message: "can't escalte the conversation" }, 422)
             end
