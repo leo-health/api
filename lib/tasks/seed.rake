@@ -1,10 +1,11 @@
+require 'csv'
 
 namespace :load do
 
   desc 'Seed test data'
   task all: :environment do
     begin
-      ["load:seed_staff", "load:seed_guardians"].each do |t|
+      ["load:seed_staff", "load:seed_guardians", "load:seed_growth_curves"].each do |t|
         Rake::Task[t].execute
         puts "#{t} completed"
       end

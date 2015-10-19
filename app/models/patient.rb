@@ -4,11 +4,13 @@ class Patient < ActiveRecord::Base
   belongs_to :role
   has_many :appointments
   has_many :medications
+  has_many :allergies
   has_many :photos
   has_many :vaccines
   has_many :vitals
   has_many :insurances
   has_many :avatars, as: :owner
+  has_many :user_generated_health_records
 
   validates :first_name, :last_name, :birth_date, :sex, :family, :role, presence: true
 
