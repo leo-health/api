@@ -40,8 +40,6 @@ ActiveRecord::Schema.define(version: 20151012171755) do
     t.datetime "onset_at"
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
-    t.string   "severity",   default: "", null: false
-    t.string   "note",       default: "", null: false
   end
 
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
@@ -193,19 +191,6 @@ ActiveRecord::Schema.define(version: 20151012171755) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "height_growth_curves", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer  "days",       null: false
-    t.string   "sex",        null: false
-    t.float    "l",          null: false
-    t.float    "m",          null: false
-    t.float    "s",          null: false
-  end
-
-  add_index "height_growth_curves", ["days"], name: "index_height_growth_curves_on_days", using: :btree
-  add_index "height_growth_curves", ["sex"], name: "index_height_growth_curves_on_sex", using: :btree
-
   create_table "insurance_plans", force: :cascade do |t|
     t.integer  "insurer_id", null: false
     t.string   "plan_name"
@@ -252,21 +237,18 @@ ActiveRecord::Schema.define(version: 20151012171755) do
 
   create_table "medications", force: :cascade do |t|
     t.integer  "patient_id"
-    t.integer  "athena_id",  default: 0,  null: false
-    t.string   "medication", default: "", null: false
-    t.string   "sig",        default: "", null: false
+    t.integer  "athena_id",    default: 0,  null: false
+    t.string   "medication",   default: "", null: false
+    t.string   "sig",          default: "", null: false
+    t.string   "patient_note", default: "", null: false
     t.datetime "started_at"
     t.datetime "ended_at"
     t.datetime "ordered_at"
     t.datetime "filled_at"
     t.datetime "entered_at"
     t.datetime "hidden_at"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.string   "dose",       default: "", null: false
-    t.string   "route",      default: "", null: false
-    t.string   "frequency",  default: "", null: false
-    t.string   "note",       default: "", null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
   end
 
   add_index "medications", ["athena_id"], name: "index_medications_on_athena_id", using: :btree
@@ -462,19 +444,6 @@ ActiveRecord::Schema.define(version: 20151012171755) do
   add_index "user_conversations", ["conversation_id"], name: "index_user_conversations_on_conversation_id", using: :btree
   add_index "user_conversations", ["user_id"], name: "index_user_conversations_on_user_id", using: :btree
 
-  create_table "user_generated_health_records", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "deleted_at"
-    t.string   "note",       null: false
-    t.integer  "user_id"
-    t.integer  "patient_id"
-  end
-
-  add_index "user_generated_health_records", ["deleted_at"], name: "index_user_generated_health_records_on_deleted_at", using: :btree
-  add_index "user_generated_health_records", ["patient_id"], name: "index_user_generated_health_records_on_patient_id", using: :btree
-  add_index "user_generated_health_records", ["user_id"], name: "index_user_generated_health_records_on_user_id", using: :btree
-
   create_table "users", force: :cascade do |t|
     t.string   "title"
     t.string   "first_name",             null: false
@@ -534,18 +503,5 @@ ActiveRecord::Schema.define(version: 20151012171755) do
 
   add_index "vitals", ["athena_id"], name: "index_vitals_on_athena_id", using: :btree
   add_index "vitals", ["patient_id"], name: "index_vitals_on_patient_id", using: :btree
-
-  create_table "weight_growth_curves", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer  "days",       null: false
-    t.string   "sex",        null: false
-    t.float    "l",          null: false
-    t.float    "m",          null: false
-    t.float    "s",          null: false
-  end
-
-  add_index "weight_growth_curves", ["days"], name: "index_weight_growth_curves_on_days", using: :btree
-  add_index "weight_growth_curves", ["sex"], name: "index_weight_growth_curves_on_sex", using: :btree
 
 end

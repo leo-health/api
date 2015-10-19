@@ -1,4 +1,3 @@
-require 'csv'
 
 namespace :load do
 
