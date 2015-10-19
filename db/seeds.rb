@@ -1,3 +1,5 @@
+require 'csv'
+
 roles_seed = {
           # Super user / admin
           super_user: 0,
