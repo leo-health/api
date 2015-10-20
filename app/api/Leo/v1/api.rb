@@ -24,6 +24,11 @@ module Leo
       require_relative '../entities/card_entity'
       require_relative '../entities/family_entity'
       require_relative '../entities/session_entity'
+      require_relative '../entities/vital_entity'
+      require_relative '../entities/allergy_entity'
+      require_relative '../entities/medication_entity'
+      require_relative '../entities/vaccine_entity'
+      require_relative '../entities/user_generated_health_record_entity'
       require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
@@ -45,6 +50,7 @@ module Leo
       require_relative 'enrollments'
       require_relative 'patient_enrollments'
       require_relative 'avatars'
+      require_relative 'health_records'
       require_relative 'escalation_notes'
 
       include Leo::V1::ExceptionsHandler
@@ -93,6 +99,7 @@ module Leo
       mount Leo::V1::Enrollments
       mount Leo::V1::PatientEnrollments
       mount Leo::V1::Avatars
+      mount Leo::V1::HealthRecords
       mount Leo::V1::EscalationNotes
 
       add_swagger_documentation(

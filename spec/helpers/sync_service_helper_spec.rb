@@ -237,6 +237,40 @@ RSpec.describe SyncServiceHelper, type: :helper do
         syncer.process_patient_allergies(SyncTask.new(sync_id: patient.id))
         expect(Allergy.count).to be(1)
       end
+
+      it "creates alergy with severity" do
+        expect(connector).to receive("get_patient_allergies").and_return(JSON.parse(%q(
+            [{
+                "allergenname": "Abbokinase",
+                "allergenid": "18581",
+                "reactions": [{
+                  "reactionname": "rash",
+                  "snomedcode": "271807003",
+                  "severity" : "acute"
+                }],
+                "note": "TestingNote"
+            }]
+        )))
+        syncer.process_patient_allergies(SyncTask.new(sync_id: patient.id))
+        expect(Allergy.count).to be(1)
+      end
+
+      it "creates alergy with reactions, no severity" do
+        expect(connector).to receive("get_patient_allergies").and_return(JSON.parse(%q(
+            [{
+                "allergenname": "Abbokinase",
+                "allergenid": "18581",
+                "reactions": [{
+                  "reactionname": "rash",
+                  "snomedcode": "271807003"
+                }],
+                "note": "TestingNote"
+            }]
+        )))
+        syncer.process_patient_allergies(SyncTask.new(sync_id: patient.id))
+        expect(Allergy.count).to be(1)
+      end
+
     end
 
     describe "process_patient_medications" do
@@ -244,7 +278,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:parent) { create(:user, :guardian, family: family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
-      it "creates medication" do
+      it "creates medication with unstructured sig" do
         expect(connector).to receive("get_patient_medications").and_return(JSON.parse(%q(
                   [{
                       "source": "jdoe",
@@ -262,6 +296,45 @@ RSpec.describe SyncServiceHelper, type: :helper do
                       }],
                       "medication": "benzonatate 100 mg capsule"
                   }]
+          )))
+
+        syncer.process_patient_medications(SyncTask.new(sync_id: patient.id))
+        expect(Medication.count).to be(1)
+      end
+
+      it "creates medication with structured sig" do
+        expect(connector).to receive("get_patient_medications").and_return(JSON.parse(%q(
+                [{
+                    "source": "jdoe",
+                    "createdby": "jdoe",
+                    "isstructuredsig": "true",
+                    "medicationid": "244875",
+                    "issafetorenew": "true",
+                    "medicationentryid": "H462",
+                    "structuredsig": {
+                        "dosagefrequencyvalue": "1",
+                        "dosageroute": "oral",
+                        "dosageaction": "Take",
+                        "dosageadditionalinstructions": "before meals",
+                        "dosagefrequencyunit": "per day",
+                        "dosagequantityunit": "tablet(s)",
+                        "dosagequantityvalue": "1",
+                        "dosagefrequencydescription": "every day",
+                        "dosagedurationunit": "day"
+                    },
+                    "events": [{
+                        "eventdate": "04\/20\/2011",
+                        "type": "START"
+                    }, {
+                        "eventdate": "06\/11\/2013",
+                        "type": "HIDE"
+                    }, {
+                        "eventdate": "05\/10\/2011",
+                        "type": "ENTER"
+                    }],
+                    "medication": "Coumadin 2 mg tablet",
+                    "unstructuredsig": "Take 1 tablet(s) every day by oral route before meals."
+                }]
           )))
 
         syncer.process_patient_medications(SyncTask.new(sync_id: patient.id))

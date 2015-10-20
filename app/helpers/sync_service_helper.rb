@@ -392,6 +392,12 @@ module SyncServiceHelper
         leo_allergy.allergen = allergy[:allergenname.to_s]
         leo_allergy.onset_at = DateTime.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
 
+        reactions = []
+        reactions = allergy[:reactions.to_s] if allergy[:reactions.to_s]
+        leo_allergy.severity = reactions[0][:severity.to_s] if (reactions.size > 0 && reactions[0][:severity.to_s])
+
+        leo_allergy.note = allergy[:note.to_s] if allergy[:note.to_s]
+
         leo_allergy.save!
       end
 
@@ -422,8 +428,20 @@ module SyncServiceHelper
         leo_med.medication = med[:medication.to_s]
         leo_med.sig = med[:unstructuredsig.to_s]
         leo_med.sig ||= ''
-        leo_med.patient_note = med[:patientnote.to_s]
-        leo_med.patient_note ||= ''
+        leo_med.note = med[:patientnote.to_s]
+        leo_med.note ||= ''
+
+        structured_sig = {}
+        structured_sig = med[:structuredsig.to_s]
+
+        if structured_sig
+          leo_med.dose = "#{structured_sig[:dosagequantityvalue.to_s]} #{structured_sig[:dosagequantityunit.to_s]} #{structured_sig[:dosagefrequencyvalue.to_s]} #{structured_sig[:dosagefrequencyunit.to_s]}"
+        end
+        leo_med.dose ||= ''
+        leo_med.route = structured_sig[:dosageroute.to_s] if (structured_sig && structured_sig[:dosageroute.to_s])
+        leo_med.route ||= ''
+        leo_med.frequency = structured_sig[:dosagefrequencydescription.to_s] if (structured_sig && structured_sig[:dosagefrequencydescription.to_s])
+        leo_med.frequency ||= ''
         leo_med.started_at = nil
         leo_med.ended_at = nil
         leo_med.ordered_at = nil
