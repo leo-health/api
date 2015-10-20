@@ -23,7 +23,6 @@ describe Leo::V1::HealthRecords do
 
     it "should return a list of heights" do
       do_request
-      puts response.body
       expect(response.status).to eq(200)
       resp = JSON.parse(response.body)
       expect(resp["status"]).to eq("ok")
@@ -142,6 +141,7 @@ describe Leo::V1::HealthRecords do
 
     it "should return a list of notes" do
       do_request
+      puts response.body
       expect(response.status).to eq(200)
       resp = JSON.parse(response.body)
       expect(resp["status"]).to eq("ok")
