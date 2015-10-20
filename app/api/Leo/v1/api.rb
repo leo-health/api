@@ -45,7 +45,7 @@ module Leo
       require_relative 'enrollments'
       require_relative 'patient_enrollments'
       require_relative 'avatars'
-      require_relative 'escalation_notes'
+      require_relative 'notes'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -93,7 +93,7 @@ module Leo
       mount Leo::V1::Enrollments
       mount Leo::V1::PatientEnrollments
       mount Leo::V1::Avatars
-      mount Leo::V1::EscalationNotes
+      mount Leo::V1::Notes
 
       add_swagger_documentation(
           base_path: "/api",

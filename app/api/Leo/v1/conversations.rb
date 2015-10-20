@@ -19,7 +19,6 @@ module Leo
             authorize! :update, conversation
             close_params = {closed_by: current_user, note: params[:note]}
             if conversation.close!(close_params)
-              # present :conversation, conversation, with: Leo::Entities::ConversationEntity
               present :conversation_id, conversation.id
               present :created_by, current_user
               present :note, params[:note]

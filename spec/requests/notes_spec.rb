@@ -1,14 +1,14 @@
 require 'airborne'
 require 'rails_helper'
 
-describe Leo::V1::EscalationNotes do
+describe Leo::V1::Notes do
   let(:clinical){ create(:user, :clinical) }
   let(:conversation){ create(:conversation, state: :open) }
   let(:customer_service){ create(:user, :customer_service) }
   let(:session){ clinical.sessions.create }
   let(:serializer){ Leo::Entities::EscalationNoteEntity }
 
-  describe 'Get /api/v1/conversations/:conversation_id/escalation_notes' do
+  describe 'Get /api/v1/conversations/:conversation_id/notes' do
     def do_request
       escalation_notes_params = { authentication_token: session.authentication_token, conversation_id: conversation.id }
       get "/api/v1/conversations/#{conversation.id}/escalation_notes", escalation_notes_params
