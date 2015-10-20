@@ -19,9 +19,9 @@ module GrowthCurvesHelper
 
   def self.calculate_z(value, l, m, s)
     if l == 0
-      ((value/m)**l - 1)/(l*s)
-    else
       Math.log(value/m)/s
+    else
+      ((value/m)**l - 1)/(l*s)
     end
   end
 
