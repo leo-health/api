@@ -7,6 +7,7 @@ module Leo
       expose :created_at
       expose :message_type
       expose :escalated_to, with: Leo::Entities::UserEntity
+      expose :note
 
       private
 
@@ -46,6 +47,12 @@ module Leo
 
       def escalated_to
         object.class.name == "EscalationNote" ? object.user_conversation.staff : nil
+      end
+
+      def note
+        unless object.class.name == 'Message'
+          object.note
+        end
       end
     end
   end
