@@ -34,7 +34,7 @@ module Leo
         get :current do
           enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
           error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
-          present :enrollment, enrollment
+          present_session(enrollment)
         end
 
         desc "create an enrollment"
@@ -47,7 +47,7 @@ module Leo
           error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
           enrollment = Enrollment.create(declared(params).merge({role_id: 4}))
           if enrollment.valid?
-            present :enrollment, enrollment
+            present_session(enrollment)
           else
             error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
           end
@@ -69,7 +69,7 @@ module Leo
           enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
           error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
           if enrollment.update_attributes(declared(params, include_missing: false))
-            present :enrollment, enrollment
+            present_session(enrollment)
           else
             error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
           end
@@ -79,6 +79,10 @@ module Leo
       helpers do
         def email_taken?(email)
           !!User.find_by_email(email)
+        end
+        def present_session(enrollment)
+          present session: { authentication_token: enrollment.authentication_token }
+          present :user, enrollment, with: Leo::Entities::EnrollmentEntity
         end
       end
     end
