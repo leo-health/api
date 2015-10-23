@@ -29,9 +29,6 @@ class Message < ActiveRecord::Base
     return if conversation.messages.count == 1
     conversation.staff << sender unless conversation.staff.where(id: sender.id).exists?
     conversation.user_conversations.update_all(read: false)
-    unless conversation.state.to_sym == :escalated
-      conversation.update_column(:state, :open)
-    end
-    conversation.user_conversations.update_all(read: false)
+    conversation.open!
   end
 end

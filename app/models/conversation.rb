@@ -28,7 +28,7 @@ class Conversation < ActiveRecord::Base
 
     event :escalate do
       after do |args|
-        broadcast_state(:escalation, args[:escalated_by], args[:note], args[:escalated_to])
+        broadcast_state(:escalation, args[:escalated_by], @escalation_note.id, args[:escalated_to])
       end
 
       transitions :from => [:open, :escalated], :to => :escalated, :guard => :escalate_conversation_to_staff
@@ -36,10 +36,18 @@ class Conversation < ActiveRecord::Base
 
     event :close do
       after do |args|
-        broadcast_state(:close, args[:closed_by], args[:note])
+        broadcast_state(:close, args[:closed_by], @closure_note.id)
       end
 
       transitions :from => [:open, :escalated], :to => :closed, :guard => :close_conversation
+    end
+
+    event :open do
+      after do |args|
+        broadcast_state(:open, false, false)
+      end
+
+      transitions :from => :closed, :to => :open
     end
   end
 
@@ -48,7 +56,7 @@ class Conversation < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       user_conversation = user_conversations.create_with(escalated: true).find_or_create_by!(staff: escalation_params[:escalated_to])
       escalation_note_params = escalation_params.except(:escalated_to)
-      user_conversation.escalation_notes.create!(escalation_note_params)
+      @escalation_note = user_conversation.escalation_notes.create!(escalation_note_params)
       true
     end
   rescue
@@ -59,16 +67,16 @@ class Conversation < ActiveRecord::Base
     # NOTE: close_params = {closed_by: staff, note: 'note'}
     ActiveRecord::Base.transaction do
       user_conversations.each{|i| i.update_attributes!(escalated: false)}
-      closure_notes.create!(conversation: self, note: close_params[:note], closed_by: close_params[:closed_by])
+      @closure_note = closure_notes.create!(conversation: self, note: close_params[:note], closed_by: close_params[:closed_by])
       true
     end
   rescue
     false
   end
 
-  def broadcast_state(message_type, changed_by, note = nil, changed_to = nil)
+  def broadcast_state(message_type, changed_by, note_id, changed_to = nil)
     channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newState#{user.email}"; channels}
-    Pusher.trigger(channels, 'new_state', {message_type: message_type, conversation_id: id, created_by: changed_by, escalated_to: changed_to, note: note}) if channels.count > 0
+    Pusher.trigger(channels, 'new_state', {message_type: message_type, conversation_id: id, created_by: changed_by, escalated_to: changed_to, note_id: note_id}) if channels.count > 0
   end
 
   private
