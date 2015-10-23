@@ -6,52 +6,18 @@ module Leo
 
       include Grape::Kaminari
 
-      require_relative '../entities/avatar_entity'
-      require_relative '../entities/role_entity'
-      require_relative '../entities/insurer_entity'
-      require_relative '../entities/user_entity'
-      require_relative '../entities/escalation_note_entity'
-      require_relative '../entities/system_entity'
-      require_relative '../entities/appointment_status_entity'
-      require_relative '../entities/appointment_type_entity'
-      require_relative '../entities/message_entity'
-      require_relative '../entities/full_message_entity'
-      require_relative '../entities/patient_entity'
-      require_relative '../entities/conversation_entity'
-      require_relative '../entities/conversation_with_messages_entity'
-      require_relative '../entities/practice_entity'
-      require_relative '../entities/appointment_entity'
-      require_relative '../entities/card_entity'
-      require_relative '../entities/family_entity'
-      require_relative '../entities/session_entity'
-      require_relative '../entities/vital_entity'
-      require_relative '../entities/allergy_entity'
-      require_relative '../entities/medication_entity'
-      require_relative '../entities/vaccine_entity'
-      require_relative '../entities/user_generated_health_record_entity'
+      ENTITIES = %w(avatar role insurer user escalation_note system appointment_status
+                    appointment_type message full_message patient conversation enrollment
+                    conversation_with_messages practice appointment card family session
+                    vital allergy medication vaccine user_generated_health_record)
+
+      ENTITIES.each do |entity_name|
+        require_relative "../entities/#{entity_name}_entity"
+      end
+
       require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
-      require_relative 'appointments'
-      require_relative 'appointment_slots'
-      require_relative 'conversations'
-      require_relative 'roles'
-      require_relative 'sessions'
-      require_relative 'users'
-      require_relative 'patients'
-      require_relative 'messages'
-      require_relative 'passwords'
-      require_relative 'read_receipts'
-      require_relative 'practices'
-      require_relative 'appointment_types'
-      require_relative 'families'
-      require_relative 'cards'
-      require_relative 'insurers'
-      require_relative 'enrollments'
-      require_relative 'patient_enrollments'
-      require_relative 'avatars'
-      require_relative 'health_records'
-      require_relative 'escalation_notes'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -81,26 +47,15 @@ module Leo
         end
       end
 
-      mount Leo::V1::Appointments
-      mount Leo::V1::AppointmentSlots
-      mount Leo::V1::Conversations
-      mount Leo::V1::Sessions
-      mount Leo::V1::Users
-      mount Leo::V1::Roles
-      mount Leo::V1::Passwords
-      mount Leo::V1::Patients
-      mount Leo::V1::Practices
-      mount Leo::V1::ReadReceipts
-      mount Leo::V1::Messages
-      mount Leo::V1::AppointmentTypes
-      mount Leo::V1::Families
-      mount Leo::V1::Cards
-      mount Leo::V1::Insurers
-      mount Leo::V1::Enrollments
-      mount Leo::V1::PatientEnrollments
-      mount Leo::V1::Avatars
-      mount Leo::V1::HealthRecords
-      mount Leo::V1::EscalationNotes
+      ENDPOINTS = %w(appointments appointment_slots conversations sessions users
+                     roles passwords patients practices read_receipts messages
+                     appointment_types families cards insurers enrollments
+                     patient_enrollments avatars health_records escalation_notes)
+
+      ENDPOINTS.each do |endpoint|
+        require_relative endpoint
+        mount "Leo::V1::#{endpoint.camelize}".constantize
+      end
 
       add_swagger_documentation(
           base_path: "/api",
