@@ -17,7 +17,7 @@ module Leo
           end
         end
 
-        route_param :id do
+        route_param :token do
           namespace :reset do
             params do
               requires :password, type: String
@@ -26,7 +26,7 @@ module Leo
 
             desc "reset the password for user"
             put do
-              if user = User.with_reset_password_token(params[:id]) and user.try(:reset_password_period_valid?)
+              if user = User.with_reset_password_token(params[:token]) and user.try(:reset_password_period_valid?)
                 unless user.reset_password(params[:password], params[:password_confirmation])
                   error!({error_code: 422, error_message: "Password need to has at least 8 characters."}, 422)
                 end

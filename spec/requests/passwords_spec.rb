@@ -16,7 +16,7 @@ describe Leo::V1::Passwords do
     end
   end
 
-  describe 'PUT /api/v1/passwords/reset' do
+  describe 'PUT /api/v1/passwords/:token/reset' do
     let!(:user){create(:user, password: "old_password", password_confirmation: "old_password")}
 
     def do_request(reset_params)
