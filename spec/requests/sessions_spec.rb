@@ -28,7 +28,7 @@ describe Leo::V1::Sessions do
         expect{do_request({email: user.email, password: 'password'})}.to change{Session.count}.from(0).to(1)
         expect(response.status).to eq(201)
         body = JSON.parse( response.body, symbolize_names: true )
-        expect( body[:data][:member].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
+        expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
       end
     end
 

@@ -19,15 +19,15 @@ module Leo
         desc "create a session when user login"
         post do
           user = User.find_by_email(params[:email].downcase)
-
           unless user && user.valid_password?(params[:password])
             error!({error_code: 403, error_message: "Invalid Email or Password."}, 422)
-            return
           end
-
-          if session = user.sessions.create
-            present user.class.name.to_sym.downcase, user, with: Leo::Entities::UserEntity
-            present	:session, session, with: Leo::Entities::SessionEntity
+          session = user.sessions.create
+          if session.valid?
+            present :user, user, with: Leo::Entities::UserEntity
+            present :session, session, with: Leo::Entities::SessionEntity
+          else
+            error!({error_code: 422, error_message: session.errors.full_messages }, 422)
           end
         end
       end
@@ -39,7 +39,10 @@ module Leo
 
         desc "destroy the session when user logout"
         delete do
-          Session.find_by_authentication_token(params[:authentication_token]).destroy
+          session = Session.find_by_authentication_token(params[:authentication_token])
+          unless session.try(:destroy)
+            error!({error_code: 422, error_message: "can't log out" }, 422)
+          end
         end
       end
     end
