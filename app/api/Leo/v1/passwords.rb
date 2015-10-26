@@ -17,6 +17,27 @@ module Leo
           end
         end
 
+        namespace :change_password do
+          before do
+            authenticated
+          end
+
+          params do
+            requires :current_password, type: String
+            requires :password, type: String
+            requires :password_confirmation, type: String
+          end
+
+          put do
+            unless current_user.valid_password?(params[:current_password])
+              error!({error_code: 422, error_message: "Current password is not valid."}, 422)
+            end
+            unless current_user.reset_password(params[:password], params[:password_confirmation])
+              error!({error_code: 422, error_message: "Password need to has at least 8 characters."}, 422)
+            end
+          end
+        end
+
         route_param :token do
           namespace :reset do
             params do

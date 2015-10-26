@@ -54,4 +54,20 @@ describe Leo::V1::Passwords do
       end
     end
   end
+
+  describe 'PUT /api/v1/passwords/change_password' do
+    let(:user){create(:user, password: "old_password", password_confirmation: "old_password")}
+    let(:session){user.sessions.create}
+
+    def do_request
+      password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "new_password" }
+      put "/api/v1/passwords/change_password", password_params
+    end
+
+    it "should change the password for user" do
+      do_request
+      expect(response.status).to eq(200)
+      expect( user.reload.valid_password?("new_password")).to be true
+    end
+  end
 end
