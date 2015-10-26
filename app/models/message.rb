@@ -5,7 +5,7 @@ class Message < ActiveRecord::Base
   has_many :readers, class_name: 'User', through: :read_receipts
   belongs_to :sender, class_name: "User"
 
-  validates :conversation, :sender, :type_name, presence: true
+  validates :conversation, :sender, :type_name, :body, presence: true
 
   after_commit :update_conversation_after_message_sent, on: :create
   after_commit :update_escalated_status_on_conversation, on: :update
