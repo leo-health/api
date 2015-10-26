@@ -8,9 +8,9 @@ describe Leo::V1::Cards do
     let!(:upcoming_appointment){create(:appointment, booked_by: user, start_datetime: Time.now + 1.day)}
     let!(:past_appointment){create(:appointment, booked_by: user, start_datetime: Time.now - 1.day)}
     let!(:serializer){ Leo::Entities::CardEntity }
-    let!(:response_data){[{appointment_card_data: upcoming_appointment, priority: 0, type: 'appointment', type_id: 0},
+    let!(:response_data){[{appointment_card_data: upcoming_appointment.reload, priority: 0, type: 'appointment', type_id: 0},
                           {conversation_card_data: user.family.conversation, priority: 1, type: 'conversation', type_id: 1},
-                          {appointment_card_data: past_appointment, priority: 2, type: 'appointment', type_id: 0}]}
+                          {appointment_card_data: past_appointment.reload, priority: 2, type: 'appointment', type_id: 0}]}
 
     def do_request
       get "/api/v1/cards", {authentication_token: session.authentication_token}
