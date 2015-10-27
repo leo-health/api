@@ -1,7 +1,7 @@
 module Leo
   module V1
     class Notes < Grape::API
-      desc 'return all the escalation_notes and closure_notes of a conversation'
+      desc 'return a single escalation_note or closure_note'
       before do
         authenticated
       end
