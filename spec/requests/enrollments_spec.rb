@@ -31,7 +31,7 @@ describe Leo::V1::Enrollments do
   end
 
   describe "Put /api/v1/enrollments/current" do
-    let(:enrollment){ create(:enrollment) }
+    let(:enrollment){ create(:enrollment)}
     let(:serializer){ Leo::Entities::EnrollmentEntity }
 
     def do_request
