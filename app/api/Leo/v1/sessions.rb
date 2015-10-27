@@ -39,10 +39,8 @@ module Leo
 
         desc "destroy the session when user logout"
         delete do
-          session = Session.find_by_authentication_token(params[:authentication_token])
-          unless session.try(:destroy)
-            error!({error_code: 422, error_message: "can't log out" }, 422)
-          end
+          session = Session.find_by_authentication_token!(params[:authentication_token])
+          session.destroy
         end
       end
     end
