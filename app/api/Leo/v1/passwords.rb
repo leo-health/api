@@ -12,7 +12,7 @@ module Leo
             if user = User.find_by_email(params[:email].downcase)
               user.send_reset_password_instructions
             else
-              error!({error_code: 422, error_message: "Invalid Email."}, 422)
+              error!({error_code: 422, error_message: user.errors.full_messages}, 422)
             end
           end
         end
@@ -29,11 +29,9 @@ module Leo
           end
 
           put do
-            unless current_user.valid_password?(params[:current_password])
-              error!({error_code: 422, error_message: "Current password is not valid."}, 422)
-            end
+            error!({ error_code: 422, error_message: "Current password is not valid." }, 422) unless current_user.valid_password?(params[:current_password])
             unless current_user.reset_password(params[:password], params[:password_confirmation])
-              error!({error_code: 422, error_message: "Password need to has at least 8 characters."}, 422)
+              error!({ error_code: 422, error_message: current_user.errors.full_messages }, 422)
             end
           end
         end
@@ -47,12 +45,10 @@ module Leo
 
             desc "reset the password for user"
             put do
-              if user = User.with_reset_password_token(params[:token]) and user.try(:reset_password_period_valid?)
-                unless user.reset_password(params[:password], params[:password_confirmation])
-                  error!({error_code: 422, error_message: "Password need to has at least 8 characters."}, 422)
-                end
-              else
-                error!({error_code: 422, error_message: "Reset password period expired."}, 422)
+              error!({error_code: 401, error_message: "401 Unauthorized"}, 401) unless user = User.with_reset_password_token(params[:token])
+              error!({error_code: 422, error_message: "Reset password period expired."}, 422) unless user.reset_password_period_valid?
+              unless user.reset_password(params[:password], params[:password_confirmation])
+                error!({ error_code: 422, error_message: user.errors.full_messages }, 422)
               end
             end
           end

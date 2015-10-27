@@ -36,7 +36,7 @@ describe Leo::V1::Passwords do
       it 'should not reset the password for user' do
         do_request({password: "1", password_confirmation: "1"})
         expect(response.status).to eq(422)
-        expect_json("message.error_message", "Password need to has at least 8 characters" )
+        expect_json("message.error_message.0", "Password is too short (minimum is 8 characters)" )
       end
     end
 
