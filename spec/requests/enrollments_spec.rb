@@ -32,6 +32,7 @@ describe Leo::V1::Enrollments do
 
   describe "Put /api/v1/enrollments/current" do
     let(:enrollment){ create(:enrollment)}
+    let(:serializer){ Leo::Entities::EnrollmentEntity }
 
     def do_request
       enrollment_params = {first_name: "Jack", last_name: "Cash", authentication_token: enrollment.authentication_token }
@@ -42,7 +43,7 @@ describe Leo::V1::Enrollments do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:enrollment].as_json.to_json).to eq(enrollment.reload.as_json.to_json)
+      expect(body[:data][:user].as_json.to_json).to eq(serializer.represent(enrollment.reload).as_json.to_json)
     end
   end
 end
