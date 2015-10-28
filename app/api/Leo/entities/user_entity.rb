@@ -4,6 +4,7 @@ module Leo
       expose :id, :title, :first_name, :middle_initial, :last_name, :suffix, :sex, :practice_id, :family_id, :email
       expose :role
       expose :avatar
+      expose :type
 
       private
 
