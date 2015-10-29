@@ -1,0 +1,8 @@
+development:
+  gateway: "gateway.sandbox.push.apple.com"
+
+test:
+  gateway: "localhost"
+
+production:
+  gateway: "gateway.push.apple.com"
