@@ -32,7 +32,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo Invitation',
       to: enrollment.email,
       vars: {
-        'LINK' => "http://localhost:8888/#/inviteParent?authentication_token=#{enrollment.authentication_token}",
+        'LINK' => "http://localhost:8888/#/registration?token=#{enrollment.authentication_token}",
         'SECONDARY_GUARDIAN_FIRST_NAME' => enrollment.first_name,
         'PRIMARY_GUARDIAN_FIRST_NAME' => current_user.first_name
       }
