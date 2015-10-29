@@ -3,8 +3,7 @@ class ApnsNotification
     @pusher = Grocer.pusher(
         certificate: Rails.root.join('certificate.pem'),
         passphrase:  "catfood",
-        gateway:     "localhost",
-        port:        2195,
+        gateway:     APNS_CONFIG['gateway'],
         retries:     3
     )
   end

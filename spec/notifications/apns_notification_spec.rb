@@ -3,7 +3,7 @@ require 'timeout'
 
 describe ApnsNotification do
   before do
-    @server = Grocer.server(port: 2195)
+    @server = Grocer.server
     @server.accept
   end
 
