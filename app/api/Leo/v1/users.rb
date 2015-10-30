@@ -16,6 +16,24 @@ module Leo
         end
       end
 
+      desc 'return guardian with matched names'
+      namespace :search_guardian do
+        before do
+          authenticated
+        end
+
+        params do
+          requires :first_name, type: String, allow_blank: false
+          optional :last_name, type: String
+        end
+
+        get do
+          return if params[:first_name].length < 3
+          guardians = User.includes(:role).where(role: {name: 'guardian'}).where("first_name like ?", "%#{params[:first_name]}").where("last_name like ?", "%#{params[:last_name]}%")
+          present :guardians, guardians
+        end
+      end
+
       desc "#post create a user with provided params"
       namespace :sign_up do
         params do
