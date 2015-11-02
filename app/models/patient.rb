@@ -1,5 +1,15 @@
 class Patient < ActiveRecord::Base
   acts_as_paranoid
+  include PgSearch
+  pg_search_scope(
+    :search,
+    against: %i( first_name last_name ),
+    using: {
+        tsearch: { prefix: true },
+        trigram: { threshold: 0.1 }
+    }
+  )
+
   belongs_to :family
   belongs_to :role
   has_many :appointments

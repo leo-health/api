@@ -2,11 +2,12 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Patients do
-  let!(:guardian_role){create(:role, :guardian)}
-  let!(:patient_role){create(:role, :patient)}
   let(:family){create(:family_with_members)}
-  let!(:guardian){family.reload.members.first}
-  let!(:session){guardian.sessions.create}
+  let(:guardian){family.reload.members.first}
+  let(:session){guardian.sessions.create}
+  let!(:patient){family.patients.first}
+  let!(:avatar){create(:avatar, owner: family.patients.first)}
+  let(:serializer){ Leo::Entities::PatientEntity }
 
   describe 'POST /api/v1/patients' do
     let(:patient_params){{first_name: "patient_first_name",
@@ -29,8 +30,6 @@ describe Leo::V1::Patients do
   end
 
   describe 'Delete /api/v1/patients/:id' do
-    let!(:patient){family.patients.first}
-
     def do_request
       delete "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token}
     end
@@ -42,8 +41,6 @@ describe Leo::V1::Patients do
   end
 
   describe 'Put /api/v1/patients/:id' do
-    let!(:patient){family.patients.first}
-
     def do_request
       put "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, email: "new_email@leohealth.com"}
     end
@@ -57,10 +54,6 @@ describe Leo::V1::Patients do
   end
 
   describe "Get /api/v1/patients/:id" do
-    let(:patient){family.patients.first}
-    let!(:avatar){create(:avatar, owner: family.patients.first)}
-    let(:serializer){ Leo::Entities::PatientEntity }
-
     def do_request
       get "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, avatar_size: "primary_3x"}
     end
@@ -74,10 +67,6 @@ describe Leo::V1::Patients do
   end
 
   describe "Get /api/v1/patients" do
-    let(:patient){family.patients.first}
-    let!(:avatar){create(:avatar, owner: family.patients.first)}
-    let(:serializer){ Leo::Entities::PatientEntity }
-
     def do_request
       get "/api/v1/patients", {authentication_token: session.authentication_token, avatar_size: "primary_3x"}
     end
@@ -87,6 +76,23 @@ describe Leo::V1::Patients do
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients, {avatar_size: "primary_3x"}).as_json.to_json)
+    end
+  end
+
+  describe "Get /api/v1/search_patient" do
+    def do_request
+      get "/api/v1/search_patient", { authentication_token: session.authentication_token, query: "est" }
+    end
+
+    before do
+      patient.update_attributes(first_name: "test", last_name: "patient")
+    end
+
+    it "should return the patient has name matches the query" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data].as_json.to_json).to eq(serializer.represent([patient.reload]).as_json.to_json)
     end
   end
 end
