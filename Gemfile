@@ -35,6 +35,7 @@ gem 'public_activity'
 gem "mini_magick"
 gem 'aasm'
 gem 'grocer'
+gem 'pg_search'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
