@@ -1,5 +1,19 @@
 class User < ActiveRecord::Base
   acts_as_paranoid
+  include PgSearch
+  pg_search_scope(
+    :search,
+    against: %i(
+    first_name
+    last_name
+    ),
+    using: {
+      tsearch: {
+        dictionary: "english",
+        prefix: true
+      }
+    }
+  )
 
   belongs_to :family
   belongs_to :role
