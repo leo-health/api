@@ -16,21 +16,20 @@ module Leo
         end
       end
 
-      desc 'return guardian with matched names'
-      namespace :search_guardian do
+      desc 'return users with matched names'
+      namespace :search_user do
         before do
           authenticated
         end
 
         params do
-          requires :first_name, type: String, allow_blank: false
-          optional :last_name, type: String
+          requires :query, type: String, allow_blank: false
         end
 
         get do
-          return if params[:first_name].length < 3
-          guardians = User.includes(:role).where(role: {name: 'guardian'}).where("first_name like ?", "%#{params[:first_name]}").where("last_name like ?", "%#{params[:last_name]}%")
-          present :guardians, guardians
+          error!({error_code: 422, error_message: 'query must have at least two characters'}, 422) if params[:query].length < 2
+          results = User.search(params[:query])
+          present results, with: Leo::Entities::UserEntity
         end
       end
 

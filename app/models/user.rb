@@ -3,15 +3,10 @@ class User < ActiveRecord::Base
   include PgSearch
   pg_search_scope(
     :search,
-    against: %i(
-    first_name
-    last_name
-    ),
+    against: %i( first_name last_name ),
     using: {
-      tsearch: {
-        dictionary: "english",
-        prefix: true
-      }
+      tsearch: { prefix: true },
+      trigram: { threshold: 0.1 }
     }
   )
 
