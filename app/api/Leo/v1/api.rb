@@ -50,7 +50,7 @@ module Leo
       ENDPOINTS = %w(appointments appointment_slots conversations sessions users
                      roles passwords patients practices read_receipts messages
                      appointment_types families cards insurers enrollments
-                     patient_enrollments avatars health_records notes)
+                     patient_enrollments avatars health_records notes pushers)
 
       ENDPOINTS.each do |endpoint|
         require_relative endpoint

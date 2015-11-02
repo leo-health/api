@@ -50,7 +50,7 @@ module Leo
           user = User.new(declared(params, include_missing: false).merge({role_id: 4}))
           if user.save
             session = user.sessions.create
-            present :authentication_token, session.authentication_token
+            present :session, session
             present :user, user, with: Leo::Entities::UserEntity
           else
             error!({error_code: 422, error_message: user.errors.full_messages }, 422)
@@ -74,7 +74,7 @@ module Leo
           user = User.new( declared(params).merge(role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
           render_success user
           session = user.sessions.create
-          present :authentication_token, session.authentication_token
+          present :session, session
         end
 
         route_param :id do
