@@ -33,14 +33,14 @@ describe Leo::V1::Users do
     let(:session){ user.sessions.create }
 
     def do_request
-      get "/api/v1/search_user", { authentication_token: session.authentication_token, query: "est" }
+      get "/api/v1/search_user", { authentication_token: session.authentication_token, query: "test" }
     end
 
     it "should return the user has name matches the query" do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent([user]).as_json.to_json)
+      expect(body[:data][:users].as_json.to_json).to eq(serializer.represent([user]).as_json.to_json)
     end
   end
 
