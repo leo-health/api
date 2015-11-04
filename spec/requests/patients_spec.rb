@@ -78,21 +78,4 @@ describe Leo::V1::Patients do
       expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients, {avatar_size: "primary_3x"}).as_json.to_json)
     end
   end
-
-  describe "Get /api/v1/search_patient" do
-    def do_request
-      get "/api/v1/search_patient", { authentication_token: session.authentication_token, query: "est" }
-    end
-
-    before do
-      patient.update_attributes(first_name: "test", last_name: "patient")
-    end
-
-    it "should return the patient has name matches the query" do
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent([patient.reload]).as_json.to_json)
-    end
-  end
 end

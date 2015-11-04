@@ -2,24 +2,6 @@ module Leo
   module V1
     class Patients < Grape::API
       include Grape::Kaminari
-
-      desc "return patients with matched names"
-      namespace :search_patient do
-        before do
-          authenticated
-        end
-
-        params do
-          requires :query, type: String, allow_blank: false
-        end
-
-        get do
-          error!({error_code: 422, error_message: 'query must have at least two characters'}, 422) if params[:query].length < 2
-          results = Patient.search(params[:query])
-          present results, with: Leo::Entities::PatientEntity
-        end
-      end
-
       resource :patients do
         before do
           authenticated

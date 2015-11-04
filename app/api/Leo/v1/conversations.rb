@@ -100,6 +100,18 @@ module Leo
           end
         end
       end
+
+      namespace 'families/:family_id/conversation' do
+        before do
+          authenticated
+        end
+
+        desc "Return conversation associated with the family"
+        get do
+          family = Family.find(params[:family_id])
+          present :conversation, family.conversation, with: Leo::Entities::ConversationEntity
+        end
+      end
     end
   end
 end

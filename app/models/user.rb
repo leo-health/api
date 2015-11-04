@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
     against: %i( first_name last_name ),
     using: {
       tsearch: { prefix: true },
-      trigram: { threshold: 0.1 }
+      trigram: { threshold: 0.3 }
     }
   )
 

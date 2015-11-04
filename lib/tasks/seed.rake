@@ -180,7 +180,7 @@ namespace :load do
 
   desc "Seed sample guardian users with conversations."
   task seed_guardians: :environment do
-    (0..4).each do |f|
+    (0..10000).each do |f|
       family = Family.new
 
       if family.save
@@ -191,11 +191,13 @@ namespace :load do
         false
       end
 
+      first_name = (0...10).map { (65 + rand(26)).chr }.join
+      last_name = (0...10).map { (65 + rand(26)).chr }.join
       guardian_male = family.guardians.create!(
         title: "Mr.",
-        first_name: "Pierre",
+        first_name: "#{first_name}",
         middle_initial: "E",
-        last_name: "Curie",
+        last_name: "#{last_name}",
         sex: "M",
         password: "pierrepierre",
         email: "pierre#{family.id.to_s}@curie.com",
@@ -236,12 +238,12 @@ namespace :load do
       end
 
       if f > 0
-        (1..f).each do |i|
+        (1..3).each do |i|
           if patient = family.patients.create!(
             title: "",
             first_name: "Eve #{i.to_s}",
             middle_initial: "M.",
-            last_name: "Curie",
+            last_name: "#{last_name}",
             sex: "F",
             birth_date: i.years.ago,
             role_id: 6,
