@@ -70,34 +70,15 @@ module Leo
         end
       end
 
-      namespace 'users/:user_id/conversations' do
+      namespace 'staff/:staff_id/conversations' do
         before do
           authenticated
         end
 
-        after_validation do
-          @user = User.find(params[:user_id])
-        end
-
-        params do
-          optional :state, type: String, allow_blank: false, values: ["escalated", "new"]
-        end
-
         desc "Return all relevant conversations of a user"
         get do
-          if @user.has_role?(:guardian)
-            conversation = Conversation.find_by_family_id(@user.family_id)
-            authorize! :read, conversation
-            present :conversation, conversation, with: Leo::Entities::ConversationEntity and return
-          else
-            if params[:state] && params[:state] == "escalated"
-              conversations = @user.escalated_conversations
-            elsif params[:state] && params[:state] == "new"
-              conversations = @user.unread_conversations
-            end
-            authorize! :read, Conversation
-            present :conversations, paginate(conversations), with: Leo::Entities::ConversationEntity
-          end
+          staff = User.find(params[:staff_id])
+          present :conversations, staff.conversations, with: Leo::Entities::ConversationEntity
         end
       end
 
