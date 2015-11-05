@@ -43,7 +43,7 @@ describe Leo::V1::Passwords do
     context 'reset password period expired' do
       def do_request(reset_params)
         token = user.send(:set_reset_password_token)
-        user.update_attributes(reset_password_sent_at: Time.now - 7.hours)
+        user.update_attributes(reset_password_sent_at: Time.now - 13.hours)
         put "/api/v1/passwords/#{token}/reset", reset_params, format: :json
       end
 
