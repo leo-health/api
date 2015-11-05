@@ -40,6 +40,14 @@ describe Leo::V1::Passwords do
       end
     end
 
+    context 'reset with different password and password confirmation' do
+      it 'should not reset the password for user' do
+        do_request({password: "password1", password_confirmation: "password2"})
+        expect(response.status).to eq(422)
+        expect_json("message.error_message.0", "Password confirmation doesn't match Password" )
+      end
+    end
+
     context 'reset password period expired' do
       def do_request(reset_params)
         token = user.send(:set_reset_password_token)

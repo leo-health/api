@@ -30,7 +30,6 @@ module Leo
 
           put do
             error!({ error_code: 422, error_message: "Current password is not valid." }, 422) unless current_user.valid_password?(params[:current_password])
-            error!({ error_code: 422, error_message: "password and password confirmation do not match" }, 422) unless params[:password] == params[:password_confirmation]
             unless current_user.reset_password(params[:password], params[:password_confirmation])
               error!({ error_code: 422, error_message: current_user.errors.full_messages }, 422)
             end
@@ -46,13 +45,9 @@ module Leo
 
             desc "reset the password for user"
             put do
-              error!({ error_code: 422, error_message: "password and password confirmation do not match" }, 422) unless params[:password] == params[:password_confirmation]
-              user = User.with_reset_password_token(params[:token])
+              error!({error_code: 401, error_message: "401 Unauthorized"}, 401) unless user = User.with_reset_password_token(params[:token])
               error!({error_code: 422, error_message: "Reset password period expired."}, 422) unless user.reset_password_period_valid?
-              user = User.reset_password_by_token({reset_password_token: params[:token],
-                                                   password: params[:password],
-                                                   password_confirmation: params[:password_confirmation]})
-              unless user.valid?
+              unless user.reset_password(params[:password], params[:password_confirmation])
                 error!({ error_code: 422, error_message: user.errors.full_messages }, 422)
               end
             end
