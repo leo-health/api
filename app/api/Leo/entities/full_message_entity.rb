@@ -2,12 +2,12 @@ module Leo
   module Entities
     class FullMessageEntity < Grape::Entity
       expose :id
-      expose :created_by, with: Leo::Entities::UserEntity
       expose :message_body
-      expose :created_at
       expose :message_type
-      expose :escalated_to, with: Leo::Entities::UserEntity
       expose :note
+      expose :escalated_to, with: Leo::Entities::UserEntity
+      expose :created_by, with: Leo::Entities::UserEntity
+      expose :created_at
 
       private
 
