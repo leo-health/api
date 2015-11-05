@@ -31,7 +31,9 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :validatable
 
+  validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, presence: true
+  validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, on: :create
