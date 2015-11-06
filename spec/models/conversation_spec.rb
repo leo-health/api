@@ -17,37 +17,34 @@ describe Conversation, type: :model do
   end
 
   describe 'self.sort_conversations' do
-    let!(:open_conversation){ create(:conversation, updated_at: 10.minutes.ago) }
-    let!(:latest_open_conversation){ create(:conversation, updated_at: 5.minutes.ago) }
+    let!(:open_conversation){ create(:conversation, state: :open, updated_at: 10.minutes.ago) }
+    let!(:latest_open_conversation){ create(:conversation, state: :open, updated_at: 5.minutes.ago) }
     let!(:closed_conversation){ create(:conversation, updated_at: 10.minutes.ago) }
     let!(:latest_closed_conversation){ create(:conversation, updated_at: 5.minutes.ago) }
-    let!(:escalated_conversation){ create(:conversation, updated_at: 10.minutes.ago) }
-    let!(:latest_escalated_conversation){ create(:conversation, updated_at: 5.minutes.ago) }
-
-    before do
-      open_conversation.update_attributes(state: :open)
-      latest_open_conversation.update_attributes(state: :open)
-      escalated_conversation.update_attributes(state: :escalated)
-      latest_escalated_conversation.update_attributes(state: :escalated)
-    end
+    let!(:escalated_conversation){ create(:conversation, state: :escalated, updated_at: 10.minutes.ago) }
+    let!(:latest_escalated_conversation){ create(:conversation, state: :escalated, updated_at: 5.minutes.ago) }
 
     it "should sort the conversations by status filed in oepn, escalated, closed order, and updated_at filed in descending order" do
-      sorted_conversation = [latest_open_conversation, open_conversation, latest_escalated_conversation, escalated_conversation, latest_closed_conversation, closed_conversation]
-      expect( Conversation.sort_conversations ).to eq( sorted_conversation )
+      sorted_conversation = [ latest_open_conversation, open_conversation,
+                              latest_escalated_conversation, escalated_conversation,
+                              latest_closed_conversation, closed_conversation ]
+      expect( Conversation.sort_conversations ).to match_array( sorted_conversation )
     end
   end
 
   describe "state machines - conversations" do
+    let(:open_conversation){ create(:conversation, state: :open) }
+    let(:escalated_conversation){ create(:conversation, state: :escalated) }
+    let(:closed_conversation){ create(:conversation) }
+
     describe "escalate" do
       let(:customer_service){ create(:user, :customer_service) }
       let(:clinical){ create(:user, :clinical) }
       let(:note){ 'escalation note'}
       let(:priority){ 1 }
-      let(:escalation_params){{ escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service }}
+      let(:escalation_params){ { escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service } }
 
       context "open conversation" do
-        let(:open_conversation){ build(:conversation, :open) }
-
         it 'should change conversation status' do
           expect( open_conversation.state.to_sym ).to eq(:open)
           expect( open_conversation.escalate(escalation_params) ).to eq(true)
@@ -56,8 +53,6 @@ describe Conversation, type: :model do
       end
 
       context 'escalated conversation' do
-        let(:escalated_conversation){ build(:conversation, :escalated) }
-
         it "should change conversation status" do
           expect( escalated_conversation.state.to_sym ).to eq(:escalated)
           expect( escalated_conversation.escalate(escalation_params) ).to eq(true)
@@ -66,8 +61,6 @@ describe Conversation, type: :model do
       end
 
       context 'closed conversation' do
-        let(:closed_conversation){ build(:conversation) }
-
         it "should not change the status" do
           expect( closed_conversation.state.to_sym ).to eq(:closed)
           expect( closed_conversation.escalate(escalation_params) ).to eq(false)
@@ -80,11 +73,9 @@ describe Conversation, type: :model do
       let(:note){ 'close the conversation'}
       let(:clinical){ create(:user, :clinical) }
       let(:customer_service){ create(:user, :customer_service) }
-      let(:close_params){{closed_by: customer_service, note: note}}
+      let(:close_params){ {closed_by: customer_service, note: note} }
 
       context 'open_conversation' do
-        let(:open_conversation){ build(:conversation, :open) }
-
         it "should change conversation status to false" do
           expect( open_conversation.state.to_sym ).to eq(:open)
           expect( open_conversation.close(close_params) ).to eq(true)
@@ -93,8 +84,6 @@ describe Conversation, type: :model do
       end
 
       context 'escalated conversation' do
-        let(:escalated_conversation){ build(:conversation, :escalated) }
-
         it "should change conversation status to false" do
           expect( escalated_conversation.state.to_sym ).to eq(:escalated)
           expect( escalated_conversation.close(close_params) ).to eq(true)
@@ -103,8 +92,6 @@ describe Conversation, type: :model do
       end
 
       context 'closed conversation' do
-        let(:closed_conversation){ build(:conversation) }
-
         it "should return false" do
           expect( closed_conversation.close(close_params) ).to eq(false)
         end
@@ -113,7 +100,7 @@ describe Conversation, type: :model do
   end
 
   describe '#escalate_conversation_to_staff' do
-    let(:open_conversation){ build(:conversation, :open) }
+    let(:open_conversation){ create(:conversation, state: :open) }
     let(:customer_service){ create(:user, :customer_service) }
     let(:clinical){ create(:user, :clinical) }
     let(:note){ 'escalation note'}
@@ -121,11 +108,10 @@ describe Conversation, type: :model do
     let(:escalation_params){{ escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service }}
 
     context 'successfully escalate a non-closed conversation' do
-
       it 'should create a user_conversation and a escalation_note record, then return true' do
         expect( UserConversation.count ).to eq(0)
         expect( EscalationNote.count ).to eq(0)
-        expect( open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(true)
+        expect( !!open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(true)
         expect( UserConversation.count ).to eq(1)
         expect( EscalationNote.count ).to eq(1)
         expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq(true)
@@ -146,7 +132,7 @@ describe Conversation, type: :model do
   end
 
   describe '#close_conversation' do
-    let(:open_conversation){ build(:conversation, :open) }
+    let(:open_conversation){ create(:conversation, state: :open) }
     let(:note){ 'close the conversation'}
     let(:clinical){ create(:user, :clinical) }
     let(:customer_service){ create(:user, :customer_service) }
@@ -161,7 +147,7 @@ describe Conversation, type: :model do
       it 'should update the conversation status to closed' do
         expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(true)
         expect(ClosureNote.count).to eq(0)
-        expect(open_conversation.close_conversation( close_params)).to eq(true)
+        expect(!!open_conversation.close_conversation( close_params)).to eq(true)
         expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(false)
         expect(ClosureNote.count).to eq(1)
       end
