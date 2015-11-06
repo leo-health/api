@@ -32,16 +32,9 @@ module Leo
             get do
               messages = @conversation.messages
               authorize! :read, Message
-              system_messages = PublicActivity::Activity.where(key: "conversation.conversation_closed", trackable_id: @conversation.id)
-              full_messages =(system_messages + messages).sort{|x, y|y.created_at <=> x.created_at}
-              full_messages.map! do |message|
-                case message.class.name
-                when 'PublicActivity::Activity'
-                  {system_message: message}
-                when 'Message'
-                  {regular_message: message}
-                end
-              end
+              close_conversation_notes = @conversation.closure_notes
+              escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversation: {conversation_id: @conversation.id})
+              full_messages =(messages + close_conversation_notes + escalation_notes).sort{|x, y|y.created_at <=> x.created_at}
               present :conversation_id, @conversation.id
               present :messages, paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
             end
@@ -61,16 +54,11 @@ module Leo
           end
 
           post do
-            conversation_status = @conversation.status
             message = @conversation.messages.new({body: params[:body], sender: current_user, type_name: params[:type_name]})
             authorize! :create, message
             if message.save
               present message, with: Leo::Entities::MessageEntity
               message.broadcast_message(current_user)
-              if conversation_status.to_sym == :closed
-                @conversation.create_activity(:conversation_opened, owner: current_user )
-                @conversation.broadcast_status(current_user, :open)
-              end
             else
               error!({error_code: 422, error_message: message.errors.full_messages }, 422)
             end
