@@ -20,7 +20,7 @@ module Leo
       end
 
       def created_by
-        case object.class
+        case object
         when Message
           object.sender
         when EscalationNote
@@ -35,7 +35,7 @@ module Leo
       end
 
       def message_type
-        case object.class
+        case object
         when Message
           :message
         when EscalationNote
