@@ -3,6 +3,13 @@ require 'spork'
 require 'factory_girl_rails'
 require 'mandrill_mailer/offline'
 require 'codeclimate-test-reporter'
+require 'rspec_api_documentation'
+
+RspecApiDocumentation.configure do |config|
+  config.format = [:json, :html]
+  config.curl_host = 'http://localhost:3000'
+  config.api_name = "Example App API"
+end
 
 CodeClimate::TestReporter.configure do |config|
 end
