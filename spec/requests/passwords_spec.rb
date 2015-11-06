@@ -16,7 +16,7 @@ describe Leo::V1::Passwords do
     end
   end
 
-  describe 'PUT /api/v1/passwords/reset' do
+  describe 'PUT /api/v1/passwords/:token/reset' do
     let!(:user){create(:user, password: "old_password", password_confirmation: "old_password")}
 
     def do_request(reset_params)
@@ -36,14 +36,22 @@ describe Leo::V1::Passwords do
       it 'should not reset the password for user' do
         do_request({password: "1", password_confirmation: "1"})
         expect(response.status).to eq(422)
-        expect_json("message.error_message", "Password need to has at least 8 characters" )
+        expect_json("message.error_message.0", "Password is too short (minimum is 8 characters)" )
+      end
+    end
+
+    context 'reset with different password and password confirmation' do
+      it 'should not reset the password for user' do
+        do_request({password: "password1", password_confirmation: "password2"})
+        expect(response.status).to eq(422)
+        expect_json("message.error_message.0", "Password confirmation doesn't match Password" )
       end
     end
 
     context 'reset password period expired' do
       def do_request(reset_params)
         token = user.send(:set_reset_password_token)
-        user.update_attributes(reset_password_sent_at: Time.now - 7.hours)
+        user.update_attributes(reset_password_sent_at: Time.now - 13.hours)
         put "/api/v1/passwords/#{token}/reset", reset_params, format: :json
       end
 
@@ -52,6 +60,22 @@ describe Leo::V1::Passwords do
         expect(response.status).to eq(422)
         expect_json("message.error_message", "Reset password period expired")
       end
+    end
+  end
+
+  describe 'PUT /api/v1/passwords/change_password' do
+    let(:user){create(:user, password: "old_password", password_confirmation: "old_password")}
+    let(:session){user.sessions.create}
+
+    def do_request
+      password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "new_password" }
+      put "/api/v1/passwords/change_password", password_params
+    end
+
+    it "should change the password for user" do
+      do_request
+      expect(response.status).to eq(200)
+      expect( user.reload.valid_password?("new_password")).to be true
     end
   end
 end

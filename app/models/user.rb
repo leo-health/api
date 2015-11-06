@@ -1,5 +1,14 @@
 class User < ActiveRecord::Base
   acts_as_paranoid
+  include PgSearch
+  pg_search_scope(
+    :search,
+    against: %i( first_name last_name ),
+    using: {
+      tsearch: { prefix: true },
+      trigram: { threshold: 0.3 }
+    }
+  )
 
   belongs_to :family
   belongs_to :role
@@ -22,7 +31,9 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :validatable
 
+  validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, presence: true
+  validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, on: :create

@@ -11,6 +11,7 @@ FactoryGirl.define do
     email
     phone '1234567890'
     password     'password'
+    password_confirmation 'password'
     family
     association :role, factory: [:role, :guardian]
 

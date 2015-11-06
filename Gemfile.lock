@@ -221,6 +221,10 @@ GEM
     paranoia (2.1.3)
       activerecord (~> 4.0)
     pg (0.18.3)
+    pg_search (1.0.5)
+      activerecord (>= 3.1)
+      activesupport (>= 3.1)
+      arel
     polyamorous (1.1.0)
       activerecord (>= 3.0)
     public_activity (1.4.2)
@@ -419,6 +423,7 @@ DEPENDENCIES
   mini_magick
   paranoia (~> 2.0)
   pg
+  pg_search
   public_activity
   pusher
   pusher-fake
@@ -444,4 +449,4 @@ DEPENDENCIES
   web-console (~> 2.0)
 
 BUNDLED WITH
-   1.10.4
+   1.10.6
