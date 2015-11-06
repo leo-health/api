@@ -12,7 +12,7 @@ module Leo
       private
 
       def conversation_id
-        if object.class.name == 'EscalationNote'
+        if object.class == EscalationNote
           object.user_conversation.conversation
         else
           object.conversation.id
@@ -20,37 +20,37 @@ module Leo
       end
 
       def created_by
-        case object.class.name
-        when 'Message'
+        case object.class
+        when Message
           object.sender
-        when 'EscalationNote'
+        when EscalationNote
           object.escalated_by
-        when 'ClosureNote'
+        when ClosureNote
           object.closed_by
         end
       end
 
       def message_body
-        object.body if object.class.name == 'Message'
+        object.body if object.class == Message
       end
 
       def message_type
-        case object.class.name
-        when 'Message'
+        case object.class
+        when Message
           :message
-        when 'EscalationNote'
+        when EscalationNote
           :escalation
-        when 'ClosureNote'
+        when ClosureNote
           :close
         end
       end
 
       def escalated_to
-        object.class.name == "EscalationNote" ? object.user_conversation.staff : nil
+        object.class == EscalationNote ? object.user_conversation.staff : nil
       end
 
       def note
-        unless object.class.name == 'Message'
+        unless object.class == Message
           object.note
         end
       end
