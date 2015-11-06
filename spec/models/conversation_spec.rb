@@ -125,7 +125,7 @@ describe Conversation, type: :model do
       it 'should create a user_conversation and a escalation_note record, then return true' do
         expect( UserConversation.count ).to eq(0)
         expect( EscalationNote.count ).to eq(0)
-        expect( open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(true)
+        expect( !!open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(true)
         expect( UserConversation.count ).to eq(1)
         expect( EscalationNote.count ).to eq(1)
         expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq(true)
@@ -161,7 +161,7 @@ describe Conversation, type: :model do
       it 'should update the conversation status to closed' do
         expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(true)
         expect(ClosureNote.count).to eq(0)
-        expect(open_conversation.close_conversation( close_params)).to eq(true)
+        expect(!!open_conversation.close_conversation( close_params)).to eq(true)
         expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(false)
         expect(ClosureNote.count).to eq(1)
       end

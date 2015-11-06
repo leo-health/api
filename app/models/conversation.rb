@@ -14,10 +14,7 @@ class Conversation < ActiveRecord::Base
   after_commit :load_staff, :load_initial_message, on: :create
 
   def self.sort_conversations
-    %i(open escalated closed).inject([]) do |conversations, state|
-      conversations << self.where(state: state).order('updated_at desc')
-      conversations.flatten
-    end
+    self.where(state: [:open, :escalated, :closed]).order("state desc, updated_at desc")
   end
 
   #state machine via https://github.com/aasm/aasm
@@ -57,7 +54,6 @@ class Conversation < ActiveRecord::Base
       user_conversation = user_conversations.create_with(escalated: true).find_or_create_by!(staff: escalation_params[:escalated_to])
       escalation_note_params = escalation_params.except(:escalated_to)
       @escalation_note = user_conversation.escalation_notes.create!(escalation_note_params)
-      true
     end
   rescue
     false
@@ -68,15 +64,21 @@ class Conversation < ActiveRecord::Base
     ActiveRecord::Base.transaction do
       user_conversations.each{|i| i.update_attributes!(escalated: false)}
       @closure_note = closure_notes.create!(conversation: self, note: close_params[:note], closed_by: close_params[:closed_by])
-      true
     end
   rescue
     false
   end
 
   def broadcast_state(message_type, changed_by, note_id, changed_to = nil)
-    channels = User.includes(:role).where.not(roles: {name: :guardian}).inject([]){|channels, user| channels << "newState#{user.email}"; channels}
-    Pusher.trigger(channels, 'new_state', {message_type: message_type, conversation_id: id, created_by: changed_by, escalated_to: changed_to, id: note_id}) if channels.count > 0
+    channels =User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "newState#{user.email}"}
+    if channels.count > 0
+      Pusher.trigger(channels, 'new_state', { message_type: message_type,
+                                              conversation_id: id,
+                                              created_by: changed_by,
+                                              escalated_to: changed_to,
+                                              id: note_id
+                                            })
+    end
   end
 
   private
