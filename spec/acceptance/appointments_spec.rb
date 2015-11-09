@@ -87,7 +87,8 @@ resource "Appointments" do
     let(:practice_id){ practice.id }
     let(:raw_post){ params.to_json }
 
-    example "get an appointment" do
+    example "reschedule an appointment" do
+      explanation "delete current appointment and create a new appointment"
       do_request
       expect(response_status).to eq(200)
     end
