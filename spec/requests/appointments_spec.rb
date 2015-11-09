@@ -76,7 +76,7 @@ describe Leo::V1::Appointments do
     end
   end
 
-  describe "Put /api/v1/appointments/id" do
+  describe "Put /api/v1/appointments/:id" do
     let!(:appointment){create(:appointment, booked_by: user)}
 
     def do_request
