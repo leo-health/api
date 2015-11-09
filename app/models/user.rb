@@ -27,7 +27,7 @@ class User < ActiveRecord::Base
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
-  after_commit :set_user_family, on: :create
+  after_commit :set_user_family, :add_default_practice_to_guardian, on: :create
 
   def find_conversation_by_status(status)
     return if has_role? :guardian
@@ -43,8 +43,6 @@ class User < ActiveRecord::Base
     return if has_role? :guardian
     Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
   end
-
-  #TODO add sorting by higest priotiy here
 
   def add_role(name)
     new_role = Role.find_by_name(name)
@@ -68,6 +66,14 @@ class User < ActiveRecord::Base
   def set_user_family
     if has_role? :guardian
       update_attributes(family: Family.create) unless family
+    end
+  end
+
+  #TODO subject to change when owning multiple practices
+  def add_default_practice_to_guardian
+    if has_role? :guardian && Practice.first
+      self.practice = Practice.first
+      self.save
     end
   end
 end
