@@ -102,6 +102,14 @@ ActiveRecord::Schema.define(version: 20151026193235) do
 
   add_index "avatars", ["owner_type", "owner_id"], name: "index_avatars_on_owner_type_and_owner_id", using: :btree
 
+  create_table "closure_notes", force: :cascade do |t|
+    t.integer  "conversation_id", null: false
+    t.integer  "closed_by_id",    null: false
+    t.string   "note"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
   create_table "conversation_changes", force: :cascade do |t|
     t.integer  "conversation_id",     null: false
     t.string   "conversation_change"
@@ -113,14 +121,12 @@ ActiveRecord::Schema.define(version: 20151026193235) do
   add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
 
   create_table "conversations", force: :cascade do |t|
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
     t.integer  "family_id"
     t.datetime "last_message_created_at"
     t.datetime "deleted_at"
-    t.string   "status",                  null: false
-    t.datetime "last_closed_at"
-    t.integer  "last_closed_by_id"
+    t.string   "state",                   default: "closed"
   end
 
   create_table "conversations_participants", id: false, force: :cascade do |t|

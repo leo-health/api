@@ -33,6 +33,7 @@ gem 'pg'
 gem 'pusher'
 gem 'public_activity'
 gem "mini_magick"
+gem 'aasm'
 gem 'grocer'
 
 group :development, :test do
@@ -45,6 +46,8 @@ group :development, :test do
   gem 'spring'
   gem 'spring-commands-rspec'
   gem 'fuubar'
+  gem 'rspec_api_documentation'
+  gem 'raddocs'
 end
 
 group :development do

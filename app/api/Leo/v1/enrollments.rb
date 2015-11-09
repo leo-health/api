@@ -58,6 +58,7 @@ module Leo
           requires :authentication_token, type: String, allow_blank: false
           optional :first_name, type: String
           optional :last_name, type: String
+          optional :email, type: String
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
           optional :stripe_customer_id, type: String
@@ -66,6 +67,7 @@ module Leo
         end
 
         put :current do
+          error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
           enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
           error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
           if enrollment.update_attributes(declared(params, include_missing: false))

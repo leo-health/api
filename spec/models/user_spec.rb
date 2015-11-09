@@ -11,7 +11,7 @@ RSpec.describe User, type: :model do
     it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:conversations).through(:user_conversations) }
     it{ is_expected.to have_many(:read_receipts).with_foreign_key('reader_id') }
-    it{ is_expected.to have_many(:escalated_notes).class_name('EscalationNote').with_foreign_key('escalated_to_id') }
+    it{ is_expected.to have_many(:escalation_notes).class_name('EscalationNote').with_foreign_key('escalated_to_id') }
     it{ is_expected.to have_many(:read_messages).class_name('Message').with_foreign_key('read_receipts') }
     it{ is_expected.to have_many(:sessions) }
     it{ is_expected.to have_many(:sent_messages).class_name('Message').with_foreign_key('sender_id') }

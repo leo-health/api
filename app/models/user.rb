@@ -10,7 +10,8 @@ class User < ActiveRecord::Base
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
-  has_many :escalated_notes, class_name: "EscalationNote", foreign_key: "escalated_to_id"
+  has_many :escalation_notes, foreign_key: "escalated_to_id"
+  has_many :closure_notes, foreign_key: "closed_by_id"
   has_many :read_messages, class_name: 'Message', through: :read_receipts
   has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
@@ -21,7 +22,9 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :validatable
 
+  validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, presence: true
+  validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, on: :create
