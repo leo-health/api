@@ -58,6 +58,7 @@ module Leo
           render_success user
           session = user.sessions.create
           present :session, session
+          present :user, user, with: Leo::Entities::UserEntity
         end
 
         route_param :id do
