@@ -9,12 +9,12 @@ describe Leo::V1::Users do
                       sex: "M",
                       phone: "1234445555"
   }}
+  let(:serializer){ Leo::Entities::UserEntity }
 
   describe "Get /api/v1/staff" do
     let(:guardian){ create(:user, :guardian) }
     let(:session){ guardian.sessions.create }
     let!(:clinical){ create(:user, :clinical) }
-    let(:serializer){ Leo::Entities::UserEntity }
 
     def do_request
       get "/api/v1/staff", { authentication_token: session.authentication_token }
@@ -25,6 +25,22 @@ describe Leo::V1::Users do
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data][:staff].as_json.to_json).to eq(serializer.represent([clinical]).as_json.to_json)
+    end
+  end
+
+  describe "Get /api/v1/search_user" do
+    let(:user){ create(:user, :guardian, first_name: "test", last_name: "user") }
+    let(:session){ user.sessions.create }
+
+    def do_request
+      get "/api/v1/search_user", { authentication_token: session.authentication_token, query: "test" }
+    end
+
+    it "should return the user has name matches the query" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:users].as_json.to_json).to eq(serializer.represent([user]).as_json.to_json)
     end
   end
 

@@ -16,6 +16,25 @@ module Leo
         end
       end
 
+      desc 'return users with matched names'
+      namespace :search_user do
+        before do
+          authenticated
+        end
+
+        params do
+          requires :query, type: String, allow_blank: false
+        end
+
+        get do
+          error!({error_code: 422, error_message: 'query must have at least two characters'}, 422) if params[:query].length < 2
+          users = User.search(params[:query])
+          patients = Patient.search(params[:query])
+          present :users, users, with: Leo::Entities::UserEntity
+          present :patients, patients, with: Leo::Entities::PatientEntity
+        end
+      end
+
       desc "#post create a user with provided params"
       namespace :sign_up do
         params do
