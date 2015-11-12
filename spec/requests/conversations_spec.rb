@@ -6,6 +6,7 @@ describe Leo::V1::Conversations do
   let(:session){ user.sessions.create }
   let!(:customer_service){ create(:user, :customer_service) }
   let(:serializer){ Leo::Entities::ConversationEntity }
+  let(:short_serializer){ Leo::Entities::ShortConversationEntity }
 
   describe "Get /api/v1/staff/:staff_id/conversations" do
     let(:session){ customer_service.sessions.create }
@@ -23,7 +24,7 @@ describe Leo::V1::Conversations do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect( body[:data][:conversations].as_json.to_json).to eq(serializer.represent([@conversation_one]).as_json.to_json)
+      expect( body[:data][:conversations].as_json.to_json).to eq(short_serializer.represent([@conversation_one]).as_json.to_json)
     end
   end
 
@@ -92,7 +93,7 @@ describe Leo::V1::Conversations do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data][:conversations].as_json.to_json).to eq( serializer.represent([@conversation, @escalated_conversation, @closed_conversation ] ).as_json.to_json)
+      expect(body[:data][:conversations].as_json.to_json).to eq( short_serializer.represent([@conversation, @escalated_conversation, @closed_conversation ] ).as_json.to_json)
     end
   end
 
@@ -105,7 +106,7 @@ describe Leo::V1::Conversations do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data][:conversation].as_json.to_json).to eq( serializer.represent(user.family.conversation).as_json.to_json)
+      expect(body[:data][:conversation].as_json.to_json).to eq( short_serializer.represent(user.family.conversation).as_json.to_json)
     end
   end
 end
