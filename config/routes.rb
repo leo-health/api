@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   mount Leo::Root => '/'
   mount GrapeSwaggerRails::Engine => '/swagger'
+  mount Raddocs::App => "/docs"
 
   root 'home#index'
 end

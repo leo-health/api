@@ -46,6 +46,9 @@ module Leo
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
+          optional :middle_initial, type: String
+          optional :title, type: String
+          optional :suffix, type: String
         end
 
         post do
@@ -69,6 +72,8 @@ module Leo
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
           optional :middle_initial, type: String
+          optional :title, type: String
+          optional :suffix, type: String
         end
 
         post do
