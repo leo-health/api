@@ -66,7 +66,7 @@ module Leo
             conversations = Conversation.sort_conversations
           end
           authorize! :read, Conversation
-          present :conversations, paginate(Kaminari.paginate_array(conversations)), with: Leo::Entities::ConversationEntity
+          present :conversations, paginate(Kaminari.paginate_array(conversations)), with: Leo::Entities::ShortConversationEntity
         end
       end
 
@@ -78,7 +78,7 @@ module Leo
         desc "Return all relevant conversations of a user"
         get do
           staff = User.find(params[:staff_id])
-          present :conversations, staff.conversations, with: Leo::Entities::ConversationEntity
+          present :conversations, staff.conversations, with: Leo::Entities::ShortConversationEntity
         end
       end
 
@@ -90,7 +90,7 @@ module Leo
         desc "Return conversation associated with the family"
         get do
           family = Family.find(params[:family_id])
-          present :conversation, family.conversation, with: Leo::Entities::ConversationEntity
+          present :conversation, family.conversation, with: Leo::Entities::ShortConversationEntity
         end
       end
     end
