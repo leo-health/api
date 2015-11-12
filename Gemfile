@@ -36,6 +36,7 @@ gem "mini_magick"
 gem 'aasm'
 gem 'grocer'
 gem 'pg_search'
+gem 'raddocs'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -48,7 +49,6 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'fuubar'
   gem 'rspec_api_documentation'
-  gem 'raddocs'
 end
 
 group :development do
