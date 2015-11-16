@@ -55,8 +55,10 @@ module Leo
         end
 
         desc "Get all the conversations by state"
+        paginate per_page: 10
+
         params do
-          optional :state, type: String, allow_blank: false
+          optional :state, type: String
         end
 
         get do
@@ -65,7 +67,9 @@ module Leo
           else
             conversations = Conversation.sort_conversations
           end
+          max_page = (conversations.count / 10.to_f).ceil
           authorize! :read, Conversation
+          present :max_page, max_page
           present :conversations, paginate(Kaminari.paginate_array(conversations)), with: Leo::Entities::ShortConversationEntity
         end
       end
