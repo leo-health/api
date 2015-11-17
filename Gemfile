@@ -37,6 +37,7 @@ gem 'aasm'
 gem 'grocer'
 gem 'pg_search'
 gem 'raddocs'
+gem 'whenever', :require => false
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses

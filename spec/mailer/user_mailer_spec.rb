@@ -32,4 +32,20 @@ describe UserMailer do
       expect(email).to_not be_nil
     end
   end
+
+  describe "five day appointment reminder" do
+    it "should send the user an reminder of the appointment 5 days later" do
+      UserMailer.five_day_appointment_reminder(user).deliver
+      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Five Day Appointment Reminder' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "same day appointment reminder" do
+    it "should send the user an reminder of the appointment on same day" do
+      UserMailer.same_day_appointment_reminder(user).deliver
+      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Same Day Appointment Reminder' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      expect(email).to_not be_nil
+    end
+  end
 end

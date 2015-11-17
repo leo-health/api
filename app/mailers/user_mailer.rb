@@ -38,4 +38,20 @@ class UserMailer < MandrillMailer::TemplateMailer
       }
     )
   end
+
+  def five_day_appointment_reminder(user)
+    mandrill_mail(
+      template: 'Leo - Five Day Appointment Reminder',
+      subject: 'You have an appointment 5 days later',
+      to: user.email
+    )
+  end
+
+  def same_day_appointment_reminder(user)
+    mandrill_mail(
+        template: 'Leo - Same Day Appointment Reminder',
+        subject: 'You have an appointment today!',
+        to: user.email
+    )
+  end
 end
