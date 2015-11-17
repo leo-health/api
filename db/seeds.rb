@@ -1,8 +1,6 @@
 require 'csv'
 
 roles_seed = {
-          # Super user / admin
-          super_user: 0,
           # Access accounting and billing data for administrative staff
           financial: 1,
           # Access to clinical data for non-provider roles including a nurse practicioner, medical asssitant, or nurse
@@ -14,7 +12,9 @@ roles_seed = {
           # Access to clinical data for provider roles and other (sub)specialists
           clinical: 5,
           # Access to all data pertaining to the patient
-          patient: 6
+          patient: 6,
+          # Super user / admin
+          super_user: 7
         }
 
 roles_seed.each do |role, id|
@@ -24,14 +24,6 @@ roles_seed.each do |role, id|
 end
 
 appointment_types_seed = [
-    {
-      id: 0,
-      name: "well visit",
-      duration: 30,
-      short_description: "Regular check-up",
-      long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
-    },
-
     {
       id: 1,
       name: "sick visit",
@@ -54,6 +46,14 @@ appointment_types_seed = [
       duration: 20,
       short_description: "Flu shot or scheduled vaccine",
       long_description: "A visit with a nurse to get one or more immunizations."
+    },
+
+    {
+      id: 4,
+      name: "well visit",
+      duration: 30,
+      short_description: "Regular check-up",
+      long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
     }
 ]
 
@@ -63,7 +63,7 @@ end
 
 practices_seed = {
   "Leo @ Chelsea": {
-    id: 0,
+    id: 1,
     name: "Leo @ Chelsea",
     address_line_1: "33w 17th St",
     address_line_2: "5th floor",
@@ -81,12 +81,6 @@ practices_seed.each do |name, param|
 end
 
 appointment_statuses_seed = [
-    {
-      id: 0,
-      description: "Cancelled",
-      status: "x"
-    },
-
     {
       id: 1,
       description: "Checked In",
@@ -115,6 +109,12 @@ appointment_statuses_seed = [
       id: 5,
       description: "Open",
       status: "o"
+    },
+
+    {
+      id: 6,
+      description: "Cancelled",
+      status: "x"
     }
 ]
 
@@ -123,18 +123,6 @@ appointment_statuses_seed.each do |param|
 end
 
 insurance_plan_seed = [
-    {
-      insurer: {
-        id: 0,
-        insurer_name:"Aetna"
-      },
-      plans: [
-               {id: 0, plan_name: "PPO", insurer_id: 0},
-               {id: 1, plan_name: "POS", insurer_id: 0},
-               {id: 2, plan_name: "HMO", insurer_id: 0}
-             ]
-    },
-
     {
       insurer: {
         id: 1,
@@ -216,6 +204,17 @@ insurance_plan_seed = [
                {id: 21, plan_name: "POS", insurer_id: 7},
                {id: 22, plan_name: "HMO", insurer_id: 7}
              ]
+    },
+    {
+      insurer: {
+        id: 8,
+        insurer_name:"Aetna"
+      },
+      plans: [
+               {id: 23, plan_name: "PPO", insurer_id: 8},
+               {id: 24, plan_name: "POS", insurer_id: 8},
+               {id: 25, plan_name: "HMO", insurer_id: 8}
+             ]
     }
 ]
 
@@ -248,11 +247,11 @@ begin
 
   #populate boys & girls 2-20 years height
   CSV.foreach("#{folder}/statage.csv", optionsCdc) do |row|
-    entry = HeightGrowthCurve.new({ 
-      :sex=> (row["Sex"] == "1" ? "M" : "F"), 
-      :days => (row["Agemos"].to_i * 365 / 12), 
-      :l => row["L"], 
-      :m => row["M"], 
+    entry = HeightGrowthCurve.new({
+      :sex=> (row["Sex"] == "1" ? "M" : "F"),
+      :days => (row["Agemos"].to_i * 365 / 12),
+      :l => row["L"],
+      :m => row["M"],
       :s => row["S"]})
     entry.save if (entry.days > 712 && row["Agemos"] != "24")
   end
@@ -273,11 +272,11 @@ begin
 
   #populate boys & girls 2-20 years weight
   CSV.foreach("#{folder}/wtage.csv", optionsCdc) do |row|
-    entry = WeightGrowthCurve.new({ 
-      :sex=> (row["Sex"] == "1" ? "M" : "F"), 
-      :days => (row["Agemos"].to_i * 365 / 12), 
-      :l => row["L"], 
-      :m => row["M"], 
+    entry = WeightGrowthCurve.new({
+      :sex=> (row["Sex"] == "1" ? "M" : "F"),
+      :days => (row["Agemos"].to_i * 365 / 12),
+      :l => row["L"],
+      :m => row["M"],
       :s => row["S"]})
     entry.save if (entry.days > 712 && row["Agemos"] != "24")
   end
