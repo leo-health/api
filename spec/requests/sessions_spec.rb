@@ -12,7 +12,7 @@ describe Leo::V1::Sessions do
 
     context 'user has correct email and password' do
       it 'should create a session for the user and return the session infomation' do
-        expect{do_request({email: user.email, password: 'password'})}.to change{Session.count}.from(0).to(1)
+        expect{do_request({email: user.email, password: 'password', device_token: 'token'})}.to change{Session.count}.from(0).to(1)
         expect(response.status).to eq(201)
         body = JSON.parse( response.body, symbolize_names: true )
         expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
@@ -25,7 +25,7 @@ describe Leo::V1::Sessions do
       end
 
       it 'should return a member if user is upgraded to member' do
-        expect{do_request({email: user.email, password: 'password'})}.to change{Session.count}.from(0).to(1)
+        expect{do_request({email: user.email, password: 'password', device_token: 'token'})}.to change{Session.count}.from(0).to(1)
         expect(response.status).to eq(201)
         body = JSON.parse( response.body, symbolize_names: true )
         expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
@@ -42,6 +42,7 @@ describe Leo::V1::Sessions do
   end
 
   describe 'DELETE /api/v1/logout' do
+    let(:user){ create(:user, :clinical)}
     let!(:session){user.sessions.create}
 
     def do_request
