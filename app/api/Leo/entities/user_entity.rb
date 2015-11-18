@@ -5,8 +5,13 @@ module Leo
       expose :role, with: Leo::Entities::RoleEntity
       expose :avatar
       expose :type
+      expose :primary_guardian, if: Proc.new{ |g| g.role.name.to_sym == :guardian }
 
       private
+
+      def primary_guardian
+        ( object.family.guardians.where(['created_at < ?', object.created_at]).count < 1 ) ? true : false
+      end
 
       def avatar
         if object.avatar && options[:avatar_size]
