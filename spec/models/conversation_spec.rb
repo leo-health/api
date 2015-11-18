@@ -100,8 +100,8 @@ describe Conversation, type: :model do
   end
 
   describe '#escalate_conversation_to_staff' do
-    let(:open_conversation){ create(:conversation, state: :open) }
-    let(:customer_service){ create(:user, :customer_service) }
+    let!(:customer_service){ create(:user, :customer_service) }
+    let!(:open_conversation){ create(:conversation, state: :open) }
     let(:clinical){ create(:user, :clinical) }
     let(:note){ 'escalation note'}
     let(:priority){ 1 }
@@ -109,10 +109,10 @@ describe Conversation, type: :model do
 
     context 'successfully escalate a non-closed conversation' do
       it 'should create a user_conversation and a escalation_note record, then return true' do
-        expect( UserConversation.count ).to eq(0)
+        expect( UserConversation.count ).to eq(1)
         expect( EscalationNote.count ).to eq(0)
         expect( !!open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(true)
-        expect( UserConversation.count ).to eq(1)
+        expect( UserConversation.count ).to eq(2)
         expect( EscalationNote.count ).to eq(1)
         expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq(true)
       end
@@ -124,9 +124,9 @@ describe Conversation, type: :model do
       end
 
       it 'should rollback changes made before the error happens and return false' do
-        expect( UserConversation.count ).to eq(0)
+        expect( UserConversation.count ).to eq(1)
         expect( open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(false)
-        expect( UserConversation.count ).to eq(0)
+        expect( UserConversation.count ).to eq(1)
       end
     end
   end

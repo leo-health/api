@@ -17,7 +17,6 @@ describe Leo::V1::Conversations do
 
     before do
       @conversation_one = Conversation.find_by_family_id(user.family_id)
-      @conversation_one.staff << customer_service
     end
 
     it "should return all conversations the staff participated" do
