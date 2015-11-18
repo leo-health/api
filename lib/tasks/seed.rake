@@ -213,6 +213,8 @@ namespace :load do
         false
       end
 
+      sleep 1
+
       guardian_female = family.guardians.create!(
         title: "Mrs.",
         first_name: "Marie",
