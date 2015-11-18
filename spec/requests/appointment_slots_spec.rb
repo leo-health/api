@@ -13,7 +13,7 @@ describe Leo::V1::AppointmentSlots do
       create(:appointment_status, :open)
     end
 
-    let!(:date) { Date.today}
+    let!(:date) { Date.tomorrow }
     let!(:provider) { create(:user, :clinical) }
     let!(:provider_profile) { create(:provider_profile, athena_id: 1, provider_id: provider.id) }
     let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
