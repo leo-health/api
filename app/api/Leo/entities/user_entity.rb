@@ -10,7 +10,7 @@ module Leo
       private
 
       def primary_guardian
-        ( object.family.guardians.where(['created_at < ?', object.created_at]).count < 1 ) ? true : false
+        object.family.guardians.where(['created_at < ?', object.created_at]).count < 1
       end
 
       def avatar
