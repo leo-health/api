@@ -32,4 +32,12 @@ describe UserMailer do
       expect(email).to_not be_nil
     end
   end
+
+  describe "send guardian email on kids birthday" do
+    it "should send the guardian a email" do
+      UserMailer.patient_birthday(user).deliver
+      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Patient Happy Birthday' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      expect(email).to_not be_nil
+    end
+  end
 end
