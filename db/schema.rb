@@ -456,6 +456,7 @@ ActiveRecord::Schema.define(version: 20151119163753) do
     t.string   "platform"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+    t.string   "device_token"
   end
 
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree

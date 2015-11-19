@@ -6,5 +6,11 @@ class Session < ActiveRecord::Base
 
   before_validation :ensure_authentication_token, on: [:create, :update]
   validates :user, :authentication_token, presence: true
-  validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil)}
+  validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
+
+  private
+
+  def guardian?
+    user.has_role? :guardian
+  end
 end
