@@ -34,8 +34,7 @@ class Message < ActiveRecord::Base
   end
 
   def send_new_message_notification
-    guardians = conversation.family.guardians
-    if guardians.delete(sender) && guardians
+    if guardians = conversation.family.guardians.select{|guardian| guardian.id != sender.id}
       apns = ApnsNotification.new
       guardians.eager_load(:sessions).each do |guardian|
         apns.delay.notify_new_message(device_token) if device_token = guardian.sessions.last.try(:device_token)
