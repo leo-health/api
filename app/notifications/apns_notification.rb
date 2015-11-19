@@ -1,5 +1,15 @@
 class ApnsNotification
   def initialize
+    # development:
+    #     gateway: "gateway.sandbox.push.apple.com"
+    #     passphrase:  "catfood"
+    # test:
+    #     gateway: "localhost"
+    #     passphrase:  "catfood"
+    # production:
+    #     gateway: "gateway.push.apple.com"
+    #     passphrase:  "catfood"
+
     @pusher = Grocer.pusher(
         certificate: Rails.root.join('certificate.pem'),
         passphrase:  "catfood",
