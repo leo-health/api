@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151102201219) do
+ActiveRecord::Schema.define(version: 20151119163753) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -102,6 +102,19 @@ ActiveRecord::Schema.define(version: 20151102201219) do
   end
 
   add_index "avatars", ["owner_type", "owner_id"], name: "index_avatars_on_owner_type_and_owner_id", using: :btree
+
+  create_table "bmi_growth_curves", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer  "days",       null: false
+    t.string   "sex",        null: false
+    t.float    "l",          null: false
+    t.float    "m",          null: false
+    t.float    "s",          null: false
+  end
+
+  add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
+  add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
 
   create_table "closure_notes", force: :cascade do |t|
     t.integer  "conversation_id", null: false
