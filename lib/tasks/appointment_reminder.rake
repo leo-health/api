@@ -13,7 +13,7 @@ namespace :appointment do
 
   desc "send user a reminder for his appointment today"
   task one_day_notification: :environment do
-    Appointment.where(:start_datetime => Time.now.utc..1.days.from_now.utc).find_each do |appointment|
+    Appointment.where(:start_datetime => Time.now.utc..1.day.from_now.utc).find_each do |appointment|
       created_job = UserMailer.delay.five_day_appointment_reminder(appointment.booked_by)
       if created_job.valid?
         print "*"
