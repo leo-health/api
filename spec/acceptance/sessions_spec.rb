@@ -9,7 +9,7 @@ resource "Sessions" do
 
   post "/api/v1/login" do
     parameter :email, "Email", :required => true
-    parameter :password, "Password", :reuqired => true
+    parameter :password, "Password", :required => true
     parameter :device_token, "Device Token"
 
     let(:email){ user.email }
