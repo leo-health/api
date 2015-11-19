@@ -45,6 +45,13 @@ describe UserMailer do
     it "should send the user an reminder of the appointment on same day" do
       UserMailer.same_day_appointment_reminder(user).deliver
       email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Same Day Appointment Reminder' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+    end
+  end
+
+  describe "send guardian email on kids birthday" do
+    it "should send the guardian a email" do
+      UserMailer.patient_birthday(user).deliver
+      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Patient Happy Birthday' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
       expect(email).to_not be_nil
     end
   end

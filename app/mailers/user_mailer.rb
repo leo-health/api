@@ -54,4 +54,12 @@ class UserMailer < MandrillMailer::TemplateMailer
         to: user.email
     )
   end
+
+  def patient_birthday(guardian)
+    mandrill_mail(
+      template: 'Leo - Patient Happy Birthday',
+      subject: 'Anniversary of having kids!',
+      to: guardian.email
+    )
+  end
 end

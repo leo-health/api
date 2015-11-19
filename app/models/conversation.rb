@@ -93,6 +93,7 @@ class Conversation < ActiveRecord::Base
                         sender: sender,
                         type_name: :text
                        )
+      staff << sender
     end
   end
 end

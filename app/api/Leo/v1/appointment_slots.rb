@@ -28,10 +28,14 @@ module Leo
           start_date.upto(end_date) do |date|
             open_slots = open_slots + osp.get_open_slots(athena_provider_id: provider.provider_profile.athena_id, date: date, durations: [ type.duration ])
           end
+
+          current_datetime = DateTime.now
+          filtered_open_slots = open_slots.select { |x| x.start_datetime >  current_datetime }
+
             [
               {
                 provider_id: params[:provider_id],
-                slots: open_slots
+                slots: filtered_open_slots
               }
             ]
         end
