@@ -32,7 +32,7 @@ RSpec.describe Patient, type: :model do
       it { expect(patient).to callback(:notify_guardian).after(:commit).on(:create) }
 
       it "should notify guardian about child's sign up" do
-        expect( patient.family.conversation.messages.last.body ).to eq("Your child #{patient.first_name} is signed up successfully")
+        expect( patient.family.conversation.messages.last.body ).to eq("#{patient.first_name.capitalize} is signed up successfully")
       end
     end
   end
