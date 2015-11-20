@@ -33,7 +33,7 @@ class Patient < ActiveRecord::Base
   private
 
   def notify_guardian
-    if sender = User.where(role_id: 3).first
+    if sender = User.joins(:role).where(roles: {name: "customer_service"}).first
       family.conversation.messages.create(
           body: "Your child #{first_name} is signed up successfully",
           type_name: :text,
