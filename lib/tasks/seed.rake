@@ -24,8 +24,8 @@ namespace :load do
           email: "super_user@leohealth.com",
           password: "password",
           password_confirmation: "password",
-          role_id: 0,
-          practice_id: 0,
+          role_id: 7,
+          practice_id: 1,
           phone: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
@@ -40,7 +40,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 1,
-          practice_id: 0,
+          practice_id: 1,
           phone: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
@@ -55,7 +55,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 2,
-          practice_id: 0,
+          practice_id: 1,
           phone: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
@@ -70,7 +70,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 3,
-          practice_id: 0,
+          practice_id: 1,
           phone: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
@@ -85,7 +85,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 5,
-          practice_id: 0,
+          practice_id: 1,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 1,
           athena_department_id: 1,
@@ -104,7 +104,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 5,
-          practice_id: 0,
+          practice_id: 1,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 3,
           athena_department_id: 2,
@@ -123,7 +123,7 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 5,
-          practice_id: 0,
+          practice_id: 1,
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 4,
           athena_department_id: 2,
@@ -200,7 +200,7 @@ namespace :load do
         password: "pierrepierre",
         email: "pierre#{family.id.to_s}@curie.com",
         role_id: 4,
-        practice_id: 0,
+        practice_id: 1,
         phone: '1234567890',
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )
@@ -213,6 +213,8 @@ namespace :load do
         false
       end
 
+      sleep 1
+
       guardian_female = family.guardians.create!(
         title: "Mrs.",
         first_name: "Marie",
@@ -222,7 +224,7 @@ namespace :load do
         password: "mariemarie",
         email: "marie#{family.id.to_s}@curie.com",
         role_id: 4,
-        practice_id: 0,
+        practice_id: 1,
         phone: '1234567890',
         avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       )

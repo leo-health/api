@@ -14,6 +14,7 @@ module Leo
         params do
           requires :email, type: String, allow_blank: false
           requires :password, type: String, allow_blank: false
+          optional :device_token, type: String
         end
 
         desc "create a session when user login"
@@ -22,7 +23,7 @@ module Leo
           unless user && user.valid_password?(params[:password])
             error!({error_code: 403, error_message: "Invalid Email or Password."}, 422)
           end
-          session = user.sessions.create
+          session = user.sessions.create(device_token: params[:device_token])
           if session.valid?
             present :user, user, with: Leo::Entities::UserEntity
             present :session, session, with: Leo::Entities::SessionEntity
