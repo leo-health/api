@@ -37,6 +37,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_commit :set_user_family, :add_default_practice_to_guardian, on: :create
+  after_update :welcome_to_practice_email
 
   def find_conversation_by_status(status)
     return if has_role? :guardian
@@ -67,6 +68,10 @@ class User < ActiveRecord::Base
   end
 
   private
+
+  def welcome_to_practice_email
+    UserMailer.delay.welcome_to_pratice(self) if (has_role? :guardian) && (confirmed_at_changed?)
+  end
 
   def password_required?
     encrypted_password ? false : super

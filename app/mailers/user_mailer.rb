@@ -38,4 +38,13 @@ class UserMailer < MandrillMailer::TemplateMailer
       }
     )
   end
+
+  def welcome_to_pratice(user)
+    #this is just a placeholder, subject to change
+    mandrill_mail(
+        template: 'Leo - Welcome to Practice',
+        subject: 'Welcome to XXXX practice',
+        to: user.email,
+    )
+  end
 end
