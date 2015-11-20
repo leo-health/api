@@ -31,6 +31,20 @@ class ApnsNotification
     pusher.push(hello_notification)
   end
 
+  def notify_new_message(device_token)
+    new_message_notification = Grocer::Notification.new(
+      device_token:      device_token,
+      alert:             "You have a new message",
+      badge:             1,
+      category:          "a category",         # optional; used for custom notification actions
+      sound:             "siren.aiff",         # optional
+      expiry:            Time.now + 60*60,     # optional; 0 is default, meaning the message is not stored
+      identifier:        1234,                 # optional; must be an integer
+      content_available: true                  # optional; any truthy value will set 'content-available' to 1
+    )
+    pusher.push(new_message_notification)
+  end
+
   private
 
   attr_reader :pusher

@@ -88,7 +88,7 @@ class Conversation < ActiveRecord::Base
   end
 
   def load_initial_message
-    if sender = User.where(role_id: 3).first
+    if sender = User.joins(:role).where(roles: {name: "customer_service"}).first
        messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
                         sender: sender,
                         type_name: :text

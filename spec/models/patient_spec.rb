@@ -23,8 +23,18 @@ RSpec.describe Patient, type: :model do
   end
 
   describe 'callbacks' do
-    let(:patient) {create(:patient)}
-    it { expect(patient).to callback(:upgrade_guardian!).after(:commit).on(:create) }
+    let!(:customer_service) { create(:user, :customer_service) }
+    let!(:patient) { create(:patient) }
+
+    describe "after_commit" do
+      it { expect(patient).to callback(:upgrade_guardian!).after(:commit).on(:create) }
+
+      it { expect(patient).to callback(:notify_guardian).after(:commit).on(:create) }
+
+      it "should notify guardian about child's sign up" do
+        expect( patient.family.conversation.messages.last.body ).to eq("#{patient.first_name.capitalize} is signed up successfully")
+      end
+    end
   end
 
   describe '#current_avatar' do

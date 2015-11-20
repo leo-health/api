@@ -38,4 +38,12 @@ class UserMailer < MandrillMailer::TemplateMailer
       }
     )
   end
+
+  def notify_new_message(user)
+    mandrill_mail(
+      template: 'Leo - Notify New Message',
+      subject: 'You have a new message',
+      to: user.email
+    )
+  end
 end
