@@ -31,7 +31,7 @@ module GrowthCurvesHelper
   end
 
   def self.weight_percentile(sex, dob, date, value)
-    days = (date - dob).to_i
+    days = (date - dob).to_i/1.day
     entry = WeightGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)
@@ -39,8 +39,16 @@ module GrowthCurvesHelper
   end
 
   def self.height_percentile(sex, dob, date, value)
-    days = (date - dob).to_i
+    days = (date - dob).to_i/1.day
     entry = HeightGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
+    return nil unless entry
+    z = calculate_z(value, entry.l, entry.m, entry.s)
+    calculate_percentile(z)
+  end
+
+  def self.bmi_percentile(sex, dob, date, value)
+    days = (date - dob).to_i/1.day
+    entry = BmiGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)
     calculate_percentile(z)
