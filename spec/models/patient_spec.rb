@@ -25,6 +25,7 @@ RSpec.describe Patient, type: :model do
   describe 'callbacks' do
     let(:patient) {create(:patient)}
     it { expect(patient).to callback(:upgrade_guardian!).after(:commit).on(:create) }
+    it { expect(patient).to callback(:notify_guardian).after(:commit).on(:create) }
   end
 
   describe '#current_avatar' do
