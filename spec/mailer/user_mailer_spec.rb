@@ -52,4 +52,12 @@ describe UserMailer do
       expect(email).to_not be_nil
     end
   end
+
+  describe "notification of new message" do
+    it "should send user email when user received message" do
+      UserMailer.notify_new_message(user).deliver
+      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Notify New Message' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      expect(email).to_not be_nil
+    end
+  end
 end
