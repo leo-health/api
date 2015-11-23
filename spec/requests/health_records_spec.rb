@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'csv'
 
 describe Leo::V1::HealthRecords do
-
+  let!(:customer_service){ create(:user, :customer_service) }
   let(:user){ create(:user, :guardian) }
   let!(:session){ user.sessions.create }
   let!(:patient){ create(:patient, family: user.family) }

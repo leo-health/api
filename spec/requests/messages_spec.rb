@@ -2,12 +2,14 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Messages do
+  let!(:customer_service){ create(:user, :customer_service) }
   let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
   let!(:conversation){ user.family.conversation }
   let(:serializer){ Leo::Entities::MessageEntity }
 
   describe "Get /api/v1/conversations/:conversation_id/messages/full" do
+    let(:welcome_message){ conversation.messages.first }
     let!(:first_message){conversation.messages.create(body: "message1", type_name: "text", sender: user)}
     let!(:second_message){conversation.messages.create(body: "message2", type_name: "text", sender: user)}
     let(:serializer){ Leo::Entities::FullMessageEntity }
@@ -27,7 +29,7 @@ describe Leo::V1::Messages do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
+      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message, welcome_message]).as_json.to_json )
     end
   end
 
@@ -48,7 +50,7 @@ describe Leo::V1::Messages do
   end
 
   describe "Get /api/v1/messages/:id" do
-    let(:message){ create(:message) }
+    let(:message){ conversation.messages.last }
 
     def do_request
       get "/api/v1/messages/#{message.id}", { authentication_token: session.authentication_token }
@@ -71,7 +73,7 @@ describe Leo::V1::Messages do
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.first).as_json.to_json)
+      expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.last).as_json.to_json)
     end
   end
 end
