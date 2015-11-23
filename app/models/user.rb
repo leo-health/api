@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
-  after_commit :set_user_family, :add_default_practice_to_guardian, on: :create
+  after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
 
   def self.customer_service_user
     @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
@@ -71,6 +71,10 @@ class User < ActiveRecord::Base
   end
 
   private
+
+  def remind_schedule_appointment
+    RemindScheduleAppointmentJob.new(self.id).send if has_role? :guardian
+  end
 
   def password_required?
     encrypted_password ? false : super

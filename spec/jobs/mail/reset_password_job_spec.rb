@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'mandrill_mailer/offline'
 
 describe ResetPasswordJob do
-  let(:user){create(:user)}
+  let!(:user){create(:user)}
   let!(:reset_password_job){ResetPasswordJob.new(user.id, "test_token")}
 
   describe "#send" do
