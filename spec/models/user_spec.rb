@@ -31,9 +31,9 @@ describe User do
   end
 
   describe ".customer_service_user" do
-    let!(:guardian){ create(:user) }
     let!(:customer_service){ create(:user, :customer_service) }
     let!(:customer_service_two){ create(:user, :customer_service) }
+    let!(:guardian){ create(:user) }
 
     it "should return the first customer service staff" do
       expect(User.customer_service_user).to eq(customer_service)
