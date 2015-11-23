@@ -5,7 +5,7 @@ FactoryGirl.define do
     initialize_with { Role.find_or_create_by(id: id)}
 
     trait :super_user do
-  		id    0
+  		id    7
   		name  :super_user
     end
 

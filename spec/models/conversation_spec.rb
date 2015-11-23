@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe Conversation, type: :model do
+  let!(:customer_service){ create(:user, :customer_service) }
+
 	describe 'relations' do
 		it{ is_expected.to have_many(:messages) }
 		it{ is_expected.to have_many(:user_conversations) }
@@ -16,7 +18,7 @@ describe Conversation, type: :model do
     it { is_expected.to validate_presence_of(:state) }
   end
 
-  describe 'self.sort_conversations' do
+  describe '.sort_conversations' do
     let!(:open_conversation){ create(:conversation, state: :open, updated_at: 10.minutes.ago) }
     let!(:latest_open_conversation){ create(:conversation, state: :open, updated_at: 5.minutes.ago) }
     let!(:closed_conversation){ create(:conversation, updated_at: 10.minutes.ago) }
@@ -36,9 +38,9 @@ describe Conversation, type: :model do
     let(:open_conversation){ create(:conversation, state: :open) }
     let(:escalated_conversation){ create(:conversation, state: :escalated) }
     let(:closed_conversation){ create(:conversation) }
+    let(:customer_service){ create(:user, :customer_service) }
 
-    describe "escalate" do
-      let(:customer_service){ create(:user, :customer_service) }
+    describe "#escalate" do
       let(:clinical){ create(:user, :clinical) }
       let(:note){ 'escalation note'}
       let(:priority){ 1 }
@@ -69,10 +71,9 @@ describe Conversation, type: :model do
       end
     end
 
-    describe "close" do
+    describe "#close" do
       let(:note){ 'close the conversation'}
       let(:clinical){ create(:user, :clinical) }
-      let(:customer_service){ create(:user, :customer_service) }
       let(:close_params){ {closed_by: customer_service, note: note} }
 
       context 'open_conversation' do
@@ -100,7 +101,6 @@ describe Conversation, type: :model do
   end
 
   describe '#escalate_conversation_to_staff' do
-    let!(:customer_service){ create(:user, :customer_service) }
     let!(:open_conversation){ create(:conversation, state: :open) }
     let(:clinical){ create(:user, :clinical) }
     let(:note){ 'escalation note'}
@@ -135,7 +135,6 @@ describe Conversation, type: :model do
     let(:open_conversation){ create(:conversation, state: :open) }
     let(:note){ 'close the conversation'}
     let(:clinical){ create(:user, :clinical) }
-    let(:customer_service){ create(:user, :customer_service) }
     let(:close_params){{closed_by: customer_service, note: note}}
 
     before do
