@@ -11,6 +11,7 @@ class Message < ActiveRecord::Base
   def broadcast_message(sender)
     message_id = id
     conversation = self.conversation
+    send_new_message_notification
     participants = (conversation.staff + conversation.family.guardians)
     participants.delete(sender)
     if participants.count > 0
@@ -30,5 +31,14 @@ class Message < ActiveRecord::Base
     conversation.staff << sender unless ( sender.has_role? :guardian ) || ( conversation.staff.where(id: sender.id).exists? )
     conversation.user_conversations.update_all(read: false)
     conversation.open!
+  end
+
+  def send_new_message_notification
+    apns = ApnsNotification.new
+
+    guardians_to_notify = conversation.family.guardians.includes(sessions: :device_token).where.not(id: sender.id)
+    guardians_to_notify.each do |guardian|
+      apns.delay.notify_new_message(device_token) if device_token = guardian.sessions.last.try(:device_token)
+    end
   end
 end

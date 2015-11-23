@@ -1,6 +1,6 @@
 class ConfirmEmailJob < Struct.new(:user_id, :token)
   def perform
-    user = User.try(:find, user_id)
+    user = User.find_by_id(user_id)
     UserMailer.confirmation_instructions(user, token).deliver if user
   end
 

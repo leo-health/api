@@ -36,8 +36,8 @@ class User < ActiveRecord::Base
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
-  after_commit :set_user_family, :add_default_practice_to_guardian, on: :create
   after_update :welcome_to_practice_email
+  after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
 
   def find_conversation_by_status(status)
     return if has_role? :guardian
@@ -71,6 +71,10 @@ class User < ActiveRecord::Base
 
   def welcome_to_practice_email
     UserMailer.delay.welcome_to_pratice(self) if (has_role? :guardian) && (confirmed_at_changed?)
+  end
+
+  def remind_schedule_appointment
+    RemindScheduleAppointmentJob.new(self.id).send if has_role? :guardian
   end
 
   def password_required?
