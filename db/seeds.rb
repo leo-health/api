@@ -249,6 +249,7 @@ begin
   #populate boys & girls 2-20 years height
   CSV.foreach("#{folder}/statage.csv", optionsCdc) do |row|
     entry = HeightGrowthCurve.new({
+      #Sex==1 for boys, 2 for girls
       :sex=> (row["Sex"] == "1" ? "M" : "F"),
       :days => (row["Agemos"].to_i * 365 / 12),
       :l => row["L"],
@@ -274,6 +275,33 @@ begin
   #populate boys & girls 2-20 years weight
   CSV.foreach("#{folder}/wtage.csv", optionsCdc) do |row|
     entry = WeightGrowthCurve.new({
+      #Sex==1 for boys, 2 for girls
+      :sex=> (row["Sex"] == "1" ? "M" : "F"),
+      :days => (row["Agemos"].to_i * 365 / 12),
+      :l => row["L"],
+      :m => row["M"],
+      :s => row["S"]})
+    entry.save if (entry.days > 712 && row["Agemos"] != "24")
+  end
+
+  BmiGrowthCurve.delete_all
+
+  #populate boys 0-24 months bmi
+  CSV.foreach("#{folder}/bfa_boys_p_exp.txt", optionsWho) do |row|
+    entry = BmiGrowthCurve.new({ :sex=> "M", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry.save if (entry.days <= 712)
+  end
+
+  #populate girls 0-24 months bmi
+  CSV.foreach("#{folder}/bfa_girls_p_exp.txt", optionsWho) do |row|
+    entry = BmiGrowthCurve.new({ :sex=> "F", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry.save if (entry.days <= 712)
+  end
+
+  #populate boys & girls 2-20 years bmi
+  CSV.foreach("#{folder}/bmiagerev.csv", optionsCdc) do |row|
+    entry = BmiGrowthCurve.new({
+      #Sex==1 for boys, 2 for girls
       :sex=> (row["Sex"] == "1" ? "M" : "F"),
       :days => (row["Agemos"].to_i * 365 / 12),
       :l => row["L"],
