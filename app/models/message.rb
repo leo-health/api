@@ -34,12 +34,11 @@ class Message < ActiveRecord::Base
   end
 
   def send_new_message_notification
-    guardians_id = conversation.family.guardians.select{|guardian| guardian.id != sender.id}.map(&:id)
-    if guardians_id.any? && guardians = User.where(id: guardians_id)
-      apns = ApnsNotification.new
-      guardians.eager_load(:sessions).each do |guardian|
-        apns.delay.notify_new_message(device_token) if device_token = guardian.sessions.last.try(:device_token)
-      end
+    apns = ApnsNotification.new
+
+    guardians_to_notify = conversation.family.guardians.includes(sessions: :device_token).where.not(id: sender.id)
+    guardians_to_notify.each do |guardian|
+      apns.delay.notify_new_message(device_token) if device_token = guardian.sessions.last.try(:device_token)
     end
   end
 end
