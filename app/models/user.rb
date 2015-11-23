@@ -38,6 +38,10 @@ class User < ActiveRecord::Base
 
   after_commit :set_user_family, :add_default_practice_to_guardian, on: :create
 
+  def self.customer_service_user
+    @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
+  end
+
   def find_conversation_by_status(status)
     return if has_role? :guardian
     conversations.where(status: status)

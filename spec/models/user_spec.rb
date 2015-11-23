@@ -29,4 +29,14 @@ RSpec.describe User, type: :model do
     it { is_expected.to validate_presence_of(:phone) }
     it { is_expected.to validate_uniqueness_of(:email) }
   end
+
+  describe ".customer_service_user" do
+    let!(:guardian){ create(:user) }
+    let!(:customer_service){ create(:user, :customer_service) }
+    let!(:customer_service_two){ create(:user, :customer_service) }
+
+    it "should return the first customer service staff" do
+      expect(User.customer_service_user).to eq(customer_service)
+    end
+  end
 end
