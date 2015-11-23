@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Patient, type: :model do
+ let!(:customer_service) { create(:user, :customer_service) }
+ let!(:patient) { create(:patient) }
+
  describe 'relations' do
    it{ is_expected.to belong_to(:family) }
    it{ is_expected.to belong_to(:role) }
@@ -23,9 +26,6 @@ RSpec.describe Patient, type: :model do
   end
 
   describe 'callbacks' do
-    let!(:customer_service) { create(:user, :customer_service) }
-    let!(:patient) { create(:patient) }
-
     describe "after_commit" do
       it { expect(patient).to callback(:upgrade_guardian!).after(:commit).on(:create) }
 
@@ -38,7 +38,6 @@ RSpec.describe Patient, type: :model do
   end
 
   describe '#current_avatar' do
-    let(:patient) {create(:patient)}
     let!(:old_avatar){ create(:avatar, owner: patient)}
     let!(:current_avatar){ create(:avatar, owner: patient)}
 
