@@ -3,6 +3,7 @@ require 'rails_helper'
 
 describe Leo::V1::Cards do
   describe "Get /api/v1/cards" do
+    let!(:customer_service){ create(:user, :customer_service) }
     let(:user){ create(:user, :guardian) }
     let!(:session){ user.sessions.create }
     let!(:upcoming_appointment){create(:appointment, booked_by: user, start_datetime: Time.now + 1.day)}

@@ -24,13 +24,23 @@ class Patient < ActiveRecord::Base
 
   validates :first_name, :last_name, :birth_date, :sex, :family, :role, presence: true
 
-  after_commit :upgrade_guardian!, on: :create
+  after_commit :upgrade_guardian!, :notify_guardian, on: :create
 
   def current_avatar
     avatars.order("created_at DESC").first
   end
 
   private
+
+  def notify_guardian
+    if sender = User.customer_service_user
+      family.conversation.messages.create(
+          body: "#{first_name.capitalize} is signed up successfully",
+          type_name: :text,
+          sender: sender
+      )
+    end
+  end
 
   def upgrade_guardian!
     family.primary_parent.try(:upgrade!)
