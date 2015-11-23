@@ -63,4 +63,12 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email
     )
   end
+
+  def password_change_confirmation(user)
+    mandrill_mail(
+        template: 'Leo - Password Changed',
+        subject: 'Successfully changed your password!',
+        to: user.email
+    )
+  end
 end
