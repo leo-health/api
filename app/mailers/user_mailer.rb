@@ -43,7 +43,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     #this is just a placeholder, subject to change
     mandrill_mail(
         template: 'Leo - Welcome to Practice',
-        subject: 'Welcome to XXXX practice',
+        subject: 'Welcome to Leo',
         to: user.email
     )
   end

@@ -70,7 +70,7 @@ class User < ActiveRecord::Base
   private
 
   def welcome_to_practice_email
-    UserMailer.delay.welcome_to_pratice(self) if (has_role? :guardian) && (confirmed_at_changed?)
+    UserMailer.delay.welcome_to_pratice(self) if (confirmed_at_changed?) && (has_role? :guardian)
   end
 
   def remind_schedule_appointment
