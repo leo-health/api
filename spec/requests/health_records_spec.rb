@@ -54,6 +54,37 @@ describe Leo::V1::HealthRecords do
     end
   end
 
+  describe "GET /api/v1/patients/:id/vitals/bmis" do
+    let!(:weights) {
+      [ 
+        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago), 
+        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago), 
+        create(:vital, :weight, patient_id: patient.id, taken_at: 2.days.ago)
+      ]
+    }
+
+    let!(:heights) {
+      [ 
+        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago), 
+        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago), 
+        create(:vital, :height, patient_id: patient.id, taken_at: 2.days.ago)
+      ]
+    }
+
+    def do_request
+      get "/api/v1/patients/#{patient.id}/vitals/bmis", { authentication_token: session.authentication_token, start_date: 10.years.ago.strftime("%m/%d/%Y"), end_date: DateTime.now.strftime("%m/%d/%Y") }, format: :json
+    end
+
+    it "should return a list of bmis" do
+      do_request
+      expect(response.status).to eq(200)
+      resp = JSON.parse(response.body)
+      expect(resp["status"]).to eq("ok")
+      expect(resp["data"].size).to eq(1)
+      expect(resp["data"]["bmis"].size).to eq(3)
+    end
+  end
+
   describe "GET /api/v1/patients/:id/allergies" do
     let!(:allergies) {
       [ 
