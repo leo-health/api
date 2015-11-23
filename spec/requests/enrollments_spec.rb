@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe Leo::V1::Enrollments do
   describe "POST /api/v1/enrollments/invite" do
-    let(:user){ create(:user, :guardian) }
+    let!(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
 
     def do_request
@@ -13,7 +13,7 @@ describe Leo::V1::Enrollments do
     end
 
     it "should send a invite to the user" do
-      expect{ do_request }.to change{ Delayed::Job.count }.from(0).to(1)
+      expect{ do_request }.to change{ Delayed::Job.count }.from(2).to(3)
       expect(response.status).to eq(201)
     end
   end

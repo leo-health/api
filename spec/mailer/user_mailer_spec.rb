@@ -11,7 +11,10 @@ describe UserMailer do
   describe "confirmation_instructions" do
     it "should send the user a confirmation_instructions email" do
       UserMailer.confirmation_instructions(user, "token").deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Sign Up - Confirmation' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Sign Up - Confirmation' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
       expect(email).to_not be_nil
     end
   end
@@ -19,7 +22,10 @@ describe UserMailer do
   describe "reset_password_instructions" do
     it "should send the user a reset_password_instructions email" do
       UserMailer.reset_password_instructions(user, "token").deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Password - Reset Password' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Password - Reset Password' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
       expect(email).to_not be_nil
     end
   end
@@ -28,7 +34,21 @@ describe UserMailer do
     let(:enrollment){ build(:enrollment) }
     it "should send the secondary parent a invite" do
       UserMailer.invite_secondary_parent(enrollment, user).deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Invite User' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Invite User' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "remind user to use schedule appointment" do
+    it "send the user an reminder" do
+      UserMailer.remind_schedule_appointment(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Remind Schedule Appointment' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
       expect(email).to_not be_nil
     end
   end

@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'mandrill_mailer/offline'
 
 describe ConfirmEmailJob do
-  let(:user){create(:user)}
+  let!(:user){create(:user)}
   let!(:confirm_email_job){ConfirmEmailJob.new(user.id, "test_token")}
 
   describe "#perform" do
