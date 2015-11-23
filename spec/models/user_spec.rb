@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe User, type: :model do
+describe User do
   describe "relations" do
     it{ is_expected.to belong_to(:family) }
     it{ is_expected.to belong_to(:role) }
