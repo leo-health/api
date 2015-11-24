@@ -56,7 +56,10 @@ describe UserMailer do
   describe "notification of new message" do
     it "should send user email when user received message" do
       UserMailer.notify_new_message(user).deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Notify New Message' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Notify New Message' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
       expect(email).to_not be_nil
     end
   end
@@ -64,7 +67,10 @@ describe UserMailer do
   describe "five day appointment reminder" do
     it "should send the user an reminder of the appointment 5 days prior to the scheduled visit" do
       UserMailer.five_day_appointment_reminder(user).deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Five Day Appointment Reminder' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Five Day Appointment Reminder' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
       expect(email).to_not be_nil
     end
   end
@@ -72,14 +78,32 @@ describe UserMailer do
   describe "same day appointment reminder" do
     it "should send the user an reminder of the appointment on same day" do
       UserMailer.same_day_appointment_reminder(user).deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Same Day Appointment Reminder' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Same Day Appointment Reminder' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
     end
   end
 
   describe "send guardian email on kids birthday" do
     it "should send the guardian a email" do
       UserMailer.patient_birthday(user).deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Patient Happy Birthday' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Patient Happy Birthday' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "send user reminder to confirm account with Leo" do
+    it "should send user a reminder" do
+      UserMailer.account_confirmation_reminder(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Account Confirmation Reminder' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
       expect(email).to_not be_nil
     end
   end

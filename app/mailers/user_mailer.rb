@@ -78,4 +78,12 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email
     )
   end
+
+  def account_confirmation_reminder(user)
+    mandrill_mail(
+      template: 'Leo - Account Confirmation Reminder',
+      subject: 'One day left to confirm your account with Leo',
+      to: user.email
+    )
+  end
 end
