@@ -20,6 +20,10 @@ class Message < ActiveRecord::Base
     end
   end
 
+  def broadcast_message_via_presence_channel
+    Pusher.trigger("presence-#{conversation.id}")
+  end
+
   private
 
   def set_last_message_created_at
