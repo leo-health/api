@@ -40,7 +40,7 @@ describe Leo::V1::Users do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:users].as_json.to_json).to eq(serializer.represent([user]).as_json.to_json)
+      expect(body[:data][:guardians].as_json.to_json).to eq(serializer.represent([user]).as_json.to_json)
     end
   end
 
