@@ -39,11 +39,20 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
+  def welcome_to_pratice(user)
+    #this is just a placeholder, subject to change
+    mandrill_mail(
+      template: 'Leo - Welcome to Practice',
+      subject: 'Welcome to Leo',
+      to: user.email
+    )
+  end
+
   def remind_schedule_appointment(user)
     mandrill_mail(
-        template: 'Leo - Remind Schedule Appointment',
-        subject: "Don't forget to schedule an appointment",
-        to: user.email
+      template: 'Leo - Remind Schedule Appointment',
+      subject: "Don't forget to schedule an appointment",
+      to: user.email
     )
   end
 
@@ -51,6 +60,14 @@ class UserMailer < MandrillMailer::TemplateMailer
     mandrill_mail(
       template: 'Leo - Notify New Message',
       subject: 'You have a new message',
+      to: user.email
+    )
+  end
+
+  def password_change_confirmation(user)
+    mandrill_mail(
+      template: 'Leo - Password Changed',
+      subject: 'Successfully changed your password!',
       to: user.email
     )
   end
