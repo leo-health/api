@@ -30,6 +30,18 @@ describe User do
     it { is_expected.to validate_uniqueness_of(:email) }
   end
 
+  describe "callbacks" do
+    describe "after update" do
+      let!(:user){ create(:user, email: "emailtest@testemail.com") }
+
+      it { expect(user).to callback(:welcome_to_practice_email).after(:update) }
+
+      it "should send user an email to welcome to practice after user confirmed account" do
+        expect{ user.confirm }.to change(Delayed::Job, :count).by(1)
+      end
+    end
+  end
+
   describe ".customer_service_user" do
     let!(:customer_service){ create(:user, :customer_service) }
     let!(:customer_service_two){ create(:user, :customer_service) }

@@ -64,7 +64,7 @@ describe Leo::V1::Passwords do
   end
 
   describe 'PUT /api/v1/passwords/change_password' do
-    let(:user){create(:user, password: "old_password", password_confirmation: "old_password")}
+    let!(:user){create(:user, password: "old_password", password_confirmation: "old_password")}
     let(:session){user.sessions.create}
 
     def do_request
@@ -73,7 +73,7 @@ describe Leo::V1::Passwords do
     end
 
     it "should change the password for user" do
-      do_request
+      expect{ do_request }.to change( Delayed::Job, :count ).by(1)
       expect(response.status).to eq(200)
       expect( user.reload.valid_password?("new_password")).to be true
     end
