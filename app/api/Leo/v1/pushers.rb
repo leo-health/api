@@ -13,7 +13,7 @@ module Leo
         end
 
         post do
-          response = Pusher[params[:channel_name]].authenticate(params[:socket_id], { :user_id => current_user.id })
+          response = Pusher[params[:channel_name]].authenticate(params[:socket_id], { user_id: current_user.id })
           present response
         end
       end

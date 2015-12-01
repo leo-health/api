@@ -5,6 +5,6 @@ class RemindScheduleAppointmentJob < Struct.new(:user_id)
   end
 
   def send
-    Delayed::Job.enqueue self, :run_at => 48.hours.from_now.utc
+    Delayed::Job.enqueue self, run_at: 48.hours.from_now.utc
   end
 end

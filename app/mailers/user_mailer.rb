@@ -8,8 +8,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Please confirm your account with us.',
       to: user.email,
       vars: {
-        'FIRST_NAME' => user.first_name,
-        'LINK_CONF' => "http://localhost:8888/#/changePassword?reset_password_token=#{token}"
+        'FIRST_NAME': user.first_name,
+        'LINK_CONF': "http://localhost:8888/#/changePassword?reset_password_token=#{token}"
       }
     )
   end

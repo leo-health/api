@@ -4,12 +4,6 @@ module Leo
       version 'v1', using: :path, vendor: 'leo-health'
       format :json
 
-      rescue_from :all, :backtrace => true
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-      default_error_status 400
-
-
       namespace :login do
         params do
           requires :email, type: String, allow_blank: false
