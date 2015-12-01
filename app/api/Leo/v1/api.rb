@@ -36,7 +36,8 @@ module Leo
         end
 
         def current_user
-          (Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token]
+          return unless params[:authentication_token]
+          @current_user ||= Session.find_by_authentication_token(params[:authentication_token]).try(:user)
         end
 
         def render_success object

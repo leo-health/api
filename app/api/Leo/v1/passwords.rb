@@ -33,7 +33,7 @@ module Leo
             unless current_user.reset_password(params[:password], params[:password_confirmation])
               error!({ error_code: 422, error_message: current_user.errors.full_messages }, 422)
             else
-              UserMailer.delay.password_change_confirmation(current_user)
+              UserMailer.delay.password_change_confirmation(current_user) and return
             end
           end
         end
