@@ -27,7 +27,7 @@ class Message < ActiveRecord::Base
   private
 
   def set_last_message_created_at
-    conversation.update_column(:last_message_created_at, created_at)
+    conversation.update_columns(last_message_created_at: created_at, updated_at: created_at)
   end
 
   def update_conversation_after_message_sent

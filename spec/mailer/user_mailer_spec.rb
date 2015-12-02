@@ -56,7 +56,32 @@ describe UserMailer do
   describe "notification of new message" do
     it "should send user email when user received message" do
       UserMailer.notify_new_message(user).deliver
-      email = MandrillMailer::deliveries.detect { |mail| mail.template_name == 'Leo - Notify New Message' && mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" } }
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Notify New Message' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "welcome to practice email" do
+    it "should send the user a welcome email to practice" do
+      UserMailer.welcome_to_pratice(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Welcome to Practice' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "successfully changed your password" do
+    it "should send the user a email confirmation that they have successfully changed their password" do
+      UserMailer.password_change_confirmation(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Password Changed' &&
+            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
       expect(email).to_not be_nil
     end
   end
