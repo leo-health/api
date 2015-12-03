@@ -343,6 +343,25 @@ module SyncServiceHelper
           )
       end
 
+      #create insurance if not entered yet
+      insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
+      if insurances.length == 0
+        enrollment = Enrollment.find_by(family_id: leo_patient.family_id)
+
+        if enrollment && enrollment.insurance_plan && enrollment.insurance_plan.athena_id != 0
+          @connector.create_patient_insurance(
+            patientid: leo_patient.athena_id,
+            insurancepackageid: enrollment.insurance_plan.athena_id.to_s,
+            insurancepolicyholderfirstname: leo_parent.first_name,
+            insurancepolicyholderlastname: leo_parent.last_name,
+            insurancepolicyholdermiddlename: leo_parent.middle_initial.to_s,
+            insurancepolicyholdersex: leo_parent.sex,
+            insurancepolicyholderdob: parent_birth_date,
+            sequencenumber: 1.to_s
+            )
+        end
+      end
+
       leo_patient.patient_updated_at = DateTime.now.utc
       leo_patient.save!
     end
@@ -548,7 +567,7 @@ module SyncServiceHelper
 
       #create and/or update the vaccine records in Leo
       insurances.each do | insurance |
-        leo_insurance = Insurance.find_or_create_by(athena_id: insurance[:insuranceid.to_s].to_i)
+        leo_insurance = Insurance.create_with(irc_name: insurance[:ircname.to_s]).find_or_create_by(athena_id: insurance[:insuranceid.to_s].to_i)
 
         leo_insurance.patient_id = leo_patient.id
         leo_insurance.athena_id = insurance[:insuranceid.to_s].to_i
@@ -569,6 +588,7 @@ module SyncServiceHelper
         leo_insurance.holder_zip = insurance[:insurancepolicyholderzip.to_s]
         leo_insurance.holder_country = insurance[:insurancepolicyholdercountrycode.to_s]
         leo_insurance.primary = insurance[:sequencenumber.to_s]
+        leo_insurance.irc_name = insurance[:ircname.to_s]
 
         leo_insurance.save!
       end

@@ -587,6 +587,60 @@ module AthenaHealthApiHelper
       val[:medications.to_s].flatten
     end
 
+    def create_patient_insurance(
+      patientid: ,
+      insuranceidnumber: 'unknown',
+      insurancepackageid: ,
+      insurancephone: nil,
+      insurancepolicyholderaddress1: nil,
+      insurancepolicyholderaddress2: nil,
+      insurancepolicyholdercity: nil,
+      insurancepolicyholdercountrycode: nil,
+      insurancepolicyholdercountryiso3166: nil,
+      insurancepolicyholderdob: nil,
+      insurancepolicyholderfirstname: ,
+      insurancepolicyholderlastname: ,
+      insurancepolicyholdermiddlename: nil,
+      insurancepolicyholdersex: ,
+      insurancepolicyholderssn: nil,
+      insurancepolicyholderstate: nil,
+      insurancepolicyholdersuffix: nil,
+      insurancepolicyholderzip: nil,
+      policynumber: nil, #group number
+      relationshiptoinsuredid: nil,
+      sequencenumber: 1, #1=primary, 2=secondary
+      updateappointments: nil
+      )
+
+      params = {}
+      params[:patientid] = patientid if patientid
+      params[:insuranceidnumber] = insuranceidnumber if insuranceidnumber
+      params[:insurancepackageid] = insurancepackageid if insurancepackageid
+      params[:insurancephone] = insurancephone if insurancephone
+      params[:insurancepolicyholderaddress1] = insurancepolicyholderaddress1 if insurancepolicyholderaddress1
+      params[:insurancepolicyholderaddress2] = insurancepolicyholderaddress2 if insurancepolicyholderaddress2
+      params[:insurancepolicyholdercity] = insurancepolicyholdercity if insurancepolicyholdercity
+      params[:insurancepolicyholdercountrycode] = insurancepolicyholdercountrycode if insurancepolicyholdercountrycode
+      params[:insurancepolicyholdercountryiso3166] = insurancepolicyholdercountryiso3166 if insurancepolicyholdercountryiso3166
+      params[:insurancepolicyholderdob] = insurancepolicyholderdob if insurancepolicyholderdob
+      params[:insurancepolicyholderfirstname] = insurancepolicyholderfirstname if insurancepolicyholderfirstname
+      params[:insurancepolicyholderlastname] = insurancepolicyholderlastname if insurancepolicyholderlastname
+      params[:insurancepolicyholdermiddlename] = insurancepolicyholdermiddlename if insurancepolicyholdermiddlename
+      params[:insurancepolicyholdersex] = insurancepolicyholdersex if insurancepolicyholdersex
+      params[:insurancepolicyholderssn] = insurancepolicyholderssn if insurancepolicyholderssn
+      params[:insurancepolicyholderstate] = insurancepolicyholderstate if insurancepolicyholderstate
+      params[:insurancepolicyholdersuffix] = insurancepolicyholdersuffix if insurancepolicyholdersuffix
+      params[:insurancepolicyholderzip] = insurancepolicyholderzip if insurancepolicyholderzip
+      params[:policynumber] = policynumber if policynumber
+      params[:relationshiptoinsuredid] = relationshiptoinsuredid if relationshiptoinsuredid
+      params[:sequencenumber] = sequencenumber if sequencenumber
+      params[:updateappointments] = updateappointments if updateappointments
+
+      response = @connection.POST("patients/#{patientid}/insurances", params, AthenaHealthApiConnector.common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+    end
+
     def get_patient_insurances(patientid:)
 
       params = {}

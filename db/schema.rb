@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151119163753) do
+ActiveRecord::Schema.define(version: 20151203202250) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -227,10 +227,11 @@ ActiveRecord::Schema.define(version: 20151119163753) do
   add_index "height_growth_curves", ["sex"], name: "index_height_growth_curves_on_sex", using: :btree
 
   create_table "insurance_plans", force: :cascade do |t|
-    t.integer  "insurer_id", null: false
+    t.integer  "insurer_id",               null: false
     t.string   "plan_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "athena_id",  default: "0", null: false
   end
 
   add_index "insurance_plans", ["insurer_id"], name: "index_insurance_plans_on_insurer_id", using: :btree
@@ -257,6 +258,7 @@ ActiveRecord::Schema.define(version: 20151119163753) do
     t.datetime "updated_at",                     null: false
     t.integer  "patient_id"
     t.date     "holder_birth_date"
+    t.string   "irc_name",                       null: false
   end
 
   add_index "insurances", ["athena_id"], name: "index_insurances_on_athena_id", using: :btree
