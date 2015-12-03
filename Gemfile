@@ -38,6 +38,7 @@ gem 'grocer'
 gem 'pg_search'
 gem 'raddocs'
 gem 'redis'
+gem 'twilio-ruby'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses

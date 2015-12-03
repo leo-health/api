@@ -26,9 +26,9 @@ module Leo
             webhook.events.each do |event|
               case event["name"]
                 when 'member_added'
-                  puts "member #{event["user_id"]} is now onLine"
+                  $redis.set('#{event["user_id"]}online?', true)
                 when 'member_removed'
-                  puts "member #{event["user_id"]} is now offLine"
+                  $redis.set('#{event["user_id"]}online?', false)
               end
             end
           end
