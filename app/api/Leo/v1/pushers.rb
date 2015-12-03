@@ -17,6 +17,28 @@ module Leo
           present response
         end
       end
+
+      desc "receive pusher webhooks"
+      namespace "pusher/webhook" do
+        post do
+          webhook = Pusher.webhook.new(request)
+          byebug
+        end
+        # if webhook.valid?
+        #
+        #   webhook.events.each do |event|
+        #     case event["member_added"]
+        #       when 'channel_occupied'
+        #         puts "Channel occupied: #{event["channel"]}"
+        #       when 'channel_vacated'
+        #         puts "Channel vacated: #{event["channel"]}"
+        #     end
+        #   end
+        #   render text: 'ok'
+        # else
+        #   render text: 'invalid', status: 401
+        # end
+      end
     end
   end
 end
