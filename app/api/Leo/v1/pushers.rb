@@ -19,25 +19,20 @@ module Leo
       end
 
       desc "receive pusher webhooks"
-      namespace "pusher/webhook" do
+      namespace "pusher/webhooks" do
         post do
-          webhook = Pusher.webhook.new(request)
-          byebug
+          webhook = Pusher.webhook(request)
+          if webhook.valid?
+            webhook.events.each do |event|
+              case event["name"]
+                when 'member_added'
+                  puts "member #{event["user_id"]} is now onLine"
+                when 'member_removed'
+                  puts "member #{event["user_id"]} is now offLine"
+              end
+            end
+          end
         end
-        # if webhook.valid?
-        #
-        #   webhook.events.each do |event|
-        #     case event["member_added"]
-        #       when 'channel_occupied'
-        #         puts "Channel occupied: #{event["channel"]}"
-        #       when 'channel_vacated'
-        #         puts "Channel vacated: #{event["channel"]}"
-        #     end
-        #   end
-        #   render text: 'ok'
-        # else
-        #   render text: 'invalid', status: 401
-        # end
       end
     end
   end
