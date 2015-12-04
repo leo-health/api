@@ -1,3 +1,5 @@
+require 'twilio-ruby'
+
 class Message < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :conversation
@@ -6,7 +8,19 @@ class Message < ActiveRecord::Base
   belongs_to :sender, class_name: "User"
 
   validates :conversation, :sender, :type_name, :body, presence: true
-  after_commit :update_conversation_after_message_sent, :set_last_message_created_at, on: :create
+  after_commit :update_conversation_after_message_sent, :set_last_message_created_at, :sms_cs_user, on: :create
+
+  def self.cool_down_period
+    2.minutes
+  end
+
+  def self.compile_sms_message(start_time, end_time)
+    self.where(created_at: (start_time..end_time)).inject(Hash.new(0)) do |compiled_message, message|
+      sender_name = "#{message.sender.title} #{message.sender.first_name} #{message.sender.last_name}"
+      compiled_message[sender_name] += 1
+      compiled_message
+    end.map{|name, count| "#{name} sent you #{count} messages."}.join(' ')
+  end
 
   def broadcast_message(sender)
     message_id = id
@@ -39,10 +53,20 @@ class Message < ActiveRecord::Base
 
   def send_new_message_notification
     apns = ApnsNotification.new
-
     guardians_to_notify = conversation.family.guardians.includes(:sessions).where.not(id: sender.id)
     guardians_to_notify.each do |guardian|
       apns.delay.notify_new_message(device_token) if device_token = guardian.sessions.last.try(:device_token)
+    end
+  end
+
+  def sms_cs_user
+    cs_user = User.customer_service_user
+    return unless $redis.get("#{cs_user.id}online?")
+    sms_service = SmsNotification.new(TWILIO_PHONE_NUMBER, cs_user, self.cool_down_period)
+    if sms_service.ready_to_sms?
+      body = self.compile_sms_message(Time.now - self.cool_down_period, Time.now)
+      sms_service.send(body)
+      sms_service.set_next_send_at
     end
   end
 end
