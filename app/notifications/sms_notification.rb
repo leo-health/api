@@ -5,14 +5,15 @@ class SmsNotification
     @cool_down_period = cool_down_period
   end
 
+  def send(body)
+    TWILIO.account.messages.create(from: from, to: to, body: body)
+  end
+
   def ready_to_sms?
     next_sending_time = $redis.get("#{to.id}next_messageAt")
     !next_sending_time || (Time.now < next_sending_time)
   end
 
-  def send(body)
-    TWILIO.account.messages.create(from: from, to: to, body: body)
-  end
 
   def set_next_send_at
     return unless cool_down_period
