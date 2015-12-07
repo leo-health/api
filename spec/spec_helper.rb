@@ -40,5 +40,9 @@ Spork.prefork do
       # `true` in RSpec 4.
       mocks.verify_partial_doubles = true
     end
+
+    config.before(:each) do
+      FakeSms.messages = []
+    end
   end
 end

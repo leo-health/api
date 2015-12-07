@@ -62,11 +62,20 @@ class Message < ActiveRecord::Base
   def sms_cs_user
     cs_user = User.customer_service_user
     return unless $redis.get("#{cs_user.id}online?")
-    sms_service = SmsNotification.new(TWILIO_PHONE_NUMBER, cs_user, self.cool_down_period)
-    if sms_service.ready_to_sms?
+    if ready_to_sms?
       body = self.compile_sms_message(Time.now - self.cool_down_period, Time.now)
-      sms_service.send(body)
-      sms_service.set_next_send_at
+      SendSmsJob.new(cs_user.id, body).send
+      set_next_send_at
     end
+  end
+
+  def ready_to_sms?
+    next_sending_time = $redis.get("#{to.id}next_messageAt")
+    !next_sending_time || (Time.now < next_sending_time)
+  end
+
+
+  def set_next_send_at
+    $redis.set("#{to.id}next_messageAt", Time.now + self.cool_down_period)
   end
 end
