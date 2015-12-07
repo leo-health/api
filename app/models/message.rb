@@ -3,9 +3,10 @@ require 'twilio-ruby'
 class Message < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :conversation
+  belongs_to :sender, class_name: "User"
+
   has_many :read_receipts
   has_many :readers, class_name: 'User', through: :read_receipts
-  belongs_to :sender, class_name: "User"
 
   validates :conversation, :sender, :type_name, :body, presence: true
   after_commit :update_conversation_after_message_sent, :set_last_message_created_at, :sms_cs_user, on: :create
@@ -15,8 +16,9 @@ class Message < ActiveRecord::Base
   end
 
   def self.compile_sms_message(start_time, end_time)
-    self.where(created_at: (start_time..end_time)).inject(Hash.new(0)) do |compiled_message, message|
-      sender_name = "#{message.sender.title} #{message.sender.first_name} #{message.sender.last_name}"
+    messages = self.includes(:sender).where.not(sender: User.customer_service_user).where(created_at: (start_time..end_time))
+    messages.inject(Hash.new(0)) do |compiled_message, message|
+      sender_name = "#{message.sender.first_name} #{message.sender.last_name}"
       compiled_message[sender_name] += 1
       compiled_message
     end.map{|name, count| "#{name} sent you #{count} messages."}.join(' ')
@@ -62,20 +64,20 @@ class Message < ActiveRecord::Base
   def sms_cs_user
     cs_user = User.customer_service_user
     return unless $redis.get("#{cs_user.id}online?")
-    if ready_to_sms?
-      body = self.compile_sms_message(Time.now - self.cool_down_period, Time.now)
+    if ready_to_sms?(cs_user)
+      body = Message.compile_sms_message(Time.now - Message.cool_down_period, Time.now)
       SendSmsJob.new(cs_user.id, body).send
-      set_next_send_at
+      set_next_send_at(cs_user)
     end
   end
 
-  def ready_to_sms?
-    next_sending_time = $redis.get("#{to.id}next_messageAt")
+  def ready_to_sms?(receiver)
+    next_sending_time = $redis.get("#{receiver.id}next_messageAt")
     !next_sending_time || (Time.now < next_sending_time)
   end
 
 
-  def set_next_send_at
-    $redis.set("#{to.id}next_messageAt", Time.now + self.cool_down_period)
+  def set_next_send_at(receiver)
+    $redis.set("#{receiver.id}next_messageAt", Time.now + Message.cool_down_period)
   end
 end

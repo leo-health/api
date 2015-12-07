@@ -67,6 +67,8 @@ group :test do
   gem 'database_cleaner'
   gem 'pusher-fake'
   gem 'codeclimate-test-reporter'
+  gem "fakeredis"
+  gem "timecop"
 end
 
 group :production do
