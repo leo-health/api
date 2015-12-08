@@ -34,7 +34,7 @@ describe Leo::V1::Messages do
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
-    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: Time.now + 1.minites)}
+    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: Time.now + 1.minute)}
     let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: Time.now + 2.minutes)}
 
     def do_request
