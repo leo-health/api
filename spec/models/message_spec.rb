@@ -35,7 +35,7 @@ RSpec.describe Message, type: :model do
       context "on update conversation information" do
         it "should set or update last_message_created field on conversation" do
           message = create_message
-          expect( conversation.reload.last_message_created_at ).to eq(message.created_at)
+          expect( conversation.reload.last_message_created_at.to_s ).to eq(message.created_at.to_s)
         end
       end
 
