@@ -61,6 +61,10 @@ RSpec.describe Message, type: :model do
           $redis.set("#{customer_service.id}next_messageAt", Time.now + 1.minute)
         end
 
+        after do
+          Timecop.return
+        end
+
         it "should not sms customer service user" do
           expect{ create_message }.to change(Delayed::Job, :count).by(0)
           expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now  + 1.minute).to_s )
