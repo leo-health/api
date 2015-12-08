@@ -34,8 +34,8 @@ describe Leo::V1::Messages do
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
-    let!(:first_message){create(:message, conversation: conversation, sender: user)}
-    let!(:second_message){create(:message, conversation: conversation, sender: user)}
+    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: Time.now + 1.minites)}
+    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: Time.now + 2.minutes)}
 
     def do_request
       get "/api/v1/conversations/#{conversation.id}/messages?per_page=2&page=1", { authentication_token: session.authentication_token }
