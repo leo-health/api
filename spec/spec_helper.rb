@@ -11,7 +11,6 @@ RspecApiDocumentation.configure do |config|
   config.api_name = "Example App API"
 end
 
-
 CodeClimate::TestReporter.start
 
 Spork.prefork do

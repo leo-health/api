@@ -25,7 +25,7 @@ RSpec.describe Message, type: :model do
       let!(:conversation){ user.family.conversation }
 
       before do
-        $redis.set("#{customer_service.id}online?", true)
+        $redis.set("#{customer_service.id}online?", "yes")
       end
 
       def create_message
@@ -39,9 +39,10 @@ RSpec.describe Message, type: :model do
         end
       end
 
-      context "on notify customer service user" do
+      context "customer user is online, and not in cooldown period" do
         before do
           Timecop.freeze
+          $redis.set("#{customer_service.id}next_messageAt", Time.now - 1.minute)
         end
 
         after do
@@ -49,9 +50,20 @@ RSpec.describe Message, type: :model do
         end
 
         it "should sms customer service user about the newly created message" do
-          create_message
           expect{ create_message }.to change(Delayed::Job, :count).by(1)
           expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now + Message.cool_down_period).to_s )
+        end
+      end
+
+      context "customer user is online, and in cooldown period" do
+        before do
+          Timecop.freeze
+          $redis.set("#{customer_service.id}next_messageAt", Time.now + 1.minute)
+        end
+
+        it "should not sms customer service user" do
+          expect{ create_message }.to change(Delayed::Job, :count).by(0)
+          expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now  + 1.minute).to_s )
         end
       end
     end

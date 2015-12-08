@@ -63,7 +63,7 @@ class Message < ActiveRecord::Base
 
   def sms_cs_user
     cs_user = User.customer_service_user
-    return unless $redis.get("#{cs_user.id}online?")
+    return unless $redis.get("#{cs_user.id}online?") == "yes"
     if ready_to_sms?(cs_user)
       body = Message.compile_sms_message(Time.now - Message.cool_down_period, Time.now)
       SendSmsJob.new(cs_user.id, body).send
@@ -73,7 +73,7 @@ class Message < ActiveRecord::Base
 
   def ready_to_sms?(receiver)
     next_sending_time = $redis.get("#{receiver.id}next_messageAt")
-    !next_sending_time || (Time.now < next_sending_time)
+    !next_sending_time || (Time.now > Time.parse(next_sending_time))
   end
 
 
