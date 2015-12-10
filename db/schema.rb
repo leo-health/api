@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151119163753) do
+ActiveRecord::Schema.define(version: 20151210184137) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -358,6 +358,29 @@ ActiveRecord::Schema.define(version: 20151119163753) do
   end
 
   add_index "photos", ["patient_id"], name: "index_photos_on_patient_id", using: :btree
+
+  create_table "practice_schedules", force: :cascade do |t|
+    t.integer  "practice_id",          null: false
+    t.string   "schedule_type",        null: false
+    t.time     "monday_start_time",    null: false
+    t.time     "monday_end_time",      null: false
+    t.time     "tuesday_start_time",   null: false
+    t.time     "tuesday_end_time",     null: false
+    t.time     "wednesday_start_time", null: false
+    t.time     "wednesday_end_time",   null: false
+    t.time     "thursday_start_time",  null: false
+    t.time     "thursday_end_time",    null: false
+    t.time     "friday_start_time",    null: false
+    t.time     "friday_end_time",      null: false
+    t.time     "saturday_start_time",  null: false
+    t.time     "saturday_end_time",    null: false
+    t.time     "sunday_start_time",    null: false
+    t.time     "sunday_end_time",      null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "practice_schedules", ["practice_id"], name: "index_practice_schedules_on_practice_id", using: :btree
 
   create_table "practices", force: :cascade do |t|
     t.string   "name",           null: false
