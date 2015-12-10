@@ -121,12 +121,6 @@ module Leo
               present :user, @user, with: Leo::Entities::UserEntity
             end
           end
-
-          desc '#delete destroy a user, super user only'
-          delete do
-            authorize! :destroy, @user
-            @user.try(:destroy)
-          end
         end
       end
     end

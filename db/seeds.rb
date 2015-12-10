@@ -14,7 +14,7 @@ roles_seed = {
           # Access to all data pertaining to the patient
           patient: 6,
           # Super user / admin
-          super_user: 7,
+          bot: 7,
           operational: 8
         }
 

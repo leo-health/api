@@ -104,20 +104,4 @@ resource "Users" do
       expect(response_status).to eq(200)
     end
   end
-
-  delete "/api/v1/users/:id" do
-    parameter :id, "User Id", :required => true
-    parameter :authentication_token, "Authentication Token", :required => true
-
-    let(:super_user){ create(:user, :super_user )}
-    let(:session){ super_user.sessions.create }
-    let(:authentication_token){ session.authentication_token }
-    let(:raw_post){ params.to_json }
-
-    example "delete an inidividual user" do
-      explanation "only super user could delete user"
-      do_request
-      expect(response_status).to eq(200)
-    end
-  end
 end

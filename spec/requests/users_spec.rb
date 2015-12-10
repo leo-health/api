@@ -111,35 +111,4 @@ describe Leo::V1::Users do
       expect{user.reload.confirm}.to change{user.email}.from(original_email).to(email)
     end
   end
-
-  describe "DELETE /api/v1/users/id" do
-    let!(:deleted_user){create(:user)}
-
-    def do_request
-      delete "/api/v1/users/#{deleted_user.id}", {authentication_token: session.authentication_token}
-    end
-
-    context "has the right to delete user" do
-      let(:user){create(:user, :super_user)}
-      let!(:session){user.sessions.create}
-
-      it "should delete selected user if current user has the right" do
-        expect(User.count).to eq(2)
-        do_request
-        expect(response.status).to eq(200)
-        expect(User.count).to eq(1)
-      end
-    end
-
-    context "does not have the right to delete user" do
-      let(:user){create(:user, :financial)}
-      let!(:session){user.sessions.create}
-
-      it "should not delete selected user and raise error when user do not have the access right" do
-        do_request
-        expect(response.status).to eq(403)
-        expect(User.count).to eq(2)
-      end
-    end
-  end
 end

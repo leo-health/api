@@ -44,6 +44,10 @@ class User < ActiveRecord::Base
     @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
   end
 
+  def self.leo_bot
+    @leo_bot ||= self.unscoped.find_by_email("leo_bot@leohealth.com")
+  end
+
   def find_conversation_by_status(status)
     return if has_role? :guardian
     conversations.where(status: status)
