@@ -18,7 +18,7 @@ RSpec.describe Practice, type: :model do
 
     context "practice is open now" do
       before do
-        Timecop.freeze(Time.local(2015, 12, 10, 9, 1, 0))
+        Timecop.freeze(Time.zone.local(2015, 12, 10, 9, 1, 0))
       end
 
       after do
@@ -32,7 +32,7 @@ RSpec.describe Practice, type: :model do
 
     context "practice is closed now" do
       before do
-        Timecop.freeze(Time.local(2015, 12, 10, 17, 1, 0))
+        Timecop.freeze(Time.zone.local(2015, 12, 10, 17, 1, 0))
       end
 
       after do
