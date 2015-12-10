@@ -7,9 +7,7 @@ describe Conversation, type: :model do
 		it{ is_expected.to have_many(:messages) }
 		it{ is_expected.to have_many(:user_conversations) }
 		it{ is_expected.to have_many(:staff).class_name('User').through(:user_conversations) }
-    it{ is_expected.to have_many(:conversation_changes) }
     it{ is_expected.to have_many(:closure_notes) }
-
     it{ is_expected.to belong_to(:family) }
   end
 
