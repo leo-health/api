@@ -4,17 +4,6 @@ require "cancan/matchers"
 describe "User" do
   describe "abilities" do
     subject(:ability){ Ability.new(user) }
-    let!(:super_user){build(:user, :super_user)}
-
-    context "when user has the role super user" do
-      let!(:user){build(:user, :super_user)}
-
-      it{ should be_able_to(:manage, User.new) }
-      it{ should be_able_to(:manage, Patient.new) }
-      it{ should be_able_to(:manage, Conversation.new) }
-      it{ should be_able_to(:manage, Message.new) }
-      it{should be_able_to(:manage, Appointment.new)}
-    end
 
     context "when user has the role guardian" do
       let!(:user){build(:user, :guardian)}
@@ -28,8 +17,6 @@ describe "User" do
         it{should be_able_to(:update, family_member)}
         it{should be_able_to(:create, family_member)}
         it{should be_able_to(:destroy, family_member)}
-
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for avatars" do
@@ -92,8 +79,6 @@ describe "User" do
         let!(:provider){build(:user, :clinical)}
 
         it{should be_able_to(:read, provider)}
-
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -122,7 +107,6 @@ describe "User" do
 
         it{should_not be_able_to(:create, provider)}
         it{should_not be_able_to(:destroy, provider)}
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -148,8 +132,6 @@ describe "User" do
 
         it{should be_able_to(:read, provider)}
         it{should be_able_to(:update, provider)}
-
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -175,7 +157,6 @@ describe "User" do
 
         it{should be_able_to(:read, provider)}
 
-        it{should_not be_able_to(:read, super_user)}
         it{should_not be_able_to(:update, provider)}
       end
 
