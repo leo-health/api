@@ -314,6 +314,7 @@ begin
     {
       id: 1,
       practice_id: 1,
+      active: true,
       schedule_type: :default,
       monday_start_time: "09:00",
       monday_end_time: "18:00",
@@ -334,6 +335,7 @@ begin
     {
       id: 2,
       practice_id: 1,
+      active: false,
       schedule_type: :emergency,
       monday_start_time: "09:00",
       monday_end_time: "18:00",
@@ -354,6 +356,7 @@ begin
     {
       id: 3,
       practice_id: 1,
+      active: false,
       schedule_type: :holiday,
       monday_start_time: "09:00",
       monday_end_time: "18:00",

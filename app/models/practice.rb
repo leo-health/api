@@ -5,4 +5,8 @@ class Practice < ActiveRecord::Base
   has_many :practice_schedules
 
   validates :name, presence: true
+
+  def in_offce_hour?
+
+  end
 end

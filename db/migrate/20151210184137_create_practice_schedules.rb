@@ -2,6 +2,7 @@ class CreatePracticeSchedules < ActiveRecord::Migration
   def change
     create_table :practice_schedules do |t|
       t.integer :practice_id, index: true, null: false
+      t.boolean :active, default: false
       t.string :schedule_type, null: false
       t.string :monday_start_time, null: false
       t.string :monday_end_time, null: false
