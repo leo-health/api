@@ -124,16 +124,6 @@ ActiveRecord::Schema.define(version: 20151210184137) do
     t.datetime "updated_at",      null: false
   end
 
-  create_table "conversation_changes", force: :cascade do |t|
-    t.integer  "conversation_id",     null: false
-    t.string   "conversation_change"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.integer  "changed_by_id"
-  end
-
-  add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
-
   create_table "conversations", force: :cascade do |t|
     t.datetime "created_at",                                 null: false
     t.datetime "updated_at",                                 null: false
