@@ -11,4 +11,37 @@ RSpec.describe Practice, type: :model do
   describe "validations" do
     it { is_expected.to validate_presence_of(:name) }
   end
+
+  describe "in_office_hour?" do
+    let(:practice){ create(:practice) }
+    let!(:practice_schedule){ create(:practice_schedule, practice: practice) }
+
+    context "practice is open now" do
+      before do
+        Timecop.freeze(Time.local(2015, 12, 10, 9, 1, 0))
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it "should return true" do
+        expect(practice.in_office_hour?).to eq(true)
+      end
+    end
+
+    context "practice is closed now" do
+      before do
+        Timecop.freeze(Time.local(2015, 12, 10, 17, 1, 0))
+      end
+
+      after do
+        Timecop.return
+      end
+
+      it "should return false" do
+        expect(practice.in_office_hour?).to eq(false)
+      end
+    end
+  end
 end
