@@ -23,4 +23,10 @@ RSpec.describe PracticeSchedule, type: :model do
     it { is_expected.to validate_presence_of(:sunday_start_time) }
     it { is_expected.to validate_presence_of(:sunday_end_time) }
   end
+
+  describe "callbacks" do
+    context 'before save' do
+      it { is_expected.to callback(:ensure_single_active_schedule).before(:save) }
+    end
+  end
 end
