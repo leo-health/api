@@ -15,16 +15,16 @@ namespace :load do
   task seed_staff: :environment do
 
     staff = {
-      super_user: {
-          title: "Mr",
-          first_name: "Super",
-          last_name: "User",
+      bot: {
+          first_name: "Leo",
+          last_name: "Bot",
           birth_date: 48.years.ago.to_s,
           sex: "M",
-          email: "super_user@leohealth.com",
+          email: "leo_bot@leohealth.com",
           password: "password",
           password_confirmation: "password",
           role_id: 7,
+          deleted_at: Time.now,
           practice_id: 1,
           phone: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
