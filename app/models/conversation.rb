@@ -12,6 +12,7 @@ class Conversation < ActiveRecord::Base
   validates :family, :state, presence: true
 
   after_commit :load_staff, :load_initial_message, on: :create
+  after_update :notify_new_messages_via_email
 
   def self.sort_conversations
     self.where(state: [:open, :escalated, :closed]).order("state desc, updated_at desc")
@@ -26,6 +27,7 @@ class Conversation < ActiveRecord::Base
     event :escalate do
       after do |args|
         broadcast_state(:escalation, args[:escalated_by], @escalation_note.id, args[:escalated_to])
+        sms_for_escalated_conversaiton
       end
 
       transitions :from => [:open, :escalated], :to => :escalated, :guard => :escalate_conversation_to_staff
@@ -82,6 +84,14 @@ class Conversation < ActiveRecord::Base
   end
 
   private
+
+  def notify_new_messages_via_email
+
+  end
+
+  def sms_for_escalated_conversaiton(receiver, body)
+    SendSmsJob.new(receiver.id, body).send
+  end
 
   def load_staff
     #neeed definitions for who will be loaded here
