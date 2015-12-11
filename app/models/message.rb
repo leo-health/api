@@ -9,11 +9,8 @@ class Message < ActiveRecord::Base
   has_many :readers, class_name: 'User', through: :read_receipts
 
   validates :conversation, :sender, :type_name, :body, presence: true
-  after_commit :update_conversation_after_message_sent, :set_last_message_created_at, :sms_cs_user, on: :create
-
-  def self.cool_down_period
-    2.minutes
-  end
+  after_commit :update_conversation_after_message_sent, :set_last_message_created_at, :sms_cs_user,
+               :email_batched_messages, on: :create
 
   def self.compile_sms_message(start_time, end_time)
     messages = self.includes(:sender).where.not(sender: User.customer_service_user).where(created_at: (start_time..end_time))
@@ -64,20 +61,29 @@ class Message < ActiveRecord::Base
   def sms_cs_user
     cs_user = User.customer_service_user
     return unless $redis.get("#{cs_user.id}online?") == "yes"
-    if ready_to_sms?(cs_user)
-      body = Message.compile_sms_message(Time.now - Message.cool_down_period, Time.now)
+    if ready_to_notify?(cs_user)
+      body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
       SendSmsJob.new(cs_user.id, body).send
-      set_next_send_at(cs_user)
+      set_next_send_at(cs_user, 2.minutes)
     end
   end
 
-  def ready_to_sms?(receiver)
+  def email_batched_messages
+    family = conversation.family
+    family.guardians.each do |guardian|
+      if ready_to_notify?(guardian) && sender != guardian
+        UserMailer.delay.batched_messages(guardian, "You have new messages!")
+        set_next_send_at(guardian, 5.minutes)
+      end
+    end
+  end
+
+  def ready_to_notify?(receiver)
     next_sending_time = $redis.get("#{receiver.id}next_messageAt")
     !next_sending_time || (Time.now > Time.parse(next_sending_time))
   end
 
-
-  def set_next_send_at(receiver)
-    $redis.set("#{receiver.id}next_messageAt", Time.now + Message.cool_down_period)
+  def set_next_send_at(receiver, cool_down_period)
+    $redis.set("#{receiver.id}next_messageAt", Time.now + cool_down_period)
   end
 end

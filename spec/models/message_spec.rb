@@ -51,7 +51,7 @@ RSpec.describe Message, type: :model do
 
         it "should sms customer service user about the newly created message" do
           expect{ create_message }.to change(Delayed::Job, :count).by(1)
-          expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now + Message.cool_down_period).to_s )
+          expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now + 2.minutes).to_s )
         end
       end
 
@@ -70,12 +70,6 @@ RSpec.describe Message, type: :model do
           expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now  + 1.minute).to_s )
         end
       end
-    end
-  end
-
-  describe "self.cool_down_period" do
-    it "should return the length of cooldown period" do
-      expect(Message.cool_down_period).to eq(2.minutes)
     end
   end
 
