@@ -8,8 +8,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Please confirm your account with us.',
       to: user.email,
       vars: {
-        'FIRST_NAME' => user.first_name,
-        'LINK_CONF' => "http://localhost:8888/#/changePassword?reset_password_token=#{token}"
+        'FIRST_NAME': user.first_name,
+        'LINK_CONF': "http://localhost:8888/#/changePassword?reset_password_token=#{token}"
       }
     )
   end
@@ -39,12 +39,28 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
+  def five_day_appointment_reminder(user)
+    mandrill_mail(
+      template: 'Leo - Five Day Appointment Reminder',
+      subject: 'You have an appointment coming up soon!',
+      to: user.email
+    )
+  end
+
   def welcome_to_pratice(user)
     #this is just a placeholder, subject to change
     mandrill_mail(
       template: 'Leo - Welcome to Practice',
       subject: 'Welcome to Leo',
       to: user.email
+    )
+  end
+
+  def same_day_appointment_reminder(user)
+    mandrill_mail(
+        template: 'Leo - Same Day Appointment Reminder',
+        subject: 'You have an appointment today!',
+        to: user.email
     )
   end
 
@@ -56,10 +72,26 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
+  def patient_birthday(guardian)
+    mandrill_mail(
+      template: 'Leo - Patient Happy Birthday',
+      subject: 'Anniversary of having kids!',
+      to: guardian.email
+    )
+  end
+
   def notify_new_message(user)
     mandrill_mail(
       template: 'Leo - Notify New Message',
       subject: 'You have a new message',
+      to: user.email
+    )
+  end
+
+  def account_confirmation_reminder(user)
+    mandrill_mail(
+      template: 'Leo - Account Confirmation Reminder',
+      subject: 'One day left to confirm your account with Leo',
       to: user.email
     )
   end
@@ -69,6 +101,17 @@ class UserMailer < MandrillMailer::TemplateMailer
       template: 'Leo - Password Changed',
       subject: 'Successfully changed your password!',
       to: user.email
+    )
+  end
+
+  def unaddressed_conversations_digest(user, count, state)
+    mandrill_mail(
+      template: 'Leo - Unaddressed Conversations Digest',
+      subject: "You have some work to do now, address your #{state} conversations",
+      to: user.email,
+      vars: {
+        'COUNT': count,
+      }
     )
   end
 end

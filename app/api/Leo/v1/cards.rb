@@ -11,8 +11,8 @@ module Leo
 
         get do
           family = Family.includes(:guardians).find(current_user.family_id)
-          appointments = Appointment.where( :booked_by_id => family.guardians.pluck(:id)).order("created_at DESC")
-          upcoming_appointments, past_appointment = appointments.partition{|appointment| appointment.start_datetime > Time.now}
+          appointments = Appointment.where( booked_by_id: family.guardians.pluck(:id)).order("created_at DESC")
+          upcoming_appointments, past_appointment = appointments.partition{|appointment| appointment.start_datetime.utc > Time.now}
           cards = (upcoming_appointments + [family.conversation] + past_appointment).each_with_index.inject([]) do |cards, (card, index)|
             case card
             when Conversation

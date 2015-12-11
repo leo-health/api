@@ -64,6 +64,17 @@ describe UserMailer do
     end
   end
 
+  describe "five day appointment reminder" do
+    it "should send the user an reminder of the appointment 5 days prior to the scheduled visit" do
+      UserMailer.five_day_appointment_reminder(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Five Day Appointment Reminder' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
   describe "welcome to practice email" do
     it "should send the user a welcome email to practice" do
       UserMailer.welcome_to_pratice(user).deliver
@@ -75,12 +86,56 @@ describe UserMailer do
     end
   end
 
+  describe "same day appointment reminder" do
+    it "should send the user an reminder of the appointment on same day" do
+      UserMailer.same_day_appointment_reminder(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Same Day Appointment Reminder' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "send guardian email on kids birthday" do
+    it "should send the guardian a email" do
+      UserMailer.patient_birthday(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Patient Happy Birthday' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "send user reminder to confirm account with Leo" do
+    it "should send user a reminder" do
+      UserMailer.account_confirmation_reminder(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Account Confirmation Reminder' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
   describe "successfully changed your password" do
     it "should send the user a email confirmation that they have successfully changed their password" do
       UserMailer.password_change_confirmation(user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Password Changed' &&
-            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "#unaddressed_conversations_digest" do
+    it "should notify staff the number of unaddressed escalated conversations" do
+      UserMailer.unaddressed_conversations_digest(user, 5, :escalated).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Unaddressed Conversations Digest' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
     end
