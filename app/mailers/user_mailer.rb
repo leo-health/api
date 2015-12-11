@@ -71,4 +71,12 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email
     )
   end
+
+  def notify_escalated_conversation(user)
+    mandrill_mail(
+      template: 'Leo - Escalated Conversation',
+      subject: 'A conversation has been escalated to you with high priority!',
+      to: user.email
+    )
+  end
 end
