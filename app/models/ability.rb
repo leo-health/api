@@ -3,9 +3,7 @@ class Ability
 
   def initialize(user)
     user ||= User.new
-    if user.has_role? :super_user
-      can :manage, :all
-    elsif user.has_role? :guardian
+    if user.has_role? :guardian
       can :read, User do |user|
         %w(financial clinical_support customer_service clinical).include? (user.role.name)
       end

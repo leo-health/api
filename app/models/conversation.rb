@@ -5,7 +5,6 @@ class Conversation < ActiveRecord::Base
   has_many :messages
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
-  has_many :conversation_changes
   has_many :closure_notes
   belongs_to :family
 

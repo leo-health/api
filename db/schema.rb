@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151119163753) do
+ActiveRecord::Schema.define(version: 20151210162725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -123,16 +123,6 @@ ActiveRecord::Schema.define(version: 20151119163753) do
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end
-
-  create_table "conversation_changes", force: :cascade do |t|
-    t.integer  "conversation_id",     null: false
-    t.string   "conversation_change"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.integer  "changed_by_id"
-  end
-
-  add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
 
   create_table "conversations", force: :cascade do |t|
     t.datetime "created_at",                                 null: false
@@ -304,6 +294,12 @@ ActiveRecord::Schema.define(version: 20151119163753) do
 
   add_index "messages", ["conversation_id"], name: "index_messages_on_conversation_id", using: :btree
   add_index "messages", ["sender_id"], name: "index_messages_on_sender_id", using: :btree
+
+  create_table "onboarding_groups", force: :cascade do |t|
+    t.string   "group_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "patient_enrollments", force: :cascade do |t|
     t.integer  "guardian_enrollment_id", null: false
@@ -525,6 +521,7 @@ ActiveRecord::Schema.define(version: 20151119163753) do
     t.string   "avatar_url"
     t.string   "phone"
     t.string   "type"
+    t.integer  "onboarding_group_id"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

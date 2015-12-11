@@ -4,11 +4,16 @@ module Leo
       expose :id
       expose :patients, with: Leo::Entities::ShortUserEntity
       expose :primary_guardian, with: Leo::Entities::ShortUserEntity
+      expose :guardians, with: Leo::Entities::ShortUserEntity
       expose :last_message_created_at
       expose :state
       expose :last_message
 
       private
+
+      def guardians
+        object.family.guardians
+      end
 
       def primary_guardian
         object.family.guardians.order('created_at ASC').first
