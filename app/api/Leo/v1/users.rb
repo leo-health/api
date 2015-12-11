@@ -10,7 +10,7 @@ module Leo
         end
 
         get do
-          users = User.includes(:role).where.not(roles: {name: :guardian})
+          users = User.staff
           authorize! :read, User
           present :staff, users, with: Leo::Entities::UserEntity
         end
