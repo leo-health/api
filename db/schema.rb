@@ -295,6 +295,12 @@ ActiveRecord::Schema.define(version: 20151210184137) do
   add_index "messages", ["conversation_id"], name: "index_messages_on_conversation_id", using: :btree
   add_index "messages", ["sender_id"], name: "index_messages_on_sender_id", using: :btree
 
+  create_table "onboarding_groups", force: :cascade do |t|
+    t.string   "group_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "patient_enrollments", force: :cascade do |t|
     t.integer  "guardian_enrollment_id", null: false
     t.string   "email"
@@ -539,6 +545,7 @@ ActiveRecord::Schema.define(version: 20151210184137) do
     t.string   "avatar_url"
     t.string   "phone"
     t.string   "type"
+    t.integer  "onboarding_group_id"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

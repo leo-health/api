@@ -20,7 +20,7 @@ module Leo
           rack_response resp.to_json, 422
         end
 
-        rescue_from :all, :backtrace => true
+        rescue_from :all, backtrace: true
       end
     end
   end

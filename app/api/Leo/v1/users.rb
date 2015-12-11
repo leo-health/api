@@ -10,7 +10,7 @@ module Leo
         end
 
         get do
-          users = User.includes(:role).where.not(roles: {name: :guardian})
+          users = User.staff
           authorize! :read, User
           present :staff, users, with: Leo::Entities::UserEntity
         end
@@ -81,7 +81,11 @@ module Leo
 
         post do
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
-          user = User.new( declared(params).merge(role_id: 4, encrypted_password: enrollment.encrypted_password, email: enrollment.email) )
+          user = User.new(declared(params).merge(role_id: 4,
+                                                 encrypted_password: enrollment.encrypted_password,
+                                                 email: enrollment.email,
+                                                 onboarding_group: enrollment.onboarding_group))
+
           render_success user
           session = user.sessions.create
           present :session, session
