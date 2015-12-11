@@ -321,4 +321,73 @@ begin
       :s => row["S"]})
     entry.save if (entry.days > 712 && row["Agemos"] != "24")
   end
+
+  practice_schedules = [
+    {
+      id: 1,
+      practice_id: 1,
+      active: true,
+      schedule_type: :default,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    },
+
+    {
+      id: 2,
+      practice_id: 1,
+      active: false,
+      schedule_type: :emergency,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    },
+
+    {
+      id: 3,
+      practice_id: 1,
+      active: false,
+      schedule_type: :holiday,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    },
+  ]
+
+  practice_schedules.each do |schedule_params|
+    PracticeSchedule.create(schedule_params) unless PracticeSchedule.where(id: schedule_params[:id]).exists?
+  end
 end

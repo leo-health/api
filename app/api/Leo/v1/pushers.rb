@@ -17,6 +17,23 @@ module Leo
           present response
         end
       end
+
+      desc "receive pusher webhooks"
+      namespace "pusher/webhooks" do
+        post do
+          webhook = Pusher.webhook(request)
+          if webhook.valid?
+            webhook.events.each do |event|
+              case event["name"]
+                when 'member_added'
+                  $redis.set("#{event["user_id"]}online?", "yes")
+                when 'member_removed'
+                  $redis.set("#{event["user_id"]}online?", "no")
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

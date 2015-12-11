@@ -37,6 +37,7 @@ gem 'aasm'
 gem 'grocer'
 gem 'pg_search'
 gem 'raddocs'
+gem 'redis'
 gem 'whenever', :require => false
 gem 'twilio-ruby'
 
@@ -67,6 +68,8 @@ group :test do
   gem 'database_cleaner'
   gem 'pusher-fake'
   gem 'codeclimate-test-reporter'
+  gem "fakeredis"
+  gem "timecop"
 end
 
 group :production do
