@@ -103,4 +103,15 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email
     )
   end
+
+  def unaddressed_conversations_digest(user, count, state)
+    mandrill_mail(
+      template: 'Leo - Unaddressed Conversations Digest',
+      subject: "You have some work to do now, address your #{state} conversations",
+      to: user.email,
+      vars: {
+        'COUNT': count,
+      }
+    )
+  end
 end

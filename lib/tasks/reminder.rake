@@ -49,4 +49,33 @@ namespace :notification do
       end
     end
   end
+
+  desc "send email digest to conversation owner about escalated conversations"
+  task escalated_covnersation_email_digest: :environment do
+    User.staff.each do |staff|
+      count = staff.escalated_conversations.count
+      next if count == 0
+      created_job = UserMailer.delay.unaddressed_conversations_digest(staff, count, :escalated)
+      if created_job.valid?
+        print "*"
+      else
+        print "x"
+      end
+    end
+  end
+
+
+  desc "send email digest to customer service about open conversations"
+  task open_conversation_email_digest: :environment do
+    User.joins(:role).where(roles: {name: "customer_service"}).each do |cs_user|
+      count = Conversation.where(state: :open).count
+      next if count == 0
+      created_job = UserMailer.delay.unaddressed_conversations_digest(cs_user, count, :open)
+      if created_job.valid?
+        print "*"
+      else
+        print "x"
+      end
+    end
+  end
 end

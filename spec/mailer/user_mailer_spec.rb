@@ -124,7 +124,18 @@ describe UserMailer do
       UserMailer.password_change_confirmation(user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Password Changed' &&
-            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "#unaddressed_conversations_digest" do
+    it "should notify staff the number of unaddressed escalated conversations" do
+      UserMailer.unaddressed_conversations_digest(user, 5, :escalated).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Unaddressed Conversations Digest' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
     end
