@@ -32,6 +32,16 @@ RSpec.describe Message, type: :model do
         conversation.messages.create( body: "Hello", sender: user, type_name: "text")
       end
 
+      context "on guardian received new messages" do
+        def create_message
+          conversation.messages.create( body: "Hello", sender: customer_service, type_name: "text")
+        end
+
+        it "should send email notifications" do
+          expect{ create_message }.to change(Delayed::Job, :count).by(1)
+        end
+      end
+
       context "on update conversation information" do
         it "should set or update last_message_created field on conversation" do
           message = create_message
