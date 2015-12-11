@@ -226,6 +226,18 @@ insurance_plan_seed.each do |insurance_plan|
   end
 end
 
+onboarding_group_seed = [
+  {
+    id: 1,
+    group_name: :invited_secondary_parent
+  }
+]
+
+
+onboarding_group_seed.each do |onboarding_group|
+  OnboardingGroup.create(onboarding_group) unless OnboardingGroup.where(id: onboarding_group[:id]).exists?
+end
+
 #Seed the database with growth curves
 begin
   folder = "lib/assets/percentile/oct_2015"

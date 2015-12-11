@@ -5,18 +5,19 @@ class Enrollment < ActiveRecord::Base
 
   has_many :patient_enrollments, foreign_key: "guardian_enrollment_id"
   belongs_to :insurance_plan
+  belongs_to :onboarding_group
 
   before_validation :ensure_authentication_token, on: [:create, :update]
+
   validates :authentication_token, :email, presence: true
   validates :password, presence: true, if: :password_required?, on: :create
-  validates_format_of :email, with: Devise.email_regexp, if: :email_changed?
+  validates_format_of :email, with: Devise.email_regexp
   validates_length_of :password, within: Devise.password_length, allow_blank: true
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
-  validates :insurance_plan, presence: true, allow_nil: true, on: :update
 
   private
 
   def password_required?
-    invited_user ? false : true
+    onboarding_group ? false : true
   end
 end

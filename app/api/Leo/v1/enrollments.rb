@@ -16,10 +16,15 @@ module Leo
 
           post do
             error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
-            enrollment = Enrollment.create(declared(params).merge({role_id: 4, family_id: current_user.family_id, invited_user: true}))
+            onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_parent)
+            enrollment = Enrollment.create(declared(params).merge({ role_id: 4,
+                                                                    family_id: current_user.family_id,
+                                                                    invited_user: true,
+                                                                    onboarding_group: onboarding_group }))
+
             if enrollment.valid?
               InviteParentJob.new(enrollment.id, current_user.id).send
-              present :invited, true
+              present :onboarding_group, enrollment.onboarding_group.group_name
             else
               error!({ error_code: 422, error_message: enrollment.errors.full_messages }, 422)
             end
