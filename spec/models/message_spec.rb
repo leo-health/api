@@ -20,16 +20,26 @@ RSpec.describe Message, type: :model do
 
   describe "callbacks" do
     describe "after commit on create" do
-      let!(:user){ create(:user) }
-      let(:session){ user.sessions.create(device_token: "token") }
-      let!(:conversation){ user.family.conversation }
+      let!(:guardian){ create(:user) }
+      let(:session){ guardian.sessions.create(device_token: "token") }
+      let!(:conversation){ guardian.family.conversation }
 
       before do
         $redis.set("#{customer_service.id}online?", "yes")
       end
 
       def create_message
-        conversation.messages.create( body: "Hello", sender: user, type_name: "text")
+        conversation.messages.create( body: "Hello", sender: guardian, type_name: "text")
+      end
+
+      context "on guardian received new messages" do
+        def create_message
+          conversation.messages.create( body: "Hello", sender: customer_service, type_name: "text")
+        end
+
+        it "should send email notifications" do
+          expect{ create_message }.to change(Delayed::Job, :count).by(1)
+        end
       end
 
       context "on update conversation information" do
@@ -47,6 +57,11 @@ RSpec.describe Message, type: :model do
 
         after do
           Timecop.return
+        end
+
+        def create_message
+          byebug
+          conversation.messages.create( body: "Hello", sender: guardian, type_name: "text")
         end
 
         it "should sms customer service user about the newly created message" do
