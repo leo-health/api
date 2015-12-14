@@ -25,7 +25,7 @@ RSpec.describe Message, type: :model do
       let!(:conversation){ guardian.family.conversation }
 
       before do
-        $redis.set("#{customer_service.id}online?", "yes")
+        $redis.set("#{customer_service.id}online?", "no")
       end
 
       def create_message
@@ -60,7 +60,6 @@ RSpec.describe Message, type: :model do
         end
 
         def create_message
-          byebug
           conversation.messages.create( body: "Hello", sender: guardian, type_name: "text")
         end
 
