@@ -40,9 +40,9 @@ class User < ActiveRecord::Base
   after_update :welcome_to_practice_email, :notify_primary_guardian
   after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
 
-  def self.customer_service_user
-    @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
-  end
+  # def self.customer_service_user
+  #   @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
+  # end
 
   def self.staff
     User.includes(:role).where.not(roles: {name: :guardian})

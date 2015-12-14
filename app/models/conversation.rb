@@ -87,12 +87,12 @@ class Conversation < ActiveRecord::Base
   end
 
   def load_initial_message
-    if sender = User.customer_service_user
+    if sender = User.leo_bot
        messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
                         sender: sender,
                         type_name: :text
                        )
-      staff << sender
+      # staff << sender
     end
   end
 end
