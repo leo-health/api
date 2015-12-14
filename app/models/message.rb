@@ -15,10 +15,11 @@ class Message < ActiveRecord::Base
   def self.compile_sms_message(start_time, end_time)
     messages = self.includes(:sender).where.not(sender: User.customer_service_user).where(created_at: (start_time..end_time))
     messages.inject(Hash.new(0)) do |compiled_message, message|
-      sender_name = "#{message.sender.first_name} #{message.sender.last_name}"
-      compiled_message[sender_name] += 1
+      sender = message.sender
+      full_name = "#{sender.full_name} #{sender.id.to_s}"
+      compiled_message[full_name] += 1
       compiled_message
-    end.map{|name, count| "#{name} sent you #{count} messages."}.join(' ')
+    end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages."}.join(' ')
   end
 
   def broadcast_message(sender)

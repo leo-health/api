@@ -80,6 +80,10 @@ class User < ActiveRecord::Base
     update_attributes(type: :Member) if has_role? :guardian
   end
 
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+
   private
 
   def welcome_to_practice_email
