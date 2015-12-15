@@ -5,6 +5,7 @@ class Message < ActiveRecord::Base
   belongs_to :conversation
   belongs_to :sender, class_name: "User"
 
+  has_one :message_photo
   has_many :read_receipts
   has_many :readers, class_name: 'User', through: :read_receipts
 
