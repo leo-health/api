@@ -7,6 +7,8 @@ RSpec.describe Message, type: :model do
     it{ is_expected.to belong_to(:conversation) }
     it{ is_expected.to belong_to(:sender).class_name('User') }
 
+    it{ is_expected.to have_one(:message_photo) }
+
     it{ is_expected.to have_many(:read_receipts) }
     it{ is_expected.to have_many(:readers).class_name('User').through(:read_receipts) }
   end

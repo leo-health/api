@@ -5,7 +5,9 @@ class Message < ActiveRecord::Base
   belongs_to :conversation
   belongs_to :sender, class_name: "User"
 
-  has_one :message_photo
+  has_one :message_photo, inverse_of: :message
+  accepts_nested_attributes_for :message_photo
+
   has_many :read_receipts
   has_many :readers, class_name: 'User', through: :read_receipts
 
@@ -64,7 +66,7 @@ class Message < ActiveRecord::Base
 
   def sms_cs_user
     cs_user = User.customer_service_user
-    return unless $redis.get("#{cs_user.id}online?") == "yes"
+    return unless $redis.get("#{cs_user.try(:id)}online?") == "yes"
     if ready_to_sms?(cs_user)
       body = Message.compile_sms_message(Time.now - Message.cool_down_period, Time.now)
       SendSmsJob.new(cs_user.id, body).send
