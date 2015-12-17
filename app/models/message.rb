@@ -70,8 +70,7 @@ class Message < ActiveRecord::Base
   end
 
   def email_batched_messages
-    family = conversation.family
-    family.guardians.each do |guardian|
+    conversation.family.guardians.each do |guardian|
       if ready_to_notify?(guardian) && sender != guardian
         UserMailer.delay.batched_messages(guardian, "You have new messages!")
         set_next_send_at(guardian, 5.minutes)
