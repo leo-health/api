@@ -73,7 +73,6 @@ module Leo
           end
         end
 
-
         helpers do
           def image_decoder(image)
             data = StringIO.new(Base64.decode64(image))
