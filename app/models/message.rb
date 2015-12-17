@@ -64,7 +64,8 @@ class Message < ActiveRecord::Base
 
   def sms_cs_user
     cs_user = User.customer_service_user
-    return if $redis.get("#{cs_user.try(:id)}online?") == "yes" || sender == cs_user
+
+    return if !cs_user || $redis.get("#{cs_user.id}online?") == "yes" || sender == cs_user
     if ready_to_notify?(cs_user)
       body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
       SendSmsJob.new(cs_user.id, body).send
