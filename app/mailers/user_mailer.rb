@@ -119,7 +119,18 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "You have some work to do now, address your #{state} conversations",
       to: user.email,
       vars: {
-        'COUNT': count,
+        'COUNT': count
+      }
+    )
+  end
+
+  def batched_messages(user, body)
+    mandrill_mail(
+      template: 'Leo - Message Digest',
+      subject: "You received some messages!",
+      to: user.email,
+      vars: {
+        'BODY': body
       }
     )
   end
