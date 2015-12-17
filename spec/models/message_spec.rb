@@ -51,7 +51,7 @@ RSpec.describe Message, type: :model do
         end
       end
 
-      context "customer user is online, and not in cooldown period" do
+      context "customer user is offline, and not in cooldown period" do
         before do
           Timecop.freeze
           $redis.set("#{customer_service.id}next_messageAt", Time.now - 1.minute)
@@ -71,7 +71,7 @@ RSpec.describe Message, type: :model do
         end
       end
 
-      context "customer user is online, and in cooldown period" do
+      context "customer user is offline, and in cooldown period" do
         before do
           Timecop.freeze
           $redis.set("#{customer_service.id}next_messageAt", Time.now + 1.minute)
