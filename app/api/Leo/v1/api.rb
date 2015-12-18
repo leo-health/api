@@ -52,17 +52,13 @@ module Leo
       ENDPOINTS = %w(appointments appointment_slots conversations sessions users
                      roles passwords patients practices read_receipts messages
                      appointment_types families cards insurers enrollments
-                     patient_enrollments avatars health_records notes pushers)
+                     patient_enrollments avatars health_records notes pushers
+                     appointment_statuses)
 
       ENDPOINTS.each do |endpoint|
         require_relative endpoint
         mount "Leo::V1::#{endpoint.camelize}".constantize
       end
-
-      add_swagger_documentation(
-          base_path: "/api",
-          hide_documentation_path: true
-      )
     end
   end
 end
