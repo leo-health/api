@@ -12,8 +12,7 @@ class Message < ActiveRecord::Base
   has_many :readers, class_name: 'User', through: :read_receipts
 
   validates :conversation, :sender, :type_name, :body, presence: true
-  after_commit :update_conversation_after_message_sent, :set_last_message_created_at, :sms_cs_user,
-               :email_batched_messages, on: :create
+  after_commit :actions_after_message_sent, on: :create
 
   def self.compile_sms_message(start_time, end_time)
     messages = self.includes(:sender).where.not(sender: User.customer_service_user).where(created_at: (start_time..end_time))
@@ -28,7 +27,6 @@ class Message < ActiveRecord::Base
   def broadcast_message(sender)
     message_id = id
     conversation = self.conversation
-    send_new_message_notification
     participants = (conversation.staff + conversation.family.guardians)
     participants.delete(sender)
     if participants.count > 0
@@ -42,13 +40,20 @@ class Message < ActiveRecord::Base
   end
 
   private
+  def actions_after_message_sent
+    return if sender.has_role? :bot
+    set_last_message_created_at
+    update_conversation_after_message_sent
+    sms_cs_user
+    send_new_message_notification
+    email_batched_messages
+  end
 
   def set_last_message_created_at
     conversation.update_columns(last_message_created_at: created_at, updated_at: created_at)
   end
 
   def update_conversation_after_message_sent
-    return if conversation.messages.count < 2
     conversation.staff << sender unless ( sender.has_role? :guardian ) || ( conversation.staff.where(id: sender.id).exists? )
     conversation.user_conversations.update_all(read: false)
     conversation.open!
@@ -64,7 +69,7 @@ class Message < ActiveRecord::Base
 
   def sms_cs_user
     cs_user = User.customer_service_user
-    return if !cs_user || $redis.get("#{cs_user.id}online?") == "yes" || sender == cs_user
+    return if !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
     if ready_to_notify?(cs_user)
       body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
       SendSmsJob.new(cs_user.id, body).send
