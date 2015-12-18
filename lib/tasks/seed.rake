@@ -24,7 +24,6 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 7,
-          deleted_at: Time.now,
           practice_id: 1,
           phone: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
