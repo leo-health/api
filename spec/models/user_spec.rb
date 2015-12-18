@@ -46,7 +46,7 @@ describe User do
         end
       end
 
-      context "for notify primary guardian about sencond guardiann joined leo" do
+      context "for notify primary guardian about sencond guardian joined leo" do
         let(:onboarding_group){ create(:onboarding_group) }
         let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, family: user.family) }
 
