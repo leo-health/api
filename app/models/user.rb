@@ -41,7 +41,7 @@ class User < ActiveRecord::Base
   after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
 
   def self.customer_service_user
-    @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).order("created_at ASC").first
+    self.joins(:role).where(roles: {name: "customer_service"}).order("created_at ASC").first
   end
 
   def self.staff
