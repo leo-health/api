@@ -20,11 +20,6 @@ FactoryGirl.define do
       association :role, factory: [:role, :guardian]
     end
 
-    trait :super_user do
-      family      nil
-      association :role, factory: [:role, :super_user]
-    end
-
     trait :financial do
       family      nil
       association :role, factory: [:role, :financial]

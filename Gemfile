@@ -22,6 +22,7 @@ gem 'grape-kaminari'
 gem 'grape-swagger'					# Document the grape api
 gem 'grape-swagger-rails'
 gem 'mandrill_mailer'
+gem 'carrierwave-aws'
 gem 'carrierwave'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie-forbidden_attributes'
@@ -37,6 +38,9 @@ gem 'aasm'
 gem 'grocer'
 gem 'pg_search'
 gem 'raddocs'
+gem 'redis'
+gem 'whenever', :require => false
+gem 'twilio-ruby'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -65,6 +69,8 @@ group :test do
   gem 'database_cleaner'
   gem 'pusher-fake'
   gem 'codeclimate-test-reporter'
+  gem "fakeredis"
+  gem "timecop"
 end
 
 group :production do

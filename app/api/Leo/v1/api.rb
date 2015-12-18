@@ -8,9 +8,9 @@ module Leo
 
       ENTITIES = %w(avatar role insurer user escalation_note system appointment_status
                     appointment_type message full_message patient conversation enrollment
-                    conversation_with_messages practice appointment card family session
-                    vital allergy medication vaccine user_generated_health_record short_user
-                    short_conversation)
+                    conversation_with_messages practice appointment short_user short_conversation card
+                    family session vital allergy medication vaccine user_generated_health_record
+                   )
 
       ENTITIES.each do |entity_name|
         require_relative "../entities/#{entity_name}_entity"
@@ -36,7 +36,8 @@ module Leo
         end
 
         def current_user
-          (Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token]
+          return unless params[:authentication_token]
+          @current_user ||= Session.find_by_authentication_token(params[:authentication_token]).try(:user)
         end
 
         def render_success object

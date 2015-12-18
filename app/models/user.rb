@@ -13,6 +13,7 @@ class User < ActiveRecord::Base
   belongs_to :family
   belongs_to :role
   belongs_to :practice
+  belongs_to :onboarding_group
 
   has_one :avatar, as: :owner
   has_one :provider_profile, foreign_key: "provider_id"
@@ -36,11 +37,19 @@ class User < ActiveRecord::Base
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
-  after_update :welcome_to_practice_email
+  after_update :welcome_to_practice_email, :notify_primary_guardian
   after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
 
   def self.customer_service_user
     @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
+  end
+
+  def self.staff
+    User.includes(:role).where.not(roles: {name: :guardian})
+  end
+
+  def self.leo_bot
+    @leo_bot ||= self.unscoped.find_by_email("leo_bot@leohealth.com")
   end
 
   def find_conversation_by_status(status)
@@ -71,10 +80,32 @@ class User < ActiveRecord::Base
     update_attributes(type: :Member) if has_role? :guardian
   end
 
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+
   private
 
   def welcome_to_practice_email
-    UserMailer.delay.welcome_to_pratice(self) if (confirmed_at_changed?) && (has_role? :guardian)
+    UserMailer.delay.welcome_to_pratice(self) if guardian_confirmed_email?
+  end
+
+  def notify_primary_guardian
+    if invited_guardian_confirmed_email? && sender = User.customer_service_user
+      family.conversation.messages.create( body: "#{first_name} has joined Leo",
+                                           sender: sender,
+                                           type_name: :text
+                                          )
+
+    end
+  end
+
+  def guardian_confirmed_email?
+    (confirmed_at_changed?) && (has_role? :guardian)
+  end
+
+  def invited_guardian_confirmed_email?
+    onboarding_group.try(:group_name) == "invited_secondary_parent" && guardian_confirmed_email?
   end
 
   def remind_schedule_appointment

@@ -67,15 +67,30 @@ describe Leo::V1::Passwords do
     let!(:user){create(:user, password: "old_password", password_confirmation: "old_password")}
     let(:session){user.sessions.create}
 
-    def do_request
-      password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "new_password" }
-      put "/api/v1/passwords/change_password", password_params
+    context "with valid new password and confirmation" do
+      def do_request
+        password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "new_password" }
+        put "/api/v1/passwords/change_password", password_params
+      end
+
+      it "should change the password for user" do
+        expect{ do_request }.to change( Delayed::Job, :count ).by(1)
+        expect(response.status).to eq(200)
+        expect( user.reload.valid_password?("new_password")).to be true
+      end
     end
 
-    it "should change the password for user" do
-      expect{ do_request }.to change( Delayed::Job, :count ).by(1)
-      expect(response.status).to eq(200)
-      expect( user.reload.valid_password?("new_password")).to be true
+    context "with unmatched passwords" do
+      def do_request
+        password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "nnew_password" }
+        put "/api/v1/passwords/change_password", password_params
+      end
+
+      it "should not change the password for user" do
+        expect{ do_request }.to change( Delayed::Job, :count ).by(0)
+        expect(response.status).to eq(422)
+        expect_json("message.error_message.0", "Password confirmation doesn't match Password" )
+      end
     end
   end
 end

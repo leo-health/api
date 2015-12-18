@@ -14,7 +14,7 @@ roles_seed = {
           # Access to all data pertaining to the patient
           patient: 6,
           # Super user / admin
-          super_user: 7,
+          bot: 7,
           operational: 8
         }
 
@@ -226,6 +226,18 @@ insurance_plan_seed.each do |insurance_plan|
   end
 end
 
+onboarding_group_seed = [
+  {
+    id: 1,
+    group_name: :invited_secondary_parent
+  }
+]
+
+
+onboarding_group_seed.each do |onboarding_group|
+  OnboardingGroup.create(onboarding_group) unless OnboardingGroup.where(id: onboarding_group[:id]).exists?
+end
+
 #Seed the database with growth curves
 begin
   folder = "lib/assets/percentile/oct_2015"
@@ -308,5 +320,74 @@ begin
       :m => row["M"],
       :s => row["S"]})
     entry.save if (entry.days > 712 && row["Agemos"] != "24")
+  end
+
+  practice_schedules = [
+    {
+      id: 1,
+      practice_id: 1,
+      active: true,
+      schedule_type: :default,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    },
+
+    {
+      id: 2,
+      practice_id: 1,
+      active: false,
+      schedule_type: :emergency,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    },
+
+    {
+      id: 3,
+      practice_id: 1,
+      active: false,
+      schedule_type: :holiday,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    },
+  ]
+
+  practice_schedules.each do |schedule_params|
+    PracticeSchedule.create(schedule_params) unless PracticeSchedule.where(id: schedule_params[:id]).exists?
   end
 end

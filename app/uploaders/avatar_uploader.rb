@@ -6,14 +6,10 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # include CarrierWave::RMagick
   include CarrierWave::MiniMagick
 
-  # Choose what kind of storage to use for this uploader:
-  storage :file
-  # storage :fog
-
   # Override the directory where uploaded files will be stored.
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+    "#{mounted_as}/#{model.id}"
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
@@ -25,31 +21,31 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # end
 
   # Process files as they are uploaded:
-  process :resize_to_fill => [214, 214]
+  process resize_to_fill: [214, 214]
 
   # Create different versions of your uploaded files:
   version :primary_3x do
-    process :resize_to_fill => [214, 214]
+    process resize_to_fill: [214, 214]
   end
 
   version :primary_2x do
-    process :resize_to_fill => [144, 144]
+    process resize_to_fill: [144, 144]
   end
 
   version :primary_1x, if: :is_user? do
-    process :resize_to_fill => [132, 132]
+    process resize_to_fill: [132, 132]
   end
 
   version :secondary_3x, if: :is_user? do
-    process :resize_to_fill => [88, 88]
+    process resize_to_fill: [88, 88]
   end
 
   version :secondary_2x do
-    process :resize_to_fill => [72, 72]
+    process resize_to_fill: [72, 72]
   end
 
   version :secondary_1x, if: :is_user? do
-    process :resize_to_fill => [44, 44]
+    process resize_to_fill: [44, 44]
   end
 
   # Add a white list of extensions which are allowed to be uploaded.

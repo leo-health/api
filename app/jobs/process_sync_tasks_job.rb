@@ -24,7 +24,7 @@ class ProcessSyncTasksJob
   end
   
   def self.schedule!(run_at = Time.now)
-    Delayed::Job.enqueue ProcessSyncTasksJob.new, { :run_at => run_at.utc }
+    Delayed::Job.enqueue ProcessSyncTasksJob.new, { run_at: run_at.utc }
   end
 
   def self.scheduled?

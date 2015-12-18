@@ -5,7 +5,6 @@ class Conversation < ActiveRecord::Base
   has_many :messages
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
-  has_many :conversation_changes
   has_many :closure_notes
   belongs_to :family
 
@@ -18,8 +17,8 @@ class Conversation < ActiveRecord::Base
   end
 
   #state machine via https://github.com/aasm/aasm
-  aasm :whiny_transitions => false, :column => :state do
-    state :closed, :initial => true
+  aasm whiny_transitions: false, column: :state do
+    state :closed, initial: true
     state :escalated
     state :open
 
@@ -28,7 +27,7 @@ class Conversation < ActiveRecord::Base
         broadcast_state(:escalation, args[:escalated_by], @escalation_note.id, args[:escalated_to])
       end
 
-      transitions :from => [:open, :escalated], :to => :escalated, :guard => :escalate_conversation_to_staff
+      transitions from: [:open, :escalated], to: :escalated, guard: :escalate_conversation_to_staff
     end
 
     event :close do
@@ -36,7 +35,7 @@ class Conversation < ActiveRecord::Base
         broadcast_state(:close, args[:closed_by], @closure_note.id)
       end
 
-      transitions :from => [:open, :escalated], :to => :closed, :guard => :close_conversation
+      transitions from: [:open, :escalated], to: :closed, guard: :close_conversation
     end
 
     event :open do
@@ -44,7 +43,7 @@ class Conversation < ActiveRecord::Base
         broadcast_state(:open, false, false)
       end
 
-      transitions :from => :closed, :to => :open
+      transitions from: :closed, to: :open
     end
   end
 

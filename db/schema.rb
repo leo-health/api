@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151203202250) do
+ActiveRecord::Schema.define(version: 20151215205823) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -123,16 +123,6 @@ ActiveRecord::Schema.define(version: 20151203202250) do
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
   end
-
-  create_table "conversation_changes", force: :cascade do |t|
-    t.integer  "conversation_id",     null: false
-    t.string   "conversation_change"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.integer  "changed_by_id"
-  end
-
-  add_index "conversation_changes", ["conversation_id"], name: "index_conversation_changes_on_conversation_id", using: :btree
 
   create_table "conversations", force: :cascade do |t|
     t.datetime "created_at",                                 null: false
@@ -294,6 +284,15 @@ ActiveRecord::Schema.define(version: 20151203202250) do
   add_index "medications", ["athena_id"], name: "index_medications_on_athena_id", using: :btree
   add_index "medications", ["patient_id"], name: "index_medications_on_patient_id", using: :btree
 
+  create_table "message_photos", force: :cascade do |t|
+    t.string   "image"
+    t.integer  "message_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "message_photos", ["message_id"], name: "index_message_photos_on_message_id", using: :btree
+
   create_table "messages", force: :cascade do |t|
     t.integer  "sender_id",       null: false
     t.integer  "conversation_id", null: false
@@ -306,6 +305,12 @@ ActiveRecord::Schema.define(version: 20151203202250) do
 
   add_index "messages", ["conversation_id"], name: "index_messages_on_conversation_id", using: :btree
   add_index "messages", ["sender_id"], name: "index_messages_on_sender_id", using: :btree
+
+  create_table "onboarding_groups", force: :cascade do |t|
+    t.string   "group_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "patient_enrollments", force: :cascade do |t|
     t.integer  "guardian_enrollment_id", null: false
@@ -360,6 +365,30 @@ ActiveRecord::Schema.define(version: 20151203202250) do
   end
 
   add_index "photos", ["patient_id"], name: "index_photos_on_patient_id", using: :btree
+
+  create_table "practice_schedules", force: :cascade do |t|
+    t.integer  "practice_id",                          null: false
+    t.boolean  "active",               default: false
+    t.string   "schedule_type",                        null: false
+    t.string   "monday_start_time",                    null: false
+    t.string   "monday_end_time",                      null: false
+    t.string   "tuesday_start_time",                   null: false
+    t.string   "tuesday_end_time",                     null: false
+    t.string   "wednesday_start_time",                 null: false
+    t.string   "wednesday_end_time",                   null: false
+    t.string   "thursday_start_time",                  null: false
+    t.string   "thursday_end_time",                    null: false
+    t.string   "friday_start_time",                    null: false
+    t.string   "friday_end_time",                      null: false
+    t.string   "saturday_start_time",                  null: false
+    t.string   "saturday_end_time",                    null: false
+    t.string   "sunday_start_time",                    null: false
+    t.string   "sunday_end_time",                      null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+  end
+
+  add_index "practice_schedules", ["practice_id"], name: "index_practice_schedules_on_practice_id", using: :btree
 
   create_table "practices", force: :cascade do |t|
     t.string   "name",           null: false
@@ -527,6 +556,7 @@ ActiveRecord::Schema.define(version: 20151203202250) do
     t.string   "avatar_url"
     t.string   "phone"
     t.string   "type"
+    t.integer  "onboarding_group_id"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
