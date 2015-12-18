@@ -16,7 +16,6 @@ class Conversation < ActiveRecord::Base
     self.where(state: [:open, :escalated, :closed]).order("state desc, updated_at desc")
   end
 
-  #state machine via https://github.com/aasm/aasm
   aasm whiny_transitions: false, column: :state do
     state :closed, initial: true
     state :escalated
@@ -92,7 +91,6 @@ class Conversation < ActiveRecord::Base
                         sender: sender,
                         type_name: :text
                        )
-      # staff << sender
     end
   end
 end
