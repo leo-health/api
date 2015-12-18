@@ -19,8 +19,6 @@ gem 'grape'                 # Our API base
 gem 'grape-cancan'
 gem 'grape-entity'
 gem 'grape-kaminari'
-gem 'grape-swagger'					# Document the grape api
-gem 'grape-swagger-rails'
 gem 'mandrill_mailer'
 gem 'carrierwave-aws'
 gem 'carrierwave'
