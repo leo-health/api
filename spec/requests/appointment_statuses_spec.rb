@@ -1,7 +1,7 @@
 require 'airborne'
 require 'rails_helper'
 
-describe Leo::V1::AppointmentTypes do
+describe Leo::V1::AppointmentStatuses do
   describe "GET /api/v1/appointment_statues" do
     let(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
