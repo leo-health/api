@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Message, type: :model do
-  let!(:customer_service){ create(:user, :customer_service)}
+  let!(:bot){ create(:user, :bot) }
+  let!(:customer_service){ create(:user, :customer_service) }
 
   describe "relations" do
     it{ is_expected.to belong_to(:conversation) }
