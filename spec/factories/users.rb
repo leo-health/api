@@ -43,7 +43,6 @@ FactoryGirl.define do
     trait :bot do
       family      nil
       email       "leo_bot@leohealth.com"
-      deleted_at  Time.now
       association :role, factory: [:role, :bot]
     end
 
