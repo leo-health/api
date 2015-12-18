@@ -65,15 +65,37 @@ describe Leo::V1::Messages do
   end
 
   describe "Post /api/v1/conversations/:conversation_id/messages" do
-    def do_request
-      post "/api/v1/conversations/#{conversation.id}/messages", { body: "test", type_name: "text", authentication_token: session.authentication_token }
+    context "when create a text message" do
+      def do_request
+        post "/api/v1/conversations/#{conversation.id}/messages", { body: "test", type_name: "text", authentication_token: session.authentication_token }
+      end
+
+      it "should create a message for the conversation" do
+        do_request
+        expect(response.status).to eq(201)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.last).as_json.to_json)
+      end
     end
 
-    it "should create a message for the conversation" do
-      do_request
-      expect(response.status).to eq(201)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.last).as_json.to_json)
+    context "when create a photo message" do
+      def do_request
+        image = open(File.new(Rails.root.join('spec', 'support', 'Zen-Dog1.png'))){|io|io.read}
+        encoded_image = Base64.encode64(image)
+        post "/api/v1/conversations/#{conversation.id}/messages", { body: "description",
+                                                                    type_name: "image",
+                                                                    image: encoded_image,
+                                                                    authentication_token: session.authentication_token
+                                                                  }
+
+      end
+
+      it "should create a message with message_photo" do
+         expect{ do_request }.to change{ MessagePhoto.count }.from(0).to(1)
+         expect(response.status).to eq(201)
+         body = JSON.parse(response.body, symbolize_names: true )
+         expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.last).as_json.to_json)
+      end
     end
   end
 end

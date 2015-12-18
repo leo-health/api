@@ -50,11 +50,19 @@ module Leo
           desc "Create a message"
           params do
             requires :body, type: String, allow_blank: false
-            requires :type_name, type: String, allow_blank: false
+            requires :type_name, type: String, allow_blank: false, values: ['text', 'image']
+            optional :image, type: String, allow_blank: false
           end
 
           post do
-            message = @conversation.messages.new({body: params[:body], sender: current_user, type_name: params[:type_name]})
+            message_params = { body: params[:body],
+                               sender: current_user,
+                               type_name: params[:type_name] }
+
+            if params[:type_name] == 'image'
+              message_params.merge!(message_photo_attributes: { image: image_decoder(params[:image]) })
+            end
+            message = @conversation.messages.new(message_params)
             authorize! :create, message
             if message.save
               present message, with: Leo::Entities::MessageEntity
@@ -62,6 +70,16 @@ module Leo
             else
               error!({error_code: 422, error_message: message.errors.full_messages }, 422)
             end
+          end
+        end
+
+        helpers do
+          def image_decoder(image)
+            data = StringIO.new(Base64.decode64(image))
+            data.class.class_eval { attr_accessor :original_filename, :content_type }
+            data.content_type = "image/png"
+            data.original_filename = "uploaded_message_photo.png"
+            data
           end
         end
       end

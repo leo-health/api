@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class AvatarUploader < CarrierWave::Uploader::Base
+class MessageUploader < CarrierWave::Uploader::Base
 
   # Include RMagick or MiniMagick support:
   # include CarrierWave::RMagick
@@ -32,11 +32,11 @@ class AvatarUploader < CarrierWave::Uploader::Base
     process resize_to_fill: [144, 144]
   end
 
-  version :primary_1x, if: :is_user? do
+  version :primary_1x do
     process resize_to_fill: [132, 132]
   end
 
-  version :secondary_3x, if: :is_user? do
+  version :secondary_3x do
     process resize_to_fill: [88, 88]
   end
 
@@ -44,7 +44,7 @@ class AvatarUploader < CarrierWave::Uploader::Base
     process resize_to_fill: [72, 72]
   end
 
-  version :secondary_1x, if: :is_user? do
+  version :secondary_1x do
     process resize_to_fill: [44, 44]
   end
 
@@ -65,9 +65,5 @@ class AvatarUploader < CarrierWave::Uploader::Base
   def secure_token
     var = :"@#{mounted_as}_secure_token"
     model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.uuid)
-  end
-
-  def is_user? owner
-    model.owner_type == "User"
   end
 end
