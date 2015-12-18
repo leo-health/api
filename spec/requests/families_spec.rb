@@ -1,7 +1,7 @@
 require 'airborne'
 require 'rails_helper'
 
-describe Leo::V1::Conversations do
+describe Leo::V1::Families do
   let!(:customer_service){ create(:user, :customer_service) }
   let(:user){ create(:user, :guardian) }
   let!(:session){ user.sessions.create }
@@ -16,7 +16,8 @@ describe Leo::V1::Conversations do
     it "should return the members of the family" do
       do_request
       expect(response.status).to eq(200)
-      expect_json("data.family", serializer.represent(user.family).as_json)
+      body = JSON.parse(response.body, symbolize_names: true)
+      expect(body[:data][:family].as_json.to_json).to eq(serializer.represent(user.reload.family).as_json.to_json)
     end
   end
 end

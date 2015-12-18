@@ -151,4 +151,15 @@ describe UserMailer do
       expect(email).to_not be_nil
     end
   end
+
+  describe "#batched_message" do
+    it "should notify guardian of new messages" do
+      UserMailer.batched_messages(user, "haha").deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Message Digest' &&
+            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
 end
