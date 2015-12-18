@@ -33,8 +33,8 @@ module Leo
               messages = @conversation.messages
               authorize! :read, Message
               close_conversation_notes = @conversation.closure_notes
-              escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversation: {conversation_id: @conversation.id})
-              full_messages =(messages + close_conversation_notes + escalation_notes).sort{|x, y|y.created_at <=> x.created_at}
+              escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversation: { conversation_id: @conversation.id })
+              full_messages =(messages + close_conversation_notes + escalation_notes).sort{ |x, y|y.created_at <=> x.created_at }
               present :conversation_id, @conversation.id
               present :messages, paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
             end
@@ -68,7 +68,7 @@ module Leo
               present message, with: Leo::Entities::MessageEntity
               message.broadcast_message(current_user)
             else
-              error!({error_code: 422, error_message: message.errors.full_messages }, 422)
+              error!({ error_code: 422, error_message: message.errors.full_messages }, 422)
             end
           end
         end

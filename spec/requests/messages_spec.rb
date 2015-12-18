@@ -2,6 +2,7 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Messages do
+  let!(:bot){create(:user, :bot)}
   let!(:customer_service){ create(:user, :customer_service) }
   let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
