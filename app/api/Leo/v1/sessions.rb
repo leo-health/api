@@ -14,7 +14,7 @@ module Leo
         desc "create a session when user login"
         post do
           user = User.find_by_email(params[:email].downcase)
-          unless user && user.valid_password?(params[:password])
+          unless user && !user.has_role?(:bot) && user.valid_password?(params[:password])
             error!({error_code: 403, error_message: "Invalid Email or Password."}, 422)
           end
           session = user.sessions.create(device_token: params[:device_token])

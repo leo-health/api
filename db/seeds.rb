@@ -13,7 +13,7 @@ roles_seed = {
           clinical: 5,
           # Access to all data pertaining to the patient
           patient: 6,
-          # Super user / admin
+          # bot user
           bot: 7,
           operational: 8
         }

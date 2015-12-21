@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe User do
   let!(:customer_service){ create(:user, :customer_service) }
+  let!(:bot){ create(:user, :bot)}
 
   describe "relations" do
     it{ is_expected.to belong_to(:family) }
@@ -45,7 +46,7 @@ describe User do
         end
       end
 
-      context "for notify primary guardian about sencond guardain joined leo" do
+      context "for notify primary guardian about sencond guardian joined leo" do
         let(:onboarding_group){ create(:onboarding_group) }
         let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, family: user.family) }
 

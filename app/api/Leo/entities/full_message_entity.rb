@@ -2,14 +2,20 @@ module Leo
   module Entities
     class FullMessageEntity < Grape::Entity
       expose :id
+      expose :type_name, if: Proc.new {|g|g.class.name == 'Message'}
       expose :message_body
       expose :message_type
       expose :note
       expose :escalated_to, with: Leo::Entities::UserEntity
       expose :created_by, with: Leo::Entities::UserEntity
+      expose :image, if: Proc.new {|g|g.class.name == 'Message'}
       expose :created_at
 
       private
+
+      def image
+        object.message_photo.try(:image)
+      end
 
       def conversation_id
         if object.class == EscalationNote

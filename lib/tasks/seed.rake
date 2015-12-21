@@ -4,7 +4,7 @@ namespace :load do
   desc 'Seed test data'
   task all: :environment do
     begin
-      ["load:seed_staff", "load:seed_guardians"].each do |t|
+      ["load:seed_staff", "load:seed_guardians", "load:seed_photo_message"].each do |t|
         Rake::Task[t].execute
         puts "#{t} completed"
       end
@@ -24,7 +24,6 @@ namespace :load do
           password: "password",
           password_confirmation: "password",
           role_id: 7,
-          deleted_at: Time.now,
           practice_id: 1,
           phone: '1234567890',
           avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
@@ -258,6 +257,22 @@ namespace :load do
         end
       end
       puts "Created family #{family.id.to_s} with #{family.patients.count+1} children."
+    end
+  end
+
+  desc "Seed photo message in conversations."
+  task seed_photo_message: :environment do
+    image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', 'Zen-Dog1.png'))
+    message = Conversation.first.messages.create( body: "This is a zen dog",
+                                                  sender: Conversation.first.family.primary_parent,
+                                                  type_name: "image",
+                                                  message_photo_attributes: { image: image }
+                                                 )
+    if message.valid?
+      print "*"
+    else
+      print "x"
+      print "Failed to add photo message for conversation with id #{conversation.id}"
     end
   end
 end

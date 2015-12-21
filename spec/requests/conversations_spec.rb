@@ -5,6 +5,7 @@ describe Leo::V1::Conversations do
   let(:user){ create(:user) }
   let(:session){ user.sessions.create }
   let!(:customer_service){ create(:user, :customer_service) }
+  let!(:bot){ create(:user, :bot) }
   let(:serializer){ Leo::Entities::ConversationEntity }
   let(:short_serializer){ Leo::Entities::ShortConversationEntity }
 
@@ -17,6 +18,7 @@ describe Leo::V1::Conversations do
 
     before do
       @conversation_one = Conversation.find_by_family_id(user.family_id)
+      @conversation_one.messages.create(body: 'test', sender: customer_service, type_name: 'text')
     end
 
     it "should return all conversations the staff participated" do

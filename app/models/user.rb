@@ -41,7 +41,7 @@ class User < ActiveRecord::Base
   after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
 
   def self.customer_service_user
-    @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
+    self.joins(:role).where(roles: {name: "customer_service"}).order("created_at ASC").first
   end
 
   def self.staff
@@ -91,7 +91,7 @@ class User < ActiveRecord::Base
   end
 
   def notify_primary_guardian
-    if invited_guardian_confirmed_email? && sender = User.customer_service_user
+    if invited_guardian_confirmed_email? && sender = User.leo_bot
       family.conversation.messages.create( body: "#{first_name} has joined Leo",
                                            sender: sender,
                                            type_name: :text

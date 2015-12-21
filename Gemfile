@@ -39,6 +39,7 @@ gem 'raddocs'
 gem 'redis'
 gem 'whenever', :require => false
 gem 'twilio-ruby'
+gem 'rspec_junit_formatter', '0.2.2'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses

@@ -33,7 +33,7 @@ class Patient < ActiveRecord::Base
   private
 
   def notify_guardian
-    if sender = User.customer_service_user
+    if sender = User.leo_bot
       family.conversation.messages.create(
           body: "#{first_name.capitalize} is signed up successfully",
           type_name: :text,
