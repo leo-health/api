@@ -345,13 +345,16 @@ module SyncServiceHelper
 
       #create insurance if not entered yet
       insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
-      if insurances.length == 0
-        enrollment = Enrollment.find_by(family_id: leo_patient.family_id)
+      primary_insurance = insurances.find { |ins| ins[:sequencenumber.to_s].to_i == 1 }
 
-        if enrollment && enrollment.insurance_plan && enrollment.insurance_plan.athena_id != 0
+      if primary_insurance.nil?
+        insurance_plan = leo_parent.insurance_plan
+
+        #only sync if the insurance plan is registered in athena
+        if insurance_plan && insurance_plan.athena_id != 0
           @connector.create_patient_insurance(
             patientid: leo_patient.athena_id,
-            insurancepackageid: enrollment.insurance_plan.athena_id.to_s,
+            insurancepackageid: insurance_plan.athena_id.to_s,
             insurancepolicyholderfirstname: leo_parent.first_name,
             insurancepolicyholderlastname: leo_parent.last_name,
             insurancepolicyholdermiddlename: leo_parent.middle_initial.to_s,

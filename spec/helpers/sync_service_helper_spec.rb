@@ -185,9 +185,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_patient" do
       let!(:family) { create(:family) }
-      let!(:parent) { create(:user, :guardian, family: family) }
       let!(:insurance_plan) { create(:insurance_plan, athena_id: 100) }
-      let!(:enrollment) { create(:enrollment, family_id: family.id, insurance_plan: insurance_plan) }
+      let!(:parent) { create(:user, :guardian, family: family, insurance_plan: insurance_plan) }
 
       it "creates new patient" do
         patient = create(:patient, athena_id: 0, family_id: family.id)

@@ -81,10 +81,12 @@ module Leo
 
         post do
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
+
           user = User.new(declared(params).merge(role_id: 4,
                                                  encrypted_password: enrollment.encrypted_password,
                                                  email: enrollment.email,
-                                                 onboarding_group: enrollment.onboarding_group))
+                                                 onboarding_group: enrollment.onboarding_group,
+                                                 insurance_plan_id: enrollment.insurance_plan_id))
 
           render_success user
           session = user.sessions.create
