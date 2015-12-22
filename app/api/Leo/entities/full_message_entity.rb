@@ -43,8 +43,12 @@ module Leo
 
       def message_type
         case object
-        when Message
-          :message
+          when Message
+          if object.sender.role.name == 'bot'
+            :bot_message
+          else
+            :message
+          end
         when EscalationNote
           :escalation
         when ClosureNote
