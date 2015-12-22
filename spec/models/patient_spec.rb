@@ -14,6 +14,7 @@ RSpec.describe Patient, type: :model do
    it{ is_expected.to have_many(:vitals) }
    it{ is_expected.to have_many(:insurances) }
    it{ is_expected.to have_many(:avatars) }
+   it{ is_expected.to have_many(:forms) }
  end
 
   describe 'validations' do
