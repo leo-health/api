@@ -263,16 +263,18 @@ namespace :load do
   desc "Seed photo message in conversations."
   task seed_photo_message: :environment do
     image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', 'Zen-Dog1.png'))
-    message = Conversation.first.messages.create( body: "This is a zen dog",
-                                                  sender: Conversation.first.family.primary_parent,
-                                                  type_name: "image",
-                                                  message_photo_attributes: { image: image }
-                                                 )
-    if message.valid?
-      print "*"
-    else
-      print "x"
-      print "Failed to add photo message for conversation with id #{conversation.id}"
+    Conversation.all.each do |conversation|
+      message = conversation.messages.create( body: "This is a zen dog",
+                                                    sender: conversation.family.primary_parent,
+                                                    type_name: "image",
+                                                    message_photo_attributes: { image: image }
+      )
+      if message.valid?
+        print "*"
+      else
+        print "x"
+        print "Failed to add photo message for conversation with id #{conversation.id}"
+      end
     end
   end
 end
