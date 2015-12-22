@@ -45,6 +45,7 @@ class Message < ActiveRecord::Base
   end
 
   private
+
   def actions_after_message_sent
     return if sender.has_role? :bot
     set_last_message_created_at

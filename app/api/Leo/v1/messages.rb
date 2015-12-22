@@ -58,12 +58,10 @@ module Leo
                                type_name: params[:type_name] }
 
             if params[:type_name] == 'image'
-              byebug
               message_params.merge!(message_photo_attributes: { image: image_decoder(params[:body]) })
             else
               message_params.merge!(body: params[:body])
             end
-            byebug
             message = @conversation.messages.new(message_params)
             authorize! :create, message
             if message.save
