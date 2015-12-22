@@ -8,14 +8,9 @@ module Leo
       expose :note
       expose :escalated_to, with: Leo::Entities::UserEntity
       expose :created_by, with: Leo::Entities::UserEntity
-      expose :image, if: Proc.new {|g|g.class.name == 'Message'}
       expose :created_at
 
       private
-
-      def image
-        object.message_photo.try(:image)
-      end
 
       def conversation_id
         if object.class == EscalationNote
@@ -37,7 +32,13 @@ module Leo
       end
 
       def message_body
-        object.body if object.class == Message
+        if object.class == Message
+          if object.type_name == 'text'
+            object.body
+          else
+            object.message_photo.try(:image)
+          end
+        end
       end
 
       def message_type
