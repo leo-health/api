@@ -11,8 +11,13 @@ class Message < ActiveRecord::Base
   has_many :read_receipts
   has_many :readers, class_name: 'User', through: :read_receipts
 
-  validates :conversation, :sender, :type_name, :body, presence: true
+  validates :conversation, :sender, :type_name, presence: true
+  validates :body, presence: true, if: :text_message?
   after_commit :actions_after_message_sent, on: :create
+
+  def text_message?
+    type_name == 'text'
+  end
 
   def self.compile_sms_message(start_time, end_time)
     messages = self.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
