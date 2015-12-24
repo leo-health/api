@@ -10,6 +10,6 @@ class PracticeSchedule < ActiveRecord::Base
   private
 
   def ensure_single_active_schedule
-    self.class.where('id != ? and active', self.id).update_all("active = 'false'")
+    self.class.where('id != ? and active', self.id).update_all("active = 'false'") if self.active
   end
 end
