@@ -71,7 +71,7 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
 
     if Rails.env.test? || Rails.env.cucumber?
-      FileUtils.rm_rf(Dir["#{Rails.root}/spec/support/test"])
+      FileUtils.rm_rf(Dir["#{Rails.root}/spec/support/test", "#{Rails.root}/spec/support/uploads"])
     end
   end
 

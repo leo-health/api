@@ -15,7 +15,7 @@ module Leo
         if object.type_name == 'text'
           object.body
         else
-          object.message_photo.try(:image)
+          Base64.encode64(open(object.message_photo.image.url).read) if object.message_photo.try(:image)
         end
       end
     end
