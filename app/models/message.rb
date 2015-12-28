@@ -47,8 +47,8 @@ class Message < ActiveRecord::Base
   private
 
   def actions_after_message_sent
-    return if sender.has_role? :bot
     set_last_message_created_at
+    return if sender.has_role? :bot
     update_conversation_after_message_sent
     sms_cs_user
     send_new_message_notification
