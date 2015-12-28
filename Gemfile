@@ -12,7 +12,6 @@ gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
-gem 'devise_invitable'      # Inviting users
 gem 'cancancan', '~> 1.10'
 gem "paranoia", "~> 2.0"
 gem 'grape'                 # Our API base
