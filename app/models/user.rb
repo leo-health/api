@@ -105,7 +105,7 @@ class User < ActiveRecord::Base
   end
 
   def invited_guardian_confirmed_email?
-    onboarding_group.try(:group_name) == "invited_secondary_parent" && guardian_confirmed_email?
+    onboarding_group.try(:invited_secondary_guardian?) && guardian_confirmed_email?
   end
 
   def remind_schedule_appointment

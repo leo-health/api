@@ -13,7 +13,7 @@ class Enrollment < ActiveRecord::Base
 
   validates :email, :role, presence: true
   validates :family, :onboarding_group, presence: true, if: :invited?
-  validates :password, presence: true, unless: :invited?, on: :create
+  validates :password, presence: true, on: :create, unless: :invited?
   validates_format_of :email, with: Devise.email_regexp
   validates_length_of :password, within: Devise.password_length, allow_blank: true
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
