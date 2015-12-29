@@ -229,7 +229,7 @@ end
 onboarding_group_seed = [
   {
     id: 1,
-    group_name: :invited_secondary_parent
+    group_name: :invited_secondary_guardian
   }
 ]
 

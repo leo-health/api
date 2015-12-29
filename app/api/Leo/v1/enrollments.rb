@@ -37,9 +37,8 @@ module Leo
         end
 
         get :current do
-          enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
-          error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
-          present_session(enrollment)
+          find_enrollment
+          present_session(@enrollment)
         end
 
         desc "create an enrollment"
@@ -61,6 +60,7 @@ module Leo
         desc "update an enrollment"
         params do
           requires :authentication_token, type: String, allow_blank: false
+          optional :password, type: String
           optional :first_name, type: String
           optional :last_name, type: String
           optional :email, type: String
@@ -73,10 +73,10 @@ module Leo
 
         put :current do
           error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
-          enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
-          error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
-          if enrollment.update_attributes(declared(params, include_missing: false))
-            present_session(enrollment)
+          find_enrollment
+          if @enrollment.update_attributes(declared(params, include_missing: false))
+            present_session(@enrollment)
+            ask_primary_guardian_approval if @enrollment.onboarding_group.try(:invited_secondary_guardian?)
           else
             error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
           end
@@ -84,9 +84,22 @@ module Leo
       end
 
       helpers do
+        def find_enrollment
+          @enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
+          error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless @enrollment
+          @enrollment
+        end
+
+        def ask_primary_guardian_approval
+          @enrollment.update_attributes(authentication_token: nil)
+          primary_guardian = @enrollment.family.primary_parent
+          UserMailer.delay.primary_guardian_approve_invitation(primary_guardian, @enrollment.authentication_token)
+        end
+
         def email_taken?(email)
           !!User.find_by_email(email)
         end
+
         def present_session(enrollment)
           present session: { authentication_token: enrollment.authentication_token }
           present :user, enrollment, with: Leo::Entities::EnrollmentEntity
