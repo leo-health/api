@@ -141,8 +141,9 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "You have a pending invitation needs action!",
       to: primary_guardian.email,
       vars: {
+        'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
         'AUTHTOKEN': enrollment_auth_token,
-        'LINK' => "http://localhost:3000/api/v1/users"
+        'LINK': "http://localhost:3000/api/v1/users"
       }
     )
   end
