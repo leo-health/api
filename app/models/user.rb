@@ -33,7 +33,7 @@ class User < ActiveRecord::Base
          :recoverable, :validatable
 
   validates_confirmation_of :password
-  validates :first_name, :last_name, :role, :phone, presence: true
+  validates :first_name, :last_name, :role, :phone, :encrypted_password, presence: true
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
@@ -105,7 +105,7 @@ class User < ActiveRecord::Base
   end
 
   def invited_guardian_confirmed_email?
-    onboarding_group.try(:group_name) == "invited_secondary_parent" && guardian_confirmed_email?
+    onboarding_group.try(:invited_secondary_guardian?) && guardian_confirmed_email?
   end
 
   def remind_schedule_appointment

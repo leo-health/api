@@ -35,6 +35,7 @@ resource "Enrollments" do
 
     let(:email){ "BigTree@yahoo.com" }
     let(:password){ "password" }
+    let!(:role){ create(:role) }
     let(:raw_post){ params.to_json }
 
     example "create an enrollment" do
@@ -57,8 +58,10 @@ resource "Enrollments" do
 
   put "/api/v1/enrollments/current" do
     parameter :authentication_token, "Enrollment Token", :required => true
+    parameter :password
     parameter :first_name
     parameter :last_name
+    parameter :email
     parameter :phone
     parameter :birth_date
     parameter :sex

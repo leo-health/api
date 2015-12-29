@@ -162,4 +162,15 @@ describe UserMailer do
       expect(email).to_not be_nil
     end
   end
+
+  describe "#primary_guardian_approve_invitation" do
+    it "should ask primary guardian for approval of pending invitation" do
+      UserMailer.primary_guardian_approve_invitation(user, "token").deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Approve Invitation' &&
+            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
 end
