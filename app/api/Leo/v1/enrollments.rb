@@ -23,7 +23,7 @@ module Leo
                                                                    onboarding_group: onboarding_group ))
 
             if enrollment.valid?
-              InviteParentJob.new(enrollment.id, current_user.id).send
+              InviteParentJob.send(enrollment.id, current_user.id)
               present :onboarding_group, enrollment.onboarding_group.group_name
             else
               error!({ error_code: 422, error_message: enrollment.errors.full_messages }, 422)

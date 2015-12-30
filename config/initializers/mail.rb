@@ -6,6 +6,8 @@ MandrillMailer.configure do |config|
     config.api_key = 'Ubx9Pj2zlIT48WmtwxX-5Q'
   end
 
+  config.deliver_later_queue_name = :default
+
   if %w(test, development).any?{|e|e == Rails.env}
     config.interceptor = Proc.new {|params|
       params[:to] =  [

@@ -109,7 +109,7 @@ class User < ActiveRecord::Base
   end
 
   def remind_schedule_appointment
-    RemindScheduleAppointmentJob.new(self.id).send if has_role? :guardian
+    RemindScheduleAppointmentJob.send(self.id) if has_role? :guardian
   end
 
   def password_required?
