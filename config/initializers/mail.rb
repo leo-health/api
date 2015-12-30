@@ -1,6 +1,10 @@
 MandrillMailer.configure do |config|
   #TODO save api key to server
-  config.api_key = 'Ubx9Pj2zlIT48WmtwxX-5Q'
+  if Rails.env.test? || Rails.env.development?
+    config.api_key = 'r0D8STwnRJmJ9LiHrazMlw'
+  else
+    config.api_key = 'Ubx9Pj2zlIT48WmtwxX-5Q'
+  end
 
   if %w(test, development).any?{|e|e == Rails.env}
     config.interceptor = Proc.new {|params|
