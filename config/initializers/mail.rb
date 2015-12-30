@@ -1,6 +1,6 @@
 MandrillMailer.configure do |config|
   #TODO save api key to server
-  if Rails.env.test? || Rails.env.development?
+  if Rails.env.test?
     config.api_key = 'r0D8STwnRJmJ9LiHrazMlw'
   else
     config.api_key = 'Ubx9Pj2zlIT48WmtwxX-5Q'
