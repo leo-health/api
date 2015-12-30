@@ -93,7 +93,7 @@ module Leo
         def ask_primary_guardian_approval
           @enrollment.update_attributes(authentication_token: nil)
           primary_guardian = @enrollment.family.primary_parent
-          UserMailer.delay.primary_guardian_approve_invitation(primary_guardian, @enrollment.authentication_token)
+          PrimaryGuardianApproveInvitationJob.send(primary_guardian.id, @enrollment.authentication_token)
         end
 
         def email_taken?(email)
