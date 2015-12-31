@@ -12,9 +12,9 @@ describe InviteParentJob do
     end
   end
 
-  describe "#send" do
+  describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ invite_parent_job.send }.to change(Delayed::Job, :count).by(1)
+      expect{ InviteParentJob.send(enrollment.id, user.id) }.to change(Delayed::Job, :count).by(1)
     end
   end
 end

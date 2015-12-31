@@ -13,7 +13,7 @@ describe RemindScheduleAppointmentJob do
 
   describe "#send" do
     it "should send email to user via delayed_job" do
-      expect{ remind_schedule_appointment_job.send }.to change(Delayed::Job, :count).by(1)
+      expect{ RemindScheduleAppointmentJob.send(user.id) }.to change(Delayed::Job, :count).by(1)
     end
   end
 end
