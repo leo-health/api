@@ -80,6 +80,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
+#this one seems not used
   def notify_new_message(user)
     mandrill_mail(
       template: 'Leo - Notify New Message',

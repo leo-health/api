@@ -78,7 +78,7 @@ class Message < ActiveRecord::Base
     return if !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
     if ready_to_notify?(cs_user)
       body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
-      SendSmsJob.new(cs_user.id, body).send
+      SendSmsJob.send(cs_user.id, body)
       set_next_send_at(cs_user, 2.minutes)
     end
   end
@@ -86,7 +86,7 @@ class Message < ActiveRecord::Base
   def email_batched_messages
     conversation.family.guardians.each do |guardian|
       if ready_to_notify?(guardian) && sender != guardian
-        UserMailer.delay.batched_messages(guardian, "You have new messages!")
+        BatchedMessagesJob.send(guardian.id, "You have new messages!")
         set_next_send_at(guardian, 5.minutes)
       end
     end
