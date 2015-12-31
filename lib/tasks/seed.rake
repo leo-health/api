@@ -191,7 +191,7 @@ namespace :load do
       end
 
       guardian_male = family.guardians.create!(
-        title: "Mr.",
+        title: "Mr",
         first_name: "Pierre",
         middle_initial: "E",
         last_name: "Curie",
@@ -215,7 +215,7 @@ namespace :load do
       sleep 1
 
       guardian_female = family.guardians.create!(
-        title: "Mrs.",
+        title: "Mrs",
         first_name: "Marie",
         middle_initial: "S",
         last_name: "Curie",

@@ -134,4 +134,16 @@ class UserMailer < MandrillMailer::TemplateMailer
       }
     )
   end
+
+  def primary_guardian_approve_invitation(primary_guardian, enrollment_auth_token)
+    mandrill_mail(
+      template: 'Leo - Approve Invitation',
+      subject: "You have a pending invitation needs action!",
+      to: primary_guardian.email,
+      vars: {
+        'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
+        'LINK': "http://localhost:8888/#/acceptInvitation?token=#{enrollment_auth_token}"
+      }
+    )
+  end
 end
