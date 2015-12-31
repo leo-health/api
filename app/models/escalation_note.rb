@@ -14,7 +14,7 @@ class EscalationNote < ActiveRecord::Base
       SendSmsJob.new(staff.id, 'A conversation has been escalated to you!').send
     else
       if priority == 1
-        UserMailer.delay.notify_escalated_conversation(staff)
+        NotifyEscalatedConversationJob.send(staff.id)
         SendSmsJob.new(staff.id, 'A conversation has been escalated to you!').send
       end
     end

@@ -87,7 +87,7 @@ class User < ActiveRecord::Base
   private
 
   def welcome_to_practice_email
-    UserMailer.delay.welcome_to_pratice(self) if guardian_confirmed_email?
+    WelcomeToPracticeJob.send(self.id) if guardian_confirmed_email?
   end
 
   def notify_primary_guardian

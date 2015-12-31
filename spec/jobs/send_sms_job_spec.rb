@@ -15,9 +15,9 @@ describe SendSmsJob do
     end
   end
 
-  describe '#send' do
+  describe '.send' do
     it "should send the sms via delayed_job" do
-      expect{ send_sms_job.send }.to change(Delayed::Job, :count).by(1)
+      expect{ SendSmsJob.send(customer_service_user.id, body) }.to change(Delayed::Job, :count).by(1)
     end
   end
 end
