@@ -11,11 +11,11 @@ class EscalationNote < ActiveRecord::Base
   def notify_provider
     staff = User.find(user_conversation.user_id)
     if staff.practice.try(:in_office_hour?)
-      SendSmsJob.new(staff.id, 'A conversation has been escalated to you!').send
+      SendSmsJob.send(staff.id, 'A conversation has been escalated to you!')
     else
       if priority == 1
         NotifyEscalatedConversationJob.send(staff.id)
-        SendSmsJob.new(staff.id, 'A conversation has been escalated to you!').send
+        SendSmsJob.send(staff.id, 'A conversation has been escalated to you!')
       end
     end
   end
