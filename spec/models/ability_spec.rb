@@ -7,6 +7,7 @@ describe "User" do
 
     context "when user has the role guardian" do
       let!(:user){build(:user, :guardian)}
+      let(:patient){create(:patient, family: user.family)}
 
       describe "ability for user" do
         let!(:provider){build(:user, :clinical)}
@@ -21,7 +22,6 @@ describe "User" do
 
       describe "ability for avatars" do
         let(:other_user){build(:user, :guardian)}
-        let(:patient){create(:patient, family: user.family)}
         let(:other_patient){create(:patient, family: other_user.family)}
         let!(:avatar){build(:avatar, owner: patient)}
         let!(:avatar_of_patient_from_other_family){build(:avatar, owner: other_patient)}
@@ -69,6 +69,12 @@ describe "User" do
 
       describe "ability for Appointments" do
         # it{should be_able_to(:read, Appointment.new)}
+      end
+
+      describe "ability for Forms" do
+        let(:form){ build(:form, patient: patient)}
+
+        it{should be_able_to(:read, form)}
       end
     end
 

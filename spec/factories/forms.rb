@@ -8,5 +8,4 @@ FactoryGirl.define do
     association :completed_by, factory: :user
     status "new"
   end
-
 end

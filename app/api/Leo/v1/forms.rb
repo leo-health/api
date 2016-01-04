@@ -23,7 +23,7 @@ module Leo
         end
 
         post do
-          generate_form
+          create_form
         end
 
         desc "show a form"
