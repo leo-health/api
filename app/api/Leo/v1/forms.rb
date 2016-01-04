@@ -51,7 +51,7 @@ module Leo
 
       helpers do
         def create_form
-          ## TODO implement create_form
+
         end
 
         def delete_form

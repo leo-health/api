@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160104180943) do
+ActiveRecord::Schema.define(version: 20160104181817) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -213,6 +213,7 @@ ActiveRecord::Schema.define(version: 20160104180943) do
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.datetime "deleted_at"
+    t.string   "image"
   end
 
   add_index "forms", ["completed_by_id"], name: "index_forms_on_completed_by_id", using: :btree
