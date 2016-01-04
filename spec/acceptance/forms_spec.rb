@@ -18,7 +18,21 @@ resource "Forms" do
     let(:id){ form.id }
     let(:raw_post){ params.to_json }
 
-    example "get an individual message by id" do
+    example "get an individual form by id" do
+      do_request
+      expect(response_status).to eq(200)
+    end
+  end
+
+  delete "/api/v1/forms/:id" do
+    parameter :id, "Form Id", :required => true
+    parameter :authentication_token, "Authentication Token", :required => true
+
+    let(:form){ create(:form, patient: patient, submitted_by: user) }
+    let(:id){ form.id }
+    let(:raw_post){ params.to_json }
+
+    example "delete an individual form by id" do
       do_request
       expect(response_status).to eq(200)
     end

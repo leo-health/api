@@ -56,7 +56,8 @@ module Leo
 
         def delete_form
           form = Form.find(params[:id])
-          form.update_attributes(status: "deleted")
+          form.destroy!
+          return
         end
 
         def update_form

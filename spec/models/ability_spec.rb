@@ -75,6 +75,7 @@ describe "User" do
         let(:form){ build(:form, patient: patient)}
 
         it{should be_able_to(:read, form)}
+        it{should be_able_to(:destroy, form)}
       end
     end
 
@@ -128,6 +129,13 @@ describe "User" do
       describe "ability for Appointments" do
         it{should be_able_to(:read, Appointment.new)}
       end
+
+      describe "ability for Forms" do
+        let(:form){ build(:form, patient: patient)}
+
+        it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:destroy, Form.new)}
+      end
     end
 
     context "when user has the role clinical_support" do
@@ -153,6 +161,13 @@ describe "User" do
       describe "ability for Appointments" do
         it{should be_able_to(:read, Appointment.new)}
       end
+
+      describe "ability for Forms" do
+        let(:form){ build(:form, patient: patient)}
+
+        it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:destroy, Form.new)}
+      end
     end
 
     context "when user has the role customer_service" do
@@ -174,6 +189,11 @@ describe "User" do
       describe "ability for Message" do
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
+      end
+
+      describe "ability for Forms" do
+        it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:destroy, Form.new)}
       end
     end
   end
