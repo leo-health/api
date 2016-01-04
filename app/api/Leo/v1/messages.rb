@@ -36,6 +36,7 @@ module Leo
               escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversation: { conversation_id: @conversation.id })
               full_messages =(messages + close_conversation_notes + escalation_notes).sort{ |x, y|y.created_at <=> x.created_at }
               present :conversation_id, @conversation.id
+              present :init_message_id, @conversation.messages.first.id
               present :messages, paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
             end
           end
@@ -51,16 +52,16 @@ module Leo
           params do
             requires :body, type: String, allow_blank: false
             requires :type_name, type: String, allow_blank: false, values: ['text', 'image']
-            optional :image, type: String, allow_blank: false
           end
 
           post do
-            message_params = { body: params[:body],
-                               sender: current_user,
+            message_params = { sender: current_user,
                                type_name: params[:type_name] }
 
             if params[:type_name] == 'image'
-              message_params.merge!(message_photo_attributes: { image: image_decoder(params[:image]) })
+              message_params.merge!(message_photo_attributes: { image: image_decoder(params[:body]) })
+            else
+              message_params.merge!(body: params[:body])
             end
             message = @conversation.messages.new(message_params)
             authorize! :create, message

@@ -1,11 +1,11 @@
 class SendSmsJob < Struct.new(:receiver_id, :body)
-  def perform
-    receiver = User.find_by_id(receiver_id)
-    sms_user(receiver.phone, body)
+  def self.send(receiver_id, body)
+    Delayed::Job.enqueue(new(receiver_id, body))
   end
 
-  def send
-    Delayed::Job.enqueue self
+  def perform
+    receiver = User.find_by_id(receiver_id)
+    sms_user(receiver.phone, body) if receiver
   end
 
   private

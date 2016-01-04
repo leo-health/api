@@ -8,12 +8,15 @@ module Leo
       expose :type_name
       expose :created_at
       expose :read_receipts
-      expose :image
 
       private
 
-      def image
-        object.message_photo.try(:image)
+      def body
+        if object.type_name == 'text'
+          object.body
+        else
+          Base64.encode64(open(object.message_photo.image.url).read) if object.message_photo.try(:image)
+        end
       end
     end
   end
