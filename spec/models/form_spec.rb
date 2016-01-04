@@ -10,6 +10,7 @@ RSpec.describe Form, type: :model do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:title) }
+    it { is_expected.to validate_presence_of(:status) }
     it { is_expected.to validate_presence_of(:image) }
     it { is_expected.to validate_presence_of(:patient) }
     it { is_expected.to validate_presence_of(:submitted_by) }

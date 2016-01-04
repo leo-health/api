@@ -75,6 +75,7 @@ describe "User" do
         let(:form){ build(:form, patient: patient)}
 
         it{should be_able_to(:read, form)}
+        it{should be_able_to(:update, form)}
         it{should be_able_to(:destroy, form)}
       end
     end
@@ -134,6 +135,7 @@ describe "User" do
         let(:form){ build(:form, patient: patient)}
 
         it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:update, Form.new)}
         it{should be_able_to(:destroy, Form.new)}
       end
     end
@@ -166,6 +168,7 @@ describe "User" do
         let(:form){ build(:form, patient: patient)}
 
         it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:update, Form.new)}
         it{should be_able_to(:destroy, Form.new)}
       end
     end
@@ -193,6 +196,7 @@ describe "User" do
 
       describe "ability for Forms" do
         it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:update, Form.new)}
         it{should be_able_to(:destroy, Form.new)}
       end
     end

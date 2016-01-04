@@ -4,16 +4,6 @@ module Leo
       include Grape::Kaminari
 
       resource :forms do
-        helpers do
-          params :form_params do
-            requires :patient_id, type: Integer, allow_blank: false
-            requires :title, type: String, allow_blank: false
-            requires :image, type: String, allow_blank: false
-            optional :notes, type: String
-            optional :completed_by_id, type: Integer
-          end
-        end
-
         before do
           authenticated
         end
@@ -21,7 +11,6 @@ module Leo
         desc "create a form"
         params do
           requires :patient_id, type: Integer, allow_blank: false
-          requires :submitted_by_id, type: Integer, allow_blank: false
           requires :title, type: String, allow_blank: false
           requires :image, type: String, allow_blank: false
           optional :notes, type: String
@@ -29,7 +18,7 @@ module Leo
 
         post do
           params[:image] = image_decoder(params[:image])
-          form = Form.new(declared(params, include_missing: false))
+          form = current_user.forms.new(declared(params, include_missing: false))
           render_success form
         end
 
@@ -41,18 +30,29 @@ module Leo
           end
         end
 
-        desc "soft-delete a form"
-        delete ":id" do
-          delete_form
-        end
-
         desc "update a form"
         params do
-          use :form_params
+          optional :patient_id, type: Integer, allow_blank: false
+          optional :title, type: String, allow_blank: false
+          optional :image, type: String, allow_blank: false
+          optional :notes, type: String
+          optional :status, type: String, allow_blank: false
+          at_least_one_of :patient_id, :title, :image, :notes, :status
         end
 
         put ":id" do
-          update_form
+          form = Form.find(params[:id])
+          authorize! :update, form
+          if form.update_attributes(declared(params, include_missing: false).merge(submitted_by: current_user))
+            present :form, form, with: Leo::Entities::FormEntity
+          else
+            error!({ error_code: 422, error_message: form.errors.full_messages }, 422)
+          end
+        end
+
+        desc "soft-delete a form"
+        delete ":id" do
+          delete_form
         end
       end
 
@@ -62,10 +62,6 @@ module Leo
           form = Form.find(params[:id])
           form.destroy!
           return
-        end
-
-        def update_form
-          ## TODO implement update_form
         end
 
         def image_decoder(image)

@@ -55,6 +55,15 @@ describe Leo::V1::Forms do
   end
 
   describe "Put /api/v1/forms/:id" do
+    def do_request
+      put "/api/v1/forms/#{form.id}", { authentication_token: session.authentication_token, status: :complete }
+    end
 
+    it "should update the form" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:form].as_json.to_json).to eq(serializer.represent(form.reload).as_json.to_json)
+    end
   end
 end
