@@ -10,7 +10,12 @@ RSpec.describe Form, type: :model do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:title) }
+    it { is_expected.to validate_presence_of(:image) }
     it { is_expected.to validate_presence_of(:patient) }
     it { is_expected.to validate_presence_of(:submitted_by) }
+  end
+
+  describe 'callbacks' do
+    it { is_expected.to callback(:set_form_initial_status).before(:create) }
   end
 end

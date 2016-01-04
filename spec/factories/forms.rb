@@ -7,5 +7,6 @@ FactoryGirl.define do
     association :submitted_by, factory: :user
     association :completed_by, factory: :user
     status "new"
+    image { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', 'Zen-Dog1.png')) }
   end
 end

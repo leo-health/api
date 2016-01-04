@@ -8,7 +8,8 @@ module Leo
           params :form_params do
             requires :patient_id, type: Integer, allow_blank: false
             requires :title, type: String, allow_blank: false
-            requires :notes, type: String
+            requires :image, type: String, allow_blank: false
+            optional :notes, type: String
             optional :completed_by_id, type: Integer
           end
         end
@@ -19,11 +20,17 @@ module Leo
 
         desc "create a form"
         params do
-          use :form_params
+          requires :patient_id, type: Integer, allow_blank: false
+          requires :submitted_by_id, type: Integer, allow_blank: false
+          requires :title, type: String, allow_blank: false
+          requires :image, type: String, allow_blank: false
+          optional :notes, type: String
         end
 
         post do
-          create_form
+          params[:image] = image_decoder(params[:image])
+          form = Form.new(declared(params, include_missing: false))
+          render_success form
         end
 
         desc "show a form"
@@ -50,9 +57,6 @@ module Leo
       end
 
       helpers do
-        def create_form
-
-        end
 
         def delete_form
           form = Form.find(params[:id])
@@ -62,6 +66,14 @@ module Leo
 
         def update_form
           ## TODO implement update_form
+        end
+
+        def image_decoder(image)
+          data = StringIO.new(Base64.decode64(image))
+          data.class.class_eval { attr_accessor :original_filename, :content_type }
+          data.content_type = "image/png"
+          data.original_filename = "uploaded_form.png"
+          data
         end
       end
     end

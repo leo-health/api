@@ -9,7 +9,24 @@ describe Leo::V1::Forms do
   let(:session){ user.sessions.create }
 
   describe "Post /api/v1/forms" do
-    it "should create a form"
+    def do_request
+      form = open(File.new(Rails.root.join('spec', 'support', 'Zen-Dog1.png'))){|io|io.read}
+      encoded_form = Base64.encode64(form)
+      form_params = { patient_id: patient.id,
+                      title: "test",
+                      image: encoded_form,
+                      submitted_by_id: user.id
+                    }
+
+      post "/api/v1/forms", form_params.merge!( authentication_token: session.authentication_token )
+    end
+
+    it "should create a form" do
+      do_request
+      expect(response.status).to eq(201)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:form].as_json.to_json).to eq(serializer.represent(Form.first).as_json.to_json)
+    end
   end
 
   describe "Get /api/v1/forms/:id" do

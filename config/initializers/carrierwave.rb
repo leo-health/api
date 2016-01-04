@@ -5,6 +5,7 @@ CarrierWave.configure do |config|
 
     AvatarUploader
     MessageUploader
+    FormUploader
 
     CarrierWave::Uploader::Base.descendants.each do |klass|
       next if klass.anonymous?
