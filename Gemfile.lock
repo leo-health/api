@@ -110,9 +110,6 @@ GEM
       responders
       thread_safe (~> 0.1)
       warden (~> 1.2.3)
-    devise_invitable (1.5.2)
-      actionmailer (>= 3.2.6, < 5)
-      devise (>= 3.2.0)
     diff-lcs (1.2.5)
     docile (1.1.5)
     domain_name (0.5.24)
@@ -332,6 +329,9 @@ GEM
       json (~> 1.4, >= 1.4.6)
       mustache (~> 0.99, >= 0.99.4)
       rspec (>= 3.0.0)
+    rspec_junit_formatter (0.2.2)
+      builder (< 4)
+      rspec-core (>= 2, < 4, != 2.12.0)
     ruby-progressbar (1.7.5)
     ruby_parser (3.7.1)
       sexp_processor (~> 4.1)
@@ -436,7 +436,6 @@ DEPENDENCIES
   database_cleaner
   delayed_job_active_record
   devise
-  devise_invitable
   factory_girl_rails
   fakeredis
   fuubar
@@ -468,6 +467,7 @@ DEPENDENCIES
   redis
   rspec-rails
   rspec_api_documentation
+  rspec_junit_formatter (= 0.2.2)
   sass-rails (~> 5.0)
   shoulda-callback-matchers (~> 1.1.1)
   shoulda-matchers

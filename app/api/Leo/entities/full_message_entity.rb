@@ -2,6 +2,7 @@ module Leo
   module Entities
     class FullMessageEntity < Grape::Entity
       expose :id
+      expose :type_name, if: Proc.new {|g|g.class.name == 'Message'}
       expose :message_body
       expose :message_type
       expose :note
@@ -31,13 +32,23 @@ module Leo
       end
 
       def message_body
-        object.body if object.class == Message
+        if object.class == Message
+          if object.type_name == 'text'
+            object.body
+          else
+            object.message_photo.try(:image)
+          end
+        end
       end
 
       def message_type
         case object
-        when Message
-          :message
+          when Message
+          if object.sender.role.name == 'bot'
+            :bot_message
+          else
+            :message
+          end
         when EscalationNote
           :escalation
         when ClosureNote

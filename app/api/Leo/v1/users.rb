@@ -69,9 +69,9 @@ module Leo
       resource :users do
         desc '#create user from enrollment'
         params do
-          requires :first_name, type: String
-          requires :last_name, type: String
-          requires :phone, type: String
+          optional :first_name, type: String
+          optional :last_name, type: String
+          optional :phone, type: String
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
           optional :middle_initial, type: String
@@ -82,12 +82,22 @@ module Leo
         post do
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
 
-          user = User.new(declared(params).merge(role_id: 4,
-                                                 encrypted_password: enrollment.encrypted_password,
-                                                 email: enrollment.email,
-                                                 onboarding_group: enrollment.onboarding_group,
-                                                 insurance_plan_id: enrollment.insurance_plan_id))
+          error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
+          enrollment_params = { encrypted_password: enrollment.encrypted_password,
+                                email: enrollment.email,
+                                first_name: enrollment.first_name,
+                                last_name: enrollment.last_name,
+                                phone: enrollment.phone,
+                                onboarding_group: enrollment.onboarding_group,
+                                role_id: enrollment.role_id,
+                                family_id: enrollment.family_id,
+                                birth_date: enrollment.birth_date,
+                                sex: enrollment.sex,
+                                insurance_plan_id: enrollment.insurance_plan_id
+                              }.stringify_keys
 
+          user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
+          
           render_success user
           session = user.sessions.create
           present :session, session

@@ -11,12 +11,16 @@ class Message < ActiveRecord::Base
   has_many :read_receipts
   has_many :readers, class_name: 'User', through: :read_receipts
 
-  validates :conversation, :sender, :type_name, :body, presence: true
-  after_commit :update_conversation_after_message_sent, :set_last_message_created_at, :sms_cs_user,
-               :email_batched_messages, on: :create
+  validates :conversation, :sender, :type_name, presence: true
+  validates :body, presence: true, if: :text_message?
+  after_commit :actions_after_message_sent, on: :create
+
+  def text_message?
+    type_name == 'text'
+  end
 
   def self.compile_sms_message(start_time, end_time)
-    messages = self.includes(:sender).where.not(sender: User.customer_service_user).where(created_at: (start_time..end_time))
+    messages = self.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
     messages.inject(Hash.new(0)) do |compiled_message, message|
       sender = message.sender
       full_name = "#{sender.full_name} #{sender.id.to_s}"
@@ -28,7 +32,6 @@ class Message < ActiveRecord::Base
   def broadcast_message(sender)
     message_id = id
     conversation = self.conversation
-    send_new_message_notification
     participants = (conversation.staff + conversation.family.guardians)
     participants.delete(sender)
     if participants.count > 0
@@ -43,12 +46,20 @@ class Message < ActiveRecord::Base
 
   private
 
+  def actions_after_message_sent
+    set_last_message_created_at
+    return if sender.has_role? :bot
+    update_conversation_after_message_sent
+    sms_cs_user
+    send_new_message_notification
+    email_batched_messages
+  end
+
   def set_last_message_created_at
     conversation.update_columns(last_message_created_at: created_at, updated_at: created_at)
   end
 
   def update_conversation_after_message_sent
-    return if conversation.messages.count < 2
     conversation.staff << sender unless ( sender.has_role? :guardian ) || ( conversation.staff.where(id: sender.id).exists? )
     conversation.user_conversations.update_all(read: false)
     conversation.open!
@@ -64,10 +75,10 @@ class Message < ActiveRecord::Base
 
   def sms_cs_user
     cs_user = User.customer_service_user
-    return if !cs_user || $redis.get("#{cs_user.id}online?") == "yes" || sender == cs_user
+    return if !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
     if ready_to_notify?(cs_user)
       body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
-      SendSmsJob.new(cs_user.id, body).send
+      SendSmsJob.send(cs_user.id, body)
       set_next_send_at(cs_user, 2.minutes)
     end
   end
@@ -75,7 +86,7 @@ class Message < ActiveRecord::Base
   def email_batched_messages
     conversation.family.guardians.each do |guardian|
       if ready_to_notify?(guardian) && sender != guardian
-        UserMailer.delay.batched_messages(guardian, "You have new messages!")
+        BatchedMessagesJob.send(guardian.id, "You have new messages!")
         set_next_send_at(guardian, 5.minutes)
       end
     end

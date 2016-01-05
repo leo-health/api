@@ -33,5 +33,15 @@ FactoryGirl.define do
       id    6
       name  :patient
     end
+
+    trait :bot do
+      id    7
+      name  :bot
+    end
+
+    trait :operational do
+      id    7
+      name  :operational
+    end
   end
 end

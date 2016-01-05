@@ -16,7 +16,6 @@ class Conversation < ActiveRecord::Base
     self.where(state: [:open, :escalated, :closed]).order("state desc, updated_at desc")
   end
 
-  #state machine via https://github.com/aasm/aasm
   aasm whiny_transitions: false, column: :state do
     state :closed, initial: true
     state :escalated
@@ -87,12 +86,11 @@ class Conversation < ActiveRecord::Base
   end
 
   def load_initial_message
-    if sender = User.customer_service_user
+    if sender = User.leo_bot
        messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
                         sender: sender,
                         type_name: :text
                        )
-      staff << sender
     end
   end
 end

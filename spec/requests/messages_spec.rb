@@ -2,6 +2,7 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Messages do
+  let!(:bot){create(:user, :bot)}
   let!(:customer_service){ create(:user, :customer_service) }
   let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
@@ -91,10 +92,10 @@ describe Leo::V1::Messages do
       end
 
       it "should create a message with message_photo" do
-         expect{ do_request }.to change{ MessagePhoto.count }.from(0).to(1)
-         expect(response.status).to eq(201)
-         body = JSON.parse(response.body, symbolize_names: true )
-         expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.last).as_json.to_json)
+        expect{ do_request }.to change{ MessagePhoto.count }.from(0).to(1)
+        expect(response.status).to eq(201)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data].as_json.to_json).to eq(serializer.represent(Message.last).as_json.to_json)
       end
     end
   end

@@ -5,9 +5,9 @@ describe ResetPasswordJob do
   let!(:user){create(:user)}
   let!(:reset_password_job){ResetPasswordJob.new(user.id, "test_token")}
 
-  describe "#send" do
+  describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ reset_password_job.send }.to change(Delayed::Job, :count).by(1)
+      expect{ ResetPasswordJob.send(user.id, "token") }.to change(Delayed::Job, :count).by(1)
     end
   end
 

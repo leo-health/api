@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Message, type: :model do
+  let!(:bot){ create(:user, :bot) }
   let!(:customer_service){ create(:user, :customer_service)}
 
   describe "relations" do
@@ -17,7 +18,16 @@ RSpec.describe Message, type: :model do
     it { is_expected.to validate_presence_of(:conversation) }
     it { is_expected.to validate_presence_of(:sender) }
     it { is_expected.to validate_presence_of(:type_name) }
-    it { is_expected.to validate_presence_of(:body) }
+
+    context "if text message" do
+      before { allow(subject).to receive(:text_message?).and_return(true) }
+      it { is_expected.to validate_presence_of(:body) }
+    end
+
+    context "if not text message" do
+      before { allow(subject).to receive(:text_message?).and_return(false) }
+      it { is_expected.not_to validate_presence_of(:body) }
+    end
   end
 
   describe "callbacks" do

@@ -39,5 +39,16 @@ FactoryGirl.define do
       family      nil
       association :role, factory: [:role, :clinical]
     end
+
+    trait :bot do
+      family      nil
+      email       "leo_bot@leohealth.com"
+      association :role, factory: [:role, :bot]
+    end
+
+    trait :operational do
+      family      nil
+      association :role, factory: [:role, :operational]
+    end
   end
 end

@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
          :recoverable, :validatable
 
   validates_confirmation_of :password
-  validates :first_name, :last_name, :role, :phone, presence: true
+  validates :first_name, :last_name, :role, :phone, :encrypted_password, presence: true
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
   after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
 
   def self.customer_service_user
-    @cs_user ||= self.joins(:role).where(roles: {name: "customer_service"}).first
+    self.joins(:role).where(roles: {name: "customer_service"}).order("created_at ASC").first
   end
 
   def self.staff
@@ -88,11 +88,11 @@ class User < ActiveRecord::Base
   private
 
   def welcome_to_practice_email
-    UserMailer.delay.welcome_to_pratice(self) if guardian_confirmed_email?
+    WelcomeToPracticeJob.send(self.id) if guardian_confirmed_email?
   end
 
   def notify_primary_guardian
-    if invited_guardian_confirmed_email? && sender = User.customer_service_user
+    if invited_guardian_confirmed_email? && sender = User.leo_bot
       family.conversation.messages.create( body: "#{first_name} has joined Leo",
                                            sender: sender,
                                            type_name: :text
@@ -106,11 +106,11 @@ class User < ActiveRecord::Base
   end
 
   def invited_guardian_confirmed_email?
-    onboarding_group.try(:group_name) == "invited_secondary_parent" && guardian_confirmed_email?
+    onboarding_group.try(:invited_secondary_guardian?) && guardian_confirmed_email?
   end
 
   def remind_schedule_appointment
-    RemindScheduleAppointmentJob.new(self.id).send if has_role? :guardian
+    RemindScheduleAppointmentJob.send(self.id) if has_role? :guardian
   end
 
   def password_required?
