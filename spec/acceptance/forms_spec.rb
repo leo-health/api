@@ -56,23 +56,11 @@ resource "Forms" do
     end
   end
 
-  # put "/api/v1/forms/:id" do
-  #   parameter :id, "Form Id", required: true
-  #   parameter :authentication_token, "Authentication Token", required: true
-  #   parameter :notes, "Note", required: true
-  #   parameter :patient_id, "Patient Id"
-  #   parameter :title, "Form Title"
-  #   parameter :image, "Image of the Form"
-  #   parameter :status, "Status of the Form, one of [submitted, under review, missing information, complete]"
-  #
-  #   let(:id){ form.id }
-  #   let(:notes){ 'body of the note' }
-  #   let(:raw_post){ params.to_json }
-  #
-  #   example "update info of a form by id" do
-  #     byebug
-  #     do_request
-  #     expect(response_status).to eq(200)
-  #   end
-  # end
+  put "/api/v1/forms/:id" do
+    parameter :id, "Form Id", required: true
+    parameter :authentication_token, "Authentication Token", required: true
+
+    let(:id){ form.id }
+    let(:raw_post){ params.to_json }
+  end
 end

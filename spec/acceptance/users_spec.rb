@@ -12,7 +12,7 @@ resource "Users" do
   let(:authentication_token){ session.authentication_token }
 
   get "/api/v1/staff" do
-    parameter :authentication_token, "Authentication Token", :required => true
+    parameter :authentication_token, "Authentication Token", required: true
 
     let!(:clinical){ create(:user, :clinical) }
     let(:raw_post){ params.to_json }
@@ -24,11 +24,11 @@ resource "Users" do
   end
 
   post "/api/v1/sign_up" do
-    parameter :first_name, "First Name", :required => true
-    parameter :last_name, "Last Name", :required => true
-    parameter :email, "Email", :required => true
-    parameter :password, "Password", :required => true
-    parameter :phone, "Phone", :required => true
+    parameter :first_name, "First Name", required: true
+    parameter :last_name, "Last Name", required: true
+    parameter :email, "Email", required: true
+    parameter :password, "Password", required: true
+    parameter :phone, "Phone", required: true
     parameter :birth_date
     parameter :sex
     parameter :family_id
@@ -51,10 +51,10 @@ resource "Users" do
   end
 
   post "/api/v1/users" do
-    parameter :authentication_token, "Enrollment Token", :required => true
-    parameter :first_name, "First Name", :required => true
-    parameter :last_name, "Last Name", :required => true
-    parameter :phone, "Phone", :required => true
+    parameter :authentication_token, "Enrollment Token", required: true
+    parameter :first_name, "First Name", required: true
+    parameter :last_name, "Last Name", required: true
+    parameter :phone, "Phone", required: true
     parameter :birth_date
     parameter :sex
     parameter :family_id
@@ -79,8 +79,8 @@ resource "Users" do
   end
 
   get "/api/v1/users/:id" do
-    parameter :id, "User Id", :required => true
-    parameter :authentication_token, "Authentication Token", :required => true
+    parameter :id, "User Id", required: true
+    parameter :authentication_token, "Authentication Token", required: true
 
     let(:raw_post){ params.to_json }
 
@@ -91,9 +91,9 @@ resource "Users" do
   end
 
   put "/api/v1/users/:id" do
-    parameter :id, "User Id", :required => true
-    parameter :authentication_token, "Authentication Token", :required => true
-    parameter :email, "Email", :required => true
+    parameter :id, "User Id", required: true
+    parameter :authentication_token, "Authentication Token", required: true
+    parameter :email, "Email", required: true
 
     let(:email){ "new_email@yafoo.com" }
     let(:raw_post){ params.to_json }

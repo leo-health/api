@@ -41,13 +41,7 @@ module Leo
         end
 
         put ":id" do
-          form = Form.find(params[:id])
-          authorize! :update, form
-          if form.update_attributes(declared(params, include_missing: false).merge(submitted_by: current_user))
-            present :form, form, with: Leo::Entities::FormEntity
-          else
-            error!({ error_code: 422, error_message: form.errors.full_messages }, 422)
-          end
+          update_form
         end
 
         desc "soft-delete a form"
@@ -57,6 +51,16 @@ module Leo
       end
 
       helpers do
+
+        def update_form
+          form = Form.find(params[:id])
+          authorize! :update, form
+          if form.update_attributes(declared(params, include_missing: false).merge(submitted_by: current_user))
+            present :form, form, with: Leo::Entities::FormEntity
+          else
+            error!({ error_code: 422, error_message: form.errors.full_messages }, 422)
+          end
+        end
 
         def delete_form
           form = Form.find(params[:id])

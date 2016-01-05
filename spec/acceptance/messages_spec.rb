@@ -11,8 +11,8 @@ resource "Messages" do
   let(:message_params){{ body: "test", type_name: "text", sender: user, conversation: user.family.conversation }}
 
   get "/api/v1/messages/:id" do
-    parameter :id, "Message Id", :required => true
-    parameter :authentication_token, "Authentication Token", :required => true
+    parameter :id, "Message Id", requried: true
+    parameter :authentication_token, "Authentication Token", required: true
 
     let(:message){ Message.create(message_params) }
     let(:id){ message.id }
@@ -25,8 +25,8 @@ resource "Messages" do
   end
 
   get "/api/v1/conversations/:conversation_id/messages" do
-    parameter :conversation_id, "Conversation Id", :required => true
-    parameter :authentication_token, "Authentication Token", :required => true
+    parameter :conversation_id, "Conversation Id", required: true
+    parameter :authentication_token, "Authentication Token", required: true
     parameter :page, "Page Number (default 1)"
     parameter :per_page, "Record Per Page (default 25)"
     parameter :offset, "The Offset to Start from (default: 0)"
@@ -52,10 +52,10 @@ resource "Messages" do
   end
 
   post "/api/v1/conversations/:conversation_id/messages" do
-    parameter :conversation_id, "Conversation Id", :required => true
-    parameter :authentication_token, "Authentication Token", :required => true
-    parameter :body, "Messaage Body/Encoded Image", :required => true
-    parameter :type_name, "Type of Message (image/text)", :required => true
+    parameter :conversation_id, "Conversation Id", required: true
+    parameter :authentication_token, "Authentication Token", required: true
+    parameter :body, "Messaage Body/Encoded Image", required: true
+    parameter :type_name, "Type of Message (image/text)", required: true
 
     let(:body){ "test" }
     let(:conversation_id){ user.family.conversation.id }
