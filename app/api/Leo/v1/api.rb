@@ -53,7 +53,7 @@ module Leo
                      roles passwords patients practices read_receipts messages
                      appointment_types families cards insurers enrollments
                      patient_enrollments avatars health_records notes pushers
-                     appointment_statuses)
+                     appointment_statuses patient_insurances)
 
       ENDPOINTS.each do |endpoint|
         require_relative endpoint
