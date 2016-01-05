@@ -10,6 +10,7 @@ module Leo
                     appointment_type message full_message patient conversation enrollment
                     conversation_with_messages practice appointment short_user short_conversation card
                     family session vital allergy medication vaccine user_generated_health_record
+                    patient_insurance
                    )
 
       ENTITIES.each do |entity_name|
