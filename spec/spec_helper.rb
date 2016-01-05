@@ -5,12 +5,6 @@ require 'mandrill_mailer/offline'
 require 'codeclimate-test-reporter'
 require 'rspec_api_documentation'
 
-RspecApiDocumentation.configure do |config|
-  config.format = [:json]
-  config.curl_host = 'http://localhost:3000'
-  config.api_name = "Example App API"
-end
-
 CodeClimate::TestReporter.start
 
 Spork.prefork do

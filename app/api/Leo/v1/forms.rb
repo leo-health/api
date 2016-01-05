@@ -37,7 +37,7 @@ module Leo
           optional :image, type: String, allow_blank: false
           optional :notes, type: String
           optional :status, type: String, allow_blank: false
-          at_least_one_of :patient_id, :title, :image, :notes, :status
+          # at_least_one_of :patient_id, :title, :image, :notes, :status
         end
 
         put ":id" do
