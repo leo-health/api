@@ -10,7 +10,7 @@ class Conversation < ActiveRecord::Base
 
   validates :family, :state, presence: true
 
-  after_commit :load_staff, :load_initial_message, on: :create
+  after_commit :load_initial_message, on: :create
 
   def self.sort_conversations
     self.where(state: [:open, :escalated, :closed]).order("state desc, updated_at desc")
@@ -80,10 +80,6 @@ class Conversation < ActiveRecord::Base
   end
 
   private
-
-  def load_staff
-    #neeed definitions for who will be loaded here
-  end
 
   def load_initial_message
     if sender = User.customer_service_user

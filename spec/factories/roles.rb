@@ -40,7 +40,7 @@ FactoryGirl.define do
     end
 
     trait :operational do
-      id    7
+      id    8
       name  :operational
     end
   end
