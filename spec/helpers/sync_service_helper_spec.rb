@@ -185,20 +185,100 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_patient" do
       let!(:family) { create(:family) }
-      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:insurance_plan) { create(:insurance_plan, athena_id: 100) }
+      let!(:parent) { create(:user, :guardian, family: family, insurance_plan: insurance_plan) }
 
       it "creates new patient" do
         patient = create(:patient, athena_id: 0, family_id: family.id)
 
         expect(connector).to receive("create_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
+        expect(connector).to receive("get_patient_insurances").and_return(JSON.parse(%q(
+                [{
+                    "insurancepolicyholdercountrycode": "USA",
+                    "sequencenumber": "1",
+                    "insurancepolicyholderssn": "*****2847",
+                    "insuranceplanname": "BCBS-MA: SAVER DEDUCTIBLE (PPO)",
+                    "insurancetype": "Group Policy",
+                    "insurancepolicyholderlastname": "MORENA",
+                    "insurancephone": "(800) 443-6657",
+                    "insuranceidnumber": "123456789",
+                    "insurancepolicyholderstate": "MA",
+                    "insurancepolicyholderzip": "02465",
+                    "relationshiptoinsuredid": "1",
+                    "insuranceid": "802",
+                    "insurancepolicyholder": "TAYLOR MORENA",
+                    "insurancepolicyholderdob": "01\/17\/1969",
+                    "eligibilitylastchecked": "04\/18\/2012",
+                    "relationshiptoinsured": "Self",
+                    "eligibilitystatus": "Eligible",
+                    "insurancepolicyholderfirstname": "TAYLOR",
+                    "insurancepolicyholderaddress1": "8762 STONERIDGE CT",
+                    "insurancepackageid": "90283",
+                    "insurancepolicyholdersex": "M",
+                    "eligibilityreason": "Athena",
+                    "insurancepolicyholdercountryiso3166": "US",
+                    "eligibilitymessage": "Electronic eligibility checking is not available for the provider due to an enrollment or credentialing issue. Please call the payer to verify eligibility.",
+                    "ircname": "BCBS-MA",
+                    "insurancepolicyholdercity": "BOSTON"
+                }]
+          )))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
         expect(patient.reload.athena_id).to eq(1000)
       end
 
       it "updates stale patient" do
         patient = create(:patient, athena_id: 1, family_id: family.id)
+        expect(connector).to receive("get_patient_insurances").and_return(JSON.parse(%q(
+                [{
+                    "insurancepolicyholdercountrycode": "USA",
+                    "sequencenumber": "1",
+                    "insurancepolicyholderssn": "*****2847",
+                    "insuranceplanname": "BCBS-MA: SAVER DEDUCTIBLE (PPO)",
+                    "insurancetype": "Group Policy",
+                    "insurancepolicyholderlastname": "MORENA",
+                    "insurancephone": "(800) 443-6657",
+                    "insuranceidnumber": "123456789",
+                    "insurancepolicyholderstate": "MA",
+                    "insurancepolicyholderzip": "02465",
+                    "relationshiptoinsuredid": "1",
+                    "insuranceid": "802",
+                    "insurancepolicyholder": "TAYLOR MORENA",
+                    "insurancepolicyholderdob": "01\/17\/1969",
+                    "eligibilitylastchecked": "04\/18\/2012",
+                    "relationshiptoinsured": "Self",
+                    "eligibilitystatus": "Eligible",
+                    "insurancepolicyholderfirstname": "TAYLOR",
+                    "insurancepolicyholderaddress1": "8762 STONERIDGE CT",
+                    "insurancepackageid": "90283",
+                    "insurancepolicyholdersex": "M",
+                    "eligibilityreason": "Athena",
+                    "insurancepolicyholdercountryiso3166": "US",
+                    "eligibilitymessage": "Electronic eligibility checking is not available for the provider due to an enrollment or credentialing issue. Please call the payer to verify eligibility.",
+                    "ircname": "BCBS-MA",
+                    "insurancepolicyholdercity": "BOSTON"
+                }]
+          )))
 
         expect(connector).to receive("update_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y")))
+        syncer.process_patient(SyncTask.new(sync_id: patient.id))
+      end
+
+      it "creates new patient and insurance" do
+        patient = create(:patient, athena_id: 0, family_id: family.id)
+
+        expect(connector).to receive("create_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
+        expect(connector).to receive("get_patient_insurances").and_return([])
+        expect(connector).to receive("create_patient_insurance").with(hash_including(:insurancepackageid => insurance_plan.athena_id))
+        syncer.process_patient(SyncTask.new(sync_id: patient.id))
+        expect(patient.reload.athena_id).to eq(1000)
+      end
+
+      it "updates stale patient and creates insurance" do
+        patient = create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("update_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y")))
+        expect(connector).to receive("get_patient_insurances").and_return([])
+        expect(connector).to receive("create_patient_insurance").with(hash_including(:insurancepackageid => insurance_plan.athena_id))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
       end
     end

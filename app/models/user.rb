@@ -14,6 +14,7 @@ class User < ActiveRecord::Base
   belongs_to :role
   belongs_to :practice
   belongs_to :onboarding_group
+  belongs_to :insurance_plan
 
   has_one :avatar, as: :owner
   has_one :provider_profile, foreign_key: "provider_id"
