@@ -347,22 +347,20 @@ module SyncServiceHelper
       insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
       primary_insurance = insurances.find { |ins| ins[:sequencenumber.to_s].to_i == 1 }
 
-      if primary_insurance.nil?
-        insurance_plan = leo_parent.insurance_plan
+      insurance_plan = leo_parent.insurance_plan unless primary_insurance
 
-        #only sync if the insurance plan is registered in athena
-        if insurance_plan && insurance_plan.athena_id != 0
-          @connector.create_patient_insurance(
-            patientid: leo_patient.athena_id,
-            insurancepackageid: insurance_plan.athena_id.to_s,
-            insurancepolicyholderfirstname: leo_parent.first_name,
-            insurancepolicyholderlastname: leo_parent.last_name,
-            insurancepolicyholdermiddlename: leo_parent.middle_initial.to_s,
-            insurancepolicyholdersex: leo_parent.sex,
-            insurancepolicyholderdob: parent_birth_date,
-            sequencenumber: 1.to_s
-            )
-        end
+      #only sync if the insurance plan is registered in athena
+      if insurance_plan && insurance_plan.athena_id != 0
+        @connector.create_patient_insurance(
+          patientid: leo_patient.athena_id,
+          insurancepackageid: insurance_plan.athena_id.to_s,
+          insurancepolicyholderfirstname: leo_parent.first_name,
+          insurancepolicyholderlastname: leo_parent.last_name,
+          insurancepolicyholdermiddlename: leo_parent.middle_initial.to_s,
+          insurancepolicyholdersex: leo_parent.sex,
+          insurancepolicyholderdob: parent_birth_date,
+          sequencenumber: 1.to_s
+          )
       end
 
       leo_patient.patient_updated_at = DateTime.now.utc
