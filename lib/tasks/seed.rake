@@ -26,7 +26,7 @@ namespace :load do
           role_id: 7,
           practice_id: 1,
           phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+          deleted_at: Time.now
       },
 
       financial: {
@@ -41,7 +41,6 @@ namespace :load do
           role_id: 1,
           practice_id: 1,
           phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
       clinical_support: {
@@ -56,7 +55,6 @@ namespace :load do
           role_id: 2,
           practice_id: 1,
           phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
       customer_service: {
@@ -71,7 +69,6 @@ namespace :load do
           role_id: 3,
           practice_id: 1,
           phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
       clinical: {
@@ -85,7 +82,6 @@ namespace :load do
           password_confirmation: "password",
           role_id: 5,
           practice_id: 1,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 1,
           athena_department_id: 1,
           specialties: "",
@@ -104,7 +100,6 @@ namespace :load do
           password_confirmation: "password",
           role_id: 5,
           practice_id: 1,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 3,
           athena_department_id: 2,
           specialties: "",
@@ -123,7 +118,6 @@ namespace :load do
           password_confirmation: "password",
           role_id: 5,
           practice_id: 1,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 4,
           athena_department_id: 2,
           specialties: "",
@@ -200,8 +194,7 @@ namespace :load do
         email: "pierre#{family.id.to_s}@curie.com",
         role_id: 4,
         practice_id: 1,
-        phone: '1234567890',
-        avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+        phone: '1234567890'
       )
 
       if guardian_male.valid?
@@ -224,8 +217,7 @@ namespace :load do
         email: "marie#{family.id.to_s}@curie.com",
         role_id: 4,
         practice_id: 1,
-        phone: '1234567890',
-        avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+        phone: '1234567890'
       )
 
       if guardian_female.valid?
@@ -245,8 +237,7 @@ namespace :load do
             last_name: "Curie",
             sex: "F",
             birth_date: i.years.ago,
-            role_id: 6,
-            avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+            role_id: 6
           )
             print "*"
           else
