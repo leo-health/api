@@ -25,12 +25,10 @@ namespace :load do
           password_confirmation: "password",
           role_id: 7,
           practice_id: 1,
-          phone: '1234567890',
-          deleted_at: Time.now
+          phone: '1234567890'
       },
 
       financial: {
-          title: "Mr",
           first_name: "Financial",
           last_name: "User",
           birth_date: 48.years.ago.to_s,
@@ -44,8 +42,7 @@ namespace :load do
       },
 
       clinical_support: {
-          title: "Mr",
-          first_name: "Clinical_support",
+          first_name: "Clinical Support",
           last_name: "User",
           birth_date: 48.years.ago.to_s,
           sex: "M",
@@ -58,8 +55,7 @@ namespace :load do
       },
 
       customer_service: {
-          title: "Mr",
-          first_name: "customer_service",
+          first_name: "Customer Service",
           last_name: "User",
           birth_date: 48.years.ago.to_s,
           sex: "M",
@@ -71,26 +67,7 @@ namespace :load do
           phone: '1234567890',
       },
 
-      clinical: {
-          title: "Mr",
-          first_name: "clinical",
-          last_name: "User",
-          birth_date: 48.years.ago.to_s,
-          sex: "M",
-          email: "clinical_user@leohealth.com",
-          password: "password",
-          password_confirmation: "password",
-          role_id: 5,
-          practice_id: 1,
-          athena_id: 1,
-          athena_department_id: 1,
-          specialties: "",
-          phone: '1234567890',
-          credentials: ""
-      },
-
       hgold: {
-          title: "Mrs",
           first_name: "Erin",
           last_name: "Gold",
           birth_date: 48.years.ago.to_s,
@@ -104,11 +81,11 @@ namespace :load do
           athena_department_id: 2,
           specialties: "",
           phone: '1234567890',
-          credentials: ""
+          credentials: "PNP"
       },
 
       vriese: {
-          title: "Mrs",
+          title: "Dr",
           first_name: "Victoria",
           last_name: "Riese",
           birth_date: 48.years.ago.to_s,
@@ -122,7 +99,7 @@ namespace :load do
           athena_department_id: 2,
           specialties: "",
           phone: '1234567890',
-          credentials: ""
+          credentials: "MD"
       }
     }
 
@@ -173,7 +150,11 @@ namespace :load do
 
   desc "Seed sample guardian users with conversations."
   task seed_guardians: :environment do
-    (0..4).each do |f|
+    last_names = ['Einstein', 'Turing', 'Lovelace', 'Tesla', 'Curie', 'Planck', 'Faraday', 'Brown', 'Hopper', 'Galilei', 'Wright', 'Pasteur', 'Euler', 'Braun', 'Darwin']
+    male_first_names = ['Alan', 'Albert', 'Alexandar', 'Alfred', 'Aldo', 'George', 'Max', 'Nikola', 'Michael', 'Henri', 'Isaac', 'Ivan', 'Jack', 'Stephen', 'Charles']
+    female_first_names = ['Ada', 'Dorothy', 'Grace', 'Marie', 'Rosalind', 'Mary', 'Katharine', 'Lynn', 'Jane', 'Sally', 'Jocelyn', 'Rita', 'Rachel', 'Irene', 'Agnes']
+
+    last_names.each_with_index do |last_name, index|
       family = Family.new
 
       if family.save
@@ -184,14 +165,15 @@ namespace :load do
         false
       end
 
+      male_first_name = male_first_names[index]
+
       guardian_male = family.guardians.create!(
-        title: "Mr",
-        first_name: "Pierre",
+        first_name: male_first_name,
         middle_initial: "E",
-        last_name: "Curie",
+        last_name: last_name,
         sex: "M",
-        password: "pierrepierre",
-        email: "pierre#{family.id.to_s}@curie.com",
+        password: "password",
+        email: "#{male_first_name}@leo.com",
         role_id: 4,
         practice_id: 1,
         phone: '1234567890'
@@ -207,14 +189,14 @@ namespace :load do
 
       sleep 1
 
+      female_first_name = female_first_names[index]
       guardian_female = family.guardians.create!(
-        title: "Mrs",
-        first_name: "Marie",
+        first_name: female_first_name,
         middle_initial: "S",
-        last_name: "Curie",
+        last_name: last_name,
         sex: "F",
-        password: "mariemarie",
-        email: "marie#{family.id.to_s}@curie.com",
+        password: "password",
+        email: "#{female_first_name}@leo.com",
         role_id: 4,
         practice_id: 1,
         phone: '1234567890'
@@ -228,25 +210,25 @@ namespace :load do
         false
       end
 
-      if f > 0
-        (1..f).each do |i|
-          if patient = family.patients.create!(
-            title: "",
-            first_name: "Eve #{i.to_s}",
-            middle_initial: "M.",
-            last_name: "Curie",
-            sex: "F",
-            birth_date: i.years.ago,
-            role_id: 6
-          )
-            print "*"
-          else
-            print "x"
-            print "Failed to seed patient user - #{patient.errors.full_messages}"
-            false
-          end
+      f = index%3 + 1
+
+      (1..f).each do |i|
+        if patient = family.patients.create!(
+          first_name: "Child",
+          middle_initial: "M.",
+          last_name: f,
+          sex: "F",
+          birth_date: i.years.ago,
+          role_id: 6
+        )
+          print "*"
+        else
+          print "x"
+          print "Failed to seed patient user - #{patient.errors.full_messages}"
+          false
         end
       end
+
       puts "Created family #{family.id.to_s} with #{family.patients.count+1} children."
     end
   end
