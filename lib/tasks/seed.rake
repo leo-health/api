@@ -187,6 +187,7 @@ namespace :load do
         false
       end
 
+      #set the primary guardian by time differece
       sleep 1
 
       female_first_name = female_first_names[index]
@@ -214,9 +215,9 @@ namespace :load do
 
       (1..f).each do |i|
         if patient = family.patients.create!(
-          first_name: "Child",
+          first_name: "Child#{i}",
           middle_initial: "M.",
-          last_name: f,
+          last_name: last_name,
           sex: "F",
           birth_date: i.years.ago,
           role_id: 6
@@ -236,7 +237,8 @@ namespace :load do
   desc "Seed photo message in conversations."
   task seed_photo_message: :environment do
     image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', 'Zen-Dog1.png'))
-    Conversation.all.each do |conversation|
+    range = Conversation.all.length/2
+    Conversation.all[0..range].each do |conversation|
       message = conversation.messages.create( body: "This is a zen dog",
                                                     sender: conversation.family.primary_parent,
                                                     type_name: "image",
