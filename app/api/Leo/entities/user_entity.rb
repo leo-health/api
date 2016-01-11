@@ -6,6 +6,7 @@ module Leo
       expose :avatar
       expose :type
       expose :primary_guardian, if: Proc.new{ |g| g.role.name.to_sym == :guardian }
+      expose :credentials, if: Proc.new{ |g| g.role.name.to_sym == :clinical }
 
       private
 
@@ -19,6 +20,10 @@ module Leo
         else
           object.avatar.try(:avatar)
         end
+      end
+
+      def credentials
+        object.provider_profile.credentials
       end
     end
   end
