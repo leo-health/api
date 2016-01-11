@@ -81,11 +81,11 @@ namespace :load do
           athena_department_id: 2,
           specialties: "",
           phone: '1234567890',
-          credentials: "PNP"
+          credentials: ["PNP"]
       },
 
       vriese: {
-          title: "Dr",
+          title: "Dr.",
           first_name: "Victoria",
           last_name: "Riese",
           birth_date: 48.years.ago.to_s,
@@ -99,7 +99,7 @@ namespace :load do
           athena_department_id: 2,
           specialties: "",
           phone: '1234567890',
-          credentials: "MD"
+          credentials: ["MD"]
       }
     }
 
@@ -213,7 +213,7 @@ namespace :load do
 
       f = index%3 + 1
 
-      (1..f).each do |i|
+      (0...f).each do |i|
         if patient = family.patients.create!(
           first_name: "Child#{i}",
           middle_initial: "M.",
@@ -230,7 +230,7 @@ namespace :load do
         end
       end
 
-      puts "Created family #{family.id.to_s} with #{family.patients.count+1} children."
+      puts "Created family #{family.id.to_s} with #{f} children."
     end
   end
 
