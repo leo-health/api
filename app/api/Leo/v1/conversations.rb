@@ -43,7 +43,7 @@ module Leo
             escalated_to = User.find(params[:escalated_to_id])
             escalate_params = {escalated_to: escalated_to, note: params[:note], priority: params[:priority], escalated_by: current_user}
             if conversation.escalate!(escalate_params)
-              present :escalated_to, escalated_to
+              present :escalated_to, escalated_to,  with: Leo::Entities::UserEntity
               present :note, params[:note]
               present :conversation_id, conversation.id
               present :created_by, current_user
