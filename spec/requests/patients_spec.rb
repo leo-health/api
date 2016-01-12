@@ -57,27 +57,27 @@ describe Leo::V1::Patients do
 
   describe "Get /api/v1/patients/:id" do
     def do_request
-      get "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, avatar_size: "primary_3x"}
+      get "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token}
     end
 
     it 'should show the patient' do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(patient.reload, {avatar_size: "primary_3x"}).as_json.to_json)
+      expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(patient.reload).as_json.to_json)
     end
   end
 
   describe "Get /api/v1/patients" do
     def do_request
-      get "/api/v1/patients", {authentication_token: session.authentication_token, avatar_size: "primary_3x"}
+      get "/api/v1/patients", {authentication_token: session.authentication_token}
     end
 
     it 'should show the patients' do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients, {avatar_size: "primary_3x"}).as_json.to_json)
+      expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients).as_json.to_json)
     end
   end
 end
