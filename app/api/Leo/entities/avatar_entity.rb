@@ -10,7 +10,6 @@ module Leo
       private
 
       def avatar
-        byebug
         uri = URI(object.avatar.url) if object.avatar
         Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}")
       end
