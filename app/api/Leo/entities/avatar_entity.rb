@@ -11,7 +11,7 @@ module Leo
 
       def avatar
         uri = URI(object.avatar.url) if object.avatar
-        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}")
+        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
       end
     end
   end

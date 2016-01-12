@@ -17,7 +17,7 @@ module Leo
         else
           image = object.message_photo.try(:image)
           uri = URI(image.url) if image
-          Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}")
+          Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
         end
       end
     end
