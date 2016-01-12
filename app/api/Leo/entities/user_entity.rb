@@ -23,7 +23,7 @@ module Leo
       end
 
       def credentials
-        object.provider_profile.credentials
+        object.provider_profile.try(:credentials)
       end
     end
   end

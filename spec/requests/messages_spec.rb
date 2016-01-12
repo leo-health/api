@@ -92,6 +92,7 @@ describe Leo::V1::Messages do
       end
 
       it "should create a message with message_photo" do
+        do_request
         expect{ do_request }.to change{ MessagePhoto.count }.from(0).to(1)
         expect(response.status).to eq(201)
         body = JSON.parse(response.body, symbolize_names: true )

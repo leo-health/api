@@ -16,9 +16,9 @@ class MessageUploader < CarrierWave::Uploader::Base
   process resize_to_fill: [214, 214]
 
   # Create different versions of your uploaded files:
-  version :primary_1x do
-    process resize_to_fill: [132, 132]
-  end
+  # version :primary_1x do
+  #   process resize_to_fill: [132, 132]
+  # end
 
   # Add a white list of extensions which are allowed to be uploaded.
   # For images you might use something like this:

@@ -24,29 +24,29 @@ class AvatarUploader < CarrierWave::Uploader::Base
   process resize_to_fill: [214, 214]
 
   # Create different versions of your uploaded files:
-  version :primary_3x do
-    process resize_to_fill: [214, 214]
-  end
-
-  version :primary_2x do
-    process resize_to_fill: [144, 144]
-  end
-
-  version :primary_1x, if: :is_user? do
-    process resize_to_fill: [132, 132]
-  end
-
-  version :secondary_3x, if: :is_user? do
-    process resize_to_fill: [88, 88]
-  end
-
-  version :secondary_2x do
-    process resize_to_fill: [72, 72]
-  end
-
-  version :secondary_1x, if: :is_user? do
-    process resize_to_fill: [44, 44]
-  end
+  # version :primary_3x do
+  #   process resize_to_fill: [214, 214]
+  # end
+  #
+  # version :primary_2x do
+  #   process resize_to_fill: [144, 144]
+  # end
+  #
+  # version :primary_1x, if: :is_user? do
+  #   process resize_to_fill: [132, 132]
+  # end
+  #
+  # version :secondary_3x, if: :is_user? do
+  #   process resize_to_fill: [88, 88]
+  # end
+  #
+  # version :secondary_2x do
+  #   process resize_to_fill: [72, 72]
+  # end
+  #
+  # version :secondary_1x, if: :is_user? do
+  #   process resize_to_fill: [44, 44]
+  # end
 
   # Add a white list of extensions which are allowed to be uploaded.
   # For images you might use something like this:
