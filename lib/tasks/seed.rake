@@ -236,10 +236,10 @@ namespace :load do
 
   desc "Seed photo message in conversations."
   task seed_photo_message: :environment do
-    image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', 'Zen-Dog1.png'))
+    image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', '404-baby.png'))
     range = Conversation.all.length/2
     Conversation.all[0..range].each do |conversation|
-      message = conversation.messages.create( body: "This is a zen dog",
+      message = conversation.messages.create( body: "This is a smiling baby",
                                                     sender: conversation.family.primary_parent,
                                                     type_name: "image",
                                                     message_photo_attributes: { image: image }
