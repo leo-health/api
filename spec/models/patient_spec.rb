@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Patient, type: :model do
  let!(:customer_service) { create(:user, :customer_service) }
+ let!(:bot){ create(:user, :bot)}
  let!(:patient) { create(:patient) }
 
  describe 'relations' do
@@ -33,7 +34,7 @@ RSpec.describe Patient, type: :model do
       it { expect(patient).to callback(:notify_guardian).after(:commit).on(:create) }
 
       it "should notify guardian about child's sign up" do
-        expect( patient.family.conversation.messages.last.body ).to eq("#{patient.first_name.capitalize} is signed up successfully")
+        expect( patient.family.conversation.messages.last.body ).to eq( "#{patient.first_name.capitalize} has been enrolled successfully" )
       end
     end
   end

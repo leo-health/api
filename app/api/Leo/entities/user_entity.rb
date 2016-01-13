@@ -6,6 +6,7 @@ module Leo
       expose :avatar
       expose :type
       expose :primary_guardian, if: Proc.new{ |g| g.role.name.to_sym == :guardian }
+      expose :credentials, if: Proc.new{ |g| g.role.name.to_sym == :clinical }
 
       private
 
@@ -14,11 +15,12 @@ module Leo
       end
 
       def avatar
-        if object.avatar && options[:avatar_size]
-          object.avatar.avatar.url(options[:avatar_size])
-        else
-          object.avatar.try(:avatar)
-        end
+        uri = URI(object.avatar.avatar.url) if object.avatar
+        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
+      end
+
+      def credentials
+        object.provider_profile.try(:credentials)
       end
     end
   end

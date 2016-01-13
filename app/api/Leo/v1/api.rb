@@ -10,6 +10,7 @@ module Leo
                     appointment_type message full_message patient conversation enrollment
                     conversation_with_messages practice appointment short_user short_conversation card
                     family session vital allergy medication vaccine user_generated_health_record form
+                    patient_insurance
                    )
 
       ENTITIES.each do |entity_name|
@@ -53,7 +54,7 @@ module Leo
                      roles passwords patients practices read_receipts messages
                      appointment_types families cards insurers enrollments
                      patient_enrollments avatars health_records notes pushers
-                     appointment_statuses forms)
+                     appointment_statuses forms patient_insurances)
 
       ENDPOINTS.each do |endpoint|
         require_relative endpoint

@@ -80,7 +80,8 @@ module Leo
         end
 
         post do
-          enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
+          enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
+
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
           enrollment_params = { encrypted_password: enrollment.encrypted_password,
                                 email: enrollment.email,
@@ -91,10 +92,12 @@ module Leo
                                 role_id: enrollment.role_id,
                                 family_id: enrollment.family_id,
                                 birth_date: enrollment.birth_date,
-                                sex: enrollment.sex
+                                sex: enrollment.sex,
+                                insurance_plan_id: enrollment.insurance_plan_id
                               }.stringify_keys
 
           user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
+          
           render_success user
           session = user.sessions.create
           present :session, session

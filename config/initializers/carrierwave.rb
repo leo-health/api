@@ -23,8 +23,8 @@ CarrierWave.configure do |config|
     config.storage = :aws
   end
 
+  config.aws_authenticated_url_expiration = 60 * 15
   config.aws_bucket = 'leo-photos-development'
-  config.aws_acl    = 'public-read'
 
   config.aws_credentials = {
       access_key_id:     'AKIAIZJEJH6F6OQL43XQ',

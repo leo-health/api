@@ -234,10 +234,11 @@ ActiveRecord::Schema.define(version: 20160104181817) do
   add_index "height_growth_curves", ["sex"], name: "index_height_growth_curves_on_sex", using: :btree
 
   create_table "insurance_plans", force: :cascade do |t|
-    t.integer  "insurer_id", null: false
+    t.integer  "insurer_id",               null: false
     t.string   "plan_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "athena_id",  default: "0", null: false
   end
 
   add_index "insurance_plans", ["insurer_id"], name: "index_insurance_plans_on_insurer_id", using: :btree
@@ -264,6 +265,7 @@ ActiveRecord::Schema.define(version: 20160104181817) do
     t.datetime "updated_at",                     null: false
     t.integer  "patient_id"
     t.date     "holder_birth_date"
+    t.string   "irc_name",                       null: false
   end
 
   add_index "insurances", ["athena_id"], name: "index_insurances_on_athena_id", using: :btree
@@ -572,6 +574,7 @@ ActiveRecord::Schema.define(version: 20160104181817) do
     t.string   "phone"
     t.string   "type"
     t.integer  "onboarding_group_id"
+    t.integer  "insurance_plan_id"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

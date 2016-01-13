@@ -25,12 +25,10 @@ namespace :load do
           password_confirmation: "password",
           role_id: 7,
           practice_id: 1,
-          phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+          phone: '1234567890'
       },
 
       financial: {
-          title: "Mr",
           first_name: "Financial",
           last_name: "User",
           birth_date: 48.years.ago.to_s,
@@ -41,12 +39,10 @@ namespace :load do
           role_id: 1,
           practice_id: 1,
           phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
       clinical_support: {
-          title: "Mr",
-          first_name: "Clinical_support",
+          first_name: "Clinical Support",
           last_name: "User",
           birth_date: 48.years.ago.to_s,
           sex: "M",
@@ -56,12 +52,10 @@ namespace :load do
           role_id: 2,
           practice_id: 1,
           phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
       },
 
       customer_service: {
-          title: "Mr",
-          first_name: "customer_service",
+          first_name: "Customer Service",
           last_name: "User",
           birth_date: 48.years.ago.to_s,
           sex: "M",
@@ -71,30 +65,9 @@ namespace :load do
           role_id: 3,
           practice_id: 1,
           phone: '1234567890',
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
-      },
-
-      clinical: {
-          title: "Mr",
-          first_name: "clinical",
-          last_name: "User",
-          birth_date: 48.years.ago.to_s,
-          sex: "M",
-          email: "clinical_user@leohealth.com",
-          password: "password",
-          password_confirmation: "password",
-          role_id: 5,
-          practice_id: 1,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
-          athena_id: 1,
-          athena_department_id: 1,
-          specialties: "",
-          phone: '1234567890',
-          credentials: ""
       },
 
       hgold: {
-          title: "Mrs",
           first_name: "Erin",
           last_name: "Gold",
           birth_date: 48.years.ago.to_s,
@@ -104,16 +77,15 @@ namespace :load do
           password_confirmation: "password",
           role_id: 5,
           practice_id: 1,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 3,
           athena_department_id: 2,
           specialties: "",
           phone: '1234567890',
-          credentials: ""
+          credentials: ["PNP"]
       },
 
       vriese: {
-          title: "Mrs",
+          title: "Dr.",
           first_name: "Victoria",
           last_name: "Riese",
           birth_date: 48.years.ago.to_s,
@@ -123,12 +95,11 @@ namespace :load do
           password_confirmation: "password",
           role_id: 5,
           practice_id: 1,
-          avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/",
           athena_id: 4,
           athena_department_id: 2,
           specialties: "",
           phone: '1234567890',
-          credentials: ""
+          credentials: ["MD"]
       }
     }
 
@@ -179,7 +150,11 @@ namespace :load do
 
   desc "Seed sample guardian users with conversations."
   task seed_guardians: :environment do
-    (0..4).each do |f|
+    last_names = ['Einstein', 'Turing', 'Lovelace', 'Tesla', 'Curie', 'Planck', 'Faraday', 'Brown', 'Hopper', 'Galilei', 'Wright', 'Pasteur', 'Euler', 'Braun', 'Darwin']
+    male_first_names = ['Alan', 'Albert', 'Alexandar', 'Alfred', 'Aldo', 'George', 'Max', 'Nikola', 'Michael', 'Henri', 'Isaac', 'Ivan', 'Jack', 'Stephen', 'Charles']
+    female_first_names = ['Ada', 'Dorothy', 'Grace', 'Marie', 'Rosalind', 'Mary', 'Katharine', 'Lynn', 'Jane', 'Sally', 'Jocelyn', 'Rita', 'Rachel', 'Irene', 'Agnes']
+
+    last_names.each_with_index do |last_name, index|
       family = Family.new
 
       if family.save
@@ -190,18 +165,18 @@ namespace :load do
         false
       end
 
+      male_first_name = male_first_names[index]
+
       guardian_male = family.guardians.create!(
-        title: "Mr",
-        first_name: "Pierre",
+        first_name: male_first_name,
         middle_initial: "E",
-        last_name: "Curie",
+        last_name: last_name,
         sex: "M",
-        password: "pierrepierre",
-        email: "pierre#{family.id.to_s}@curie.com",
+        password: "password",
+        email: "#{male_first_name}@leo.com",
         role_id: 4,
         practice_id: 1,
-        phone: '1234567890',
-        avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+        phone: '1234567890'
       )
 
       if guardian_male.valid?
@@ -212,20 +187,20 @@ namespace :load do
         false
       end
 
+      #set the primary guardian by time differece
       sleep 1
 
+      female_first_name = female_first_names[index]
       guardian_female = family.guardians.create!(
-        title: "Mrs",
-        first_name: "Marie",
+        first_name: female_first_name,
         middle_initial: "S",
-        last_name: "Curie",
+        last_name: last_name,
         sex: "F",
-        password: "mariemarie",
-        email: "marie#{family.id.to_s}@curie.com",
+        password: "password",
+        email: "#{female_first_name}@leo.com",
         role_id: 4,
         practice_id: 1,
-        phone: '1234567890',
-        avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
+        phone: '1234567890'
       )
 
       if guardian_female.valid?
@@ -236,35 +211,35 @@ namespace :load do
         false
       end
 
-      if f > 0
-        (1..f).each do |i|
-          if patient = family.patients.create!(
-            title: "",
-            first_name: "Eve #{i.to_s}",
-            middle_initial: "M.",
-            last_name: "Curie",
-            sex: "F",
-            birth_date: i.years.ago,
-            role_id: 6,
-            avatar_url: "https://elasticbeanstalk-us-east-1-435800161732.s3.amazonaws.com/user/"
-          )
-            print "*"
-          else
-            print "x"
-            print "Failed to seed patient user - #{patient.errors.full_messages}"
-            false
-          end
+      f = index%3 + 1
+
+      (0...f).each do |i|
+        if patient = family.patients.create!(
+          first_name: "Child#{i}",
+          middle_initial: "M.",
+          last_name: last_name,
+          sex: "F",
+          birth_date: i.years.ago,
+          role_id: 6
+        )
+          print "*"
+        else
+          print "x"
+          print "Failed to seed patient user - #{patient.errors.full_messages}"
+          false
         end
       end
-      puts "Created family #{family.id.to_s} with #{family.patients.count+1} children."
+
+      puts "Created family #{family.id.to_s} with #{f} children."
     end
   end
 
   desc "Seed photo message in conversations."
   task seed_photo_message: :environment do
-    image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', 'Zen-Dog1.png'))
-    Conversation.all.each do |conversation|
-      message = conversation.messages.create( body: "This is a zen dog",
+    image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', '404-baby.png'))
+    range = Conversation.all.length/2
+    Conversation.all[0..range].each do |conversation|
+      message = conversation.messages.create( body: "This is a smiling baby",
                                                     sender: conversation.family.primary_parent,
                                                     type_name: "image",
                                                     message_photo_attributes: { image: image }

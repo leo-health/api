@@ -516,6 +516,27 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
       end
     end
 
+    describe "create_patient_insurance" do
+      it "should succeed" do
+        allow(connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
+          {
+              "success": "true"
+          }
+        )))
+
+        connector.create_patient_insurance(
+            patientid: 5031,
+            insurancepackageid: 1.to_s,
+            insurancepolicyholderfirstname: "first",
+            insurancepolicyholderlastname: "last",
+            insurancepolicyholdermiddlename: "m",
+            insurancepolicyholdersex: "M",
+            insurancepolicyholderdob: "01/01/2000",
+            sequencenumber: 1.to_s
+          )
+      end
+    end
+
     describe "get_patient_insurances" do
       it "should return insurances" do
         allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(

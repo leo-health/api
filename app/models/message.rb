@@ -48,11 +48,15 @@ class Message < ActiveRecord::Base
 
   def actions_after_message_sent
     set_last_message_created_at
-    return if sender.has_role? :bot
+    return if ( sender.has_role?(:bot) || initial_welcome_message? )
     update_conversation_after_message_sent
     sms_cs_user
     send_new_message_notification
     email_batched_messages
+  end
+
+  def initial_welcome_message?
+    body == "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time."
   end
 
   def set_last_message_created_at
