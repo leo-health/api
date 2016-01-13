@@ -108,25 +108,10 @@ describe Conversation, type: :model do
     let(:escalation_params){{ escalated_to: clinical, note: note, priority: priority, escalated_by: customer_service }}
 
     context 'successfully escalate a non-closed conversation' do
-      it 'should create a user_conversation and a escalation_note record, then return true' do
-        expect( UserConversation.count ).to eq(0)
+      it 'should create a user_conversation and a escalation_note record' do
         expect( EscalationNote.count ).to eq(0)
-        expect( !!open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(true)
-        expect( UserConversation.count ).to eq(1)
+        open_conversation.escalate_conversation_to_staff(escalation_params)
         expect( EscalationNote.count ).to eq(1)
-        expect( UserConversation.find_by( user_id: clinical.id, conversation_id: open_conversation.id).escalated ).to eq(true)
-      end
-    end
-
-    context 'fail to create escalation note' do
-      before do
-        escalation_params.except!(:escalated_by)
-      end
-
-      it 'should rollback changes made before the error happens and return false' do
-        expect( UserConversation.count ).to eq(0)
-        expect( open_conversation.escalate_conversation_to_staff(escalation_params) ).to eq(false)
-        expect( UserConversation.count ).to eq(0)
       end
     end
   end
@@ -143,26 +128,10 @@ describe Conversation, type: :model do
     end
 
     context 'successfully close a non closed conversation' do
-      it 'should update the conversation status to closed' do
-        expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(true)
+      it 'should create a closure note' do
         expect(ClosureNote.count).to eq(0)
         expect(!!open_conversation.close_conversation( close_params)).to eq(true)
-        expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(false)
         expect(ClosureNote.count).to eq(1)
-      end
-    end
-
-    context 'fail to close a conversation' do
-      before do
-        close_params.except!(:closed_by)
-      end
-
-      it 'should rollback changes before the error happens' do
-        expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(true)
-        expect(ClosureNote.count).to eq(0)
-        expect(open_conversation.close_conversation( close_params)).to eq(false)
-        expect(UserConversation.find_by(conversation: open_conversation, staff: clinical).escalated).to eq(true)
-        expect(ClosureNote.count).to eq(0)
       end
     end
   end
