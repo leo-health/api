@@ -52,7 +52,7 @@ class Ability
       can [:create, :read], Message
       can :update, UserConversation
       can :read, EscalationNote
-      can [:read, :update, :destroy], Form
+      can :read, Form
     end
   end
 
