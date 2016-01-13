@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160113195941) do
+ActiveRecord::Schema.define(version: 20160113210300) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -193,8 +193,10 @@ ActiveRecord::Schema.define(version: 20160113195941) do
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.integer  "escalated_to_id",             null: false
+    t.integer  "conversation_id",             null: false
   end
 
+  add_index "escalation_notes", ["conversation_id"], name: "index_escalation_notes_on_conversation_id", using: :btree
   add_index "escalation_notes", ["escalated_by_id"], name: "index_escalation_notes_on_escalated_by_id", using: :btree
   add_index "escalation_notes", ["escalated_to_id"], name: "index_escalation_notes_on_escalated_to_id", using: :btree
 
