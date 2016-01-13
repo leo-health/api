@@ -33,7 +33,7 @@ module Leo
               messages = @conversation.messages
               authorize! :read, Message
               close_conversation_notes = @conversation.closure_notes
-              escalation_notes = EscalationNote.includes(:user_conversation).where(user_conversation: { conversation_id: @conversation.id })
+              escalation_notes = @conversation.escalation_notes
               full_messages =(messages + close_conversation_notes + escalation_notes).sort{ |x, y|y.created_at <=> x.created_at }
               present :conversation_id, @conversation.id
               present :init_message_id, @conversation.messages.first.id

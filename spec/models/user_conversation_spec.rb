@@ -4,7 +4,6 @@ RSpec.describe UserConversation, type: :model do
   describe "relations" do
     it{ is_expected.to belong_to(:staff).class_name('User').with_foreign_key('user_id') }
     it{ is_expected.to belong_to(:conversation).with_foreign_key('conversation_id') }
-    it{ is_expected.to have_many(:escalation_notes) }
   end
 
   describe "validations" do

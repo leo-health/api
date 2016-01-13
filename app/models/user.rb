@@ -65,11 +65,6 @@ class User < ActiveRecord::Base
     Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
-  def escalated_conversations
-    return if has_role? :guardian
-    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
-  end
-
   def add_role(name)
     new_role = Role.find_by_name(name)
     update_attributes(role: new_role) if new_role
