@@ -213,7 +213,7 @@ ActiveRecord::Schema.define(version: 20160113170327) do
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.datetime "deleted_at"
-    t.string   "image"
+    t.string   "image",           null: false
   end
 
   add_index "forms", ["completed_by_id"], name: "index_forms_on_completed_by_id", using: :btree
