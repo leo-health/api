@@ -1,8 +1,9 @@
 class EscalationNote < ActiveRecord::Base
   belongs_to :escalated_to, ->{where('role_id != ?', 4)}, class_name: 'User'
   belongs_to :escalated_by, ->{where('role_id != ?', 4)}, class_name: 'User'
+  belongs_to :conversation
 
-  validates :escalated_by, :escalated_to, :priority, presence: true
+  validates :conversation, :escalated_by, :escalated_to, :priority, presence: true
 
   after_commit :notify_escalatee, on: :create
 

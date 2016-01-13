@@ -5,6 +5,7 @@ describe Conversation, type: :model do
   let!(:bot){ create(:user, :bot)}
 
   describe 'relations' do
+    it{ is_expected.to have_many(:escalation_notes) }
     it{ is_expected.to have_many(:messages) }
     it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:staff).class_name('User').through(:user_conversations) }
