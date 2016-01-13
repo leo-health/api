@@ -17,17 +17,12 @@ module Leo
         end
 
         post do
-          params[:image] = image_decoder(params[:image])
-          form = current_user.forms.new(declared(params, include_missing: false))
-          render_success form
+          create_form
         end
 
         desc "show a form"
         get ":id" do
-          if form = Form.find(params[:id])
-            authorize! :read, form
-            present :form, form, with: Leo::Entities::FormEntity
-          end
+          show_form
         end
 
         desc "update a form"
@@ -37,7 +32,6 @@ module Leo
           optional :image, type: String, allow_blank: false
           optional :notes, type: String
           optional :status, type: String, allow_blank: false
-          # at_least_one_of :patient_id, :title, :image, :notes, :status
         end
 
         put ":id" do
@@ -51,6 +45,17 @@ module Leo
       end
 
       helpers do
+        def create_form
+          params[:image] = image_decoder(params[:image])
+          form = current_user.forms.new(declared(params, include_missing: false))
+          render_success form
+        end
+
+        def show_form
+          form = Form.find(params[:id])
+          authorize! :read, form
+          present :form, form, with: Leo::Entities::FormEntity
+        end
 
         def update_form
           form = Form.find(params[:id])

@@ -13,7 +13,8 @@ module Leo
       private
 
       def image
-        Base64.encode64(open(object.image.url).read)
+        uri = URI(object.image.url) if object.image
+        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
       end
     end
   end
