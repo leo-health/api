@@ -15,15 +15,12 @@ module Leo
       end
 
       def avatar
-        if object.avatar && options[:avatar_size]
-          object.avatar.avatar.url(options[:avatar_size])
-        else
-          object.avatar.try(:avatar)
-        end
+        uri = URI(object.avatar.avatar.url) if object.avatar
+        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
       end
 
       def credentials
-        object.provider_profile.credentials
+        object.provider_profile.try(:credentials)
       end
     end
   end

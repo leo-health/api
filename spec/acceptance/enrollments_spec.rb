@@ -12,10 +12,10 @@ resource "Enrollments" do
 
 
   post "/api/v1/enrollments/invite" do
-    parameter :first_name, "First Name", :required => true
-    parameter :last_name, "Last Name", :required => true
-    parameter :email, "Email", :required => true
-    parameter :authentication_token, "Authentication Token", :required => true
+    parameter :first_name, "First Name", required: true
+    parameter :last_name, "Last Name", required: true
+    parameter :email, "Email", required: true
+    parameter :authentication_token, "Authentication Token", required: true
 
     let(:first_name){ "Big" }
     let(:last_name){ "Tree" }
@@ -30,8 +30,8 @@ resource "Enrollments" do
   end
 
   post "/api/v1/enrollments" do
-    parameter :email, "Email", :required => true
-    parameter :password, "Password", :required => true
+    parameter :email, "Email", required: true
+    parameter :password, "Password", required: true
 
     let(:email){ "BigTree@yahoo.com" }
     let(:password){ "password" }
@@ -45,7 +45,7 @@ resource "Enrollments" do
   end
 
   get "/api/v1/enrollments/current" do
-    parameter :authentication_token, "Enrollment Token", :required => true
+    parameter :authentication_token, "Enrollment Token", required: true
 
     let(:authentication_token){ enrollment.authentication_token }
 
@@ -57,7 +57,7 @@ resource "Enrollments" do
   end
 
   put "/api/v1/enrollments/current" do
-    parameter :authentication_token, "Enrollment Token", :required => true
+    parameter :authentication_token, "Enrollment Token", required: true
     parameter :password
     parameter :first_name
     parameter :last_name

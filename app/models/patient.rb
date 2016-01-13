@@ -21,6 +21,7 @@ class Patient < ActiveRecord::Base
   has_many :insurances
   has_many :avatars, as: :owner
   has_many :user_generated_health_records
+  has_many :forms
 
   validates :first_name, :last_name, :birth_date, :sex, :family, :role, presence: true
 
