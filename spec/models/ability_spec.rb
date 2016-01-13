@@ -196,8 +196,6 @@ describe "User" do
 
       describe "ability for Forms" do
         it{should be_able_to(:read, Form.new)}
-        it{should be_able_to(:update, Form.new)}
-        it{should be_able_to(:destroy, Form.new)}
       end
     end
   end
