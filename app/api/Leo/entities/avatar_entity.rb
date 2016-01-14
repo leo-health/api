@@ -2,7 +2,10 @@ module Leo
   module Entities
     class AvatarEntity < Grape::Entity
       expose :id
-      expose :avatar
+      expose :avatar do
+        expose :base_url
+        expose :parameters
+      end
       expose :owner_type
       expose :owner_id
       expose :created_at, as: :created_datetime
