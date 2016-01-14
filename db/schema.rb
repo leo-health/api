@@ -421,6 +421,7 @@ ActiveRecord::Schema.define(version: 20160114191006) do
     t.string   "email"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
+    t.string   "time_zone"
   end
 
   create_table "provider_additional_availabilities", force: :cascade do |t|
