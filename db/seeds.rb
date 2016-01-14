@@ -73,7 +73,8 @@ practices_seed = {
     zip: "10011",
     fax: "10543",
     phone: "101-101-1001",
-    email: "info@leohealth.com"
+    email: "info@leohealth.com",
+    time_zone: "ETC"
   }
 }
 

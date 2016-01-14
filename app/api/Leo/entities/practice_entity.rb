@@ -11,6 +11,7 @@ module Leo
       expose :fax
       expose :phone
       expose :email
+      expose :time_zone
       expose :staff, with: Leo::Entities::UserEntity
     end
   end
