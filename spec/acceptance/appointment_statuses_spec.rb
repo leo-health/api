@@ -11,7 +11,7 @@ resource "AppointmentStatuses" do
 
 
   get "/api/v1/appointment_statuses" do
-    parameter :authentication_token, :required => true
+    parameter :authentication_token, required: true
 
     let(:authentication_token){ session.authentication_token }
     let(:raw_post){ params.to_json }

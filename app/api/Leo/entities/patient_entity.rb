@@ -16,11 +16,8 @@ module Leo
       end
 
       def avatar
-        if object.current_avatar && options[:avatar_size]
-         object.current_avatar.avatar.url(options[:avatar_size])
-        else
-          object.current_avatar.try(:avatar)
-        end
+        uri = URI(object.current_avatar.avatar.url) if object.current_avatar
+        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
       end
     end
   end

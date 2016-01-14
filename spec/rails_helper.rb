@@ -10,6 +10,14 @@ CodeClimate::TestReporter.start
 
 ActiveRecord::Migration.maintain_test_schema!
 
+RspecApiDocumentation.configure do |config|
+  config.app = Rails.application
+  config.disable_dsl_status!
+  config.format = [:json]
+  config.curl_host = 'http://localhost:3000'
+  config.api_name = "Example App API"
+end
+
 RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
   config.include FactoryGirl::Syntax::Methods

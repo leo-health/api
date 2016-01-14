@@ -15,7 +15,9 @@ module Leo
         if object.type_name == 'text'
           object.body
         else
-          Base64.encode64(open(object.message_photo.image.url).read) if object.message_photo.try(:image)
+          image = object.message_photo.try(:image)
+          uri = URI(image.url) if image
+          Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
         end
       end
     end

@@ -16,13 +16,13 @@ resource "Appointments" do
   let(:appointment){create(:appointment, booked_by: user)}
 
   post "/api/v1/appointments" do
-    parameter :authentication_token, :required => true
-    parameter :start_datetime, :required => true
-    parameter :appointment_status_id, :required => true
-    parameter :appointment_type_id, :required => true
-    parameter :provider_id, :required => true
-    parameter :patient_id, :required => true
-    parameter :practice_id, :required => true
+    parameter :authentication_token, required: true
+    parameter :start_datetime, required: true
+    parameter :appointment_status_id, required: true
+    parameter :appointment_type_id, required: true
+    parameter :provider_id, required: true
+    parameter :patient_id, required: true
+    parameter :practice_id, required: true
     parameter :notes
     parameter :athena_id
 
@@ -41,8 +41,8 @@ resource "Appointments" do
   end
 
   get "/api/v1/appointments/:id" do
-    parameter :id, "appointment id", :required => true
-    parameter :authentication_token, :required => true
+    parameter :id, "appointment id", required: true
+    parameter :authentication_token, required: true
 
     let(:id){ appointment.id }
     let(:raw_post){ params.to_json }
@@ -54,8 +54,8 @@ resource "Appointments" do
   end
 
   delete "/api/v1/appointments/:id" do
-    parameter :id, "appointment id", :required => true
-    parameter :authentication_token, :required => true
+    parameter :id, "appointment id", required: true
+    parameter :authentication_token, required: true
 
     let(:id){ appointment.id }
     let(:raw_post){ params.to_json }
@@ -67,14 +67,14 @@ resource "Appointments" do
   end
 
   put "/api/v1/appointments/:id" do
-    parameter :id, "appointment id", :required => true
-    parameter :authentication_token, :required => true
-    parameter :start_datetime, :required => true
-    parameter :appointment_status_id, :required => true
-    parameter :appointment_type_id, :required => true
-    parameter :provider_id, :required => true
-    parameter :patient_id, :required => true
-    parameter :practice_id, :required => true
+    parameter :id, "appointment id", required: true
+    parameter :authentication_token, required: true
+    parameter :start_datetime, required: true
+    parameter :appointment_status_id, required: true
+    parameter :appointment_type_id, required: true
+    parameter :provider_id, required: true
+    parameter :patient_id, required: true
+    parameter :practice_id, required: true
     parameter :notes
     parameter :athena_id
 
@@ -95,7 +95,7 @@ resource "Appointments" do
   end
 
   get "/api/v1/appointments" do
-    parameter :authentication_token, :required => true
+    parameter :authentication_token, required: true
 
     example "get all appointments of current user" do
       do_request

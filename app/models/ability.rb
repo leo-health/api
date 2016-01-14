@@ -13,7 +13,8 @@ class Ability
       can :read, Message, conversation_id: Conversation.find_by_family_id(user.family_id).id
       can [:read, :create], Message, conversation_id: Conversation.find_by_family_id(user.family_id).id
       can [:create, :read, :destroy], Appointment, booked_by_id: user.id
-      can :create, Avatar, owner_type: "Patient", owner_id: Family.find(user.family_id).patients.pluck(:id)
+      can :create, Avatar, owner_type: "Patient", owner_id: patient_ids(user)
+      can [:read, :update, :destroy], Form, patient_id: patient_ids(user)
     elsif user.has_role? :financial
       can :read, User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
@@ -32,6 +33,7 @@ class Ability
       can :read, Appointment
       can :update, UserConversation
       can :read, EscalationNote
+      can [:read, :update, :destroy], Form
     elsif user.has_role? :clinical_support
       can [:read, :update], User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
@@ -41,6 +43,7 @@ class Ability
       can :read, Appointment
       can :update, UserConversation
       can :read, EscalationNote
+      can [:read, :update, :destroy], Form
     elsif user.has_role? :customer_service
       can :read, User do |user|
         %w(financial clinical_support customer_service clinical guardian).include? (user.role.name)
@@ -49,6 +52,13 @@ class Ability
       can [:create, :read], Message
       can :update, UserConversation
       can :read, EscalationNote
+      can :read, Form
     end
+  end
+
+  private
+
+  def patient_ids(guardian)
+    Family.find(guardian.family_id).patients.pluck(:id)
   end
 end

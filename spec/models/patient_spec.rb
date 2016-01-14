@@ -15,6 +15,7 @@ RSpec.describe Patient, type: :model do
    it{ is_expected.to have_many(:vitals) }
    it{ is_expected.to have_many(:insurances) }
    it{ is_expected.to have_many(:avatars) }
+   it{ is_expected.to have_many(:forms) }
  end
 
   describe 'validations' do
@@ -33,7 +34,7 @@ RSpec.describe Patient, type: :model do
       it { expect(patient).to callback(:notify_guardian).after(:commit).on(:create) }
 
       it "should notify guardian about child's sign up" do
-        expect( patient.family.conversation.messages.last.body ).to eq( "#{patient.first_name.capitalize} is signed up successfully" )
+        expect( patient.family.conversation.messages.last.body ).to eq( "#{patient.first_name.capitalize} has been enrolled successfully" )
       end
     end
   end
