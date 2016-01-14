@@ -22,6 +22,7 @@ class User < ActiveRecord::Base
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
+  has_many :escalated_notes, foreign_key: "escalated_by_id"
   has_many :escalation_notes, foreign_key: "escalated_to_id"
   has_many :closure_notes, foreign_key: "closed_by_id"
   has_many :read_messages, class_name: 'Message', through: :read_receipts
@@ -62,11 +63,6 @@ class User < ActiveRecord::Base
   def unread_conversations
     return if has_role? :guardian
     Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
-  end
-
-  def escalated_conversations
-    return if has_role? :guardian
-    Conversation.includes(:user_conversations).where(id: user_conversations.where(escalated: true).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
   def add_role(name)

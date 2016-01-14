@@ -57,7 +57,7 @@ module Leo
       end
 
       def escalated_to
-        object.user_conversation.staff if object.class == EscalationNote
+        object.escalated_to if object.class == EscalationNote
       end
 
       def note
