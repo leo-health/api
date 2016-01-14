@@ -1,5 +1,11 @@
 class AddNonNullToAvatars < ActiveRecord::Migration
-  def change
-    change_column :avatars, :avatar, :string, null: false
+  def up
+    remove_column :avatars, :avatar
+    add_column :avatars, :avatar, :string, null: false
+  end
+
+  def down
+    remove_column :avatars, :avatar
+    add_column :avatars, :avatar, :string
   end
 end
