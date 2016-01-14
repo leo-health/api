@@ -6,6 +6,7 @@ class Conversation < ActiveRecord::Base
   has_many :user_conversations
   has_many :staff, class_name: "User", :through => :user_conversations
   has_many :closure_notes
+  has_many :escalation_notes
   belongs_to :family
 
   validates :family, :state, presence: true
@@ -49,9 +50,7 @@ class Conversation < ActiveRecord::Base
   def escalate_conversation_to_staff(escalation_params)
     # NOTE: escalation_params = {escalated_to: staff, note: 'note', priority: 1, escalated_by: staff}
     ActiveRecord::Base.transaction do
-      user_conversation = user_conversations.create_with(escalated: true).find_or_create_by!(staff: escalation_params[:escalated_to])
-      escalation_note_params = escalation_params.except(:escalated_to)
-      @escalation_note = user_conversation.escalation_notes.create!(escalation_note_params)
+      @escalation_note = escalation_notes.create!(escalation_params)
     end
   rescue
     false
@@ -60,8 +59,7 @@ class Conversation < ActiveRecord::Base
   def close_conversation(close_params)
     # NOTE: close_params = {closed_by: staff, note: 'note'}
     ActiveRecord::Base.transaction do
-      user_conversations.each{|i| i.update_attributes!(escalated: false)}
-      @closure_note = closure_notes.create!(conversation: self, note: close_params[:note], closed_by: close_params[:closed_by])
+      @closure_note = closure_notes.create!(close_params)
     end
   rescue
     false
