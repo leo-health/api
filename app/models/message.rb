@@ -19,15 +19,15 @@ class Message < ActiveRecord::Base
     type_name == 'text'
   end
 
-  def self.compile_sms_message(start_time, end_time)
-    messages = self.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
-    messages.inject(Hash.new(0)) do |compiled_message, message|
-      sender = message.sender
-      full_name = "#{sender.full_name} #{sender.id.to_s}"
-      compiled_message[full_name] += 1
-      compiled_message
-    end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages."}.join(' ')
-  end
+  # def self.compile_sms_message(start_time, end_time)
+  #   messages = self.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
+  #   messages.inject(Hash.new(0)) do |compiled_message, message|
+  #     sender = message.sender
+  #     full_name = "#{sender.full_name} #{sender.id.to_s}"
+  #     compiled_message[full_name] += 1
+  #     compiled_message
+  #   end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages."}.join(' ')
+  # end
 
   def broadcast_message(sender)
     message_id = id
@@ -78,14 +78,31 @@ class Message < ActiveRecord::Base
   end
 
   def sms_cs_user
-    cs_user = User.customer_service_user
-    return if !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
+    return if sms_cs_user?
     if ready_to_notify?(cs_user)
-      body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
-      SendSmsJob.send(cs_user.id, body)
+      SendSmsJob.send(cs_user.id, body, :single)
       set_next_send_at(cs_user, 2.minutes)
+    else
+      SendSmsJob.send(cs_user.id, body, :batched)
     end
   end
+
+  def sms_cs_user?
+    cs_user = User.customer_service_user
+    !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
+  end
+
+  # def sms_cs_user
+  #   cs_user = User.customer_service_user
+  #   return if !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
+  #   if ready_to_notify?(cs_user)
+  #     body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
+  #     SendSmsJob.send(cs_user.id, body)
+  #     set_next_send_at(cs_user, 2.minutes)
+  #   else
+  #     SendStackedMessages.send(run_at: $redis.get("#{receiver.id}next_messageAt"))
+  #   end
+  # end
 
   def email_batched_messages
     conversation.family.guardians.each do |guardian|
