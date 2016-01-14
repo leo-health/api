@@ -15,9 +15,7 @@ module Leo
         if object.type_name == 'text'
           object.body
         else
-          image = object.message_photo.try(:image)
-          uri = URI(image.url) if image
-          Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
+          Leo::Entities::ImageEntity.represent(object.message_photo.image)
         end
       end
     end
