@@ -12,8 +12,11 @@ class SendSmsJob < Struct.new(:receiver_id, :type, :run_at)
 
   private
 
-  def compile_sms_message(start_time, end_time)
-    messages = Conversation.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
+  def fetch_messages(start_time, end_time)
+    Conversation.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
+  end
+
+  def compile_sms_message(messages)
     messages.inject(Hash.new(0)) do |compiled_message, message|
       sender = message.sender
       full_name = "#{sender.full_name} #{sender.id.to_s}"
