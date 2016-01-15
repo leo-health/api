@@ -5,7 +5,7 @@ class EscalationNote < ActiveRecord::Base
 
   validates :conversation, :escalated_by, :escalated_to, :priority, presence: true
 
-  after_commit :notify_escalatee, on: :create
+  # after_commit :notify_escalatee, on: :create
 
   private
 

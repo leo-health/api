@@ -2,11 +2,12 @@ require 'rails_helper'
 
 describe SendSmsJob do
   let!(:customer_service_user){ create(:user, :customer_service, phone: "+19199999282") }
+  let!(:sender){ create(:user) }
   let(:body){ "what up bro!"}
-  let(:send_sms_job){ SendSmsJob.new(customer_service_user.id, body)}
+  let(:send_sms_job){ SendSmsJob.new(customer_service_user.id, :single, Time.now.to_s, sender.id)}
   let(:response){{ from: TWILIO_PHONE_NUMBER,
                          to: customer_service_user.phone,
-                         body: body }}
+                         body: "#{sender.full_name} sent you 1 message!" }}
 
   describe '#perform' do
     it "should send the sms via twilio client" do
@@ -16,8 +17,18 @@ describe SendSmsJob do
   end
 
   describe '.send' do
-    it "should send the sms via delayed_job" do
-      expect{ SendSmsJob.send(customer_service_user.id, body) }.to change(Delayed::Job, :count).by(1)
+    before do
+      Timecop.freeze(Time.now)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it "should enqueue job, set cool down period and unpause schedule sms job" do
+      expect{ SendSmsJob.send(customer_service_user.id, :single, Time.now.to_s, sender.id) }.to change(Delayed::Job, :count).by(1)
+      expect( $redis.get("#{ customer_service_user.id }batch_scheduled?") ).to eq('false')
+      expect( $redis.get("#{ customer_service_user.id }next_messageAt") ).to eq( (Time.now + 2.minutes).to_s )
     end
   end
 end
