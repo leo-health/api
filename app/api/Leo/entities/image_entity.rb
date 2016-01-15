@@ -12,7 +12,7 @@ module Leo
 
       def base_url
         uri = get_uri
-        "#{uri.scheme}://#{uri.host}"
+        "#{uri.scheme}://#{uri.host}#{uri.path}"
       end
 
       def parameters
