@@ -19,16 +19,6 @@ class Message < ActiveRecord::Base
     type_name == 'text'
   end
 
-  # def self.compile_sms_message(start_time, end_time)
-  #   messages = self.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
-  #   messages.inject(Hash.new(0)) do |compiled_message, message|
-  #     sender = message.sender
-  #     full_name = "#{sender.full_name} #{sender.id.to_s}"
-  #     compiled_message[full_name] += 1
-  #     compiled_message
-  #   end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages."}.join(' ')
-  # end
-
   def broadcast_message(sender)
     message_id = id
     conversation = self.conversation
@@ -88,30 +78,35 @@ class Message < ActiveRecord::Base
 
   def sms_cs_user
     return if cs_user_online?
-    unless in_cool_down_period?(cs_user)
-      SendSmsJob.send(cs_user.id, :single, run_at)
+    if sms_immediately?(@cs_user.id)
+      SendSmsJob.send(@cs_user.id, :single, Time.now)
     else
-      return if schedule_sms_job_paused?(receiver)
-      SendSmsJob.send(cs_user.id, :batched, run_at)
-      pause_schedule_sms_jobs(receiver_id)
+      return if schedule_sms_job_paused?(@cs_user.id)
+      run_at = cool_down_period_end_at(@cs_user.id)
+      SendSmsJob.send(@cs_user.id, :batched, run_at)
+      pause_schedule_sms_jobs(@cs_user.id)
     end
+  end
+
+  def cs_user_online?
+    @cs_user = User.customer_service_user
+    !@cs_user || @sender == cs_user || $redis.get("#{@cs_user.id}online?") == "yes"
+  end
+
+  def sms_immediately?(receiver_id)
+    next_sending_time = $redis.get("#{receiver_id}next_messageAt")
+    !next_sending_time || (Time.now > Time.parse(next_sending_time))
+  end
+
+  def schedule_sms_job_paused?(receiver_id)
+    $redis.get("#{receiver_id}batch_scheduled?") === "true"
   end
 
   def pause_schedule_sms_jobs(receiver_id)
     $redis.set("#{receiver_id}batch_scheduled?", true)
   end
 
-  def cs_user_online?
-    cs_user = User.customer_service_user
-    !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
-  end
-
-  def in_cool_down_period?(receiver)
-    next_sending_time = $redis.get("#{receiver.id}next_messageAt")
-    !next_sending_time || (Time.now > Time.parse(next_sending_time))
-  end
-
-  def schedule_sms_job_paused?(receiver)
-    $redis.get("#{receiver.id}batch_scheduled?") === "true"
+  def cool_down_period_end_at(receiver_id)
+    $redis.get("#{receiver_id}next_messageAt")
   end
 end

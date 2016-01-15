@@ -1,23 +1,23 @@
 class SendSmsJob < Struct.new(:receiver_id, :type, :run_at)
+  COOL_DOWN_PERIOD = 2.minutes
+
   def self.send(receiver_id, type, run_at)
+    @run_at = Time.parse(run_at)
     Delayed::Job.enqueue new(receiver_id, type), run_at: run_at
   end
 
   def perform
     receiver = User.find_by_id(receiver_id)
-    type == :batched ? compile_sms_message("start", "end") : "#{sender.full_name} sent you 1 message!"
+    type == :batched ? compile_sms_message(@run_at - COOL_DOWN_PERIOD, @run_at) : "#{sender.full_name} sent you 1 message!"
     sms_user(receiver.phone, body) if receiver
-    set_next_cool_down_period(cs_user, 2.minutes)
+    set_next_cool_down_period(cs_user, COOL_DOWN_PERIOD)
     unpause_scedule_sms_jobs(receiver_id)
   end
 
   private
 
-  def fetch_messages(start_time, end_time)
-    Message.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
-  end
-
-  def compile_sms_message(messages)
+  def compile_sms_message(start_time, end_time)
+    messages = Message.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
     messages.inject(Hash.new(0)) do |compiled_message, message|
       sender = message.sender
       compiled_message["#{sender.full_name} #{sender.id.to_s}"] += 1
