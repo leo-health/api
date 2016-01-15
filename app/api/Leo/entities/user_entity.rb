@@ -3,7 +3,7 @@ module Leo
     class UserEntity < Grape::Entity
       expose :id, :title, :first_name, :middle_initial, :last_name, :suffix, :sex, :practice_id, :family_id, :email
       expose :role, with: Leo::Entities::RoleEntity
-      expose :avatar
+      expose :avatar, with: Leo::Entities::ImageEntity
       expose :type
       expose :primary_guardian, if: Proc.new{ |g| g.role.name.to_sym == :guardian }
       expose :credentials, if: Proc.new{ |g| g.role.name.to_sym == :clinical }
@@ -15,8 +15,7 @@ module Leo
       end
 
       def avatar
-        uri = URI(object.avatar.avatar.url) if object.avatar
-        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
+        object.avatar.avatar if object.avatar
       end
 
       def credentials
