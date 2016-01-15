@@ -15,7 +15,7 @@ module Leo
       end
 
       def avatar
-        object.avatar.avatar
+        object.avatar.avatar if object.avatar
       end
 
       def credentials
