@@ -15,8 +15,7 @@ module Leo
       end
 
       def avatar
-        uri = URI(object.avatar.avatar.url) if object.avatar
-        Rack::Utils.parse_query(uri.query).merge(base_url:"#{uri.scheme}://#{uri.host}") if uri
+        object.avatar.avatar
       end
 
       def credentials
