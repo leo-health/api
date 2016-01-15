@@ -77,33 +77,6 @@ class Message < ActiveRecord::Base
     end
   end
 
-  def sms_cs_user
-    return if sms_cs_user?
-    if ready_to_notify?(cs_user)
-      SendSmsJob.send(cs_user.id, body, :single)
-      set_next_send_at(cs_user, 2.minutes)
-    else
-      SendSmsJob.send(cs_user.id, body, :batched)
-    end
-  end
-
-  def sms_cs_user?
-    cs_user = User.customer_service_user
-    !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
-  end
-
-  # def sms_cs_user
-  #   cs_user = User.customer_service_user
-  #   return if !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
-  #   if ready_to_notify?(cs_user)
-  #     body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
-  #     SendSmsJob.send(cs_user.id, body)
-  #     set_next_send_at(cs_user, 2.minutes)
-  #   else
-  #     SendStackedMessages.send(run_at: $redis.get("#{receiver.id}next_messageAt"))
-  #   end
-  # end
-
   def email_batched_messages
     conversation.family.guardians.each do |guardian|
       if ready_to_notify?(guardian) && sender != guardian
@@ -113,12 +86,32 @@ class Message < ActiveRecord::Base
     end
   end
 
-  def ready_to_notify?(receiver)
+  def sms_cs_user
+    return if cs_user_online?
+    unless in_cool_down_period?(cs_user)
+      SendSmsJob.send(cs_user.id, :single, run_at)
+    else
+      return if schedule_sms_job_paused?(receiver)
+      SendSmsJob.send(cs_user.id, :batched, run_at)
+      pause_schedule_sms_jobs(receiver_id)
+    end
+  end
+
+  def pause_schedule_sms_jobs(receiver_id)
+    $redis.set("#{receiver_id}batch_scheduled?", true)
+  end
+
+  def cs_user_online?
+    cs_user = User.customer_service_user
+    !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
+  end
+
+  def in_cool_down_period?(receiver)
     next_sending_time = $redis.get("#{receiver.id}next_messageAt")
     !next_sending_time || (Time.now > Time.parse(next_sending_time))
   end
 
-  def set_next_send_at(receiver, cool_down_period)
-    $redis.set("#{receiver.id}next_messageAt", Time.now + cool_down_period)
+  def schedule_sms_job_paused?(receiver)
+    $redis.get("#{receiver.id}batch_scheduled?") === "true"
   end
 end
