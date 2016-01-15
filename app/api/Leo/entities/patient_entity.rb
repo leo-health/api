@@ -7,7 +7,7 @@ module Leo
       with_options(format_with: :iso_timestamp) do
         expose :birth_date
       end
-      expose :avatar
+      expose :avatar, with: Leo::Entities::ImageEntity
 
       private
 

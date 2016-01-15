@@ -3,7 +3,7 @@ module Leo
     class UserEntity < Grape::Entity
       expose :id, :title, :first_name, :middle_initial, :last_name, :suffix, :sex, :practice_id, :family_id, :email
       expose :role, with: Leo::Entities::RoleEntity
-      expose :avatar
+      expose :avatar, with: Leo::Entities::ImageEntity
       expose :type
       expose :primary_guardian, if: Proc.new{ |g| g.role.name.to_sym == :guardian }
       expose :credentials, if: Proc.new{ |g| g.role.name.to_sym == :clinical }
