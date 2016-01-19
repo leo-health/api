@@ -14,6 +14,7 @@ gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
 gem 'cancancan', '~> 1.10'
 gem "paranoia", "~> 2.0"
+gem 'goldiloader'
 gem 'grape'                 # Our API base
 gem 'grape-cancan'
 gem 'grape-entity'
@@ -39,7 +40,6 @@ gem 'redis'
 gem 'whenever', :require => false
 gem 'twilio-ruby'
 gem 'rspec_junit_formatter', '0.2.2'
-gem 'goldiloader'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
