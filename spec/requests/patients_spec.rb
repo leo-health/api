@@ -2,8 +2,8 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Patients do
-  let!(:customer_service){ create(:user, :customer_service) }
   let!(:bot){ create(:user, :bot)}
+  let!(:customer_service){ create(:user, :customer_service) }
   let(:family){create(:family)}
   let(:guardian){create(:user, family: family)}
   let(:session){guardian.sessions.create}
