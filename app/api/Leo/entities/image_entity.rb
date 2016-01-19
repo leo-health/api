@@ -3,8 +3,13 @@ module Leo
     class ImageEntity < Grape::Entity
       expose :base_url
       expose :parameters
+      expose :url
 
       private
+
+      def url
+        object.url
+      end
 
       def get_uri
         URI(object.url)
