@@ -142,6 +142,9 @@ GEM
       ruby-progressbar (~> 1.4)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
+    goldiloader (0.0.9)
+      activerecord (>= 3.2, < 4.3)
+      activesupport (>= 3.2, < 4.3)
     grape (0.13.0)
       activesupport
       builder
@@ -439,6 +442,7 @@ DEPENDENCIES
   factory_girl_rails
   fakeredis
   fuubar
+  goldiloader
   grape
   grape-cancan
   grape-entity
