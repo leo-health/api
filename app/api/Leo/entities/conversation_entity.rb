@@ -2,12 +2,12 @@ module Leo
   module Entities
     class ConversationEntity < Grape::Entity
       expose :id
-      expose :staff, with: Leo::Entities::UserEntity
+      expose :staff, with: Leo::Entities::ShortUserEntity
       expose :users do
-        expose :guardians, with: Leo::Entities::UserEntity
+        expose :guardians, with: Leo::Entities::ShortUserEntity
         expose :patients, with: Leo::Entities::PatientEntity
       end
-      expose :primary_guardian, with: Leo::Entities::UserEntity
+      expose :primary_guardian, with: Leo::Entities::ShortUserEntity
       expose :created_at
       expose :updated_at
       expose :family

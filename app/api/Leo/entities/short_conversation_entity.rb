@@ -12,11 +12,11 @@ module Leo
       private
 
       def guardians
-        object.family.guardians
+        @guardians = object.family.guardians.order('created_at ASC')
       end
 
       def primary_guardian
-        object.family.guardians.order('created_at ASC').first
+        @guardians.first
       end
 
       def patients
