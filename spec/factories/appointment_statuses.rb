@@ -20,7 +20,6 @@ FactoryGirl.define do
     end
 
     trait :charge_entered do
-      id 3
       description "Charge Entered"
       status "4"
     end
