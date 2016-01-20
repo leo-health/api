@@ -11,7 +11,7 @@ class ApnsNotification
     #     passphrase:  "catfood"
 
     @pusher = Grocer.pusher(
-        certificate: Rails.root.join('certificate.pem'),
+        certificate: ENV['APNS_CERTIFICATE'],
         passphrase:  "catfood", # need to replace it by env variable here
         gateway:     "gateway.sandbox.push.apple.com", # need to replace it by env variable here
         retries:     3
