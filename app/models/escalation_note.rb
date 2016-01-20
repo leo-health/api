@@ -10,15 +10,15 @@ class EscalationNote < ActiveRecord::Base
   private
 
   def notify_escalatee
-    NotifyEscalatedConversationJob.send(escalatee.id) if send_email?
+    NotifyEscalatedConversationJob.send(escalated_to.id) if send_email?
     SendSmsJob.send(escalated_to.id, escalated_by.id, :escalation, Time.now.to_s) if send_sms?
   end
 
   def send_sms?
-    priority == 1 || escalatee.practice.try(:in_office_hour?)
+    priority == 1 || escalated_to.practice.try(:in_office_hour?)
   end
 
   def send_email?
-    priority == 1 && !escalatee.practice.try(:in_office_hour?)
+    priority == 1 && !escalated_to.practice.try(:in_office_hour?)
   end
 end

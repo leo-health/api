@@ -78,10 +78,7 @@ class Message < ActiveRecord::Base
 
   def email_batched_messages
     conversation.family.guardians.each do |guardian|
-      if ready_to_notify?(guardian) && sender != guardian
-        BatchedMessagesJob.send(guardian.id, "You have new messages!")
-        set_next_send_at(guardian, 5.minutes)
-      end
+      BatchedMessagesJob.send(guardian.id, "You have a new message!") unless sender == guardian
     end
   end
 
