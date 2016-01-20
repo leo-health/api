@@ -45,6 +45,7 @@ describe Leo::V1::Patients do
 
   describe 'Put /api/v1/patients/:id' do
     let(:new_email){ "new_email@leohealth.com" }
+
     def do_request
       put "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, email: new_email}
     end

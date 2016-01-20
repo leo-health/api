@@ -52,7 +52,6 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'fuubar'
   gem 'rspec_api_documentation'
-  gem 'bullet'
 end
 
 group :development do
