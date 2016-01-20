@@ -45,6 +45,10 @@ RSpec.describe Message, type: :model do
       end
 
       context "on guardian received new messages" do
+        before do
+          $redis.set("#{customer_service.id}online?", "yes")
+        end
+
         def create_message
           conversation.messages.create( body: "Hello", sender: customer_service, type_name: "text")
         end
@@ -77,7 +81,6 @@ RSpec.describe Message, type: :model do
 
         it "should sms customer service user about the newly created message" do
           expect{ create_message }.to change(Delayed::Job, :count).by(1)
-          expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now + 2.minutes).to_s )
         end
       end
 
@@ -91,8 +94,8 @@ RSpec.describe Message, type: :model do
           Timecop.return
         end
 
-        it "should not sms customer service user" do
-          expect{ create_message }.to change(Delayed::Job, :count).by(0)
+        it "should not sms customer service user, but create a delayed job to run after cool down period" do
+          expect{ create_message }.to change(Delayed::Job, :count).by(1)
           expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now  + 1.minute).to_s )
         end
       end
@@ -108,7 +111,7 @@ RSpec.describe Message, type: :model do
     let!(:guardian_message_two){ create(:message, sender: guardian, conversation: guardian.family.conversation) }
     let!(:clinical_message){ create(:message, sender: clinical, conversation: guardian.family.conversation) }
 
-    let(:compiled_message){ "#{guardian.first_name} #{guardian.last_name} sent you 1 messages. #{clinical.first_name} #{clinical.last_name} sent you 1 messages."}
+    let(:compiled_message){ "#{guardian.first_name} #{guardian.last_name} sent you 1 messages! #{clinical.first_name} #{clinical.last_name} sent you 1 messages!"}
 
     before do
       guardian_message_two.update_columns(created_at: Time.now - 3.days)
