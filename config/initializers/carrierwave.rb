@@ -23,6 +23,7 @@ CarrierWave.configure do |config|
     config.storage = :aws
   end
 
+  config.root = Rails.root.join 'tmp'
   config.aws_authenticated_url_expiration = 60 * 15
   config.aws_bucket = 'leo-photos-development'
 

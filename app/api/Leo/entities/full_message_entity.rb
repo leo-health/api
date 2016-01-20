@@ -3,7 +3,7 @@ module Leo
     class FullMessageEntity < Grape::Entity
       expose :id
       expose :type_name, if: Proc.new {|g|g.class.name == 'Message'}
-      expose :message_body
+      expose :body
       expose :message_type
       expose :note
       expose :escalated_to, with: Leo::Entities::UserEntity
@@ -31,7 +31,7 @@ module Leo
         end
       end
 
-      def message_body
+      def body
         if object.class == Message
           if object.type_name == 'text'
             object.body
