@@ -21,7 +21,7 @@ class Message < ActiveRecord::Base
       sender = message.sender
       compiled_message["#{sender.full_name} #{sender.id.to_s}"] += 1
       compiled_message
-    end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages."}.join(' ')
+    end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages!"}.join(' ')
   end
 
   def text_message?
@@ -51,7 +51,7 @@ class Message < ActiveRecord::Base
     update_conversation_after_message_sent
     sms_cs_user
     send_new_message_notification
-    # email_batched_messages
+    email_batched_messages
   end
 
   def initial_welcome_message?
@@ -76,23 +76,23 @@ class Message < ActiveRecord::Base
     end
   end
 
-  # def email_batched_messages
-  #   conversation.family.guardians.each do |guardian|
-  #     if ready_to_notify?(guardian) && sender != guardian
-  #       BatchedMessagesJob.send(guardian.id, "You have new messages!")
-  #       set_next_send_at(guardian, 5.minutes)
-  #     end
-  #   end
-  # end
+  def email_batched_messages
+    conversation.family.guardians.each do |guardian|
+      if ready_to_notify?(guardian) && sender != guardian
+        BatchedMessagesJob.send(guardian.id, "You have new messages!")
+        set_next_send_at(guardian, 5.minutes)
+      end
+    end
+  end
 
   def sms_cs_user
     return if cs_user_online?
     if sms_immediately?(@cs_user.id)
-      SendSmsJob.send(@cs_user.id, :single, Time.now.to_s, sender.id)
+      SendSmsJob.send(@cs_user.id, sender.id, :single, Time.now.to_s)
     else
       return if schedule_sms_job_paused?(@cs_user.id)
       run_at = cool_down_period_end_at(@cs_user.id)
-      SendSmsJob.send(@cs_user.id, :batched, run_at)
+      SendSmsJob.send(@cs_user.id, false, :batched, run_at)
       pause_schedule_sms_jobs(@cs_user.id)
     end
   end

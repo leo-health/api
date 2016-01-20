@@ -2,31 +2,31 @@ class SendSmsJob < Struct.new(:receiver_id, :sender_id, :type, :run_at)
 
   COOL_DOWN_PERIOD = 2.minutes
 
-  def self.send(receiver_id, type, run_at, sender_id)
-    byebug
+  def self.send(receiver_id, sender_id, type, run_at)
     @run_at = Time.parse(run_at)
-    Delayed::Job.enqueue new(receiver_id, type, sender_id), run_at: @run_at
+    Delayed::Job.enqueue new(receiver_id, sender_id, type, run_at), run_at: @run_at
   end
 
   def perform
-    byebug
     receiver = User.find_by_id(receiver_id)
-    body = message_body(sender_id)
-
+    body = message_body(sender_id, run_at)
     sms_user(receiver.phone, body) if receiver
+    return if type == :escalation
     set_next_cool_down_period(receiver_id, COOL_DOWN_PERIOD)
     unpause_schedule_sms_jobs(receiver_id)
   end
 
   private
 
-  def message_body(sender_id)
+  def message_body(sender_id, run_at)
     if type == :batched
-      Message.compile_sms_message(@run_at - COOL_DOWN_PERIOD, @run_at)
+      end_time = Time.parse(run_at)
+      Message.compile_sms_message(end_time - COOL_DOWN_PERIOD, end_time)
     elsif type == :single
-      byebug
       return unless sender = User.find_by_id(sender_id)
       "#{sender.full_name} sent you 1 message!"
+    elsif type == :escalation
+      "A conversation has been escalated to you by #{sender.full_name}!"
     end
   end
 
