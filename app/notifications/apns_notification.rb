@@ -12,8 +12,8 @@ class ApnsNotification
 
     @pusher = Grocer.pusher(
         certificate: ENV['APNS_CERTIFICATE'],
-        passphrase:  "catfood", # need to replace it by env variable here
-        gateway:     "gateway.sandbox.push.apple.com", # need to replace it by env variable here
+        passphrase:  ENV['APNS_CERTIFICATE_PASSWORD’], 
+        gateway:     ENV['APNS_CERTIFICATE_GATEWAY’], 
         retries:     3
     )
   end
