@@ -3,8 +3,8 @@ module Leo
     class ShortConversationEntity < Grape::Entity
       expose :id
       expose :patients, with: Leo::Entities::ShortUserEntity
-      expose :primary_guardian, with: Leo::Entities::ShortUserEntity
       expose :guardians, with: Leo::Entities::ShortUserEntity
+      expose :primary_guardian, with: Leo::Entities::ShortUserEntity
       expose :last_message_created_at
       expose :state
       expose :last_message
