@@ -77,7 +77,6 @@ group :production do
 end
 
 group :develop do
-#  gem 'fitter-happier'
   gem "health_check"
   gem "lograge"
 end
