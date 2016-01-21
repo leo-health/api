@@ -14,6 +14,7 @@ gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
 gem 'cancancan', '~> 1.10'
 gem "paranoia", "~> 2.0"
+gem 'goldiloader'
 gem 'grape'                 # Our API base
 gem 'grape-cancan'
 gem 'grape-entity'
@@ -54,7 +55,6 @@ group :development, :test do
 end
 
 group :development do
-  gem 'bullet'
   gem 'rails-footnotes'
   gem 'rails_layout'
   gem 'web-console', '~> 2.0'

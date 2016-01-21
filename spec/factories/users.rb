@@ -1,14 +1,10 @@
 FactoryGirl.define do
-  sequence :email do |n|
-    "user#{n}@test.com"
-  end
-
   factory :user do
     first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
     last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
     birth_date  { 29.years.ago }
     sex					{ ['M', 'F'].sample }
-    email
+    email       {"user_#{rand(1000)}@test.com"}
     phone '1234567890'
     password     'password'
     password_confirmation 'password'
