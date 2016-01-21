@@ -50,9 +50,12 @@ namespace :notification do
   end
 
   desc "send email digest to conversation owner about escalated conversations"
-  task escalated_covnersation_email_digest: :environment do
+  task escalated_conversation_email_digest: :environment do
     User.staff.each do |staff|
-      count = staff.escalated_conversations.count
+      count = staff.escalation_notes.select do |escalation_note|
+        escalation_note.active?
+      end.count
+
       next if count == 0
       created_job = UnaddressedConversationDigestJob.send(staff.id, count, :escalated)
       if created_job.valid?

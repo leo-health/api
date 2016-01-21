@@ -135,4 +135,14 @@ describe Conversation, type: :model do
       end
     end
   end
+
+  describe '#last_closed_at' do
+    let(:closed_conversation){ create(:conversation, state: :closed) }
+    let!(:first_closure_note){ create(:closure_note, conversation: closed_conversation)}
+    let!(:second_closure_note){ create(:closure_note, conversation: closed_conversation, created_at: Time.now + 1.minutes)}
+
+    it "should return the created_at time of second closure note" do
+      expect( closed_conversation.last_closed_at ).to eq( second_closure_note.created_at )
+    end
+  end
 end
