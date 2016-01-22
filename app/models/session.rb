@@ -6,7 +6,7 @@ class Session < ActiveRecord::Base
 
   before_validation :ensure_authentication_token, on: [:create, :update]
   validates :user, presence: true
-  validates :device_height, :device_width, :device_token, :device_identifier, presence: true, if: :mobile?
+  validates :device_type, :device_token, presence: true, if: :mobile?
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
 
   private

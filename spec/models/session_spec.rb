@@ -11,10 +11,8 @@ RSpec.describe Session, type: :model do
     context "if on web platform" do
       before { allow(subject).to receive(:mobile?).and_return(true) }
 
-      it { is_expected.to validate_presence_of(:device_height) }
-      it { is_expected.to validate_presence_of(:device_width) }
+      it { is_expected.to validate_presence_of(:device_type) }
       it { is_expected.to validate_presence_of(:device_token) }
-      it { is_expected.to validate_presence_of(:device_identifier) }
     end
   end
 end
