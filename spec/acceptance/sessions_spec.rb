@@ -13,7 +13,6 @@ resource "Sessions" do
     parameter :platform, "ios, web, android(*paramters below are requried if platform is ios/android)"
     parameter :device_token, "Device Token"
     parameter :device_type, "Device Type"
-    parameter :device_identifier, "unique indentification of device"
 
     let(:email){ user.email }
     let(:password){ "password" }
