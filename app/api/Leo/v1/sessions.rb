@@ -8,7 +8,7 @@ module Leo
         params do
           requires :email, type: String, allow_blank: false
           requires :password, type: String, allow_blank: false
-          requires :platform, type: String,  values: ['web', 'ios']
+          optional :platform, type: String,  values: ['web', 'ios', 'android']
           optional :device_height, type: String
           optional :device_width, type: String
           optional :device_type, type: String
