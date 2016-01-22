@@ -9,11 +9,8 @@ module Leo
           requires :email, type: String, allow_blank: false
           requires :password, type: String, allow_blank: false
           optional :platform, type: String,  values: ['web', 'ios', 'android']
-          optional :device_height, type: String
-          optional :device_width, type: String
           optional :device_type, type: String
           optional :device_token, type: String
-          optional :device_identifier, type: String
         end
 
         desc "create a session when user login"
@@ -25,11 +22,8 @@ module Leo
 
           session_params = {
             platform: params[:platform],
-            device_height: params[:device_height],
-            device_width: params[:device_width],
             device_type: params[:device_type],
             device_token: params[:device_token],
-            device_identifier: params[:device_identifier]
           }
 
           session = user.sessions.create(session_params)

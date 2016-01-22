@@ -12,17 +12,14 @@ resource "Sessions" do
     parameter :password, "Password", required: true
     parameter :platform, "ios, web, android(*paramters below are requried if platform is ios/android)"
     parameter :device_token, "Device Token"
-    parameter :device_height, "Device Height"
-    parameter :device_width, "Device Width"
+    parameter :device_type, "Device Type"
     parameter :device_identifier, "unique indentification of device"
 
     let(:email){ user.email }
     let(:password){ "password" }
     let(:platform){ "ios" }
     let(:device_token){ "token" }
-    let(:device_height){ "25" }
-    let(:device_width){ "12" }
-    let(:device_identifier){ "12345" }
+    let(:device_type){ "6s" }
 
     let(:raw_post){ params.to_json }
 
