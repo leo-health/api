@@ -21,7 +21,7 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # end
 
   # Process files as they are uploaded:
-  process resize_to_fill: [214, 214]
+  # process resize_to_fill: [214, 214]
 
   # Create different versions of your uploaded files:
   # version :primary_3x do
