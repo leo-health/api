@@ -24,7 +24,7 @@ module SyncService
       SyncTask.find_or_create_by(sync_type: :scan_patients.to_s)
       SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s)
 
-      Practice.all.each { |practice|
+      Practice.find_each { |practice|
         SyncTask.find_or_create_by(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
       }
     end
@@ -56,11 +56,6 @@ module SyncService
       @appointment_data_interval = 15.minutes
     end
   end
-
-  def self.create_debug_syncer(practice_id: 195900)
-    connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new(practice_id: practice_id)
-    SyncServiceHelper::Syncer.new(connector)
-  end
 end
 
 module SyncServiceHelper
@@ -69,7 +64,7 @@ module SyncServiceHelper
 
     attr_reader :connector
 
-    def initialize(connector)
+    def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
       @connector = connector
     end
 
@@ -285,6 +280,41 @@ module SyncServiceHelper
 
       leo_appt.sync_updated_at = DateTime.now.utc
       leo_appt.save!
+    end
+
+    def find_preexisting_athena_patients()
+      preexisting_patients = []
+
+      Practice.find_each { |practice|
+        preexisting_patients = preexisting_patients.concat(@connector.get_patients(departmentid: practice.athena_id))
+      }
+
+      puts "preexisting_patients: #{preexisting_patients}"
+      preexisting_patients = preexisting_patients.select { |patient| !Patient.exists?(athena_id: patient[:patientid.to_s].to_i) }
+
+      return preexisting_patients.map { |patient| patient[:patientid.to_s].to_i }.sort
+    end
+
+    def migrate_preexisting_athena_patient(athena_id, family_id)
+      leo_patient = Patient.find_by(athena_id: athena_id)
+      raise "Patient athena_id=#{athena_id} already exists in Leo" unless leo_patient.nil?
+
+      athena_patient = @connector.get_patient(patientid: athena_id)
+      raise "No Athena patient found for athena_id=#{athena_id}" unless athena_patient
+
+      family = Family.find(family_id)
+
+      #create patient
+      leo_patient = family.patients.new(
+        first_name: athena_patient.firstname,
+        last_name: athena_patient.lastname,
+        birth_date: DateTime.strptime(athena_patient.dob, "%m/%d/%Y"),
+        sex: athena_patient.sex,
+        athena_id: athena_id)
+
+      leo_patient.save!
+
+      return leo_patient
     end
 
     #sync patient

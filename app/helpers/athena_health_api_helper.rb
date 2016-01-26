@@ -300,6 +300,15 @@ module AthenaHealthApiHelper
         headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
     end
 
+    #Get list of all patients: GET /preview1/:practiceid/patients
+    def get_patients(departmentid: )
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
+
+      return get_paged(
+        url: "patients", params: params, 
+        headers: AthenaHealthApiConnector.common_headers, field: :patients)
+    end
+
     #Create a patient: POST /preview1/:practiceid/patients
     #returns patient id
     #TODO: Doesn't seem to create a new patient when some of the records are the same.  Investigate.
