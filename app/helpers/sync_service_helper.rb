@@ -24,8 +24,8 @@ module SyncService
       SyncTask.find_or_create_by(sync_type: :scan_patients.to_s)
       SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s)
 
-      SyncService.configuration.department_ids.each { |id|
-        SyncTask.find_or_create_by(sync_type: :scan_remote_appointments.to_s, sync_id: id)
+      Practice.all.each { |practice|
+        SyncTask.find_or_create_by(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
       }
     end
   end
@@ -48,16 +48,12 @@ module SyncService
     #The interval between successive appointment updates
     attr_accessor :appointment_data_interval
 
-    #An array of Athena department ids
-    attr_accessor :department_ids
-
     def initialize
       @auto_reschedule_job = true
       @job_interval = 1.minutes
       @auto_gen_scan_tasks = true
       @patient_data_interval = 15.minutes
       @appointment_data_interval = 15.minutes
-      @department_ids = [ 1 ]
     end
   end
 
@@ -310,7 +306,7 @@ module SyncServiceHelper
       if leo_patient.athena_id == 0
         #create patient
         leo_patient.athena_id = @connector.create_patient(
-          departmentid: leo_parent.practice_id,
+          departmentid: leo_parent.practice.athena_id,
           firstname: leo_patient.first_name,
           middlename: leo_patient.middle_initial.to_s,
           lastname: leo_patient.last_name,
@@ -328,7 +324,7 @@ module SyncServiceHelper
         #update patient
         @connector.update_patient(
           patientid: leo_patient.athena_id,
-          departmentid: leo_parent.practice_id,
+          departmentid: leo_parent.practice.athena_id,
           firstname: leo_patient.first_name,
           middlename: leo_patient.middle_initial.to_s,
           lastname: leo_patient.last_name,
@@ -398,7 +394,7 @@ module SyncServiceHelper
       leo_parent = leo_patient.family.primary_parent
 
       #get list of allergies for this patients
-      allergies = @connector.get_patient_allergies(patientid: leo_patient.athena_id, departmentid: leo_parent.practice_id)
+      allergies = @connector.get_patient_allergies(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
 
       #remove existing allergies for the user
       Allergy.destroy_all(patient_id: leo_patient.id)
@@ -434,7 +430,7 @@ module SyncServiceHelper
       leo_parent = leo_patient.family.primary_parent
 
       #get list of medications for this patients
-      meds = @connector.get_patient_medications(patientid: leo_patient.athena_id, departmentid: leo_parent.practice_id)
+      meds = @connector.get_patient_medications(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
 
       #remove existing medications for the user
       Medication.destroy_all(patient_id: leo_patient.id)
@@ -494,7 +490,7 @@ module SyncServiceHelper
       leo_parent = leo_patient.family.primary_parent
 
       #get list of vitals for this patients
-      vitals = @connector.get_patient_vitals(patientid: leo_patient.athena_id, departmentid: leo_parent.practice_id)
+      vitals = @connector.get_patient_vitals(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
 
       #remove existing vitals for the user
       Vital.destroy_all(patient_id: leo_patient.id)
@@ -529,7 +525,7 @@ module SyncServiceHelper
       leo_parent = leo_patient.family.primary_parent
 
       #get list of vaccines for this patients
-      vaccs = @connector.get_patient_vaccines(patientid: leo_patient.athena_id, departmentid: leo_parent.practice_id)
+      vaccs = @connector.get_patient_vaccines(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
 
       #remove existing vaccines for the user
       Vaccine.destroy_all(patient_id: leo_patient.id)

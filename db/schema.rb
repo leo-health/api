@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160122181705) do
+ActiveRecord::Schema.define(version: 20160126152533) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -410,7 +410,7 @@ ActiveRecord::Schema.define(version: 20160122181705) do
   add_index "practice_schedules", ["practice_id"], name: "index_practice_schedules_on_practice_id", using: :btree
 
   create_table "practices", force: :cascade do |t|
-    t.string   "name",           null: false
+    t.string   "name",                       null: false
     t.string   "address_line_1"
     t.string   "address_line_2"
     t.string   "city"
@@ -419,9 +419,10 @@ ActiveRecord::Schema.define(version: 20160122181705) do
     t.string   "fax"
     t.string   "phone"
     t.string   "email"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
     t.string   "time_zone"
+    t.integer  "athena_id",      default: 0, null: false
   end
 
   create_table "provider_additional_availabilities", force: :cascade do |t|
