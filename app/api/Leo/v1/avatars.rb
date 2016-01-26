@@ -16,7 +16,12 @@ module Leo
           patient = Patient.find(params[:patient_id])
           avatar = patient.avatars.new(owner: patient)
           avatar.avatar = image_decoder(params[:avatar])
-          render_success avatar
+          # render_success avatar
+          if avatar.save
+            present :avatar, avatar, with: Leo::Entities::AvatarEntity, device_type: session_device_type
+          else
+            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+          end
         end
       end
     end

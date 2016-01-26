@@ -38,7 +38,8 @@ module Leo
 
         def current_user
           return unless params[:authentication_token]
-          @current_user ||= Session.find_by_authentication_token(params[:authentication_token]).try(:user)
+          @session = Session.find_by_authentication_token(params[:authentication_token])
+          @current_user ||= @session.try(:user)
         end
 
         def render_success object
@@ -55,6 +56,10 @@ module Leo
           data.content_type = "image/png"
           data.original_filename = "uploaded_image.png"
           data
+        end
+
+        def session_device_type
+          @session.device_type.gsub(/\s+/, "").to_sym if @session.device_type
         end
       end
 
