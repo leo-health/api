@@ -73,16 +73,6 @@ module Leo
             end
           end
         end
-
-        helpers do
-          def image_decoder(image)
-            data = StringIO.new(Base64.decode64(image))
-            data.class.class_eval { attr_accessor :original_filename, :content_type }
-            data.content_type = "image/png"
-            data.original_filename = "uploaded_message_photo.png"
-            data
-          end
-        end
       end
     end
   end

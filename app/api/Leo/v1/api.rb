@@ -48,6 +48,14 @@ module Leo
             error!({error_code: 422, error_message: object.errors.full_messages }, 422)
           end
         end
+
+        def image_decoder(image)
+          data = StringIO.new(Base64.decode64(image))
+          data.class.class_eval { attr_accessor :original_filename, :content_type }
+          data.content_type = "image/png"
+          data.original_filename = "uploaded_image.png"
+          data
+        end
       end
 
       ENDPOINTS = %w(appointments appointment_slots conversations sessions users

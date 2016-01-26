@@ -15,18 +15,8 @@ module Leo
         post authorize: [:create, Avatar] do
           patient = Patient.find(params[:patient_id])
           avatar = patient.avatars.new(owner: patient)
-          avatar.avatar = avatar_decoder(params[:avatar], patient)
+          avatar.avatar = image_decoder(params[:avatar])
           render_success avatar
-        end
-      end
-
-      helpers do
-        def avatar_decoder(avatar, patient)
-          data = StringIO.new(Base64.decode64(avatar))
-          data.class.class_eval { attr_accessor :original_filename, :content_type }
-          data.original_filename = "patient#{patient.id}upload.png"
-          data.content_type = "image/png"
-          data
         end
       end
     end
