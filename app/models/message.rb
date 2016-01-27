@@ -51,7 +51,7 @@ class Message < ActiveRecord::Base
     update_conversation_after_message_sent
     sms_cs_user
     send_new_message_notification
-    email_batched_messages
+    unread_message_reminder_email
   end
 
   def initial_welcome_message?
@@ -76,10 +76,9 @@ class Message < ActiveRecord::Base
     end
   end
 
-  def email_batched_messages
-    conversation.family.guardians.each do |guardian|
-      BatchedMessagesJob.send(guardian.id, "You have a new message!") unless sender == guardian
-    end
+  def unread_message_reminder_email
+    return if sender.has_role?(:guardian)
+    RemindUnreadMessagesJob.send(guardian.id)
   end
 
   def sms_cs_user

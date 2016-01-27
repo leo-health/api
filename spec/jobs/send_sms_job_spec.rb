@@ -6,8 +6,8 @@ describe SendSmsJob do
   let(:body){ "what up bro!"}
   let(:send_sms_job){ SendSmsJob.new(customer_service_user.id, sender.id, :single, Time.now.to_s)}
   let(:response){{ from: TWILIO_PHONE_NUMBER,
-                         to: customer_service_user.phone,
-                         body: "#{sender.full_name} sent you 1 message!" }}
+                   to: customer_service_user.phone,
+                   body: "#{sender.full_name} sent you 1 message!" }}
 
   describe '#perform' do
     it "should send the sms via twilio client" do
