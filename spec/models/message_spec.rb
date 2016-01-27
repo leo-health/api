@@ -53,7 +53,7 @@ RSpec.describe Message, type: :model do
           conversation.messages.create( body: "Hello", sender: customer_service, type_name: "text")
         end
 
-        it "should send email notifications" do
+        it "should add a delayed job to check if the message is answered in an hour" do
           expect{ create_message }.to change(Delayed::Job, :count).by(1)
         end
       end
