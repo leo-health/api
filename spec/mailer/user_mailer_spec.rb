@@ -152,11 +152,11 @@ describe UserMailer do
     end
   end
 
-  describe "#remind_unread_message" do
+  describe "#remind_unread_messages" do
     let(:message){ create(:message) }
 
     it "should notify guardian of read message from staff" do
-      UserMailer.remind_unread_message(user, message).deliver
+      UserMailer.remind_unread_messages(user, message).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Message Not Read Over an Hour' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }

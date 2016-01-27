@@ -124,7 +124,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def remind_unread_message(user, staff_message)
+  def remind_unread_messages(user, staff_message)
     mandrill_mail(
       template: 'Leo - Message Not Read Over an Hour',
       subject: "You have unread message from last hour!",

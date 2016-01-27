@@ -9,8 +9,9 @@ class RemindUnreadMessagesJob < Struct.new(:user_id, :staff_message_id)
     user = User.find_by_id(user_id)
     staff_message = Message.find_by_id(staff_message_id)
     if user && staff_message
-      return if Message.where(created_at: staff_message.created_at..staff_message.created_at + RESPOND_WINDOW, sender: user)
-      UserMailer.remind_unread_message(user, staff_message).deliver
+      unless Message.where(created_at: staff_message.created_at..staff_message.created_at + RESPOND_WINDOW, sender: user).length > 0
+        UserMailer.remind_unread_messages(user, staff_message).deliver
+      end
     end
   end
 end
