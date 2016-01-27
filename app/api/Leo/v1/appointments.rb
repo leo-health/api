@@ -34,7 +34,7 @@ module Leo
         get ":id" do
           if appointment = Appointment.find(params[:id])
             authorize! :read, appointment
-            present :appointment, appointment, with: Leo::Entities::AppointmentEntity
+            render_success appointment
           end
         end
 
