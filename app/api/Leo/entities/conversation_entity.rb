@@ -35,7 +35,7 @@ module Leo
       end
 
       def messages
-        Leo::Entities::MessageEntity.represent(object.messages.order('created_at ASC').last(25), options)
+        Leo::Entities::MessageEntity.represent(object.messages.order('created_at ASC').last(MESSAGE_PAGE_SIZE), options)
       end
     end
   end

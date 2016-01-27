@@ -2,7 +2,6 @@ module Leo
   module V1
     class Messages < Grape::API
       include Grape::Kaminari
-
       desc 'Return a single message'
       namespace 'messages' do
         before do
@@ -17,7 +16,7 @@ module Leo
       end
 
       namespace 'conversations/:conversation_id' do
-        paginate per_page: 25
+        paginate per_page: MESSAGE_PAGE_SIZE
 
         resource :messages do
           before do
