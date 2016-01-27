@@ -42,12 +42,16 @@ module Leo
           @current_user ||= @session.try(:user)
         end
 
-        def render_success object
+        def create_success object, device_type=nil
           if object.save
-            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize
+            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
           else
             error!({error_code: 422, error_message: object.errors.full_messages }, 422)
           end
+        end
+
+        def render_success object, device_type=nil
+          present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
         end
 
         def image_decoder(image)

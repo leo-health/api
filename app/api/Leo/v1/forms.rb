@@ -48,7 +48,7 @@ module Leo
         def create_form
           params[:image] = image_decoder(params[:image])
           form = current_user.forms.new(declared(params, include_missing: false))
-          render_success form
+          create_success form
         end
 
         def show_form

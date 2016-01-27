@@ -97,8 +97,8 @@ module Leo
                               }.stringify_keys
 
           user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
-          
-          render_success user
+
+          create_success user
           session = user.sessions.create
           present :session, session
         end
