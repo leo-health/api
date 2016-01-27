@@ -1,12 +1,16 @@
-class RemindUnreadMessagesJob < Struct.new(:user_id, :body, run_at)
+class RemindUnreadMessagesJob < Struct.new(:user_id, :staff_message_id)
   RESPOND_WINDOW = 1.hour
 
-  def self.send(user_id)
-    Delayed::Job.enqueue new(user_id), run_at: Time.now + RESPOND_WINDOW
+  def self.send(user_id, staff_message_id)
+    Delayed::Job.enqueue new(user_id, staff_message_id), run_at: Time.now + RESPOND_WINDOW
   end
 
   def perform
     user = User.find_by_id(user_id)
-    UserMailer.batched_messages(user, body).deliver if user
+    staff_message = Message.find_by_id(staff_message_id)
+    if user && staff_message
+      return if Message.where(created_at: staff_message.created_at..staff_message.created_at + RESPOND_WINDOW, sender: user)
+      UserMailer.remind_unread_message(user, staff_message).deliver
+    end
   end
 end

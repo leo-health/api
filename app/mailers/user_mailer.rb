@@ -124,13 +124,14 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def batched_messages(user, body)
+  def remind_unread_message(user, staff_message)
     mandrill_mail(
-      template: 'Leo - Message Digest',
-      subject: "You received some messages!",
+      template: 'Leo - Message Not Read Over an Hour',
+      subject: "You have unread message from last hour!",
       to: user.email,
       vars: {
-        'BODY': body
+        'BODY': staff_message.body,
+        'STAFF': staff_message.sender.full_name
       }
     )
   end

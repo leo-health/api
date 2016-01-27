@@ -78,7 +78,7 @@ class Message < ActiveRecord::Base
 
   def unread_message_reminder_email
     return if sender.has_role?(:guardian)
-    RemindUnreadMessagesJob.send(guardian.id)
+    RemindUnreadMessagesJob.send(guardian.id, id)
   end
 
   def sms_cs_user
