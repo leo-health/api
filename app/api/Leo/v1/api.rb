@@ -50,8 +50,16 @@ module Leo
           end
         end
 
-        def render_success object, device_type=nil
+        def render_success object, device_type=session_device_type
           present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+        end
+
+        def update_success object, update_params, device_type=session_device_type
+          if object.update_attributes(update_params)
+            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+          else
+            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+          end
         end
 
         def image_decoder(image)

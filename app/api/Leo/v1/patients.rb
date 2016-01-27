@@ -41,25 +41,17 @@ module Leo
         put ':id' do
           patient = Patient.find(params[:id])
           authorize! :update, patient
-          if patient.update_attributes(declared(params, include_missing: false))
-            present :patient, patient, with: Leo::Entities::PatientEntity
-          else
-            error!({error_code: 422, error_message: patient.errors.full_messages}, 422)
-          end
+          update_success patient, declared(params, include_missing: false)
         end
 
         desc "#show: get a patient"
         get ':id' do
           patient = Patient.find(params[:id])
           authorize! :read, patient
-          present :patient, patient, with: Leo::Entities::PatientEntity
+          render_success patient
         end
 
         desc "#index: all patients of a guardian(current_user)"
-        params do
-          optional :avatar_size, type: String, values: ["primary_3x", "primary_2x", "primary_1x"]
-        end
-
         get do
           patients = Family.find(current_user.family_id).patients
           authorize! :read, Patient

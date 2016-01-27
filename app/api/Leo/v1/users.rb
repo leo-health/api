@@ -56,13 +56,9 @@ module Leo
 
         post do
           user = User.new(declared(params, include_missing: false).merge({role_id: 4}))
-          if user.save
-            session = user.sessions.create
-            present :session, session
-            present :user, user, with: Leo::Entities::UserEntity
-          else
-            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
-          end
+          create_success user
+          session = user.sessions.create
+          present :session, session
         end
       end
 
@@ -94,10 +90,9 @@ module Leo
                                 birth_date: enrollment.birth_date,
                                 sex: enrollment.sex,
                                 insurance_plan_id: enrollment.insurance_plan_id
-                              }.stringify_keys
+                              }
 
           user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
-
           create_success user
           session = user.sessions.create
           present :session, session
@@ -113,13 +108,9 @@ module Leo
           end
 
           desc "#show get an individual user"
-          params do
-            optional :avatar_size, type: String, values: ["primary_3x", "primary_2x", "primary_1x", "secondary_3x", "secondary_2x", "secondary_1x"]
-          end
-
           get do
             authorize! :show, @user
-            present :user, @user, with: Leo::Entities::UserEntity, avatar_size: params[:avatar_size].try(:to_sym)
+            render_success @user
           end
 
           desc "#put update individual user"
@@ -129,9 +120,7 @@ module Leo
 
           put do
             user_params = declared(params)
-            if @user.update_attributes(user_params)
-              present :user, @user, with: Leo::Entities::UserEntity
-            end
+            update_success @user, user_params
           end
         end
       end
