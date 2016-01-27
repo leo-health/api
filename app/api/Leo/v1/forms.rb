@@ -54,17 +54,13 @@ module Leo
         def show_form
           form = Form.find(params[:id])
           authorize! :read, form
-          present :form, form, with: Leo::Entities::FormEntity
+          render_success form
         end
 
         def update_form
           form = Form.find(params[:id])
           authorize! :update, form
-          if form.update_attributes(declared(params, include_missing: false).merge(submitted_by: current_user))
-            present :form, form, with: Leo::Entities::FormEntity
-          else
-            error!({ error_code: 422, error_message: form.errors.full_messages }, 422)
-          end
+          update_success form, declared(params, include_missing: false).merge(submitted_by: current_user)
         end
 
         def delete_form
