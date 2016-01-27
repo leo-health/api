@@ -7,7 +7,7 @@ module Leo
       with_options(format_with: :iso_timestamp) do
         expose :birth_date
       end
-      # expose :avatar, with: Leo::Entities::AvatarEntity, device_type: options[:device_type]
+
       expose :avatar do |instance, options|
         Leo::Entities::AvatarEntity.represent instance.current_avatar, options
       end
@@ -17,10 +17,6 @@ module Leo
       def role
         object.role.name
       end
-      #
-      # def avatar
-      #   object.current_avatar
-      # end
     end
   end
 end

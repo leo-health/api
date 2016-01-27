@@ -12,7 +12,7 @@ module Leo
         get ':id' do
           message = Message.find(params[:id])
           authorize! :read, Message
-          present message, with: Leo::Entities::MessageEntity
+          render_success message
         end
       end
 
@@ -45,7 +45,7 @@ module Leo
           get do
             messages = @conversation.messages.order('created_at DESC')
             authorize! :read, Message
-            present paginate(messages), with: Leo::Entities::MessageEntity
+            present paginate(messages), with: Leo::Entities::MessageEntity, device_type: session_device_type
           end
 
           desc "Create a message"
@@ -65,12 +65,7 @@ module Leo
             end
             message = @conversation.messages.new(message_params)
             authorize! :create, message
-            if message.save
-              present message, with: Leo::Entities::MessageEntity
-              message.broadcast_message(current_user)
-            else
-              error!({ error_code: 422, error_message: message.errors.full_messages }, 422)
-            end
+            create_success message, session_device_type
           end
         end
       end

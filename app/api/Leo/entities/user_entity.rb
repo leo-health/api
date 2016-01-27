@@ -3,7 +3,6 @@ module Leo
     class UserEntity < Grape::Entity
       expose :id, :title, :first_name, :middle_initial, :last_name, :suffix, :sex, :practice_id, :family_id, :email
       expose :role, with: Leo::Entities::RoleEntity
-      # expose :avatar, with: Leo::Entities::AvatarEntity, device_type: device_type
       expose :avatar do |instance, options|
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
@@ -20,11 +19,6 @@ module Leo
       def primary_guardian
         object.family.guardians.where(['created_at < ?', object.created_at]).count < 1
       end
-
-      # def avatar
-      #   object.avatar
-      #   if object.avatar
-      # end
 
       def credentials
         object.provider_profile.try(:credentials)
