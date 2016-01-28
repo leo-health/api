@@ -67,9 +67,6 @@ GEM
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     builder (3.2.2)
-    bullet (4.14.7)
-      activesupport (>= 3.0.0)
-      uniform_notifier (~> 1.9.0)
     byebug (6.0.2)
     cancancan (1.12.0)
     carrierwave (0.10.0)
@@ -142,6 +139,9 @@ GEM
       ruby-progressbar (~> 1.4)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
+    goldiloader (0.0.9)
+      activerecord (>= 3.2, < 4.3)
+      activesupport (>= 3.2, < 4.3)
     grape (0.13.0)
       activesupport
       builder
@@ -176,6 +176,8 @@ GEM
     hashie (3.4.2)
     hashie-forbidden_attributes (0.1.1)
       hashie (>= 3.0)
+    health_check (1.5.1)
+      rails (>= 2.3.0)
     html2haml (2.0.0)
       erubis (~> 2.7.0)
       haml (~> 4.0.0)
@@ -201,6 +203,10 @@ GEM
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     kgio (2.10.0)
+    lograge (0.3.5)
+      actionpack (>= 3)
+      activesupport (>= 3)
+      railties (>= 3)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -401,7 +407,6 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
-    uniform_notifier (1.9.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -424,7 +429,6 @@ DEPENDENCIES
   aasm
   airborne
   awesome_print
-  bullet
   byebug
   cancancan (~> 1.10)
   carrierwave
@@ -439,6 +443,7 @@ DEPENDENCIES
   factory_girl_rails
   fakeredis
   fuubar
+  goldiloader
   grape
   grape-cancan
   grape-entity
@@ -447,8 +452,10 @@ DEPENDENCIES
   grocer
   haml-rails (~> 0.8)
   hashie-forbidden_attributes
+  health_check
   jbuilder (~> 2.0)
   jquery-rails
+  lograge
   mandrill_mailer
   mini_magick
   paranoia (~> 2.0)
@@ -486,4 +493,4 @@ DEPENDENCIES
   whenever
 
 BUNDLED WITH
-   1.10.6
+   1.11.2

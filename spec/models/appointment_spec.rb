@@ -25,7 +25,7 @@ RSpec.describe Appointment, type: :model do
     it { is_expected.to validate_uniqueness_of(:start_datetime).scoped_to(:provider_id) }
   end
 
-  describe 'same_family' do
+  describe 'same_family?' do
     let(:first_family){create(:family)}
     let(:second_family){create(:family)}
     let(:patient){create(:patient, family: first_family)}

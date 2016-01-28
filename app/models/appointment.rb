@@ -11,10 +11,10 @@ class Appointment < ActiveRecord::Base
   validates :duration, :athena_id, :start_datetime, :appointment_status,
             :appointment_type, :booked_by, :provider, :patient, :practice, presence: true
 
-  validate :same_family, on: :create
+  validate :same_family?, on: :create
   validates_uniqueness_of :start_datetime, scope: :provider_id, conditions: -> { where(deleted_at: nil)}
 
-  def same_family
+  def same_family?
     return unless (patient && booked_by)
     errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id
   end

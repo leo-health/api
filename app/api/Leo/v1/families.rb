@@ -11,7 +11,7 @@ module Leo
         desc "Return the family and members of current user"
         get  do
           if current_user.has_role? :guardian
-            present :family, current_user.family, with: Leo::Entities::FamilyEntity
+            render_success current_user.family
           else
             error!({error_code: 422, error_message: "Current user is not a guardian"}, 422)
           end

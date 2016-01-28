@@ -1,6 +1,11 @@
 require 'rails_helper'
 
 RSpec.describe EscalationNote, type: :model do
+  let!(:customer_service){ create(:user, :customer_service) }
+  let!(:clinical){ create(:user, :clinical) }
+  let!(:conversation){ create(:conversation, state: :open) }
+  let(:escalation_params){ { escalated_to: clinical, note: 'escalation note', priority: 1, escalated_by: customer_service } }
+
   describe "relations" do
     it{ is_expected.to belong_to(:escalated_to) }
     it{ is_expected.to belong_to(:conversation) }
@@ -15,17 +20,25 @@ RSpec.describe EscalationNote, type: :model do
   end
 
   describe "callbacks" do
-    let!(:customer_service){ create(:user, :customer_service) }
-    let!(:clinical){ create(:user, :clinical) }
-    let!(:open_conversation){ create(:conversation, state: :open) }
-    let(:escalation_params){ { escalated_to: clinical, note: 'escalation note', priority: 1, escalated_by: customer_service } }
-
     describe 'after commit' do
       it "should send a sms and email notification to staff" do
         expect( EscalationNote.count ).to eq(0)
-        expect{ open_conversation.escalate(escalation_params) }.to change(Delayed::Job, :count).by(2)
+        expect{ conversation.escalate(escalation_params) }.to change(Delayed::Job, :count).by(2)
         expect( EscalationNote.count ).to eq(1)
       end
+    end
+  end
+
+  describe "#active?" do
+    let!(:closure_params){ { closed_by: clinical, note: 'closure note'} }
+
+    before do
+      conversation.escalate(escalation_params)
+      conversation.close(closure_params)
+    end
+
+    it "should determine if the escalation note is active or not" do
+      expect( conversation.escalation_notes.first.active? ).to eq(false)
     end
   end
 end

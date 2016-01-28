@@ -10,11 +10,15 @@ resource "Sessions" do
   post "/api/v1/login" do
     parameter :email, "Email", required: true
     parameter :password, "Password", required: true
+    parameter :platform, "ios, web, android(*paramters below are requried if platform is ios/android)"
     parameter :device_token, "Device Token"
+    parameter :device_type, "Device Type"
 
     let(:email){ user.email }
     let(:password){ "password" }
+    let(:platform){ "ios" }
     let(:device_token){ "token" }
+    let(:device_type){ "6s" }
 
     let(:raw_post){ params.to_json }
 

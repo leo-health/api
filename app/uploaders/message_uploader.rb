@@ -12,13 +12,13 @@ class MessageUploader < CarrierWave::Uploader::Base
     "#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
-  # Process files as they are uploaded:
-  process resize_to_fill: [214, 214]
+  version :primary_3x do
+    process resize_to_fit: [900, 900]
+  end
 
-  # Create different versions of your uploaded files:
-  # version :primary_1x do
-  #   process resize_to_fill: [132, 132]
-  # end
+  version :primary_2x do
+    process resize_to_fit: [600, 600]
+  end
 
   # Add a white list of extensions which are allowed to be uploaded.
   # For images you might use something like this:

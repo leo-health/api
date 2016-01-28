@@ -2,19 +2,19 @@ module Leo
   module Entities
     class ConversationEntity < Grape::Entity
       expose :id
-      expose :staff, with: Leo::Entities::UserEntity
+      expose :staff, with: Leo::Entities::ShortUserEntity
       expose :users do
-        expose :guardians, with: Leo::Entities::UserEntity
+        expose :guardians, with: Leo::Entities::ShortUserEntity
         expose :patients, with: Leo::Entities::PatientEntity
       end
-      expose :primary_guardian, with: Leo::Entities::UserEntity
+      expose :primary_guardian, with: Leo::Entities::ShortUserEntity
       expose :created_at
       expose :updated_at
       expose :family
       expose :last_message_created_at
       expose :state
-      expose :last_message, with: Leo::Entities::MessageEntity
-      expose :messages, with: Leo::Entities::MessageEntity
+      expose :last_message
+      expose :messages
 
       private
 
@@ -31,11 +31,11 @@ module Leo
       end
 
       def last_message
-        object.messages.order('created_at DESC').first
+        Leo::Entities::MessageEntity.represent(object.messages.order('created_at DESC').first, options)
       end
 
       def messages
-        object.messages.order('created_at ASC').last(25)
+        Leo::Entities::MessageEntity.represent(object.messages.order('created_at ASC').last(MESSAGE_PAGE_SIZE), options)
       end
     end
   end

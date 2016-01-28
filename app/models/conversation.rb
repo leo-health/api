@@ -77,6 +77,10 @@ class Conversation < ActiveRecord::Base
     end
   end
 
+  def last_closed_at
+    closure_notes.order('created_at DESC').first.try(:created_at)
+  end
+
   private
 
   def load_initial_message

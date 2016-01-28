@@ -15,7 +15,10 @@ module Leo
         if object.type_name == 'text'
           object.body
         else
-          Leo::Entities::ImageEntity.represent(object.message_photo.image)
+          image_version = DEVICE_IMAGE_SIZE_MAP[options[:device_type]] || :primary_3x
+          if object.message_photo.image.respond_to?(image_version)
+           Leo::Entities::ImageEntity.represent(object.message_photo.image.send(image_version))
+          end
         end
       end
     end

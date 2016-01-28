@@ -3,6 +3,7 @@ require 'rails_helper'
 require 'csv'
 
 describe Leo::V1::PatientInsurances do
+  let!(:bot){ create(:user, :bot)}
   let!(:customer_service){ create(:user, :customer_service) }
   let(:user){ create(:user, :guardian) }
   let!(:session){ user.sessions.create }

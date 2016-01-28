@@ -42,4 +42,10 @@ Rails.application.configure do
   #config.web_console.whitelisted_ips = %w(54.88.9.158 54.164.18.156 54.164.18.158)
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Use lograge to silence health_check URL
+  #config.log_level = :info     # :debug, :info, :warn, :error, :fatal, :unknown
+  config.lograge.enabled = true
+  config.lograge.ignore_actions = ["health_check/health_check#index"]
+
 end

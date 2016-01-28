@@ -6,8 +6,8 @@ module Leo
       expose :body
       expose :message_type
       expose :note
-      expose :escalated_to, with: Leo::Entities::UserEntity
-      expose :created_by, with: Leo::Entities::UserEntity
+      expose :escalated_to, with: Leo::Entities::ShortUserEntity
+      expose :created_by, with: Leo::Entities::ShortUserEntity
       expose :created_at
 
       private

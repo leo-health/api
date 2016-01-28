@@ -2,19 +2,18 @@ module Leo
   module V1
     class AppointmentSlots < Grape::API
       resource :appointment_slots do
-        # get "provider/{athena_provider_id}/appointment_slots"
-        # get "appointment_slots?start_date=01/01/2015&end_date=02/01/2015&appointment_type_id=2&provider_id=6"
-
         desc "Return all open slots for a specified provider"
         before do
           authenticated
         end
+
         params do
           requires :start_date, type: String, desc: "Start date", allow_blank: false
           requires :end_date, type: String, desc: "End date", allow_blank: false
           requires :appointment_type_id, type: Integer, desc: "Appointment Type", allow_blank: false
           requires :provider_id, type: Integer, desc: "Provider Id", allow_blank: false
         end
+
         get do
           start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
           end_date = Date.strptime(params[:end_date], "%m/%d/%Y")

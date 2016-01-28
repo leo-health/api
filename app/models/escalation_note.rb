@@ -7,6 +7,10 @@ class EscalationNote < ActiveRecord::Base
 
   after_commit :notify_escalatee, on: :create
 
+  def active?
+    created_at > conversation.last_closed_at
+  end
+
   private
 
   def notify_escalatee
