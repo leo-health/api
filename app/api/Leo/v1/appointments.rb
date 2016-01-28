@@ -34,7 +34,7 @@ module Leo
         get ":id" do
           if appointment = Appointment.find(params[:id])
             authorize! :read, appointment
-            present :appointment, appointment, with: Leo::Entities::AppointmentEntity
+            render_success appointment
           end
         end
 
@@ -73,7 +73,7 @@ module Leo
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
-          render_success appointment
+          create_success appointment
         end
 
         def cancel_appointment

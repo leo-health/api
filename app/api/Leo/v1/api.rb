@@ -38,15 +38,40 @@ module Leo
 
         def current_user
           return unless params[:authentication_token]
-          @current_user ||= Session.find_by_authentication_token(params[:authentication_token]).try(:user)
+          @session = Session.find_by_authentication_token(params[:authentication_token])
+          @current_user ||= @session.try(:user)
         end
 
-        def render_success object
+        def create_success object, device_type=nil
           if object.save
-            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize
+            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
           else
             error!({error_code: 422, error_message: object.errors.full_messages }, 422)
           end
+        end
+
+        def render_success object, device_type=session_device_type
+          present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+        end
+
+        def update_success object, update_params, device_type=session_device_type
+          if object.update_attributes(update_params)
+            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+          else
+            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+          end
+        end
+
+        def image_decoder(image)
+          data = StringIO.new(Base64.decode64(image))
+          data.class.class_eval { attr_accessor :original_filename, :content_type }
+          data.content_type = "image/png"
+          data.original_filename = "uploaded_image.png"
+          data
+        end
+
+        def session_device_type
+          @session.device_type.gsub(/\s+/, "").to_sym if @session.device_type
         end
       end
 

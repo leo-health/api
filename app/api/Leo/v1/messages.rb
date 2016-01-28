@@ -2,7 +2,6 @@ module Leo
   module V1
     class Messages < Grape::API
       include Grape::Kaminari
-
       desc 'Return a single message'
       namespace 'messages' do
         before do
@@ -12,12 +11,12 @@ module Leo
         get ':id' do
           message = Message.find(params[:id])
           authorize! :read, Message
-          present message, with: Leo::Entities::MessageEntity
+          present message, with: Leo::Entities::MessageEntity, device_type: session_device_type
         end
       end
 
       namespace 'conversations/:conversation_id' do
-        paginate per_page: 25
+        paginate per_page: MESSAGE_PAGE_SIZE
 
         resource :messages do
           before do
@@ -37,7 +36,7 @@ module Leo
               full_messages =(messages + close_conversation_notes + escalation_notes).sort{ |x, y|y.created_at <=> x.created_at }
               present :conversation_id, @conversation.id
               present :init_message_id, @conversation.messages.first.id
-              present :messages, paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity
+              present :messages, paginate(Kaminari.paginate_array(full_messages)), with: Leo::Entities::FullMessageEntity, device_type: session_device_type
             end
           end
 
@@ -45,7 +44,7 @@ module Leo
           get do
             messages = @conversation.messages.order('created_at DESC')
             authorize! :read, Message
-            present paginate(messages), with: Leo::Entities::MessageEntity
+            present paginate(messages), with: Leo::Entities::MessageEntity, device_type: session_device_type
           end
 
           desc "Create a message"
@@ -66,21 +65,11 @@ module Leo
             message = @conversation.messages.new(message_params)
             authorize! :create, message
             if message.save
-              present message, with: Leo::Entities::MessageEntity
+              present message, with: Leo::Entities::MessageEntity, device_type: session_device_type
               message.broadcast_message(current_user)
             else
               error!({ error_code: 422, error_message: message.errors.full_messages }, 422)
             end
-          end
-        end
-
-        helpers do
-          def image_decoder(image)
-            data = StringIO.new(Base64.decode64(image))
-            data.class.class_eval { attr_accessor :original_filename, :content_type }
-            data.content_type = "image/png"
-            data.original_filename = "uploaded_message_photo.png"
-            data
           end
         end
       end
