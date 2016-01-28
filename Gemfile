@@ -40,6 +40,7 @@ gem 'redis'
 gem 'whenever', :require => false
 gem 'twilio-ruby'
 gem 'rspec_junit_formatter', '0.2.2'
+gem "figaro"
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -52,12 +53,6 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'fuubar'
   gem 'rspec_api_documentation'
-end
-
-group :development do
-  gem 'rails-footnotes'
-  gem 'rails_layout'
-  gem 'web-console', '~> 2.0'
 end
 
 group :test do
