@@ -131,7 +131,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'BODY': staff_message.body,
-        'STAFF': staff_message.sender.full_name
+        'STAFF': staff_message.sender.full_name,
+        'GUARDIAN_FIRST_NAME': user.first_name
       }
     )
   end
