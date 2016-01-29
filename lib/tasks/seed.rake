@@ -41,19 +41,6 @@ namespace :load do
           phone: '1234567890',
       },
 
-      clinical_support: {
-          first_name: "Clinical Support",
-          last_name: "User",
-          birth_date: 48.years.ago.to_s,
-          sex: "M",
-          email: "clinical_support_user@leohealth.com",
-          password: "password",
-          password_confirmation: "password",
-          role_id: 2,
-          practice_id: 1,
-          phone: '1234567890',
-      },
-
       customer_service: {
           first_name: "Customer Service",
           last_name: "User",
@@ -65,41 +52,6 @@ namespace :load do
           role_id: 3,
           practice_id: 1,
           phone: '1234567890',
-      },
-
-      hgold: {
-          first_name: "Erin",
-          last_name: "Gold",
-          birth_date: 48.years.ago.to_s,
-          sex: "F",
-          email: "hgold@leohealth.com",
-          password: "password",
-          password_confirmation: "password",
-          role_id: 5,
-          practice_id: 1,
-          athena_id: 3,
-          athena_department_id: 2,
-          specialties: "",
-          phone: '1234567890',
-          credentials: ["PNP"]
-      },
-
-      vriese: {
-          title: "Dr.",
-          first_name: "Victoria",
-          last_name: "Riese",
-          birth_date: 48.years.ago.to_s,
-          sex: "F",
-          email: "victoria@leohealth.com",
-          password: "password",
-          password_confirmation: "password",
-          role_id: 5,
-          practice_id: 1,
-          athena_id: 4,
-          athena_department_id: 2,
-          specialties: "",
-          phone: '1234567890',
-          credentials: ["MD"]
       }
     }
 

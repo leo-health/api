@@ -24,6 +24,141 @@ roles_seed.each do |role, id|
   end
 end
 
+desc "Seed the database with staff users"
+task seed_staff: :environment do
+
+  staff = {
+    bot: {
+      first_name: "Leo",
+      last_name: "Bot",
+      birth_date: 48.years.ago.to_s,
+      sex: "M",
+      email: "leo_bot@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 7,
+      practice_id: 1,
+      phone: '1234567890'
+    },
+
+    vriese: {
+      title: "Dr.",
+      first_name: "Victoria",
+      last_name: "Riese",
+      sex: "F",
+      email: "vriesemd@gmail.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 5,
+      practice_id: 1,
+      athena_id: 4,
+      athena_department_id: 2,
+      specialties: "",
+      phone: '+19177976816',
+      credentials: ["MD"]
+    },
+
+    hgold: {
+      first_name: "Erin",
+      last_name: "Gold",
+      sex: "F",
+      email: "ehannah29@gmail.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 5,
+      practice_id: 1,
+      athena_id: 3,
+      athena_department_id: 2,
+      specialties: "",
+      phone: '+16177912619',
+      credentials: ["NP"]
+    },
+
+    mbrody: {
+      first_name: "Marcey",
+      last_name: "Brody",
+      sex: "F",
+      email: "nurse@flatironpediatrics.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 2,
+      practice_id: 1,
+      phone: '+16302122713',
+      credentials: ["RN"]
+    },
+
+    cfranco: {
+      first_name: "Catherine",
+      last_name: "Franco",
+      sex: "F",
+      email: "cathy424@hotmail.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 3,
+      practice_id: 1,
+      phone: '+19176929777',
+      credentials: ["Office Manager"]
+    },
+
+    kcastellano: {
+      first_name: "Kristen",
+      last_name: "Castellano",
+      sex: "F",
+      email: "Inquiry@flatironpediatrics.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 1,
+      practice_id: 1,
+      phone: '+19736327321',
+      credentials: ["RN"]
+    }
+  }
+
+  default_schedule = {
+      description: "Default Schedule",
+      active: true,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+  }
+
+  staff.each do |name, attributes|
+    user = User.create(attributes.except(:athena_id, :athena_department_id, :specialties, :credentials))
+
+    if user.valid?
+      if user.has_role? :clinical
+        provider_profile = {
+            athena_id: attributes[:athena_id],
+            athena_department_id: attributes[:athena_department_id],
+            provider_id: user.id,
+            specialties: attributes[:specialties],
+            credentials: attributes[:credentials]
+        }
+        user.create_provider_profile!(provider_profile)
+
+        default_schedule[:athena_provider_id] = attributes[:athena_id]
+        ProviderSchedule.create!(default_schedule)
+      end
+      print "*"
+    else
+      print "x"
+      puts "Failed to seed staff users - #{user.errors.full_messages}"
+      false
+    end
+  end
+end
+
 appointment_types_seed = [
     {
       id: 1,
