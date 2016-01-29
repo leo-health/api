@@ -7,5 +7,5 @@
 # else
 #   $redis = Redis.new(:host => 'notificationcache.fhtgid.0001.use1.cache.amazonaws.com', :port => 6379)
 # end
-$redis = Redis.new(host: ENV['redis_host'], port: ENV['redis_port'])
+$redis = Redis.new(host: ENV['REDIS_HOST'], port: ENV['REDIS_PORT'])
 

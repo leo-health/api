@@ -21,7 +21,7 @@ end
 TWILIO_PHONE_NUMBER = ENV['TWILIO_PHONE_NUMBER']
 
 if Rails.env.test?
-  TWILIO = FakeSms.new ENV['account_sid'], ENV['auth_token']
+  TWILIO = FakeSms.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
 else
-  TWILIO = Twilio::REST::Client.new ENV['account_sid'], ENV['auth_token']
+  TWILIO = Twilio::REST::Client.new ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN']
 end
