@@ -160,37 +160,37 @@ task seed_staff: :environment do
 end
 
 appointment_types_seed = [
-    {
-      id: 1,
-      name: "sick visit",
-      duration: 20,
-      short_description: "New symptom",
-      long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
-    },
+  {
+    id: 1,
+    name: "Sick Visit",
+    duration: 20,
+    short_description: "New symptom",
+    long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
+  },
 
-    {
-      id: 2,
-      name: "follow_up visit",
-      duration: 20,
-      short_description: "Unresolved illness or chronic condition",
-      long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
-    },
+  {
+    id: 2,
+    name: "Follow Up Visit",
+    duration: 20,
+    short_description: "Unresolved illness or chronic condition",
+    long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
+  },
 
-    {
-      id: 3,
-      name: "immunization visit",
-      duration: 20,
-      short_description: "Flu shot or scheduled vaccine",
-      long_description: "A visit with a nurse to get one or more immunizations."
-    },
+  {
+    id: 3,
+    name: "Immunization / Lab Visit",
+    duration: 20,
+    short_description: "Flu shot or scheduled vaccine",
+    long_description: "A visit with a nurse to get one or more immunizations."
+  },
 
-    {
-      id: 4,
-      name: "well visit",
-      duration: 30,
-      short_description: "Regular check-up",
-      long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
-    }
+  {
+    id: 4,
+    name: "Well Visit",
+    duration: 30,
+    short_description: "Regular check-up",
+    long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
+  }
 ]
 
 appointment_types_seed.each do |param|
