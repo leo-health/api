@@ -4,7 +4,7 @@ class Conversation < ActiveRecord::Base
 
   has_many :messages
   has_many :user_conversations
-  has_many :staff, class_name: "User", :through => :user_conversations
+  has_many :staff, class_name: "User", through: :user_conversations
   has_many :closure_notes
   has_many :escalation_notes
   belongs_to :family

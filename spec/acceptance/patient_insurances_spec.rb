@@ -16,8 +16,8 @@ resource "PatientInsurances" do
   }
 
   get "/api/v1/patients/:id/insurances" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }

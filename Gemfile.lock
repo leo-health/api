@@ -1,11 +1,3 @@
-GIT
-  remote: https://github.com/stripe/stripe-ruby
-  revision: e37711e947a855941668ac744323adb95ea4bdbb
-  specs:
-    stripe (1.27.1)
-      json (~> 1.8.1)
-      rest-client (~> 1.4)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -483,7 +475,6 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   squeel
-  stripe!
   timecop
   turbolinks
   twilio-ruby
