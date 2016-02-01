@@ -55,7 +55,10 @@ task seed_staff: :environment do
       athena_department_id: 2,
       specialties: "",
       phone: '+19177976816',
-      credentials: ["MD"]
+      credentials: ["MD"],
+      avatar_attributes: {
+        avatar: Base64.encode64(open(File.new(Rails.root.join('db', 'seed_images', 'Avatar_Guardian_Mom.png'))){|io|io.read})
+      }
     },
 
     hgold: {
