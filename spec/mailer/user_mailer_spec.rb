@@ -152,11 +152,13 @@ describe UserMailer do
     end
   end
 
-  describe "#batched_message" do
-    it "should notify guardian of new messages" do
-      UserMailer.batched_messages(user, "haha").deliver
+  describe "#remind_unread_messages" do
+    let(:message){ create(:message) }
+
+    it "should notify guardian of read message from staff" do
+      UserMailer.remind_unread_messages(user, message).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Message Digest' &&
+        mail.template_name == 'Leo - Message Not Read Over an Hour' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil

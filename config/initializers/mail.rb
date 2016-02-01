@@ -5,8 +5,8 @@ MandrillMailer.configure do |config|
   if %w(test, development).any?{|e|e == Rails.env}
     config.interceptor = Proc.new {|params|
       params[:to] =  [
-          params[:to],
-          { email: "mailer@leohealth.com", name: "Wuang"}
+        params[:to],
+        { email: "mailer@leohealth.com", name: "Wuang"}
       ].flatten
     }
   end
