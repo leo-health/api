@@ -38,10 +38,12 @@ class User < ActiveRecord::Base
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, presence: true
   validates :password, presence: true, if: :password_required?
+  validates :practice, presence: true, if: "has_role?(:guardian)"
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
+  before_validation :add_default_practice_to_guardian
   after_update :welcome_to_practice_email, :notify_primary_guardian
-  after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
+  after_commit :set_user_family, :remind_schedule_appointment, on: :create
 
   def self.customer_service_user
     self.joins(:role).where(roles: {name: "customer_service"}).order("created_at ASC").first
@@ -71,7 +73,7 @@ class User < ActiveRecord::Base
   end
 
   def has_role? (name)
-    role.name == name.to_s
+    role && role.name == name.to_s
   end
 
   def upgrade!
@@ -120,11 +122,9 @@ class User < ActiveRecord::Base
     end
   end
 
-  #TODO subject to change when owning multiple practices
   def add_default_practice_to_guardian
-    if has_role? :guardian && Practice.first
-      self.practice = Practice.first
-      self.save
+    if has_role? :guardian
+      self.practice = Practice.first unless self.practice
     end
   end
 end

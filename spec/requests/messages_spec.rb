@@ -68,7 +68,10 @@ describe Leo::V1::Messages do
   describe "Post /api/v1/conversations/:conversation_id/messages" do
     context "when create a text message" do
       def do_request
-        post "/api/v1/conversations/#{conversation.id}/messages", { body: "test", type_name: "text", authentication_token: session.authentication_token }
+        post "/api/v1/conversations/#{conversation.id}/messages", { body: "test",
+                                                                    type_name: "text",
+                                                                    authentication_token: session.authentication_token
+                                                                   }
       end
 
       it "should create a message for the conversation" do
@@ -83,9 +86,8 @@ describe Leo::V1::Messages do
       def do_request
         image = open(File.new(Rails.root.join('spec', 'support', 'Zen-Dog1.png'))){|io|io.read}
         encoded_image = Base64.encode64(image)
-        post "/api/v1/conversations/#{conversation.id}/messages", { body: "description",
+        post "/api/v1/conversations/#{conversation.id}/messages", { body: encoded_image,
                                                                     type_name: "image",
-                                                                    image: encoded_image,
                                                                     authentication_token: session.authentication_token
                                                                   }
 

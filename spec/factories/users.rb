@@ -10,6 +10,7 @@ FactoryGirl.define do
     password_confirmation 'password'
     family
     association :role, factory: [:role, :guardian]
+    practice
 
     trait :guardian do
       sex					'M'
