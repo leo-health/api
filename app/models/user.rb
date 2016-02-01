@@ -16,8 +16,9 @@ class User < ActiveRecord::Base
   belongs_to :onboarding_group
   belongs_to :insurance_plan
 
-  has_one :avatar, as: :owner
-  has_one :provider_profile, foreign_key: "provider_id"
+  has_one :avatar, as: :owner, inverse_of: :owner
+  has_one :provider_profile, foreign_key: "provider_id", inverse_of: :provider
+  accepts_nested_attributes_for :provider_profile
   has_many :forms, foreign_key: "submitted_by_id"
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
@@ -120,11 +121,9 @@ class User < ActiveRecord::Base
     end
   end
 
-  #TODO subject to change when owning multiple practices
   def add_default_practice_to_guardian
-    if has_role? :guardian && Practice.first
-      self.practice = Practice.first
-      self.save
+    if has_role? :guardian
+      self.practice = Practice.first unless self.practice
     end
   end
 end
