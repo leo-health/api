@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
   belongs_to :insurance_plan
 
   has_one :avatar, as: :owner, inverse_of: :owner
+  accepts_nested_attributes_for :avatar
   has_one :provider_profile, foreign_key: "provider_id", inverse_of: :provider
   accepts_nested_attributes_for :provider_profile
   has_many :forms, foreign_key: "submitted_by_id"
