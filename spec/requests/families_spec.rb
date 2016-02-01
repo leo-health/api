@@ -4,8 +4,9 @@ require 'rails_helper'
 describe Leo::V1::Families do
   let!(:customer_service){ create(:user, :customer_service) }
   let(:user){ create(:user, :guardian) }
-  let!(:session){ user.sessions.create }
-  let!(:patient){ create(:patient, family: user.family) }
+  let(:session){ user.sessions.create }
+  let(:patient){ create(:patient, family: user.family) }
+  let!(:patient_avatar){create(:avatar, owner: patient)}
   let(:serializer){ Leo::Entities::FamilyEntity }
 
   describe "Get /api/v1/family" do
