@@ -25,11 +25,11 @@ CarrierWave.configure do |config|
 
   config.root = Rails.root.join 'tmp'
   config.aws_authenticated_url_expiration = 60 * 15
-  config.aws_bucket = 'leo-photos-development'
+  config.aws_bucket = ENV['CARRIERWAVE_AWS_BUCKET']
 
   config.aws_credentials = {
-      access_key_id:     'AKIAIZJEJH6F6OQL43XQ',
-      secret_access_key: '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',
-      region:            'us-east-1'
+      access_key_id:     ENV['CARRIERWAVE_ACCESS_KEY_ID'],
+      secret_access_key: ENV['CARRIERWAVE_SECRET_ACCESS_KEY'],
+      region:            ENV['CARRIERWAVE_REGION']
   }
 end
