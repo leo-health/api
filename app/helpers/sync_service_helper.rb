@@ -138,7 +138,8 @@ module SyncServiceHelper
         departmentid: task.sync_id,
         startdate: 1.year.ago.strftime("%m/%d/%Y"),
         enddate: 1.year.from_now.strftime("%m/%d/%Y"),
-        startlastmodified: start_date)
+        startlastmodified: start_date
+      )
 
       booked_appts.each { |appt|
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
@@ -159,7 +160,6 @@ module SyncServiceHelper
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
-
         Appointment.create!(
           appointment_status: appointment_status,
           booked_by: provider_sync_profile.provider,
