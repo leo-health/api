@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160201210311) do
+ActiveRecord::Schema.define(version: 20160202172720) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -446,18 +446,6 @@ ActiveRecord::Schema.define(version: 20160201210311) do
   end
 
   add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
-
-  create_table "provider_profiles", force: :cascade do |t|
-    t.integer  "provider_id",                      null: false
-    t.string   "specialties",                                   array: true
-    t.string   "credentials",                                   array: true
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.integer  "athena_id",            default: 0, null: false
-    t.integer  "athena_department_id", default: 0, null: false
-  end
-
-  add_index "provider_profiles", ["provider_id"], name: "index_provider_profiles_on_provider_id", unique: true, using: :btree
 
   create_table "provider_schedules", force: :cascade do |t|
     t.integer  "athena_provider_id",   default: 0, null: false
