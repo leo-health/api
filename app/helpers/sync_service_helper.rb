@@ -142,7 +142,7 @@ module SyncServiceHelper
 
       booked_appts.each { |appt|
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
-        impl_create_leo_appt_from_athena(appt: appt) if leo_appt.nil?
+        impl_create_leo_appt_from_athena(appt: appt) unless leo_appt
       }
 
       #reschedule the task
@@ -222,7 +222,7 @@ module SyncServiceHelper
       if leo_appt.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
         raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.patient.athena_id == 0
-        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_profile" if leo_appt.provider.provider_profile.nil?
+        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_profile" unless leo_appt.provider.provider_profile
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_profile that does not have an athena_id" if leo_appt.provider.provider_profile.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_profile that does not have an athena_department_id" if leo_appt.provider.provider_profile.athena_department_id == 0
         raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
@@ -249,7 +249,7 @@ module SyncServiceHelper
       end
 
       athena_appt = @connector.get_appointment(appointmentid: leo_appt.athena_id)
-      raise "Could not find athena appointment with id=#{leo_appt.athena_id}" if athena_appt.nil?
+      raise "Could not find athena appointment with id=#{leo_appt.athena_id}" unless athena_appt
 
       if athena_appt.future? && leo_appt.cancelled?
         #cancel
@@ -297,7 +297,7 @@ module SyncServiceHelper
 
     def migrate_preexisting_athena_patient(athena_id, family_id)
       leo_patient = Patient.find_by(athena_id: athena_id)
-      raise "Patient athena_id=#{athena_id} already exists in Leo" unless leo_patient.nil?
+      raise "Patient athena_id=#{athena_id} already exists in Leo" if leo_patient
 
       athena_patient = @connector.get_patient(patientid: athena_id)
       raise "No Athena patient found for athena_id=#{athena_id}" unless athena_patient
@@ -323,10 +323,10 @@ module SyncServiceHelper
     def process_patient(task)
       leo_patient = Patient.find(task.sync_id)
 
-      raise "patient.id #{leo_patient.id} has no associated family" if leo_patient.family.nil?
-      raise "patient.id #{leo_patient.id} has no primary_parent in his family" if leo_patient.family.primary_parent.nil?
+      raise "patient.id #{leo_patient.id} has no associated family" unless leo_patient.family
+      raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
-      leo_parent = leo_patient.family.primary_parent
+      leo_parent = leo_patient.family.primary_guardian
 
       Rails.logger.info("Syncer: synching patient=#{leo_patient.to_json}")
 
@@ -419,9 +419,9 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
-      raise "patient.id #{leo_patient.id} has no primary_parent in his family" if leo_patient.family.primary_parent.nil?
+      raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
-      leo_parent = leo_patient.family.primary_parent
+      leo_parent = leo_patient.family.primary_guardian
 
       #get list of allergies for this patients
       allergies = @connector.get_patient_allergies(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
@@ -455,9 +455,9 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
-      raise "patient.id #{leo_patient.id} has no primary_parent in his family" if leo_patient.family.primary_parent.nil?
+      raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
-      leo_parent = leo_patient.family.primary_parent
+      leo_parent = leo_patient.family.primary_guardian
 
       #get list of medications for this patients
       meds = @connector.get_patient_medications(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
@@ -515,9 +515,9 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
-      raise "patient.id #{leo_patient.id} has no primary_parent in his family" if leo_patient.family.primary_parent.nil?
+      raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
-      leo_parent = leo_patient.family.primary_parent
+      leo_parent = leo_patient.family.primary_guardian
 
       #get list of vitals for this patients
       vitals = @connector.get_patient_vitals(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
@@ -550,9 +550,9 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
-      raise "patient.id #{leo_patient.id} has no primary_parent in his family" if leo_patient.family.primary_parent.nil?
+      raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
-      leo_parent = leo_patient.family.primary_parent
+      leo_parent = leo_patient.family.primary_guardian
 
       #get list of vaccines for this patients
       vaccs = @connector.get_patient_vaccines(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
@@ -582,9 +582,9 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
-      raise "patient.id #{leo_patient.id} has no primary_parent in his family" if leo_patient.family.primary_parent.nil?
+      raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
-      leo_parent = leo_patient.family.primary_parent
+      leo_parent = leo_patient.family.primary_guardian
 
       #get list of insurances for this patient
       insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)

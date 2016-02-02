@@ -85,6 +85,10 @@ class User < ActiveRecord::Base
     "#{first_name} #{last_name}"
   end
 
+  def primary_guardian?
+
+  end
+
   private
 
   def welcome_to_practice_email

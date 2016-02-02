@@ -44,6 +44,6 @@ class Patient < ActiveRecord::Base
   end
 
   def upgrade_guardian!
-    family.primary_parent.try(:upgrade!)
+    family.primary_guardian.try(:upgrade!)
   end
 end

@@ -240,7 +240,7 @@ namespace :load do
     range = Conversation.all.length/2
     Conversation.all[0..range].each do |conversation|
       message = conversation.messages.create( body: "This is a smiling baby",
-                                              sender: conversation.family.primary_parent,
+                                              sender: conversation.family.primary_guardian,
                                               type_name: "image",
                                               message_photo_attributes: { image: image } )
 
