@@ -17,9 +17,6 @@ SyncService.configure do |config|
   #appointment data will be synched at this interval
   #this does not apply to first sync.  That one is performed as soon as new data is entered in Leo.
   config.appointment_data_interval = 15.minutes
-
-  #appointments will only be synched for the following department ids
-  config.department_ids = [ 1, 2 ]
 end
 
 SyncService.start

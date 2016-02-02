@@ -21,6 +21,15 @@ RSpec.describe EscalationNote, type: :model do
 
   describe "callbacks" do
     describe 'after commit' do
+      before do
+        new_time = Time.local(2016, 1, 1, 2, 0, 0)
+        Timecop.freeze(new_time)
+      end
+
+      after do
+        Timecop.return
+      end
+
       it "should send a sms and email notification to staff" do
         expect( EscalationNote.count ).to eq(0)
         expect{ conversation.escalate(escalation_params) }.to change(Delayed::Job, :count).by(2)

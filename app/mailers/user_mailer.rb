@@ -9,7 +9,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "http://localhost:8888/#/changePassword?reset_password_token=#{token}"
+        'LINK': "#{ENV['API_HOST']}/#/changePassword?reset_password_token=#{token}"
       }
     )
   end
@@ -21,7 +21,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'FIRST_NAME' => user.first_name,
-        'LINK' => "http://localhost:8888/#/changePassword?token=#{token}"
+        'LINK' => "#{ENV['API_HOST']}/#/changePassword?token=#{token}"
       }
     )
   end
@@ -32,7 +32,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo Invitation',
       to: enrollment.email,
       vars: {
-        'LINK' => "http://localhost:8888/#/registration?token=#{enrollment.authentication_token}",
+        'LINK' => "#{ENV['API_HOST']}/#/registration?token=#{enrollment.authentication_token}",
         'SECONDARY_GUARDIAN_FIRST_NAME' => enrollment.first_name,
         'PRIMARY_GUARDIAN_FIRST_NAME' => current_user.first_name
       }
@@ -124,13 +124,15 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def batched_messages(user, body)
+  def remind_unread_messages(user, staff_message)
     mandrill_mail(
-      template: 'Leo - Message Digest',
-      subject: "You received some messages!",
+      template: 'Leo - Message Not Read Over an Hour',
+      subject: "You have unread message from last hour!",
       to: user.email,
       vars: {
-        'BODY': body
+        'BODY': staff_message.body,
+        'STAFF': staff_message.sender.full_name,
+        'GUARDIAN_FIRST_NAME': user.first_name
       }
     )
   end
@@ -142,7 +144,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: primary_guardian.email,
       vars: {
         'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
-        'LINK': "http://localhost:8888/#/acceptInvitation?token=#{enrollment_auth_token}"
+        'LINK': "#{ENV['API_HOST']}/#/acceptInvitation?token=#{enrollment_auth_token}"
       }
     )
   end
