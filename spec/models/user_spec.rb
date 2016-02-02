@@ -11,6 +11,7 @@ describe User do
     it{ is_expected.to belong_to(:onboarding_group) }
 
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
+    it{ is_expected.to have_one(:provider_sync_profile).with_foreign_key('provider_id') }
 
     it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:forms) }
