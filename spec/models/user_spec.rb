@@ -73,4 +73,21 @@ describe User do
       expect(User.customer_service_user).to eq(customer_service)
     end
   end
+
+  describe "#primary_guardian?" do
+    let(:primary_guardian){ create(:user) }
+    let(:secondary_guardian){ create(:user, family: primary_guardian.family) }
+
+    it "should return true for primary guardian" do
+      expect( primary_guardian.primary_guardian? ).to eq(true)
+    end
+
+    it "should return false for secondary guardian" do
+      expect( secondary_guardian.primary_guardian? ).to eq(false)
+    end
+
+    it "should return false for staff" do
+      expect( customer_service.primary_guardian? ).to eq(false)
+    end
+  end
 end

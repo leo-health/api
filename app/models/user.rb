@@ -86,7 +86,8 @@ class User < ActiveRecord::Base
   end
 
   def primary_guardian?
-    (has_role? :guardian) && (self == family.primary_guardian)
+    return false unless has_role? :guardian
+    User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
   end
 
   private
