@@ -36,9 +36,9 @@ staff = {
     role_id: 7,
     practice_id: 1,
     phone: '1234567890',
-    avatar_attributes: {
-      avatar: Base64.encode64(open(File.new(Rails.root.join('db', 'seed_images', 'Avatar_Guardian_Mom.png'))){|io|io.read})
-    }
+    # avatar_attributes: {
+    #   avatar: Base64.encode64(open(File.new(Rails.root.join('db', 'seed_images', 'Avatar_Guardian_Mom.png'))){|io|io.read})
+    # }
   },
 
   vriese: {
@@ -52,101 +52,120 @@ staff = {
     role_id: 5,
     practice_id: 1,
     phone: '+19177976816',
-    avatar_attributes: {
-      avatar: Base64.encode64(open(File.new(Rails.root.join('db', 'seed_images', 'Avatar_Guardian_Mom.png'))){|io|io.read})
-    },
-    provider_profile_attributes: {
-      athena_id: 4,
-      athena_department_id: 2,
+    # avatar_attributes: {
+    #   avatar: StringIO.new(open(File.new(Rails.root.join('db', 'seed_images', 'Avatar_Guardian_Mom.png'))){|io|io.read})
+    # },
+
+    staff_profile_attributes: {
       specialties: "",
       credentials: ["MD"]
+    },
+
+    provider_sync_profile_attributes: {
+      athena_id: 4,
+      athena_department_id: 2,
     }
   },
 
-  # hgold: {
-  #   first_name: "Erin",
-  #   last_name: "Gold",
-  #   sex: "F",
-  #   email: "ehannah29@gmail.com",
-  #   password: "password",
-  #   password_confirmation: "password",
-  #   role_id: 5,
-  #   practice_id: 1,
-  #   phone: '+16177912619',
-  #   provider_profile_attributes: {
-  #     athena_id: 3,
-  #     athena_department_id: 2,
-  #     specialties: "",
-  #     credentials: ["NP"]
-  #   }
-  # },
-  #
-  # mbrody: {
-  #   first_name: "Marcey",
-  #   last_name: "Brody",
-  #   sex: "F",
-  #   email: "nurse@flatironpediatrics.com",
-  #   password: "password",
-  #   password_confirmation: "password",
-  #   role_id: 2,
-  #   practice_id: 1,
-  #   phone: '+16302122713',
-  #   provider_profile_attributes: {
-  #     specialties: "",
-  #     credentials: ["RN"]
-  #   }
-  # },
-  #
-  # cfranco: {
-  #   first_name: "Catherine",
-  #   last_name: "Franco",
-  #   sex: "F",
-  #   email: "cathy424@hotmail.com",
-  #   password: "password",
-  #   password_confirmation: "password",
-  #   role_id: 3,
-  #   practice_id: 1,
-  #   phone: '+19176929777',
-  #   credentials: ["Office Manager"]
-  # },
-  #
-  # kcastellano: {
-  #   first_name: "Kristen",
-  #   last_name: "Castellano",
-  #   sex: "F",
-  #   email: "Inquiry@flatironpediatrics.com",
-  #   password: "password",
-  #   password_confirmation: "password",
-  #   role_id: 1,
-  #   practice_id: 1,
-  #   phone: '+19736327321',
-  #   credentials: ["RN"]
-  # }
+  hgold: {
+    first_name: "Erin",
+    last_name: "Gold",
+    sex: "F",
+    email: "ehannah29@gmail.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 5,
+    practice_id: 1,
+    phone: '+16177912619',
+    staff_profile_attributes: {
+      specialties: "",
+      credentials: ["NP"]
+    },
+
+    provider_sync_profile_attributes: {
+      athena_id: 3,
+      athena_department_id: 2,
+    }
+  },
+
+  mbrody: {
+    first_name: "Marcey",
+    last_name: "Brody",
+    sex: "F",
+    email: "nurse@flatironpediatrics.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 2,
+    practice_id: 1,
+    phone: '+16302122713',
+    staff_profile_attributes: {
+      specialties: "",
+      credentials: ["RN"]
+    }
+  },
+
+  cfranco: {
+    first_name: "Catherine",
+    last_name: "Franco",
+    sex: "F",
+    email: "cathy424@hotmail.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 3,
+    practice_id: 1,
+    phone: '+19176929777',
+    staff_profile_attributes: {
+      specialties: "",
+      credentials: ["Office Manager"]
+    }
+  },
+
+  kcastellano: {
+    first_name: "Kristen",
+    last_name: "Castellano",
+    sex: "F",
+    email: "Inquiry@flatironpediatrics.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 1,
+    practice_id: 1,
+    phone: '+19736327321',
+    staff_profile_attributes: {
+      specialties: "",
+      credentials: ["RN"]
+    }
+  }
 }
 
 default_schedule = {
-    description: "Default Schedule",
-    active: true,
-    monday_start_time: "09:00",
-    monday_end_time: "18:00",
-    tuesday_start_time: "09:00",
-    tuesday_end_time: "18:00",
-    wednesday_start_time: "09:00",
-    wednesday_end_time: "18:00",
-    thursday_start_time: "09:00",
-    thursday_end_time: "18:00",
-    friday_start_time: "09:00",
-    friday_end_time: "18:00",
-    saturday_start_time: "00:00",
-    saturday_end_time: "00:00",
-    sunday_start_time: "00:00",
-    sunday_end_time: "00:00"
+  description: "Default Schedule",
+  active: true,
+  monday_start_time: "09:00",
+  monday_end_time: "18:00",
+  tuesday_start_time: "09:00",
+  tuesday_end_time: "18:00",
+  wednesday_start_time: "09:00",
+  wednesday_end_time: "18:00",
+  thursday_start_time: "09:00",
+  thursday_end_time: "18:00",
+  friday_start_time: "09:00",
+  friday_end_time: "18:00",
+  saturday_start_time: "00:00",
+  saturday_end_time: "00:00",
+  sunday_start_time: "00:00",
+  sunday_end_time: "00:00"
 }
 
 staff.each do |name, attributes|
-  user = User.create!(attributes.except(:avatar_attributes))
-  byebug
-  user.create_avatar!(attributes[:avatar_attributes])
+  User.find_or_create_by!(attributes.except(:avatar_attributes))
+  if attributes[:provider_sync_profile_attributes]
+    ProviderSchedule.create!(default_schedule.merge(athena_provider_id: attributes[:provider_sync_profile_attributes][:athena_id]))
+  end
+  # avatar_data = attributes[:avatar_attributes]
+  # avatar_data.class.class_eval { attr_accessor :original_filename, :content_type }
+  # avatar_data.content_type = "image/png"
+  # avatar_data.original_filename = "uploaded_image.png"
+  # user.create_avatar!(avatar: avatar_data)
 end
 
 appointment_types_seed = [
@@ -346,22 +365,24 @@ insurance_plan_seed = [
 ]
 
 insurance_plan_seed.each do |insurance_plan|
-  Insurer.create!(insurance_plan[:insurer]) unless Insurer.where(id: insurance_plan[:insurer][:id]).exists?
+  Insurer.find_or_create_by!(insurance_plan[:insurer])
+  # unless Insurer.where(id: insurance_plan[:insurer][:id]).exists?
   insurance_plan[:plans].each do |plan|
-    InsurancePlan.create!(plan) unless InsurancePlan.where(id: plan[:id]).exists?
+    InsurancePlan.find_or_create_by!(plan)
+    # unless InsurancePlan.where(id: plan[:id]).exists?
   end
 end
 
 onboarding_group_seed = [
   {
-    id: 1,
     group_name: :invited_secondary_guardian
   }
 ]
 
 
 onboarding_group_seed.each do |onboarding_group|
-  OnboardingGroup.create!(onboarding_group) unless OnboardingGroup.where(id: onboarding_group[:id]).exists?
+  OnboardingGroup.find_or_create_by!(onboarding_group)
+  # unless OnboardingGroup.where(id: onboarding_group[:id]).exists?
 end
 
 #Seed the database with growth curves
@@ -450,7 +471,6 @@ begin
 
   practice_schedules = [
     {
-      id: 1,
       practice_id: 1,
       active: true,
       schedule_type: :default,
@@ -471,7 +491,6 @@ begin
     },
 
     {
-      id: 2,
       practice_id: 1,
       active: false,
       schedule_type: :emergency,
@@ -492,7 +511,6 @@ begin
     },
 
     {
-      id: 3,
       practice_id: 1,
       active: false,
       schedule_type: :holiday,
@@ -514,6 +532,7 @@ begin
   ]
 
   practice_schedules.each do |schedule_params|
-    PracticeSchedule.create!(schedule_params) unless PracticeSchedule.where(id: schedule_params[:id]).exists?
+    PracticeSchedule.find_or_create_by!(schedule_params)
+    # unless PracticeSchedule.where(id: schedule_params[:id]).exists?
   end
 end
