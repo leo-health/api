@@ -17,7 +17,7 @@ module Leo
       end
 
       def primary_guardian
-        object.family.guardians.where(['created_at < ?', object.created_at]).count < 1
+        object.primary_guardian?
       end
 
       def credentials

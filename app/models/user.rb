@@ -86,7 +86,7 @@ class User < ActiveRecord::Base
   end
 
   def primary_guardian?
-
+    (has_role? :guardian) && (self == family.primary_guardian)
   end
 
   private
