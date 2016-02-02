@@ -156,20 +156,21 @@ module SyncServiceHelper
     def impl_create_leo_appt_from_athena(appt: )
       begin
         patient = Patient.find_by!(athena_id: appt.patientid.to_i)
-        provider_profile = ProviderProfile.find_by!(athena_id: appt.providerid.to_i)
+        provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
 
-        Appointment.create(
+        Appointment.create!(
           appointment_status: appointment_status,
-          booked_by_id: provider_profile.provider.id,
-          patient_id: patient.id,
-          provider_id: provider_profile.provider.id,
-          appointment_type_id: appointment_type.id,
+          booked_by: provider_sync_profile.provider,
+          patient: patient,
+          provider: provider_sync_profile.provider,
+          appointment_type: appointment_type,
           duration: appt.duration,
           start_datetime: Date.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
           sync_updated_at: DateTime.now,
-          athena_id: appt.appointmentid.to_i)
+          athena_id: appt.appointmentid.to_i
+        )
       rescue => e
           Rails.logger.error "Syncer: impl_create_leo_appt_from_athena appt=#{appt.to_json} failed"
           Rails.logger.error e.message
@@ -222,9 +223,9 @@ module SyncServiceHelper
       if leo_appt.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
         raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.patient.athena_id == 0
-        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_profile" unless leo_appt.provider.provider_profile
-        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_profile that does not have an athena_id" if leo_appt.provider.provider_profile.athena_id == 0
-        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_profile that does not have an athena_department_id" if leo_appt.provider.provider_profile.athena_department_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_sync_profile" unless leo_appt.provider.provider_sync_profile
+        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_id" if leo_appt.provider.provider_sync_profile.athena_id == 0
+        raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider.provider_sync_profile.athena_department_id == 0
         raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
         #create appointment
@@ -232,8 +233,8 @@ module SyncServiceHelper
           appointmentdate: leo_appt.start_datetime.strftime("%m/%d/%Y"),
           appointmenttime: leo_appt.start_datetime.strftime("%H:%M"),
           appointmenttypeid: leo_appt.appointment_type.athena_id,
-          departmentid: leo_appt.provider.provider_profile.athena_department_id,
-          providerid: leo_appt.provider.provider_profile.athena_id
+          departmentid: leo_appt.provider.provider_sync_profile.athena_department_id,
+          providerid: leo_appt.provider.provider_sync_profile.athena_id
         )
 
         #book appointment
@@ -242,7 +243,7 @@ module SyncServiceHelper
             patientid: leo_appt.patient.athena_id,
             reasonid: nil,
             appointmenttypeid: leo_appt.appointment_type.athena_id,
-            departmentid: leo_appt.provider.provider_profile.athena_department_id
+            departmentid: leo_appt.provider.provider_sync_profile.athena_department_id
         )
 
         leo_appt.save!
@@ -258,14 +259,14 @@ module SyncServiceHelper
       else
         #update from athena
         patient = Patient.find_by!(athena_id: athena_appt.patientid.to_i)
-        provider_profile = ProviderProfile.find_by!(athena_id: athena_appt.providerid.to_i)
+        provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: athena_appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: athena_appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by(status: athena_appt.appointmentstatus)
 
         #athena does not return booked_by_id.  we have to leave it as is
         leo_appt.appointment_status = appointment_status
         leo_appt.patient_id = patient.id
-        leo_appt.provider_id = provider_profile.provider.id
+        leo_appt.provider_id = provider_sync_profile.provider_id
         leo_appt.appointment_type_id = appointment_type.id
         leo_appt.duration = athena_appt.duration.to_i
         leo_appt.start_datetime = Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")

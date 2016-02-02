@@ -127,15 +127,19 @@ namespace :load do
 
       if user.valid?
         if user.has_role? :clinical
-          provider_profile = {
+          provider_sync_profile = {
             athena_id: attributes[:athena_id],
-            athena_department_id: attributes[:athena_department_id],
-            provider_id: user.id,
+            athena_department_id: attributes[:athena_department_id]
+          }
+
+          user.create_provider_sync_profile!(provider_sync_profile)
+
+          staff_profile = {
             specialties: attributes[:specialties],
             credentials: attributes[:credentials]
           }
-          user.create_provider_profile!(provider_profile)
 
+          user.create_staff_profile!(staff_profile)
           default_schedule[:athena_provider_id] = attributes[:athena_id]
           ProviderSchedule.create!(default_schedule)
         end
@@ -187,7 +191,6 @@ namespace :load do
         false
       end
 
-      #set the primary guardian by time differece
       sleep 1
 
       female_first_name = female_first_names[index]

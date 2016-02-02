@@ -32,8 +32,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
       }
       let!(:family) { create(:family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
-      let!(:provider) { create(:user, :clinical) }
-      let!(:provider_profile) { create(:provider_profile, athena_id: 1, provider_id: provider.id) }
+      let(:provider) { create(:user, :clinical) }
+      let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates leo appointment when missing" do
@@ -46,8 +46,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_appointment" do
       let!(:family) { create(:family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
-      let!(:provider) { create(:user, :clinical) }
-      let!(:provider_profile) { create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id) }
+      let(:provider) { create(:user, :clinical) }
+      let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, athena_department_id: 1, provider: provider) }
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates athena appointment when missing" do
@@ -62,7 +62,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "f",
           "patientid": appointment.patient.athena_id.to_s,
@@ -86,7 +86,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "f",
           "patientid": appointment.patient.athena_id.to_s,
@@ -112,7 +112,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "f",
           "patientid": appointment.patient.athena_id.to_s,
@@ -142,7 +142,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "x",
           "rescheduledappointmentid": "1001",
