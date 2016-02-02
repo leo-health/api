@@ -7,8 +7,8 @@ module Leo
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
       expose :type
-      expose :primary_guardian, if: Proc.new{ |g| g.role.name.to_sym == :guardian }
-      expose :credentials, if: Proc.new{ |g| g.role.name.to_sym == :clinical }
+      expose :primary_guardian, if: Proc.new{ |g| g.has_role? :guardian }
+      expose :credentials, unless: Proc.new{ |g| g.has_role? :guardian }
 
       private
 
@@ -17,11 +17,11 @@ module Leo
       end
 
       def primary_guardian
-        object.family.guardians.where(['created_at < ?', object.created_at]).count < 1
+        object.primary_guardian?
       end
 
       def credentials
-        object.provider_profile.try(:credentials)
+        object.staff_profile.try(:credentials)
       end
     end
   end

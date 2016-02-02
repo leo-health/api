@@ -10,7 +10,8 @@ describe User do
     it{ is_expected.to belong_to(:practice) }
     it{ is_expected.to belong_to(:onboarding_group) }
 
-    it{ is_expected.to have_one(:provider_profile).with_foreign_key('provider_id') }
+    it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
+    it{ is_expected.to have_one(:provider_sync_profile).with_foreign_key('provider_id') }
 
     it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:forms) }
@@ -70,6 +71,23 @@ describe User do
 
     it "should return the first customer service staff" do
       expect(User.customer_service_user).to eq(customer_service)
+    end
+  end
+
+  describe "#primary_guardian?" do
+    let(:primary_guardian){ create(:user) }
+    let(:secondary_guardian){ create(:user, family: primary_guardian.family) }
+
+    it "should return true for primary guardian" do
+      expect( primary_guardian.primary_guardian? ).to eq(true)
+    end
+
+    it "should return false for secondary guardian" do
+      expect( secondary_guardian.primary_guardian? ).to eq(false)
+    end
+
+    it "should return false for staff" do
+      expect( customer_service.primary_guardian? ).to eq(false)
     end
   end
 end

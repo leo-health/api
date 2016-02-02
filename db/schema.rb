@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160126152533) do
+ActiveRecord::Schema.define(version: 20160202172720) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -447,18 +447,6 @@ ActiveRecord::Schema.define(version: 20160126152533) do
 
   add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
 
-  create_table "provider_profiles", force: :cascade do |t|
-    t.integer  "provider_id",                      null: false
-    t.string   "specialties",                                   array: true
-    t.string   "credentials",                                   array: true
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.integer  "athena_id",            default: 0, null: false
-    t.integer  "athena_department_id", default: 0, null: false
-  end
-
-  add_index "provider_profiles", ["provider_id"], name: "index_provider_profiles_on_provider_id", unique: true, using: :btree
-
   create_table "provider_schedules", force: :cascade do |t|
     t.integer  "athena_provider_id",   default: 0, null: false
     t.string   "description"
@@ -482,6 +470,12 @@ ActiveRecord::Schema.define(version: 20160126152533) do
   end
 
   add_index "provider_schedules", ["athena_provider_id"], name: "index_provider_schedules_on_athena_provider_id", using: :btree
+
+  create_table "provider_sync_profiles", force: :cascade do |t|
+    t.integer "provider_id",                      null: false
+    t.integer "athena_department_id", default: 0
+    t.integer "athena_id",            default: 0
+  end
 
   create_table "read_receipts", force: :cascade do |t|
     t.integer  "message_id"
@@ -518,6 +512,16 @@ ActiveRecord::Schema.define(version: 20160126152533) do
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree
   add_index "sessions", ["deleted_at"], name: "index_sessions_on_deleted_at", using: :btree
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", where: "(deleted_at IS NULL)", using: :btree
+
+  create_table "staff_profiles", force: :cascade do |t|
+    t.integer  "staff_id",    null: false
+    t.string   "specialties",              array: true
+    t.string   "credentials",              array: true
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
 
   create_table "sync_tasks", force: :cascade do |t|
     t.integer  "sync_id",     default: 0,  null: false
