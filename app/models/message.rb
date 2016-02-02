@@ -15,18 +15,17 @@ class Message < ActiveRecord::Base
   validates :body, presence: true, if: :text_message?
   after_commit :actions_after_message_sent, on: :create
 
-  def text_message?
-    type_name == 'text'
-  end
-
   def self.compile_sms_message(start_time, end_time)
     messages = self.includes(:sender).where.not(sender: [User.leo_bot, User.customer_service_user]).where(created_at: (start_time..end_time))
     messages.inject(Hash.new(0)) do |compiled_message, message|
       sender = message.sender
-      full_name = "#{sender.full_name} #{sender.id.to_s}"
-      compiled_message[full_name] += 1
+      compiled_message["#{sender.full_name} #{sender.id.to_s}"] += 1
       compiled_message
-    end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages."}.join(' ')
+    end.map{|name, count| "#{name.split.take(2).join(' ')} sent you #{count} messages!"}.join(' ')
+  end
+
+  def text_message?
+    type_name == 'text'
   end
 
   def broadcast_message(sender)
@@ -52,7 +51,7 @@ class Message < ActiveRecord::Base
     update_conversation_after_message_sent
     sms_cs_user
     send_new_message_notification
-    email_batched_messages
+    unread_message_reminder_email
   end
 
   def initial_welcome_message?
@@ -77,31 +76,44 @@ class Message < ActiveRecord::Base
     end
   end
 
-  def sms_cs_user
-    cs_user = User.customer_service_user
-    return if !cs_user || sender == cs_user || $redis.get("#{cs_user.id}online?") == "yes"
-    if ready_to_notify?(cs_user)
-      body = Message.compile_sms_message(Time.now - 2.minutes, Time.now)
-      SendSmsJob.send(cs_user.id, body)
-      set_next_send_at(cs_user, 2.minutes)
-    end
-  end
-
-  def email_batched_messages
+  def unread_message_reminder_email
+    return if sender.has_role?(:guardian)
     conversation.family.guardians.each do |guardian|
-      if ready_to_notify?(guardian) && sender != guardian
-        BatchedMessagesJob.send(guardian.id, "You have new messages!")
-        set_next_send_at(guardian, 5.minutes)
-      end
+      RemindUnreadMessagesJob.send(guardian.id, id)
     end
   end
 
-  def ready_to_notify?(receiver)
-    next_sending_time = $redis.get("#{receiver.id}next_messageAt")
+  def sms_cs_user
+    return if cs_user_online?
+    if sms_immediately?(@cs_user.id)
+      SendSmsJob.send(@cs_user.id, sender.id, :single, Time.now.to_s)
+    else
+      return if schedule_sms_job_paused?(@cs_user.id)
+      run_at = cool_down_period_end_at(@cs_user.id)
+      SendSmsJob.send(@cs_user.id, false, :batched, run_at)
+      pause_schedule_sms_jobs(@cs_user.id)
+    end
+  end
+
+  def cs_user_online?
+    @cs_user = User.customer_service_user
+    !@cs_user || @sender == @cs_user || $redis.get("#{@cs_user.id}online?") == "yes"
+  end
+
+  def sms_immediately?(receiver_id)
+    next_sending_time = $redis.get("#{receiver_id}next_messageAt")
     !next_sending_time || (Time.now > Time.parse(next_sending_time))
   end
 
-  def set_next_send_at(receiver, cool_down_period)
-    $redis.set("#{receiver.id}next_messageAt", Time.now + cool_down_period)
+  def schedule_sms_job_paused?(receiver_id)
+    $redis.get("#{receiver_id}batch_scheduled?") === "true"
+  end
+
+  def pause_schedule_sms_jobs(receiver_id)
+    $redis.set("#{receiver_id}batch_scheduled?", true)
+  end
+
+  def cool_down_period_end_at(receiver_id)
+    $redis.get("#{receiver_id}next_messageAt")
   end
 end

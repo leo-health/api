@@ -1,5 +1,4 @@
 require 'sync_service_helper'
-require 'process_sync_tasks_job'
 
 SyncService.configure do |config|
   #automatically schedule sync related jobs and tasks
@@ -18,5 +17,3 @@ SyncService.configure do |config|
   #this does not apply to first sync.  That one is performed as soon as new data is entered in Leo.
   config.appointment_data_interval = 15.minutes
 end
-
-SyncService.start
