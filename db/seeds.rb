@@ -20,50 +20,281 @@ roles_seed = {
 
 roles_seed.each do |role, id|
   Role.update_or_create_by_id_and_name(id, role) do |r|
-    r.save
+    r.save!
+  end
+end
+
+staff = [
+  {
+    id: 1,
+    first_name: "Leo",
+    last_name: "Bot",
+    sex: "F",
+    email: "leo_bot@leohealth.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 7,
+    practice_id: 1,
+    phone: '1234567890',
+    avatar_attributes: {
+      id: 1,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    }
+  },
+
+  {
+    id: 2,
+    title: "Dr.",
+    first_name: "Victoria",
+    last_name: "Riese",
+    sex: "F",
+    email: "vriesemd@gmail.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 5,
+    practice_id: 1,
+    phone: '+19177976816',
+    avatar_attributes: {
+      id: 2,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    },
+
+    staff_profile_attributes: {
+      id: 1,
+      specialties: "",
+      credentials: ["MD"]
+    },
+
+    provider_sync_profile_attributes: {
+      id: 1,
+      athena_id: 4,
+      athena_department_id: 2,
+    },
+
+    provider_schedule_attributes: {
+      id: 1,
+      athena_provider_id: 4,
+      description: "Default Schedule",
+      active: true,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    }
+  },
+
+  {
+    id: 3,
+    first_name: "Erin",
+    last_name: "Gold",
+    sex: "F",
+    email: "ehannah29@gmail.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 5,
+    practice_id: 1,
+    phone: '+16177912619',
+    staff_profile_attributes: {
+      id: 2,
+      specialties: "",
+      credentials: ["NP"]
+    },
+
+    avatar_attributes: {
+      id: 3,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    },
+
+    provider_sync_profile_attributes: {
+      id: 2,
+      athena_id: 3,
+      athena_department_id: 2,
+    },
+
+    provider_schedule_attributes: {
+      id: 2,
+      athena_provider_id: 3,
+      description: "Default Schedule",
+      active: true,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
+    }
+  },
+
+  {
+    id: 4,
+    first_name: "Marcey",
+    last_name: "Brody",
+    sex: "F",
+    email: "nurse@flatironpediatrics.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 2,
+    practice_id: 1,
+    phone: '+16302122713',
+    staff_profile_attributes: {
+      id: 3,
+      specialties: "",
+      credentials: ["RN"]
+    },
+
+    avatar_attributes: {
+      id: 4,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    }
+  },
+
+  {
+    id: 5,
+    first_name: "Catherine",
+    last_name: "Franco",
+    sex: "F",
+    email: "cathy424@hotmail.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 3,
+    practice_id: 1,
+    phone: '+19176929777',
+    staff_profile_attributes: {
+      id: 4,
+      specialties: "",
+      credentials: ["Office Manager"]
+    },
+
+    avatar_attributes: {
+      id: 5,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    }
+  },
+
+  {
+    id: 6,
+    first_name: "Kristen",
+    last_name: "Castellano",
+    sex: "F",
+    email: "inquiry@flatironpediatrics.com",
+    password: "password",
+    password_confirmation: "password",
+    role_id: 1,
+    practice_id: 1,
+    phone: '+19736327321',
+    staff_profile_attributes: {
+      id: 5,
+      specialties: "",
+      credentials: ["RN"]
+    },
+
+    avatar_attributes: {
+      id: 6,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    }
+  }
+]
+
+staff.each do |attributes|
+  if user = User.find_by(id: attributes[:id])
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
+  else
+    user = User.create!(attributes.except(:avatar_attributes, :staff_profile_attributes, :provider_sync_profile_attributes, :provider_schedule_attributes))
+  end
+
+  if attributes[:staff_profile_attributes]
+    if staff_profile = StaffProfile.find_by(id: attributes[:staff_profile_attributes][:id])
+      staff_profile.update_attributes!(attributes[:staff_profile_attributes].merge(staff: user))
+    else
+      StaffProfile.create!(attributes[:staff_profile_attributes].merge(staff: user))
+    end
+  end
+
+  if attributes[:provider_sync_profile_attributes]
+    if provider_sync_profile = ProviderSyncProfile.find_by(id: attributes[:provider_sync_profile_attributes][:id])
+      provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes].merge(provider: user))
+    else
+      ProviderSyncProfile.create!(attributes[:provider_sync_profile_attributes].merge(provider: user))
+    end
+  end
+
+  if avatar = Avatar.find_by(id: attributes[:avatar_attributes][:id])
+    avatar.update_attributes!(attributes[:avatar_attributes].merge(owner: user))
+  else
+    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:provider_schedule_attributes]
+    if provider_schedule = ProviderSchedule.find_by(id: attributes[:provider_schedule_attributes][:id])
+      provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
+    else
+      ProviderSchedule.create!(attributes[:provider_schedule_attributes])
+    end
   end
 end
 
 appointment_types_seed = [
-    {
-      id: 1,
-      name: "sick visit",
-      duration: 20,
-      short_description: "New symptom",
-      long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
-    },
+  {
+    id: 1,
+    name: "Sick Visit",
+    duration: 20,
+    short_description: "New symptom",
+    long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
+  },
 
-    {
-      id: 2,
-      name: "follow_up visit",
-      duration: 20,
-      short_description: "Unresolved illness or chronic condition",
-      long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
-    },
+  {
+    id: 2,
+    name: "Follow Up Visit",
+    duration: 20,
+    short_description: "Unresolved illness or chronic condition",
+    long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
+  },
 
-    {
-      id: 3,
-      name: "immunization visit",
-      duration: 20,
-      short_description: "Flu shot or scheduled vaccine",
-      long_description: "A visit with a nurse to get one or more immunizations."
-    },
+  {
+    id: 3,
+    name: "Immunization / Lab Visit",
+    duration: 20,
+    short_description: "Flu shot or scheduled vaccine",
+    long_description: "A visit with a nurse to get one or more immunizations."
+  },
 
-    {
-      id: 4,
-      name: "well visit",
-      duration: 30,
-      short_description: "Regular check-up",
-      long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
-    }
+  {
+    id: 4,
+    name: "Well Visit",
+    duration: 30,
+    short_description: "Regular check-up",
+    long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
+  }
 ]
 
 appointment_types_seed.each do |param|
-  AppointmentType.create(param) unless AppointmentType.where(id: param[:id]).exists?
+  if appointment_type = AppointmentType.find_by(id: param[:id])
+    appointment_type.update_attributes!(param)
+  else
+    AppointmentType.create!(param)
+  end
 end
 
-practices_seed = {
-  "Leo @ Chelsea": {
+practices_seed = [
+  {
     id: 1,
     name: "Leo @ Chelsea",
     address_line_1: "33w 17th St",
@@ -76,10 +307,14 @@ practices_seed = {
     email: "info@leohealth.com",
     time_zone: "Eastern Time (US & Canada)"
   }
-}
+]
 
-practices_seed.each do |name, param|
-  Practice.create(param) unless Practice.where(name: name).exists?
+practices_seed.each do |param|
+  if practice = Practice.find_by(id: param[:id])
+    practice.update_attributes!(param)
+  else
+    Practice.create!(param)
+  end
 end
 
 appointment_statuses_seed = [
@@ -121,109 +356,122 @@ appointment_statuses_seed = [
 ]
 
 appointment_statuses_seed.each do |param|
-  AppointmentStatus.create(param) unless AppointmentStatus.where(id: param[:id]).exists?
+  if appointment_status = AppointmentStatus.find_by(id: param[:id])
+    appointment_status.update_attributes!(param)
+  else
+    AppointmentStatus.create!(param)
+  end
 end
 
 insurance_plan_seed = [
-    {
-      insurer: {
-        id: 1,
-        insurer_name:"Cigna"
-      },
-      plans: [
-               {id: 3, plan_name: "PPO", insurer_id: 1},
-               {id: 4, plan_name: "POS", insurer_id: 1},
-               {id: 5, plan_name: "HMO", insurer_id: 1}
-             ]
+  {
+    insurer: {
+      id: 1,
+      insurer_name:"Cigna"
     },
+    plans: [
+             {id: 1, plan_name: "PPO", insurer_id: 1},
+             {id: 2, plan_name: "POS", insurer_id: 1},
+             {id: 3, plan_name: "HMO", insurer_id: 1}
+           ]
+  },
 
-    {
-      insurer: {
-        id: 2,
-        insurer_name:"Empire BlueCross BlueShield"
-      },
-      plans: [
-               {id: 6, plan_name: "PPO", insurer_id: 2},
-               {id: 7, plan_name: "POS", insurer_id: 2},
-               {id: 8, plan_name: "HMO", insurer_id: 2}
-             ]
+  {
+    insurer: {
+      id: 2,
+      insurer_name:"Empire BlueCross BlueShield"
     },
+    plans: [
+             {id: 4, plan_name: "PPO", insurer_id: 2},
+             {id: 5, plan_name: "POS", insurer_id: 2},
+             {id: 6, plan_name: "HMO", insurer_id: 2}
+           ]
+  },
 
-    {
-      insurer: {
-        id: 3,
-        insurer_name:"EmblemHealth"
-      },
-      plans: [
-               {id: 9, plan_name: "PPO", insurer_id: 3},
-               {id: 10, plan_name: "POS", insurer_id: 3},
-               {id: 11, plan_name: "HMO", insurer_id: 3}
-             ]
+  {
+    insurer: {
+      id: 3,
+      insurer_name:"EmblemHealth"
     },
+    plans: [
+             {id: 7, plan_name: "PPO", insurer_id: 3},
+             {id: 8, plan_name: "POS", insurer_id: 3},
+             {id: 9, plan_name: "HMO", insurer_id: 3}
+           ]
+  },
 
-    {
-      insurer: {
-        id: 4,
-        insurer_name:"MultiPlan"
-      },
-      plans: [
-               {id: 12, plan_name: "PPO", insurer_id: 4},
-               {id: 13, plan_name: "POS", insurer_id: 4}
-             ]
+  {
+    insurer: {
+      id: 4,
+      insurer_name:"MultiPlan"
     },
+    plans: [
+             {id: 10, plan_name: "PPO", insurer_id: 4},
+             {id: 11, plan_name: "POS", insurer_id: 4}
+           ]
+  },
 
-    {
-      insurer: {
-        id: 5,
-        insurer_name:"Oxford"
-      },
-      plans: [
-               {id: 14, plan_name: "PPO", insurer_id: 5},
-               {id: 15, plan_name: "POS", insurer_id: 5},
-               {id: 16, plan_name: "HMO", insurer_id: 5}
-             ]
+  {
+    insurer: {
+      id: 5,
+      insurer_name:"Oxford"
     },
+    plans: [
+             {id: 12, plan_name: "PPO", insurer_id: 5},
+             {id: 13, plan_name: "POS", insurer_id: 5},
+             {id: 14, plan_name: "HMO", insurer_id: 5}
+           ]
+  },
 
-    {
-      insurer: {
-        id: 6,
-        insurer_name:"The Empire Plan"
-      },
-      plans: [
-               {id: 17, plan_name: "PPO", insurer_id: 6},
-               {id: 18, plan_name: "POS", insurer_id: 6},
-               {id: 19, plan_name: "HMO", insurer_id: 6}
-             ]
+  {
+    insurer: {
+      id: 6,
+      insurer_name:"The Empire Plan"
     },
+    plans: [
+             {id: 15, plan_name: "PPO", insurer_id: 6},
+             {id: 16, plan_name: "POS", insurer_id: 6},
+             {id: 17, plan_name: "HMO", insurer_id: 6}
+           ]
+  },
 
-    {
-      insurer: {
-        id: 7,
-        insurer_name:"UnitedHealthcare"
-      },
-      plans: [
-               {id: 20, plan_name: "PPO", insurer_id: 7},
-               {id: 21, plan_name: "POS", insurer_id: 7},
-               {id: 22, plan_name: "HMO", insurer_id: 7}
-             ]
+  {
+    insurer: {
+      id: 7,
+      insurer_name:"UnitedHealthcare"
     },
-    {
-      insurer: {
-        id: 8,
-        insurer_name:"Aetna"
-      },
-      plans: [
-               {id: 23, plan_name: "PPO", insurer_id: 8},
-               {id: 24, plan_name: "POS", insurer_id: 8},
-               {id: 25, plan_name: "HMO", insurer_id: 8}
-             ]
-    }
+    plans: [
+             {id: 18, plan_name: "PPO", insurer_id: 7},
+             {id: 19, plan_name: "POS", insurer_id: 7},
+             {id: 20, plan_name: "HMO", insurer_id: 7}
+           ]
+  },
+  {
+    insurer: {
+      id: 8,
+      insurer_name:"Aetna"
+    },
+    plans: [
+             {id: 21, plan_name: "PPO", insurer_id: 8},
+             {id: 22, plan_name: "POS", insurer_id: 8},
+             {id: 23, plan_name: "HMO", insurer_id: 8}
+           ]
+  }
 ]
 
 insurance_plan_seed.each do |insurance_plan|
-  Insurer.create(insurance_plan[:insurer]) unless Insurer.where(id: insurance_plan[:insurer][:id]).exists?
+  if insurer = Insurer.find_by(id: insurance_plan[:insurer][:id])
+    insurer.update_attributes!(insurance_plan[:insurer])
+  else
+    Insurer.create!(insurance_plan[:insurer])
+  end
+
   insurance_plan[:plans].each do |plan|
-    InsurancePlan.create(plan) unless InsurancePlan.where(id: plan[:id]).exists?
+    if insurance_plan = InsurancePlan.find_by(id: plan[:id])
+      insurance_plan.update_attributes!(plan)
+    else
+      InsurancePlan.create!(plan)
+    end
   end
 end
 
@@ -235,8 +483,12 @@ onboarding_group_seed = [
 ]
 
 
-onboarding_group_seed.each do |onboarding_group|
-  OnboardingGroup.create(onboarding_group) unless OnboardingGroup.where(id: onboarding_group[:id]).exists?
+onboarding_group_seed.each do |onboarding_group_param|
+  if onboarding_group = OnboardingGroup.find_by(id: onboarding_group_param[:id])
+    onboarding_group.update_attributes!(onboarding_group_param)
+  else
+    OnboardingGroup.create!(onboarding_group_param)
+  end
 end
 
 #Seed the database with growth curves
@@ -250,13 +502,13 @@ begin
   #populate boys 0-24 months height
   CSV.foreach("#{folder}/lhfa_boys_p_exp.txt", optionsWho) do |row|
     entry = HeightGrowthCurve.new({ :sex=> "M", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
-    entry.save if (entry.days <= 712)
+    entry.save! if (entry.days <= 712)
   end
 
   #populate girls 0-24 months height
   CSV.foreach("#{folder}/lhfa_girls_p_exp.txt", optionsWho) do |row|
     entry = HeightGrowthCurve.new({ :sex=> "F", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
-    entry.save if (entry.days <= 712)
+    entry.save! if (entry.days <= 712)
   end
 
   #populate boys & girls 2-20 years height
@@ -268,7 +520,7 @@ begin
       :l => row["L"],
       :m => row["M"],
       :s => row["S"]})
-    entry.save if (entry.days > 712 && row["Agemos"] != "24")
+    entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
   WeightGrowthCurve.delete_all
@@ -276,13 +528,13 @@ begin
   #populate boys 0-24 months weight
   CSV.foreach("#{folder}/wfa_boys_p_exp.txt", optionsWho) do |row|
     entry = WeightGrowthCurve.new({ :sex=> "M", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
-    entry.save if (entry.days <= 712)
+    entry.save! if (entry.days <= 712)
   end
 
   #populate girls 0-24 months weight
   CSV.foreach("#{folder}/wfa_girls_p_exp.txt", optionsWho) do |row|
     entry = WeightGrowthCurve.new({ :sex=> "F", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
-    entry.save if (entry.days <= 712)
+    entry.save! if (entry.days <= 712)
   end
 
   #populate boys & girls 2-20 years weight
@@ -294,7 +546,7 @@ begin
       :l => row["L"],
       :m => row["M"],
       :s => row["S"]})
-    entry.save if (entry.days > 712 && row["Agemos"] != "24")
+    entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
   BmiGrowthCurve.delete_all
@@ -302,13 +554,13 @@ begin
   #populate boys 0-24 months bmi
   CSV.foreach("#{folder}/bfa_boys_p_exp.txt", optionsWho) do |row|
     entry = BmiGrowthCurve.new({ :sex=> "M", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
-    entry.save if (entry.days <= 712)
+    entry.save! if (entry.days <= 712)
   end
 
   #populate girls 0-24 months bmi
   CSV.foreach("#{folder}/bfa_girls_p_exp.txt", optionsWho) do |row|
     entry = BmiGrowthCurve.new({ :sex=> "F", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
-    entry.save if (entry.days <= 712)
+    entry.save! if (entry.days <= 712)
   end
 
   #populate boys & girls 2-20 years bmi
@@ -320,7 +572,7 @@ begin
       :l => row["L"],
       :m => row["M"],
       :s => row["S"]})
-    entry.save if (entry.days > 712 && row["Agemos"] != "24")
+    entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
   practice_schedules = [
@@ -389,6 +641,10 @@ begin
   ]
 
   practice_schedules.each do |schedule_params|
-    PracticeSchedule.create(schedule_params) unless PracticeSchedule.where(id: schedule_params[:id]).exists?
+    if practice_schedule = PracticeSchedule.find_by(id: schedule_params[:id])
+      practice_schedule.update_attributes!(schedule_params)
+    else
+      PracticeSchedule.create!(schedule_params)
+    end
   end
 end

@@ -9,7 +9,7 @@ class Family < ActiveRecord::Base
    guardians + patients
   end
 
-  def primary_parent
+  def primary_guardian
     guardians.order('created_at ASC').first
   end
 

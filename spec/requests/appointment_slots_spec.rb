@@ -14,10 +14,10 @@ describe Leo::V1::AppointmentSlots do
     end
 
     let!(:date) { Date.tomorrow }
-    let!(:provider) { create(:user, :clinical) }
-    let!(:provider_profile) { create(:provider_profile, athena_id: 1, provider_id: provider.id) }
+    let(:provider) { create(:user, :clinical) }
+    let(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
     let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
-    let!(:schedule) { create(:provider_schedule, athena_provider_id: provider_profile.athena_id, active: true,
+    let!(:schedule) { create(:provider_schedule, athena_provider_id: provider_sync_profile.athena_id, active: true,
         monday_start_time: "9:00",
         monday_end_time: "17:00",
         tuesday_start_time: "9:00",
@@ -33,11 +33,11 @@ describe Leo::V1::AppointmentSlots do
         sunday_start_time: "9:00",
         sunday_end_time: "17:00")
     }
-    let!(:additional_availability) { create(:provider_additional_availability, athena_provider_id: provider_profile.athena_id, 
+    let!(:additional_availability) { create(:provider_additional_availability, athena_provider_id: provider_sync_profile.athena_id,
         start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "17:00").to_s).in_time_zone,
         end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "20:00").to_s).in_time_zone)
     }
-    let!(:leaves) { create(:provider_leave, athena_provider_id: provider_profile.athena_id, 
+    let!(:leaves) { create(:provider_leave, athena_provider_id: provider_sync_profile.athena_id,
       start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
       end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
     }
