@@ -29,7 +29,7 @@ staff = [
     id: 1,
     first_name: "Leo",
     last_name: "Bot",
-    sex: "M",
+    sex: "F",
     email: "leo_bot@leohealth.com",
     password: "password",
     password_confirmation: "password",
