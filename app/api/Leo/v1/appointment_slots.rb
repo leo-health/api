@@ -25,7 +25,7 @@ module Leo
 
           osp = AppointmentSlotsHelper::OpenSlotsProcessor.new
           start_date.upto(end_date) do |date|
-            open_slots = open_slots + osp.get_open_slots(athena_provider_id: provider.provider_profile.athena_id, date: date, durations: [ type.duration ])
+            open_slots = open_slots + osp.get_open_slots(athena_provider_id: provider.provider_sync_profile.athena_id, date: date, durations: [ type.duration ])
           end
 
           current_datetime = DateTime.now
