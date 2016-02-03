@@ -24,8 +24,9 @@ roles_seed.each do |role, id|
   end
 end
 
-staff = {
-  bot: {
+staff = [
+  {
+    id: 1,
     first_name: "Leo",
     last_name: "Bot",
     sex: "M",
@@ -36,11 +37,13 @@ staff = {
     practice_id: 1,
     phone: '1234567890',
     avatar_attributes: {
+      id: 1,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   },
 
-  vriese: {
+  {
+    id: 2,
     title: "Dr.",
     first_name: "Victoria",
     last_name: "Riese",
@@ -52,21 +55,46 @@ staff = {
     practice_id: 1,
     phone: '+19177976816',
     avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      id: 2,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     },
 
     staff_profile_attributes: {
+      id: 1,
       specialties: "",
       credentials: ["MD"]
     },
 
     provider_sync_profile_attributes: {
+      id: 1,
       athena_id: 4,
       athena_department_id: 2,
+    },
+
+    provider_schedule_attributes: {
+      id: 1,
+      athena_provider_id: 4,
+      description: "Default Schedule",
+      active: true,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
     }
   },
 
-  hgold: {
+  {
+    id: 3,
     first_name: "Erin",
     last_name: "Gold",
     sex: "F",
@@ -77,21 +105,46 @@ staff = {
     practice_id: 1,
     phone: '+16177912619',
     staff_profile_attributes: {
+      id: 2,
       specialties: "",
       credentials: ["NP"]
     },
 
     avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      id: 3,
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     },
 
     provider_sync_profile_attributes: {
+      id: 2,
       athena_id: 3,
       athena_department_id: 2,
+    },
+
+    provider_schedule_attributes: {
+      id: 2,
+      athena_provider_id: 3,
+      description: "Default Schedule",
+      active: true,
+      monday_start_time: "09:00",
+      monday_end_time: "18:00",
+      tuesday_start_time: "09:00",
+      tuesday_end_time: "18:00",
+      wednesday_start_time: "09:00",
+      wednesday_end_time: "18:00",
+      thursday_start_time: "09:00",
+      thursday_end_time: "18:00",
+      friday_start_time: "09:00",
+      friday_end_time: "18:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
+      sunday_start_time: "00:00",
+      sunday_end_time: "00:00"
     }
   },
 
-  mbrody: {
+  {
+    id: 4,
     first_name: "Marcey",
     last_name: "Brody",
     sex: "F",
@@ -102,16 +155,19 @@ staff = {
     practice_id: 1,
     phone: '+16302122713',
     staff_profile_attributes: {
+      id: 3,
       specialties: "",
       credentials: ["RN"]
     },
 
     avatar_attributes: {
+      id: 4,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   },
 
-  cfranco: {
+  {
+    id: 5,
     first_name: "Catherine",
     last_name: "Franco",
     sex: "F",
@@ -122,16 +178,19 @@ staff = {
     practice_id: 1,
     phone: '+19176929777',
     staff_profile_attributes: {
+      id: 4,
       specialties: "",
       credentials: ["Office Manager"]
     },
 
     avatar_attributes: {
+      id: 5,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   },
 
-  kcastellano: {
+  {
+    id: 6,
     first_name: "Kristen",
     last_name: "Castellano",
     sex: "F",
@@ -142,55 +201,54 @@ staff = {
     practice_id: 1,
     phone: '+19736327321',
     staff_profile_attributes: {
+      id: 5,
       specialties: "",
       credentials: ["RN"]
     },
 
     avatar_attributes: {
+      id: 6,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   }
-}
+]
 
-default_schedule = {
-  description: "Default Schedule",
-  active: true,
-  monday_start_time: "09:00",
-  monday_end_time: "18:00",
-  tuesday_start_time: "09:00",
-  tuesday_end_time: "18:00",
-  wednesday_start_time: "09:00",
-  wednesday_end_time: "18:00",
-  thursday_start_time: "09:00",
-  thursday_end_time: "18:00",
-  friday_start_time: "09:00",
-  friday_end_time: "18:00",
-  saturday_start_time: "00:00",
-  saturday_end_time: "00:00",
-  sunday_start_time: "00:00",
-  sunday_end_time: "00:00"
-}
-
-staff.each do |name, attributes|
-  unless user = User.find_by(attributes.except(:password,
-                                               :password_confirmation,
-                                               :provider_sync_profile_attributes,
-                                               :staff_profile_attributes, :avatar_attributes
-                                               ))
-
-    user = User.create!(attributes.except(:avatar_attributes, :staff_profile_attributes, :provider_sync_profile_attributes))
+staff.each do |attributes|
+  if user = User.find_by(id: attributes[:id])
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
+  else
+    user = User.create!(attributes.except(:avatar_attributes, :staff_profile_attributes, :provider_sync_profile_attributes, :provider_schedule_attributes))
   end
 
-  # if attributes[:staff_profile_attributes]
-  #   byebug
-  #   StaffProfile.find_or_create_by!(attributes[:staff_profile_attributes].merge(staff: user))
-  # end
+  if attributes[:staff_profile_attributes]
+    if staff_profile = StaffProfile.find_by(id: attributes[:staff_profile_attributes][:id])
+      staff_profile.update_attributes!(attributes[:staff_profile_attributes].merge(staff: user))
+    else
+      StaffProfile.create!(attributes[:staff_profile_attributes].merge(staff: user))
+    end
+  end
 
   if attributes[:provider_sync_profile_attributes]
-    ProviderSchedule.find_or_create_by!(default_schedule.merge(athena_provider_id: attributes[:provider_sync_profile_attributes][:athena_id]))
+    if provider_sync_profile = ProviderSyncProfile.find_by(id: attributes[:provider_sync_profile_attributes][:id])
+      provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes].merge(provider: user))
+    else
+      ProviderSyncProfile.create!(attributes[:provider_sync_profile_attributes].merge(provider: user))
+    end
   end
 
-  Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  if avatar = Avatar.find_by(id: attributes[:avatar_attributes][:id])
+    avatar.update_attributes!(attributes[:avatar_attributes].merge(owner: user))
+  else
+    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:provider_schedule_attributes]
+    if provider_schedule = ProviderSchedule.find_by(id: attributes[:provider_schedule_attributes][:id])
+      provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
+    else
+      ProviderSchedule.create!(attributes[:provider_schedule_attributes])
+    end
+  end
 end
 
 appointment_types_seed = [
@@ -228,11 +286,15 @@ appointment_types_seed = [
 ]
 
 appointment_types_seed.each do |param|
-  AppointmentType.find_or_create_by!(param)
+  if appointment_type = AppointmentType.find_by(id: param[:id])
+    appointment_type.update_attributes!(param)
+  else
+    AppointmentType.create!(param)
+  end
 end
 
-practices_seed = {
-  "Leo @ Chelsea": {
+practices_seed = [
+  {
     id: 1,
     name: "Leo @ Chelsea",
     address_line_1: "33w 17th St",
@@ -245,10 +307,14 @@ practices_seed = {
     email: "info@leohealth.com",
     time_zone: "Eastern Time (US & Canada)"
   }
-}
+]
 
-practices_seed.each do |name, param|
-  Practice.find_or_create_by!(param)
+practices_seed.each do |param|
+  if practice = Practice.find_by(id: param[:id])
+    practice.update_attributes!(param)
+  else
+    Practice.create!(param)
+  end
 end
 
 appointment_statuses_seed = [
@@ -290,7 +356,11 @@ appointment_statuses_seed = [
 ]
 
 appointment_statuses_seed.each do |param|
-  AppointmentStatus.find_or_create_by!(param)
+  if appointment_status = AppointmentStatus.find_by(id: param[:id])
+    appointment_status.update_attributes!(param)
+  else
+    AppointmentStatus.create!(param)
+  end
 end
 
 insurance_plan_seed = [
@@ -300,9 +370,9 @@ insurance_plan_seed = [
       insurer_name:"Cigna"
     },
     plans: [
-             {id: 3, plan_name: "PPO", insurer_id: 1},
-             {id: 4, plan_name: "POS", insurer_id: 1},
-             {id: 5, plan_name: "HMO", insurer_id: 1}
+             {id: 1, plan_name: "PPO", insurer_id: 1},
+             {id: 2, plan_name: "POS", insurer_id: 1},
+             {id: 3, plan_name: "HMO", insurer_id: 1}
            ]
   },
 
@@ -312,9 +382,9 @@ insurance_plan_seed = [
       insurer_name:"Empire BlueCross BlueShield"
     },
     plans: [
-             {id: 6, plan_name: "PPO", insurer_id: 2},
-             {id: 7, plan_name: "POS", insurer_id: 2},
-             {id: 8, plan_name: "HMO", insurer_id: 2}
+             {id: 4, plan_name: "PPO", insurer_id: 2},
+             {id: 5, plan_name: "POS", insurer_id: 2},
+             {id: 6, plan_name: "HMO", insurer_id: 2}
            ]
   },
 
@@ -324,9 +394,9 @@ insurance_plan_seed = [
       insurer_name:"EmblemHealth"
     },
     plans: [
-             {id: 9, plan_name: "PPO", insurer_id: 3},
-             {id: 10, plan_name: "POS", insurer_id: 3},
-             {id: 11, plan_name: "HMO", insurer_id: 3}
+             {id: 7, plan_name: "PPO", insurer_id: 3},
+             {id: 8, plan_name: "POS", insurer_id: 3},
+             {id: 9, plan_name: "HMO", insurer_id: 3}
            ]
   },
 
@@ -336,8 +406,8 @@ insurance_plan_seed = [
       insurer_name:"MultiPlan"
     },
     plans: [
-             {id: 12, plan_name: "PPO", insurer_id: 4},
-             {id: 13, plan_name: "POS", insurer_id: 4}
+             {id: 10, plan_name: "PPO", insurer_id: 4},
+             {id: 11, plan_name: "POS", insurer_id: 4}
            ]
   },
 
@@ -347,9 +417,9 @@ insurance_plan_seed = [
       insurer_name:"Oxford"
     },
     plans: [
-             {id: 14, plan_name: "PPO", insurer_id: 5},
-             {id: 15, plan_name: "POS", insurer_id: 5},
-             {id: 16, plan_name: "HMO", insurer_id: 5}
+             {id: 12, plan_name: "PPO", insurer_id: 5},
+             {id: 13, plan_name: "POS", insurer_id: 5},
+             {id: 14, plan_name: "HMO", insurer_id: 5}
            ]
   },
 
@@ -359,9 +429,9 @@ insurance_plan_seed = [
       insurer_name:"The Empire Plan"
     },
     plans: [
-             {id: 17, plan_name: "PPO", insurer_id: 6},
-             {id: 18, plan_name: "POS", insurer_id: 6},
-             {id: 19, plan_name: "HMO", insurer_id: 6}
+             {id: 15, plan_name: "PPO", insurer_id: 6},
+             {id: 16, plan_name: "POS", insurer_id: 6},
+             {id: 17, plan_name: "HMO", insurer_id: 6}
            ]
   },
 
@@ -371,9 +441,9 @@ insurance_plan_seed = [
       insurer_name:"UnitedHealthcare"
     },
     plans: [
-             {id: 20, plan_name: "PPO", insurer_id: 7},
-             {id: 21, plan_name: "POS", insurer_id: 7},
-             {id: 22, plan_name: "HMO", insurer_id: 7}
+             {id: 18, plan_name: "PPO", insurer_id: 7},
+             {id: 19, plan_name: "POS", insurer_id: 7},
+             {id: 20, plan_name: "HMO", insurer_id: 7}
            ]
   },
   {
@@ -382,29 +452,43 @@ insurance_plan_seed = [
       insurer_name:"Aetna"
     },
     plans: [
-             {id: 23, plan_name: "PPO", insurer_id: 8},
-             {id: 24, plan_name: "POS", insurer_id: 8},
-             {id: 25, plan_name: "HMO", insurer_id: 8}
+             {id: 21, plan_name: "PPO", insurer_id: 8},
+             {id: 22, plan_name: "POS", insurer_id: 8},
+             {id: 23, plan_name: "HMO", insurer_id: 8}
            ]
   }
 ]
 
 insurance_plan_seed.each do |insurance_plan|
-  Insurer.find_or_create_by!(insurance_plan[:insurer])
+  if insurer = Insurer.find_by(id: insurance_plan[:insurer][:id])
+    insurer.update_attributes!(insurance_plan[:insurer])
+  else
+    Insurer.create!(insurance_plan[:insurer])
+  end
+
   insurance_plan[:plans].each do |plan|
-    InsurancePlan.find_or_create_by!(plan)
+    if insurance_plan = InsurancePlan.find_by(id: plan[:id])
+      insurance_plan.update_attributes!(plan)
+    else
+      InsurancePlan.create!(plan)
+    end
   end
 end
 
 onboarding_group_seed = [
   {
+    id: 1,
     group_name: :invited_secondary_guardian
   }
 ]
 
 
-onboarding_group_seed.each do |onboarding_group|
-  OnboardingGroup.find_or_create_by!(onboarding_group)
+onboarding_group_seed.each do |onboarding_group_param|
+  if onboarding_group = OnboardingGroup.find_by(id: onboarding_group_param[:id])
+    onboarding_group.update_attributes!(onboarding_group_param)
+  else
+    OnboardingGroup.create!(onboarding_group_param)
+  end
 end
 
 #Seed the database with growth curves
@@ -493,6 +577,7 @@ begin
 
   practice_schedules = [
     {
+      id: 1,
       practice_id: 1,
       active: true,
       schedule_type: :default,
@@ -513,6 +598,7 @@ begin
     },
 
     {
+      id: 2,
       practice_id: 1,
       active: false,
       schedule_type: :emergency,
@@ -533,6 +619,7 @@ begin
     },
 
     {
+      id: 3,
       practice_id: 1,
       active: false,
       schedule_type: :holiday,
@@ -554,6 +641,10 @@ begin
   ]
 
   practice_schedules.each do |schedule_params|
-    PracticeSchedule.find_or_create_by!(schedule_params)
+    if practice_schedule = PracticeSchedule.find_by(id: schedule_params[:id])
+      practice_schedule.update_attributes!(schedule_params)
+    else
+      PracticeSchedule.create!(schedule_params)
+    end
   end
 end
