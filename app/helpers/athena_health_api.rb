@@ -30,7 +30,7 @@ module AthenaHealthAPI
     attr_accessor :min_request_interval
 
     def initialize
-      @min_request_interval = 5.seconds
+      @min_request_interval = (0.2).seconds
     end
   end
 
@@ -175,7 +175,7 @@ module AthenaHealthAPI
       unless ignore_throttle
         while (Time.now - @@last_request) < AthenaHealthAPI.configuration.min_request_interval
           Rails.logger.info("Throttling Athena API call")
-          sleep(1)
+          sleep(AthenaHealthAPI.configuration.min_request_interval * 0.5)
         end
       end
       
