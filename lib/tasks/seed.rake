@@ -93,23 +93,4 @@ namespace :load do
       puts "Created family #{family.id.to_s} with #{f} children."
     end
   end
-
-  desc "Seed photo message in conversations."
-  task seed_photo_message: :environment do
-    image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', '404-baby.png'))
-    range = Conversation.all.length/2
-    Conversation.all[0..range].each do |conversation|
-      message = conversation.messages.create( body: "This is a smiling baby",
-                                              sender: conversation.family.primary_guardian,
-                                              type_name: "image",
-                                              message_photo_attributes: { image: image } )
-
-      if message.valid?
-        print "*"
-      else
-        print "x"
-        print "Failed to add photo message for conversation with id #{conversation.id}"
-      end
-    end
-  end
 end
