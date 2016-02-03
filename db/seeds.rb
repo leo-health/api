@@ -28,7 +28,6 @@ staff = {
   bot: {
     first_name: "Leo",
     last_name: "Bot",
-    birth_date: Time.now,
     sex: "M",
     email: "leo_bot@leohealth.com",
     password: "password",
@@ -36,9 +35,9 @@ staff = {
     role_id: 7,
     practice_id: 1,
     phone: '1234567890',
-    # avatar_attributes: {
-    #   avatar: Base64.encode64(open(File.new(Rails.root.join('db', 'seed_images', 'Avatar_Guardian_Mom.png'))){|io|io.read})
-    # }
+    avatar_attributes: {
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    }
   },
 
   vriese: {
@@ -52,9 +51,9 @@ staff = {
     role_id: 5,
     practice_id: 1,
     phone: '+19177976816',
-    # avatar_attributes: {
-    #   avatar: StringIO.new(open(File.new(Rails.root.join('db', 'seed_images', 'Avatar_Guardian_Mom.png'))){|io|io.read})
-    # },
+    avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    },
 
     staff_profile_attributes: {
       specialties: "",
@@ -82,6 +81,10 @@ staff = {
       credentials: ["NP"]
     },
 
+    avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+    },
+
     provider_sync_profile_attributes: {
       athena_id: 3,
       athena_department_id: 2,
@@ -101,6 +104,10 @@ staff = {
     staff_profile_attributes: {
       specialties: "",
       credentials: ["RN"]
+    },
+
+    avatar_attributes: {
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   },
 
@@ -117,6 +124,10 @@ staff = {
     staff_profile_attributes: {
       specialties: "",
       credentials: ["Office Manager"]
+    },
+
+    avatar_attributes: {
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   },
 
@@ -124,7 +135,7 @@ staff = {
     first_name: "Kristen",
     last_name: "Castellano",
     sex: "F",
-    email: "Inquiry@flatironpediatrics.com",
+    email: "inquiry@flatironpediatrics.com",
     password: "password",
     password_confirmation: "password",
     role_id: 1,
@@ -133,6 +144,10 @@ staff = {
     staff_profile_attributes: {
       specialties: "",
       credentials: ["RN"]
+    },
+
+    avatar_attributes: {
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   }
 }
@@ -157,15 +172,25 @@ default_schedule = {
 }
 
 staff.each do |name, attributes|
-  User.find_or_create_by!(attributes.except(:avatar_attributes))
-  if attributes[:provider_sync_profile_attributes]
-    ProviderSchedule.create!(default_schedule.merge(athena_provider_id: attributes[:provider_sync_profile_attributes][:athena_id]))
+  unless user = User.find_by(attributes.except(:password,
+                                               :password_confirmation,
+                                               :provider_sync_profile_attributes,
+                                               :staff_profile_attributes, :avatar_attributes
+                                               ))
+
+    user = User.create!(attributes.except(:avatar_attributes, :staff_profile_attributes, :provider_sync_profile_attributes))
   end
-  # avatar_data = attributes[:avatar_attributes]
-  # avatar_data.class.class_eval { attr_accessor :original_filename, :content_type }
-  # avatar_data.content_type = "image/png"
-  # avatar_data.original_filename = "uploaded_image.png"
-  # user.create_avatar!(avatar: avatar_data)
+
+  # if attributes[:staff_profile_attributes]
+  #   byebug
+  #   StaffProfile.find_or_create_by!(attributes[:staff_profile_attributes].merge(staff: user))
+  # end
+
+  if attributes[:provider_sync_profile_attributes]
+    ProviderSchedule.find_or_create_by!(default_schedule.merge(athena_provider_id: attributes[:provider_sync_profile_attributes][:athena_id]))
+  end
+
+  Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
 end
 
 appointment_types_seed = [
@@ -203,7 +228,7 @@ appointment_types_seed = [
 ]
 
 appointment_types_seed.each do |param|
-  AppointmentType.create!(param) unless AppointmentType.where(id: param[:id]).exists?
+  AppointmentType.find_or_create_by!(param)
 end
 
 practices_seed = {
@@ -223,7 +248,7 @@ practices_seed = {
 }
 
 practices_seed.each do |name, param|
-  Practice.create!(param) unless Practice.where(name: name).exists?
+  Practice.find_or_create_by!(param)
 end
 
 appointment_statuses_seed = [
@@ -265,7 +290,7 @@ appointment_statuses_seed = [
 ]
 
 appointment_statuses_seed.each do |param|
-  AppointmentStatus.create!(param) unless AppointmentStatus.where(id: param[:id]).exists?
+  AppointmentStatus.find_or_create_by!(param)
 end
 
 insurance_plan_seed = [
@@ -366,10 +391,8 @@ insurance_plan_seed = [
 
 insurance_plan_seed.each do |insurance_plan|
   Insurer.find_or_create_by!(insurance_plan[:insurer])
-  # unless Insurer.where(id: insurance_plan[:insurer][:id]).exists?
   insurance_plan[:plans].each do |plan|
     InsurancePlan.find_or_create_by!(plan)
-    # unless InsurancePlan.where(id: plan[:id]).exists?
   end
 end
 
@@ -382,7 +405,6 @@ onboarding_group_seed = [
 
 onboarding_group_seed.each do |onboarding_group|
   OnboardingGroup.find_or_create_by!(onboarding_group)
-  # unless OnboardingGroup.where(id: onboarding_group[:id]).exists?
 end
 
 #Seed the database with growth curves
@@ -533,6 +555,5 @@ begin
 
   practice_schedules.each do |schedule_params|
     PracticeSchedule.find_or_create_by!(schedule_params)
-    # unless PracticeSchedule.where(id: schedule_params[:id]).exists?
   end
 end
