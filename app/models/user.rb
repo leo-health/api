@@ -15,9 +15,11 @@ class User < ActiveRecord::Base
   belongs_to :practice
   belongs_to :onboarding_group
   belongs_to :insurance_plan
-
   has_one :avatar, as: :owner
-  has_one :provider_profile, foreign_key: "provider_id"
+  has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff
+  accepts_nested_attributes_for :staff_profile
+  has_one :provider_sync_profile, foreign_key: "provider_id", inverse_of: :provider
+  accepts_nested_attributes_for :provider_sync_profile
   has_many :forms, foreign_key: "submitted_by_id"
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
@@ -35,13 +37,15 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :validatable
 
+  before_validation :add_default_practice_to_guardian
+
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, presence: true
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_update :welcome_to_practice_email, :notify_primary_guardian
-  after_commit :set_user_family, :add_default_practice_to_guardian, :remind_schedule_appointment, on: :create
+  after_commit :set_user_family, :remind_schedule_appointment, on: :create
 
   def self.customer_service_user
     self.joins(:role).where(roles: {name: "customer_service"}).order("created_at ASC").first
@@ -71,7 +75,7 @@ class User < ActiveRecord::Base
   end
 
   def has_role? (name)
-    role.name == name.to_s
+    role && role.name == name.to_s
   end
 
   def upgrade!
@@ -80,6 +84,11 @@ class User < ActiveRecord::Base
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  def primary_guardian?
+    return false unless has_role? :guardian
+    User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
   end
 
   private
@@ -120,11 +129,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  #TODO subject to change when owning multiple practices
   def add_default_practice_to_guardian
-    if has_role? :guardian && Practice.first
-      self.practice = Practice.first
-      self.save
-    end
+    practice ||= Practice.first if has_role? :guardian
   end
 end

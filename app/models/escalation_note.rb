@@ -14,14 +14,15 @@ class EscalationNote < ActiveRecord::Base
   private
 
   def notify_escalatee
-    escalatee = escalated_to
-    if escalatee.practice.try(:in_office_hour?)
-      SendSmsJob.send(escalatee.id, 'A conversation has been escalated to you!')
-    else
-      if priority == 1
-        NotifyEscalatedConversationJob.send(escalatee.id)
-        SendSmsJob.send(escalatee.id, 'A conversation has been escalated to you!')
-      end
-    end
+    NotifyEscalatedConversationJob.send(escalated_to.id) if send_email?
+    SendSmsJob.send(escalated_to.id, escalated_by.id, :escalation, Time.now.to_s) if send_sms?
+  end
+
+  def send_sms?
+    priority == 1 || escalated_to.practice.try(:in_office_hour?)
+  end
+
+  def send_email?
+    priority == 1 && !escalated_to.practice.try(:in_office_hour?)
   end
 end

@@ -5,6 +5,7 @@ resource "Users" do
   header "Accept", "application/json"
   header "Content-Type", "application/json"
 
+  let!(:default_practice) { create(:practice) }
   let!(:role){create(:role, :guardian)}
   let(:user){create(:user)}
   let(:session){user.sessions.create}

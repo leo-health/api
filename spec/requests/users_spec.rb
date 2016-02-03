@@ -9,6 +9,7 @@ describe Leo::V1::Users do
                       sex: "M",
                       phone: "1234445555"
   }}
+  let!(:default_practice) { create(:practice) }
   let(:serializer){ Leo::Entities::UserEntity }
 
   describe "Get /api/v1/staff" do

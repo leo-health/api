@@ -7,6 +7,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
     let(:cancelled_appointment_status){build(:appointment_status, :cancelled)}
     let!(:connector) { double("connector") }
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
+    let!(:practice) { build(:practice, athena_id: 1) }
 
 
     describe "process_scan_appointments" do
@@ -29,15 +30,15 @@ RSpec.describe SyncServiceHelper, type: :helper do
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
         .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
       }
-      let!(:family) { create(:family) }
+      let(:family) { create(:family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
-      let!(:provider) { create(:user, :clinical) }
-      let!(:provider_profile) { create(:provider_profile, athena_id: 1, provider_id: provider.id) }
+      let(:provider) { create(:user, :clinical) }
+      let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates leo appointment when missing" do
         expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
-        expect(Appointment).to receive(:create)
+        expect(Appointment).to receive(:create!)
         syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
       end
     end
@@ -45,8 +46,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_appointment" do
       let!(:family) { create(:family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
-      let!(:provider) { create(:user, :clinical) }
-      let!(:provider_profile) { create(:provider_profile, athena_id: 1, athena_department_id: 1, provider_id: provider.id) }
+      let(:provider) { create(:user, :clinical) }
+      let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, athena_department_id: 1, provider: provider) }
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates athena appointment when missing" do
@@ -61,7 +62,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "f",
           "patientid": appointment.patient.athena_id.to_s,
@@ -85,7 +86,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "f",
           "patientid": appointment.patient.athena_id.to_s,
@@ -111,7 +112,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "f",
           "patientid": appointment.patient.athena_id.to_s,
@@ -141,7 +142,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
-          "providerid": provider_profile.athena_id.to_s,
+          "providerid": provider_sync_profile.athena_id.to_s,
           "starttime": "15:25",
           "appointmentstatus": "x",
           "rescheduledappointmentid": "1001",
@@ -186,7 +187,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_patient" do
       let!(:family) { create(:family) }
       let!(:insurance_plan) { create(:insurance_plan, athena_id: 100) }
-      let!(:parent) { create(:user, :guardian, family: family, insurance_plan: insurance_plan) }
+      let!(:parent) { create(:user, :guardian, family: family, insurance_plan: insurance_plan, practice: practice) }
 
       it "creates new patient" do
         patient = create(:patient, athena_id: 0, family_id: family.id)
@@ -301,8 +302,9 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_patient_allergies" do
+      let!(:practice) { build(:practice, athena_id: 1) }
       let!(:family) { create(:family) }
-      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:parent) { create(:user, :guardian, family: family, practice: practice) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
       it "creates alergy" do
@@ -355,7 +357,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_patient_medications" do
       let!(:family) { create(:family) }
-      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:practice) { build(:practice, athena_id: 1) }
+      let!(:parent) { create(:user, :guardian, family: family, practice: practice) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
       it "creates medication with unstructured sig" do
@@ -424,7 +427,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_patient_vitals" do
       let!(:family) { create(:family) }
-      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:practice) { build(:practice, athena_id: 1) }
+      let!(:parent) { create(:user, :guardian, family: family, practice: practice) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
       it "creates medication" do
@@ -504,7 +508,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_patient_vaccines" do
       let!(:family) { create(:family) }
-      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:practice) { build(:practice, athena_id: 1) }
+      let!(:parent) { create(:user, :guardian, family: family, practice: practice) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
       it "creates vaccine" do
@@ -527,7 +532,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_patient_insurances" do
       let!(:family) { create(:family) }
-      let!(:parent) { create(:user, :guardian, family: family) }
+      let!(:practice) { build(:practice, athena_id: 1) }
+      let!(:parent) { create(:user, :guardian, family: family, practice: practice) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
 
       it "creates insurance" do
