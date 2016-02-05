@@ -3,16 +3,22 @@ module Leo
     class ImageEntity < Grape::Entity
       expose :base_url
       expose :parameters
-      expose :url
+      expose :full_size_image_url
+      expose :web_app_image_url
 
       private
 
-      def url
+      def full_size_image_url
         object.url
       end
 
+      def web_app_image_url
+        object.primary_1x.url if object.respond_to?(:primary_1x)
+      end
+
       def get_uri
-        URI(object.url)
+        image_version = DEVICE_IMAGE_SIZE_MAP[options[:device_type]] || :primary_3x
+        URI(object.send(image_version).url) if object.respond_to?(image_version)
       end
 
       def base_url

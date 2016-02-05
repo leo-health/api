@@ -48,13 +48,13 @@ module Leo
         def create_form
           params[:image] = image_decoder(params[:image])
           form = current_user.forms.new(declared(params, include_missing: false))
-          create_success form
+          create_success form, device_type: session_device_type
         end
 
         def show_form
           form = Form.find(params[:id])
           authorize! :read, form
-          render_success form
+          render_success form, device_type: session_device_type
         end
 
         def update_form
