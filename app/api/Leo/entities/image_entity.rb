@@ -13,7 +13,7 @@ module Leo
       end
 
       def web_app_image_url
-        object.primary_2x.url
+        object.primary_1x.url if object.respond_to?(:primary_1x)
       end
 
       def get_uri
