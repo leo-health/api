@@ -36,7 +36,7 @@ module Leo
           if object.type_name == 'text'
             object.body
           else
-            Leo::Entities::ImageEntity.represent(object.message_photo.image)
+            Leo::Entities::ImageEntity.represent(object.message_photo.image, options)
           end
         end
       end
