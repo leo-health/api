@@ -18,7 +18,7 @@ module Leo
 
       def get_uri
         image_version = DEVICE_IMAGE_SIZE_MAP[options[:device_type]] || :primary_3x
-        URI(object.send(image_version)) if object.respond_to?(image_version)
+        URI(object.send(image_version).url) if object.respond_to?(image_version)
       end
 
       def base_url
