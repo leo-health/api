@@ -43,7 +43,7 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   # Use lograge to silence health_check URL
-  #config.log_level = :info     # :debug, :info, :warn, :error, :fatal, :unknown
+  config.log_level = :info     # :debug, :info, :warn, :error, :fatal, :unknown
   config.lograge.enabled = true
   config.lograge.ignore_actions = ["health_check/health_check#index"]
 
