@@ -67,7 +67,7 @@ staff = [
 
     provider_sync_profile_attributes: {
       id: 1,
-      athena_id: 4,
+      athena_id: 3,
       athena_department_id: 2,
     },
 
@@ -117,7 +117,7 @@ staff = [
 
     provider_sync_profile_attributes: {
       id: 2,
-      athena_id: 3,
+      athena_id: 4,
       athena_department_id: 2,
     },
 
@@ -254,6 +254,7 @@ end
 appointment_types_seed = [
   {
     id: 1,
+    athena_id: 43,
     name: "Sick Visit",
     duration: 20,
     short_description: "New symptom",
@@ -262,6 +263,7 @@ appointment_types_seed = [
 
   {
     id: 2,
+    athena_id: 44,
     name: "Follow Up Visit",
     duration: 20,
     short_description: "Unresolved illness or chronic condition",
@@ -270,6 +272,7 @@ appointment_types_seed = [
 
   {
     id: 3,
+    athena_id: 45,
     name: "Immunization / Lab Visit",
     duration: 20,
     short_description: "Flu shot or scheduled vaccine",
@@ -278,6 +281,7 @@ appointment_types_seed = [
 
   {
     id: 4,
+    athena_id: 46,
     name: "Well Visit",
     duration: 30,
     short_description: "Regular check-up",
@@ -296,6 +300,7 @@ end
 practices_seed = [
   {
     id: 1,
+    athena_id: 1,
     name: "Leo @ Chelsea",
     address_line_1: "33w 17th St",
     address_line_2: "5th floor",
