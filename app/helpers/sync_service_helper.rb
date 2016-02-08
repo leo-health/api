@@ -79,9 +79,9 @@ module SyncServiceHelper
           #destroy task if everything went ok
           task.destroy
         rescue => e
-          Rails.logger.error "Syncer: Processing sync task id=#{task.id} failed"
-          Rails.logger.error e.message
-          Rails.logger.error e.backtrace.join("\n")
+          Delayed::Worker.logger.error "Syncer: Processing sync task id=#{task.id} failed"
+          Delayed::Worker.logger.error e.message
+          Delayed::Worker.logger.error e.backtrace.join("\n")
         end
       end
 
@@ -94,7 +94,7 @@ module SyncServiceHelper
     # ==== arguments
     # * +task+ - the sync task to process
     def process_sync_task(task)
-      Rails.logger.info("Syncer: Processing task #{task.to_json}")
+      Delayed::Worker.logger.info("Syncer: Processing task #{task.to_json}")
       if respond_to?("process_#{task.sync_type}")
         public_send("process_#{task.sync_type}", task)
       else
@@ -118,9 +118,9 @@ module SyncServiceHelper
           end
 
         rescue => e
-          Rails.logger.error "Syncer: Creating sync task for appointment.id=#{appt.id} failed"
-          Rails.logger.error e.message
-          Rails.logger.error e.backtrace.join("\n")
+          Delayed::Worker.logger.error "Syncer: Creating sync task for appointment.id=#{appt.id} failed"
+          Delayed::Worker.logger.error e.message
+          Delayed::Worker.logger.error e.backtrace.join("\n")
         end
       end
     end
@@ -172,9 +172,9 @@ module SyncServiceHelper
           athena_id: appt.appointmentid.to_i
         )
       rescue => e
-          Rails.logger.error "Syncer: impl_create_leo_appt_from_athena appt=#{appt.to_json} failed"
-          Rails.logger.error e.message
-          Rails.logger.error e.backtrace.join("\n")
+          Delayed::Worker.logger.error "Syncer: impl_create_leo_appt_from_athena appt=#{appt.to_json} failed"
+          Delayed::Worker.logger.error e.message
+          Delayed::Worker.logger.error e.backtrace.join("\n")
       end
     end
 
@@ -209,9 +209,9 @@ module SyncServiceHelper
             SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: patient.id)
           end
         rescue => e
-          Rails.logger.error "Syncer: Creating sync task for patient user.id=#{user.id} failed"
-          Rails.logger.error e.message
-          Rails.logger.error e.backtrace.join("\n")
+          Delayed::Worker.logger.error "Syncer: Creating sync task for patient user.id=#{user.id} failed"
+          Delayed::Worker.logger.error e.message
+          Delayed::Worker.logger.error e.backtrace.join("\n")
         end
       end
     end
@@ -329,7 +329,7 @@ module SyncServiceHelper
 
       leo_parent = leo_patient.family.primary_guardian
 
-      Rails.logger.info("Syncer: synching patient=#{leo_patient.to_json}")
+      Delayed::Worker.logger.info("Syncer: synching patient=#{leo_patient.to_json}")
 
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
       parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
@@ -404,7 +404,7 @@ module SyncServiceHelper
 
       #get list of photos for this patients
       photos = leo_patient.photos.order("id desc")
-      Rails.logger.info("Syncer: synching photos=#{photos.to_json}")
+      Delayed::Worker.logger.info("Syncer: synching photos=#{photos.to_json}")
 
       if photos.empty?
         @connector.delete_patient_photo(patientid: leo_patient.athena_id)
