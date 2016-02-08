@@ -34,7 +34,7 @@ module Leo
           patients = Patient.search(params[:query])
           present :guardians, guardians, with: Leo::Entities::ShortUserEntity
           present :staff, staff, with: Leo::Entities::ShortUserEntity
-          present :patients, patients, with: Leo::Entities::PatientEntity
+          present :patients, patients, with: Leo::Entities::ShortPatientEntity
         end
       end
 
