@@ -66,7 +66,7 @@ class Conversation < ActiveRecord::Base
   end
 
   def broadcast_state(message_type, changed_by, note_id, changed_to = nil)
-    channels =User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "newState#{user.email}"}
+    channels =User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "newState#{user.id}"}
     if channels.count > 0
       Pusher.trigger(channels, 'new_state', { message_type: message_type,
                                               conversation_id: id,
