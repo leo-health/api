@@ -35,7 +35,7 @@ gem "mini_magick"
 gem 'aasm'
 gem 'grocer'
 gem 'pg_search'
-gem 'raddocs'
+#gem 'raddocs'		# Moved by Misha
 gem 'redis'
 gem 'whenever', :require => false
 gem 'twilio-ruby'
@@ -53,6 +53,7 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'fuubar'
   gem 'rspec_api_documentation'
+  gem 'raddocs'
 end
 
 group :test do
