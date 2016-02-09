@@ -99,8 +99,17 @@ namespace :load do
   task seed_messages: :environment do
     if conversation = Conversation.first
       primary_guardian = conversation.family.primary_guardian
+      image = Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', '404-baby.png'))
+
       100.times do |i|
-        message = conversation.messages.create({ body: "Hello World!", type_name: "text", sender: primary_guardian })
+        if i%25 == 0
+          message = conversation.messages.create( sender: primary_guardian,
+                                                  type_name: "image",
+                                                  message_photo_attributes: { image: image } )
+        else
+          message = conversation.messages.create( body: "Hello World!", type_name: "text", sender: primary_guardian )
+        end
+
         if message.valid?
           print "*"
         else
