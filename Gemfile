@@ -68,7 +68,9 @@ end
 
 group :production do
   gem 'rails_12factor'
-  gem 'unicorn'
+  gem "health_check"
+  gem "lograge"
+# gem 'unicorn'		# Removed by Misha
 end
 
 group :develop do
