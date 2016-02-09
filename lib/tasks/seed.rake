@@ -2,7 +2,7 @@ namespace :load do
   desc 'Seed test data'
   task all: :environment do
     begin
-      ["load:seed_guardians", "load:seed_photo_message"].each do |t|
+      ["load:seed_guardians", "load:seed_messages"].each do |t|
         Rake::Task[t].execute
         puts "#{t} completed"
       end
@@ -91,6 +91,26 @@ namespace :load do
       end
 
       puts "Created family #{family.id.to_s} with #{f} children."
+    end
+  end
+
+
+  desc "Seed messages in conversation to test pagination"
+  task seed_messages: :environment do
+    if conversation = Conversation.first
+      primary_guardian = conversation.family.primary_guardian
+      100.times do |i|
+        message = conversation.messages.create({ body: "Hello World!", type_name: "text", sender: primary_guardian })
+        if message.valid?
+          print "*"
+        else
+          print "x"
+          print "failed to create message "
+        end
+      end
+    else
+      print "x"
+      print "Fail to seed messages, not conversation existing"
     end
   end
 end
