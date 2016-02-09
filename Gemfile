@@ -41,6 +41,7 @@ gem 'whenever', :require => false
 gem 'twilio-ruby'
 gem 'rspec_junit_formatter', '0.2.2'
 gem "figaro"
+gem 'unicorn'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -71,7 +72,6 @@ group :production do
   gem 'rails_12factor'
   gem "health_check"
   gem "lograge"
-# gem 'unicorn'		# Removed by Misha
 end
 
 group :develop do
