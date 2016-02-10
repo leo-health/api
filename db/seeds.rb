@@ -251,6 +251,104 @@ staff.each do |attributes|
   end
 end
 
+if Rails.env.development? || Rails.env.develop?
+  team = [
+    {
+      first_name: "Ben",
+      last_name: "Siscovick",
+      sex: "M",
+      email: "b@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 3,
+      practice_id: 1,
+      phone: '+19736327321',
+
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      }
+    },
+
+    {
+      first_name: "Zack",
+      last_name: "Drossman",
+      sex: "M",
+      email: "z@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 3,
+      practice_id: 1,
+      phone: '+19736327321',
+
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      }
+    },
+
+    {
+      first_name: "Nayan",
+      last_name: "Jain",
+      sex: "M",
+      email: "n@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 3,
+      practice_id: 1,
+      phone: '+19736327321',
+
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      }
+    },
+
+    {
+      first_name: "Wuang",
+      last_name: "Qin",
+      sex: "M",
+      email: "w@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 3,
+      practice_id: 1,
+      phone: '+19192659848',
+
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      }
+    },
+
+    {
+      first_name: "Adam",
+      last_name: "Fanslau",
+      sex: "M",
+      email: "a@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role_id: 3,
+      practice_id: 1,
+      phone: '+19736327321',
+
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      }
+    }
+  ]
+
+  team.each do |attributes|
+    if user = User.find_by(email: attributes[:email])
+      user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes))
+    else
+      user = User.create!(attributes.except(:avatar_attributes))
+    end
+
+    if avatar = user.avatar
+      avatar.update_attributes!(attributes[:avatar_attributes].merge(owner: user))
+    else
+      Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+    end
+  end
+end
+
 appointment_types_seed = [
   {
     id: 1,
