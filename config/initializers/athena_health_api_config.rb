@@ -6,4 +6,7 @@ AthenaHealthAPI.configure do |config|
   else
     config.min_request_interval = (0.2).seconds
   end
+
+  #use delayed job logger
+  config.logger = Delayed::Worker.logger
 end
