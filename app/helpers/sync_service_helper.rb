@@ -331,9 +331,10 @@ module SyncServiceHelper
       raise "patient.id #{leo_patient.id} has no associated family" unless leo_patient.family
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
-      leo_parent = leo_patient.family.primary_guardian
-
       SyncService.configuration.logger.info("Syncer: synching patient=#{leo_patient.to_json}")
+
+      leo_parent = leo_patient.family.primary_guardian
+      raise "patient.id #{leo_patient.id} has a primary guardian that is not associated with a practice" unless leo_parent.practice
 
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
       parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
