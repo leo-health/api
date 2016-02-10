@@ -32,9 +32,9 @@ module Leo
           guardians = users.joins(:role).where(roles: {name: "guardian"})
           staff = users.joins(:role).where.not(roles: {name: "guardian"})
           patients = Patient.search(params[:query])
-          present :guardians, guardians, with: Leo::Entities::UserEntity
-          present :staff, staff, with: Leo::Entities::UserEntity
-          present :patients, patients, with: Leo::Entities::PatientEntity
+          present :guardians, guardians, with: Leo::Entities::ShortUserEntity
+          present :staff, staff, with: Leo::Entities::ShortUserEntity
+          present :patients, patients, with: Leo::Entities::ShortPatientEntity
         end
       end
 
