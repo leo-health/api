@@ -8,8 +8,8 @@ module Leo
 
       ENTITIES = %w(image avatar role insurance_plan insurer user escalation_note system appointment_status
                     appointment_type message short_user full_message patient conversation enrollment
-                    practice appointment short_conversation card family session vital allergy medication vaccine
-                    user_generated_health_record form patient_insurance short_patient
+                    practice appointment short_patient short_conversation card family session vital allergy
+                    medication vaccine user_generated_health_record form patient_insurance
                    )
 
       ENTITIES.each do |entity_name|
