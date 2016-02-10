@@ -43,8 +43,9 @@ describe UserMailer do
   end
 
   describe "#five_day_appointment_reminder" do
+    let(:appointment){ create(:appointment) }
     it "should send the user an reminder of the appointment 5 days prior to the scheduled visit" do
-      UserMailer.five_day_appointment_reminder(user).deliver
+      UserMailer.five_day_appointment_reminder(user, appointment).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Five Day Appointment Reminder' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }

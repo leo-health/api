@@ -20,8 +20,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Instructions to reset your password',
       to: user.email,
       vars: {
-        'FIRST_NAME' => user.first_name,
-        'LINK' => "#{ENV['API_HOST']}/#/changePassword?token=#{token}"
+        'FIRST_NAME': user.first_name,
+        'LINK': "#{ENV['API_HOST']}/#/changePassword?token=#{token}"
       }
     )
   end
@@ -32,18 +32,21 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo Invitation',
       to: enrollment.email,
       vars: {
-        'LINK' => "#{ENV['API_HOST']}/#/registration?token=#{enrollment.authentication_token}",
-        'SECONDARY_GUARDIAN_FIRST_NAME' => enrollment.first_name,
-        'PRIMARY_GUARDIAN_FIRST_NAME' => current_user.first_name
+        'LINK': "#{ENV['API_HOST']}/#/registration?token=#{enrollment.authentication_token}",
+        'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name,
+        'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name
       }
     )
   end
 
-  def five_day_appointment_reminder(user)
+  def five_day_appointment_reminder(user, appointment)
     mandrill_mail(
       template: 'Leo - Five Day Appointment Reminder',
       subject: 'You have an appointment coming up soon!',
-      to: user.email
+      to: user.email,
+      vars: {
+        'LINK': "http://localhost:3000/deep_link/appointment/#{appointment.id}"
+      }
     )
   end
 

@@ -31,9 +31,9 @@ describe Leo::V1::Pushers do
       body = { events: [{ "name": "member_added", channel: "presence-test", user_id: "1" }] }
       payload = MultiJson.dump(body)
       header = {
-                 "Content-Type"       => "application/json",
-                 "X-Pusher-Key"       => PusherFake.configuration.key,
-                 "X-Pusher-Signature" => signature_for(payload)
+                 "Content-Type": "application/json",
+                 "X-Pusher-Key": PusherFake.configuration.key,
+                 "X-Pusher-Signature": signature_for(payload)
                 }
 
       post "/api/v1/pusher/webhooks", payload, header

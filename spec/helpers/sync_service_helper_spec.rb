@@ -192,7 +192,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "creates new patient" do
         patient = create(:patient, athena_id: 0, family_id: family.id)
 
-        expect(connector).to receive("create_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
+        expect(connector).to receive("create_patient").with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
         expect(connector).to receive("get_patient_insurances").and_return(JSON.parse(%q(
                 [{
                     "insurancepolicyholdercountrycode": "USA",
@@ -260,14 +260,14 @@ RSpec.describe SyncServiceHelper, type: :helper do
                 }]
           )))
 
-        expect(connector).to receive("update_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y")))
+        expect(connector).to receive("update_patient").with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y")))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
       end
 
       it "creates new patient and insurance" do
         patient = create(:patient, athena_id: 0, family_id: family.id)
 
-        expect(connector).to receive("create_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
+        expect(connector).to receive("create_patient").with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
         expect(connector).to receive("get_patient_insurances").and_return([])
         expect(connector).to receive("create_patient_insurance").with(hash_including(:insurancepackageid => insurance_plan.athena_id))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
@@ -277,7 +277,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "updates stale patient and creates insurance" do
         patient = create(:patient, athena_id: 1, family_id: family.id)
 
-        expect(connector).to receive("update_patient").with(hash_including(:dob => patient.birth_date.strftime("%m/%d/%Y")))
+        expect(connector).to receive("update_patient").with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y")))
         expect(connector).to receive("get_patient_insurances").and_return([])
         expect(connector).to receive("create_patient_insurance").with(hash_including(:insurancepackageid => insurance_plan.athena_id))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))

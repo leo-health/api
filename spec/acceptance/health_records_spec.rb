@@ -11,10 +11,10 @@ resource "HealthRecords" do
   let!(:patient){ create(:patient, family: user.family) }
 
   get "/api/v1/patients/:id/vitals/height" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
-    parameter :start_date, "Start date for the vitals search", :required => true
-    parameter :end_date, "End date for the vitals search", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
+    parameter :start_date, "Start date for the vitals search", required: true
+    parameter :end_date, "End date for the vitals search", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -37,10 +37,10 @@ resource "HealthRecords" do
   end
 
   get "/api/v1/patients/:id/vitals/weight" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
-    parameter :start_date, "Start date for the vitals search", :required => true
-    parameter :end_date, "End date for the vitals search", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
+    parameter :start_date, "Start date for the vitals search", required: true
+    parameter :end_date, "End date for the vitals search", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -63,10 +63,10 @@ resource "HealthRecords" do
   end
 
   get "/api/v1/patients/:id/vitals/bmis" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
-    parameter :start_date, "Start date for the vitals search", :required => true
-    parameter :end_date, "End date for the vitals search", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
+    parameter :start_date, "Start date for the vitals search", required: true
+    parameter :end_date, "End date for the vitals search", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -97,8 +97,8 @@ resource "HealthRecords" do
   end
 
   get "/api/v1/patients/:id/allergies" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -119,8 +119,8 @@ resource "HealthRecords" do
   end
 
   get "/api/v1/patients/:id/medications" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -142,8 +142,8 @@ resource "HealthRecords" do
   end
 
   get "/api/v1/patients/:id/immunizations" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -165,8 +165,8 @@ resource "HealthRecords" do
   end
 
   get "/api/v1/patients/:id/notes" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -188,9 +188,9 @@ resource "HealthRecords" do
   end
 
   get "/api/v1/patients/:id/notes/:note_id" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
-    parameter :note_id, "Note Id", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
+    parameter :note_id, "Note Id", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -205,9 +205,9 @@ resource "HealthRecords" do
   end
 
   post "/api/v1/patients/:id/notes" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
-    parameter :note, "Note Text", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
+    parameter :note, "Note Text", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }
@@ -221,10 +221,10 @@ resource "HealthRecords" do
   end
 
   put "/api/v1/patients/:id/notes/:note_id" do
-    parameter :authentication_token, :required => true
-    parameter :id, "Patient Id", :required => true
-    parameter :note_id, "Note Id", :required => true
-    parameter :note, "Note Text", :required => true
+    parameter :authentication_token, required: true
+    parameter :id, "Patient Id", required: true
+    parameter :note_id, "Note Id", required: true
+    parameter :note, "Note Text", required: true
 
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }

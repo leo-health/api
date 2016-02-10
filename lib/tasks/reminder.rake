@@ -2,7 +2,7 @@ namespace :notification do
   desc "send user a reminder 5 days prior to upcoming appointment"
   task five_day_prior_appointment: :environment do
     Appointment.where(start_datetime: 5.days.from_now.utc..6.days.from_now.utc).find_each do |appointment|
-      created_job = FiveDayAppointmentReminderJob.send(appointment.booked_by.id)
+      created_job = FiveDayAppointmentReminderJob.send(appointment.booked_by.id, appointment.id)
       if created_job.valid?
         print "*"
       else

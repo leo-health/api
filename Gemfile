@@ -27,7 +27,6 @@ gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
 gem 'simple_token_authentication', '~> 1.0'
 gem 'squeel'
-gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 gem 'pusher'
 gem 'public_activity'
@@ -37,7 +36,7 @@ gem 'grocer'
 gem 'pg_search'
 #gem 'raddocs'		# Moved by Misha
 gem 'redis'
-gem 'whenever', :require => false
+gem 'whenever', require: false
 gem 'twilio-ruby'
 gem 'rspec_junit_formatter', '0.2.2'
 gem "figaro"
