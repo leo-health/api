@@ -9,7 +9,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/#/changePassword?reset_password_token=#{token}"
+        'LINK': "#{ENV['API_HOST']}/deep_link/confirm_email"
       }
     )
   end
@@ -21,7 +21,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/#/changePassword?token=#{token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/changePassword?token=#{token}"
       }
     )
   end
@@ -32,7 +32,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo Invitation',
       to: enrollment.email,
       vars: {
-        'LINK': "#{ENV['API_HOST']}/#/registration?token=#{enrollment.authentication_token}",
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/registration?token=#{enrollment.authentication_token}",
         'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name,
         'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name
       }
@@ -45,7 +45,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'You have an appointment coming up soon!',
       to: user.email,
       vars: {
-        'LINK': "http://localhost:3000/deep_link/appointment/#{appointment.id}"
+        'LINK': "#{ENV['API_HOST']}/deep_link/appointment/#{appointment.id}"
       }
     )
   end
@@ -147,7 +147,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: primary_guardian.email,
       vars: {
         'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
-        'LINK': "#{ENV['API_HOST']}/#/acceptInvitation?token=#{enrollment_auth_token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/acceptInvitation?token=#{enrollment_auth_token}"
       }
     )
   end
