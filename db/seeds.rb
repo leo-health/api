@@ -26,7 +26,6 @@ end
 
 staff = [
   {
-    id: 1,
     first_name: "Leo",
     last_name: "Bot",
     sex: "F",
@@ -37,13 +36,11 @@ staff = [
     practice_id: 1,
     phone: '1234567890',
     avatar_attributes: {
-      id: 1,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
     }
   },
 
   {
-    id: 2,
     title: "Dr.",
     first_name: "Victoria",
     last_name: "Riese",
@@ -55,24 +52,20 @@ staff = [
     practice_id: 1,
     phone: '+19177976816',
     avatar_attributes: {
-      id: 2,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Victoria-Shoulder.png'))
     },
 
     staff_profile_attributes: {
-      id: 1,
       specialties: "",
       credentials: ["MD"]
     },
 
     provider_sync_profile_attributes: {
-      id: 1,
-      athena_id: 3,
-      athena_department_id: 2,
+      athena_id: 4,
+      athena_department_id: 2
     },
 
     provider_schedule_attributes: {
-      id: 1,
       athena_provider_id: 4,
       description: "Default Schedule",
       active: true,
@@ -94,7 +87,6 @@ staff = [
   },
 
   {
-    id: 3,
     first_name: "Erin",
     last_name: "Gold",
     sex: "F",
@@ -111,18 +103,15 @@ staff = [
     },
 
     avatar_attributes: {
-      id: 3,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Erin-Shoulder.png'))
     },
 
     provider_sync_profile_attributes: {
-      id: 2,
-      athena_id: 4,
-      athena_department_id: 2,
+      athena_id: 3,
+      athena_department_id: 2
     },
 
     provider_schedule_attributes: {
-      id: 2,
       athena_provider_id: 3,
       description: "Default Schedule",
       active: true,
@@ -144,7 +133,6 @@ staff = [
   },
 
   {
-    id: 4,
     first_name: "Marcey",
     last_name: "Brody",
     sex: "F",
@@ -161,13 +149,11 @@ staff = [
     },
 
     avatar_attributes: {
-      id: 4,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcy-Shoulder.png'))
     }
   },
 
   {
-    id: 5,
     first_name: "Catherine",
     last_name: "Franco",
     sex: "F",
@@ -184,13 +170,11 @@ staff = [
     },
 
     avatar_attributes: {
-      id: 5,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Catherine-Shoulder.png'))
     }
   },
 
   {
-    id: 6,
     first_name: "Kristen",
     last_name: "Castellano",
     sex: "F",
@@ -207,43 +191,42 @@ staff = [
     },
 
     avatar_attributes: {
-      id: 6,
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Kristen-Shoulder.png'))
     }
   }
 ]
 
 staff.each do |attributes|
-  if user = User.find_by(id: attributes[:id])
+  if user = User.find_by(email: attributes[:email])
     user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes, :staff_profile_attributes, :provider_sync_profile_attributes, :provider_schedule_attributes))
   end
 
+  if avatar = user.avatar
+    avatar.update_attributes!(attributes[:avatar_attributes])
+  else
+    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
   if attributes[:staff_profile_attributes]
-    if staff_profile = StaffProfile.find_by(id: attributes[:staff_profile_attributes][:id])
-      staff_profile.update_attributes!(attributes[:staff_profile_attributes].merge(staff: user))
+    if staff_profile = user.staff_profile
+      staff_profile.update_attributes!(attributes[:staff_profile_attributes])
     else
       StaffProfile.create!(attributes[:staff_profile_attributes].merge(staff: user))
     end
   end
 
   if attributes[:provider_sync_profile_attributes]
-    if provider_sync_profile = ProviderSyncProfile.find_by(id: attributes[:provider_sync_profile_attributes][:id])
-      provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes].merge(provider: user))
+    if provider_sync_profile = user.provider_sync_profile
+      provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
     else
       ProviderSyncProfile.create!(attributes[:provider_sync_profile_attributes].merge(provider: user))
     end
   end
 
-  if avatar = Avatar.find_by(id: attributes[:avatar_attributes][:id])
-    avatar.update_attributes!(attributes[:avatar_attributes].merge(owner: user))
-  else
-    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-  end
-
   if attributes[:provider_schedule_attributes]
-    if provider_schedule = ProviderSchedule.find_by(id: attributes[:provider_schedule_attributes][:id])
+    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.athena_id)
       provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
     else
       ProviderSchedule.create!(attributes[:provider_schedule_attributes])
