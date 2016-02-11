@@ -56,7 +56,7 @@ staff = [
     phone: '+19177976816',
     avatar_attributes: {
       id: 2,
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Victoria-Shoulder.png'))
     },
 
     staff_profile_attributes: {
@@ -112,7 +112,7 @@ staff = [
 
     avatar_attributes: {
       id: 3,
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Erin-Shoulder.png'))
     },
 
     provider_sync_profile_attributes: {
@@ -162,7 +162,7 @@ staff = [
 
     avatar_attributes: {
       id: 4,
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcy-Shoulder.png'))
     }
   },
 
@@ -185,7 +185,7 @@ staff = [
 
     avatar_attributes: {
       id: 5,
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Catherine-Shoulder.png'))
     }
   },
 
@@ -208,7 +208,7 @@ staff = [
 
     avatar_attributes: {
       id: 6,
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Kristen-Shoulder.png'))
     }
   }
 ]
