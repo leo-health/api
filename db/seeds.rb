@@ -245,7 +245,7 @@ if Rails.env.development? || Rails.env.develop?
       password_confirmation: "password",
       role_id: 3,
       practice_id: 1,
-      phone: '+19736327321',
+      phone: '+12068198549',
 
       avatar_attributes: {
         avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
@@ -261,7 +261,7 @@ if Rails.env.development? || Rails.env.develop?
       password_confirmation: "password",
       role_id: 3,
       practice_id: 1,
-      phone: '+19736327321',
+      phone: '+12672559107',
 
       avatar_attributes: {
         avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
@@ -277,7 +277,7 @@ if Rails.env.development? || Rails.env.develop?
       password_confirmation: "password",
       role_id: 3,
       practice_id: 1,
-      phone: '+19736327321',
+      phone: '+12035223374',
 
       avatar_attributes: {
         avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
@@ -309,7 +309,7 @@ if Rails.env.development? || Rails.env.develop?
       password_confirmation: "password",
       role_id: 3,
       practice_id: 1,
-      phone: '+19736327321',
+      phone: '+19735172669',
 
       avatar_attributes: {
         avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
