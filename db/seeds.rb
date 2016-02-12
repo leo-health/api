@@ -226,7 +226,8 @@ staff.each do |attributes|
   end
 
   if attributes[:provider_schedule_attributes]
-    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.athena_id)
+    if athena_id = user.provider_sync_profile.try(:athena_id)
+      provider_schedule = ProviderSchedule.find_by(athena_provider_id: athena_id)
       provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
     else
       ProviderSchedule.create!(attributes[:provider_schedule_attributes])
