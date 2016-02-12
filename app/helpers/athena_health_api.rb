@@ -29,8 +29,12 @@ module AthenaHealthAPI
     #Set to true unless doing some kind of testing
     attr_accessor :min_request_interval
 
+    #logger
+    attr_accessor :logger
+
     def initialize
       @min_request_interval = (0.2).seconds
+      @logger = Rails.logger
     end
   end
 
@@ -88,7 +92,7 @@ module AthenaHealthAPI
     # * +practiceid+ - the practice ID to be used in constructing URLs
     #
     def initialize(version, key, secret, practiceid=nil)
-      Rails.logger.error("Athena key or secret are empty.  Please set ATHENA_KEY and ATHENA_SECRET env vars.") if key.to_s == '' || secret.to_s == ''
+      AthenaHealthAPI.configuration.logger.error("Athena key or secret are empty.  Please set ATHENA_KEY and ATHENA_SECRET env vars.") if key.to_s == '' || secret.to_s == ''
 
       uri = URI.parse('https://api.athenahealth.com/')
       @connection = Net::HTTP.new(uri.host, uri.port)
@@ -133,12 +137,12 @@ module AthenaHealthAPI
       request.basic_auth(@key, @secret)
       request.set_form_data({'grant_type' => 'client_credentials'})
       
-      Rails.logger.info("#{request.method} #{request.path}")
+      AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}")
 
       response = @connection.request(request)
 
-      Rails.logger.info("response code: #{response.code}") if Connection.debug
-      Rails.logger.info("response body: #{response.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.debug("response code: #{response.code}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.debug("response body: #{response.body}") if Connection.debug
 
       raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
 
@@ -168,13 +172,13 @@ module AthenaHealthAPI
       }
       request['authorization'] = "Bearer #{@token}"
       
-      Rails.logger.info("#{request.method} #{request.path}")
-      Rails.logger.info("request body: #{request.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}")
+      AthenaHealthAPI.configuration.logger.debug("request body: #{request.body}") if Connection.debug
 
       #throttle API calls
       unless ignore_throttle
         while (Time.now - @@last_request) < AthenaHealthAPI.configuration.min_request_interval
-          Rails.logger.info("Throttling Athena API call")
+          AthenaHealthAPI.configuration.logger.info("Throttling Athena API call")
           sleep(AthenaHealthAPI.configuration.min_request_interval * 0.5)
         end
       end
@@ -183,8 +187,8 @@ module AthenaHealthAPI
 
       @@last_request = Time.now
 
-      Rails.logger.info("response code: #{response.code}") if Connection.debug
-      Rails.logger.info("response body: #{response.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.debug("response code: #{response.code}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.debug("response body: #{response.body}") if Connection.debug
 
       if response.code == '401' && !secondcall
         #force re-authentication by nulling out @token

@@ -16,4 +16,7 @@ SyncService.configure do |config|
   #appointment data will be synched at this interval
   #this does not apply to first sync.  That one is performed as soon as new data is entered in Leo.
   config.appointment_data_interval = 15.minutes
+
+  #use delayed job logger for sync service
+  config.logger = Delayed::Worker.logger
 end
