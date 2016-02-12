@@ -149,7 +149,7 @@ staff = [
     },
 
     avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcy-Shoulder.png'))
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcey-Shoulder.png'))
     }
   },
 
@@ -248,7 +248,7 @@ if Rails.env.development? || Rails.env.develop?
       phone: '+12068198549',
 
       avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
       }
     },
 
@@ -264,7 +264,7 @@ if Rails.env.development? || Rails.env.develop?
       phone: '+12672559107',
 
       avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
       }
     },
 
@@ -280,7 +280,7 @@ if Rails.env.development? || Rails.env.develop?
       phone: '+12035223374',
 
       avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
       }
     },
 
@@ -296,7 +296,7 @@ if Rails.env.development? || Rails.env.develop?
       phone: '+19192659848',
 
       avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
       }
     },
 
@@ -312,7 +312,7 @@ if Rails.env.development? || Rails.env.develop?
       phone: '+19735172669',
 
       avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
       }
     }
   ]
