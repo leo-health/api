@@ -97,7 +97,6 @@ staff = [
     practice_id: 1,
     phone: '+16177912619',
     staff_profile_attributes: {
-      id: 2,
       specialties: "",
       credentials: ["NP"]
     },
@@ -143,7 +142,6 @@ staff = [
     practice_id: 1,
     phone: '+16302122713',
     staff_profile_attributes: {
-      id: 3,
       specialties: "",
       credentials: ["RN"]
     },
@@ -164,7 +162,6 @@ staff = [
     practice_id: 1,
     phone: '+19176929777',
     staff_profile_attributes: {
-      id: 4,
       specialties: "",
       credentials: ["Office Manager"]
     },
@@ -185,7 +182,6 @@ staff = [
     practice_id: 1,
     phone: '+19736327321',
     staff_profile_attributes: {
-      id: 5,
       specialties: "",
       credentials: ["RN"]
     },
