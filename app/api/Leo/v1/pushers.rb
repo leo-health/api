@@ -13,6 +13,7 @@ module Leo
         end
 
         post do
+          status 200
           response = Pusher[params[:channel_name]].authenticate(params[:socket_id], { user_id: current_user.id })
           present response
         end
@@ -26,9 +27,9 @@ module Leo
             webhook.events.each do |event|
               case event["name"]
                 when 'member_added'
-                  $redis.set("#{event["user_id"]}online?", "yes")
+                  $redis.set("#{event["user_id"]}online?", "yes") if event["channel"] == "presence-provider_app"
                 when 'member_removed'
-                  $redis.set("#{event["user_id"]}online?", "no")
+                  $redis.set("#{event["user_id"]}online?", "no") if event["channel"] == "presence-provider_app"
               end
             end
           end
