@@ -8,6 +8,19 @@ class ApnsNotification
     )
   end
 
+  # def send_hello_notification
+  #   hello_notification = Grocer::Notification.new(
+  #       device_token:      "63760a125ffeb4cc50f3e91f4a1ff609c4fb4df65aa4dd1453660d015cdff32e",
+  #       alert:             "Hello!",
+  #       custom:            { url_host: "conversation", url_path: 0 },
+  #       badge:             1,
+  #       sound:             "siren.aiff",
+  #       expiry:            Time.now + 60*60,
+  #       content_available: false
+  #   )
+  #   pusher.push(hello_notification)
+  # end
+
   def notify_new_message(device_token)
     new_message_notification = Grocer::Notification.new(
       device_token:      device_token,
