@@ -34,7 +34,6 @@ gem "mini_magick"
 gem 'aasm'
 gem 'grocer'
 gem 'pg_search'
-#gem 'raddocs'		# Moved by Misha
 gem 'redis'
 gem 'whenever', require: false
 gem 'twilio-ruby'
