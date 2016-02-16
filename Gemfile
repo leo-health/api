@@ -13,7 +13,7 @@ gem 'daemons'
 gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
 gem 'cancancan', '~> 1.10'
-gem "paranoia", "~> 2.0"
+gem 'paranoia', '~> 2.0'
 gem 'goldiloader'
 gem 'grape'                 # Our API base
 gem 'grape-cancan'
@@ -30,7 +30,7 @@ gem 'squeel'
 gem 'pg'
 gem 'pusher'
 gem 'public_activity'
-gem "mini_magick"
+gem 'mini_magick'
 gem 'aasm'
 gem 'grocer'
 gem 'pg_search'
@@ -38,7 +38,7 @@ gem 'redis'
 gem 'whenever', require: false
 gem 'twilio-ruby'
 gem 'rspec_junit_formatter', '0.2.2'
-gem "figaro"
+gem 'figaro'
 gem 'unicorn'
 
 group :development, :test do
@@ -62,19 +62,20 @@ group :test do
   gem 'database_cleaner'
   gem 'pusher-fake'
   gem 'codeclimate-test-reporter'
-  gem "fakeredis"
-  gem "timecop"
+  gem 'fakeredis'
+  gem 'timecop'
 end
 
 group :production do
   gem 'rails_12factor'
-  gem "health_check"
-  gem "lograge"
+  gem 'health_check'
+  gem 'lograge'
 end
 
 group :develop do
-  gem "health_check"
-  gem "lograge"
+  gem 'health_check'
+  gem 'lograge'
+  gem 'raddocs'
 end
 
 ruby '2.2.2'
