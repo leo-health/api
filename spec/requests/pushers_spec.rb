@@ -15,8 +15,8 @@ describe Leo::V1::Pushers do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:auth]).not_to be_empty
-      expect(body[:data][:channel_data]).to eq({ user_id: user.id }.as_json.to_json)
+      expect(body[:auth]).not_to be_empty
+      expect(body[:channel_data]).to eq({ user_id: user.id }.as_json.to_json)
     end
   end
 
