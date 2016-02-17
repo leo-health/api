@@ -50,6 +50,7 @@ class Message < ActiveRecord::Base
     return if ( sender.has_role?(:bot) || initial_welcome_message? )
     update_conversation_after_message_sent
     sms_cs_user
+    byebug
     send_new_message_notification
     unread_message_reminder_email
   end
@@ -72,8 +73,14 @@ class Message < ActiveRecord::Base
     apns = ApnsNotification.new
     guardians_to_notify = conversation.family.guardians.includes(:sessions).where.not(id: sender.id)
     guardians_to_notify.each do |guardian|
-      apns.delay.notify_new_message(device_token) if device_token = guardian.sessions.last.try(:device_token)
+      guardian.collect_device_tokens.each do |device_token|
+        apns.delay.notify_new_message(device_token)
+      end
     end
+  end
+
+  def collect_device_tokens(user)
+    user.sessions.map{|session| session.device_token}.compact.uniq
   end
 
   def unread_message_reminder_email
