@@ -67,12 +67,16 @@ class Conversation < ActiveRecord::Base
     channels =User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "private-#{user.id}"}
     if channels.count > 0
       channels.each_slice(10) do |slice|
-        Pusher.trigger(slice, 'new_state', { message_type: message_type,
-                                             conversation_id: id,
-                                             created_by: changed_by,
-                                             escalated_to: changed_to,
-                                             id: note_id
-                                            })
+        begin
+          Pusher.trigger(slice, 'new_state', { message_type: message_type,
+                                               conversation_id: id,
+                                               created_by: changed_by,
+                                               escalated_to: changed_to,
+                                               id: note_id
+                                              })
+        rescue Pusher::Error => e
+          Rails.logger.error "Pusher error: #{e.message}"
+        end
       end
     end
   end
