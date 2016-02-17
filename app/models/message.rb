@@ -34,13 +34,15 @@ class Message < ActiveRecord::Base
     participants = (conversation.staff + conversation.family.guardians)
     participants.delete(sender)
     if participants.count > 0
-      channels = participants.inject([]){|channels, user| channels << "newMessage#{user.id}"; channels}
-      Pusher.trigger(channels, 'new_message', {message_id: message_id, conversation_id: conversation.id})
+      channels = participants.inject([]){|channels, user| channels << "private-#{user.id}"; channels}
+      channels.each_slice(10) do |slice|
+        begin
+          Pusher.trigger(slice, 'new_message', {message_id: message_id, conversation_id: conversation.id})
+        rescue
+          Rails.logger.error "Pusher error: #{e.message}"
+        end
+      end
     end
-  end
-
-  def broadcast_message_via_presence_channel
-    Pusher.trigger("presence-#{conversation.id}")
   end
 
   private

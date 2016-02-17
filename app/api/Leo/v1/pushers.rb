@@ -1,6 +1,8 @@
 module Leo
   module V1
     class Pushers < Grape::API
+      formatter :json, ->(object, env) { object.to_json }
+
       desc "control access to pusher channel"
       namespace "pusher/auth" do
         before do
@@ -13,8 +15,8 @@ module Leo
         end
 
         post do
-          response = Pusher[params[:channel_name]].authenticate(params[:socket_id], { user_id: current_user.id })
-          present response
+          status 200
+          Pusher[params[:channel_name]].authenticate(params[:socket_id], { user_id: current_user.id })
         end
       end
 
@@ -26,9 +28,9 @@ module Leo
             webhook.events.each do |event|
               case event["name"]
                 when 'member_added'
-                  $redis.set("#{event["user_id"]}online?", "yes")
+                  $redis.set("#{event["user_id"]}online?", "yes") if event["channel"] == "presence-provider_app"
                 when 'member_removed'
-                  $redis.set("#{event["user_id"]}online?", "no")
+                  $redis.set("#{event["user_id"]}online?", "no") if event["channel"] == "presence-provider_app"
               end
             end
           end
