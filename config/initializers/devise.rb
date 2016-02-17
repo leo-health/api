@@ -6,13 +6,6 @@ Devise.setup do |config|
   # confirmation, reset password and unlock tokens in the database.
   # config.secret_key = 'e8a9c059681b09428e6b0033a326aa8777a094fc2fe5446d2fe66473d0392e281df0d10b287a217922d5c7651b902e212c9d562d70bb6547bc61c062cde3a85b'
 
-
-  # ==> Configuration for :invitable
-  # The period the generated invitation token is valid, after
-  # this period, the invited resource won't be able to accept the invitation.
-  # When invite_for is 0 (the default), the invitation won't expire.
-  config.invite_for = 2.weeks
-
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
@@ -197,7 +190,7 @@ Devise.setup do |config|
   # Time interval you can reset your password with a reset password key.
   # Don't put a too small interval or your users won't have the time to
   # change their passwords.
-  config.reset_password_within = 6.hours
+  config.reset_password_within = 12.hours
 
   # ==> Configuration for :encryptable
   # Allow you to use another encryption algorithm besides bcrypt (default). You can use

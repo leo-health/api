@@ -9,13 +9,13 @@ class Family < ActiveRecord::Base
    guardians + patients
   end
 
-  def primary_parent
+  def primary_guardian
     guardians.order('created_at ASC').first
   end
 
   private
 
   def set_up_conversation
-    Conversation.find_or_create_by(family_id: id, status: :closed)
+    Conversation.create(family_id: id, state: :closed) unless Conversation.find_by_family_id(id)
   end
 end

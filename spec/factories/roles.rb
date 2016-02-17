@@ -4,11 +4,6 @@ FactoryGirl.define do
     name :guardian
     initialize_with { Role.find_or_create_by(id: id)}
 
-    trait :super_user do
-  		id    0
-  		name  :super_user
-    end
-
     trait :financial do
       id    1
       name  :financial
@@ -37,6 +32,16 @@ FactoryGirl.define do
     trait :patient do
       id    6
       name  :patient
+    end
+
+    trait :bot do
+      id    7
+      name  :bot
+    end
+
+    trait :operational do
+      id    8
+      name  :operational
     end
   end
 end

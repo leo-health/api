@@ -2,9 +2,9 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Practices do
-  let(:user){ create(:user, :guardian) }
-  let!(:session){ user.sessions.create }
   let!(:practice){ create(:practice) }
+  let(:user){ create(:user, :guardian, practice: practice) }
+  let!(:session){ user.sessions.create }
 
   describe "GET /api/v1/practices" do
     def do_request

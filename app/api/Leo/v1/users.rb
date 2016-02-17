@@ -10,9 +10,31 @@ module Leo
         end
 
         get do
-          users = User.includes(:role).where.not(roles: {name: :guardian})
+          users = User.staff
           authorize! :read, User
           present :staff, users, with: Leo::Entities::UserEntity
+        end
+      end
+
+      desc 'return users with matched names'
+      namespace :search_user do
+        before do
+          authenticated
+        end
+
+        params do
+          requires :query, type: String, allow_blank: false
+        end
+
+        get do
+          error!({error_code: 422, error_message: 'query must have at least two characters'}, 422) if params[:query].length < 2
+          users = User.search(params[:query])
+          guardians = users.joins(:role).where(roles: {name: "guardian"})
+          staff = users.joins(:role).where.not(roles: {name: "guardian"})
+          patients = Patient.search(params[:query])
+          present :guardians, guardians, with: Leo::Entities::ShortUserEntity
+          present :staff, staff, with: Leo::Entities::ShortUserEntity
+          present :patients, patients, with: Leo::Entities::ShortPatientEntity
         end
       end
 
@@ -23,63 +45,57 @@ module Leo
           requires :last_name, type: String
           requires :email, type: String
           requires :password, type: String
-          requires :birth_date, type: Date
-          requires :phone_number, type: String
-          requires :sex, type: String, values: ['M', 'F']
+          requires :phone, type: String
+          optional :birth_date, type: Date
+          optional :sex, type: String, values: ['M', 'F']
           optional :family_id, type: Integer
+          optional :middle_initial, type: String
+          optional :title, type: String
+          optional :suffix, type: String
         end
 
         post do
           user = User.new(declared(params, include_missing: false).merge({role_id: 4}))
-          if user.save
-            session = user.sessions.create
-            present :authentication_token, session.authentication_token
-            present :user, user, with: Leo::Entities::UserEntity
-          else
-            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
-          end
+          create_success user
+          session = user.sessions.create
+          present :session, session
         end
       end
 
       resource :users do
         desc '#create user from enrollment'
+        params do
+          optional :first_name, type: String
+          optional :last_name, type: String
+          optional :phone, type: String
+          optional :birth_date, type: Date
+          optional :sex, type: String, values: ['M', 'F']
+          optional :middle_initial, type: String
+          optional :title, type: String
+          optional :suffix, type: String
+        end
+
         post do
-          enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
-          error!({error_code: 401, error_message: '401 Unauthorized' }, 401) unless enrollment
-          user_params = {
-            first_name: enrollment.first_name,
-            last_name: enrollment.last_name,
-            email: enrollment.email,
-            birth_date: enrollment.birth_date,
-            sex: enrollment.sex,
-            encrypted_password: enrollment.encrypted_password,
-            title: enrollment.title,
-            suffix: enrollment.suffix,
-            phone_number: enrollment.phone_number,
-            middle_initial: enrollment.middle_initial,
-            stripe_customer_id: enrollment.stripe_customer_id,
-            role_id: 4
-          }
-          ActiveRecord::Base.transaction do
-            begin
-              family = Family.create!
-              user = User.create!( user_params.merge(family: family) )
-              enrollment.patient_enrollments.each do|patient_enrollment|
-                patient_enrollment_params = patient_enrollment.attributes.merge(family: user.family)
-                patient = Patient.create!(patient_enrollment_params.except('guardian_enrollment_id', 'id', 'created_at', 'updated_at'))
-                if insurance_plan = enrollment.insurance_plan
-                  patient.insurances.create(plan_name: insurance_plan.plan_name, primary: 1)
-                end
-              end
-              session = user.sessions.create
-              present :authentication_token, session.authentication_token
-              present :user, user, with: Leo::Entities::UserEntity
-            rescue ActiveRecord::RecordInvalid => e
-              error!({error_code: 422, error_message: e.message }, 422)
-            rescue
-              error!({error_code: 500, error_message: "can't create guardian with patients" }, 500)
-            end
-          end
+          enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
+
+          error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
+          enrollment_params = { encrypted_password: enrollment.encrypted_password,
+                                email: enrollment.email,
+                                first_name: enrollment.first_name,
+                                last_name: enrollment.last_name,
+                                phone: enrollment.phone,
+                                onboarding_group: enrollment.onboarding_group,
+                                role_id: enrollment.role_id,
+                                family_id: enrollment.family_id,
+                                birth_date: enrollment.birth_date,
+                                sex: enrollment.sex,
+                                insurance_plan_id: enrollment.insurance_plan_id
+                              }
+
+          user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
+          create_success user
+          session = user.sessions.create
+          present :session, session
         end
 
         route_param :id do
@@ -94,7 +110,7 @@ module Leo
           desc "#show get an individual user"
           get do
             authorize! :show, @user
-            present :user, @user, with: Leo::Entities::UserEntity
+            render_success @user
           end
 
           desc "#put update individual user"
@@ -104,15 +120,7 @@ module Leo
 
           put do
             user_params = declared(params)
-            if @user.update_attributes(user_params)
-              present :user, @user, with: Leo::Entities::UserEntity
-            end
-          end
-
-          desc '#delete destroy a user, super user only'
-          delete do
-            authorize! :destroy, @user
-            @user.try(:destroy)
+            update_success @user, user_params
           end
         end
       end

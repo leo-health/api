@@ -4,29 +4,34 @@ module Leo
       version 'v1', using: :path, vendor: 'leo-health'
       format :json
 
-      rescue_from :all, :backtrace => true
-      formatter :json, Leo::V1::SuccessFormatter
-      error_formatter :json, Leo::V1::ErrorFormatter
-      default_error_status 400
-
-
       namespace :login do
         params do
           requires :email, type: String, allow_blank: false
           requires :password, type: String, allow_blank: false
+          optional :platform, type: String,  values: ['web', 'ios', 'android']
+          optional :device_type, type: String
+          optional :device_token, type: String
         end
 
         desc "create a session when user login"
         post do
           user = User.find_by_email(params[:email].downcase)
-
-          unless user && user.valid_password?(params[:password])
+          unless user && !user.has_role?(:bot) && user.valid_password?(params[:password])
             error!({error_code: 403, error_message: "Invalid Email or Password."}, 422)
-            return
           end
 
-          if session = user.sessions.create
-            present	:session, session, with: Leo::Entities::SessionEntity
+          session_params = {
+            platform: params[:platform],
+            device_type: params[:device_type],
+            device_token: params[:device_token],
+          }
+
+          session = user.sessions.create(session_params)
+          if session.valid?
+            present :user, user, with: Leo::Entities::UserEntity
+            present :session, session, with: Leo::Entities::SessionEntity
+          else
+            error!({error_code: 422, error_message: session.errors.full_messages }, 422)
           end
         end
       end
@@ -38,7 +43,8 @@ module Leo
 
         desc "destroy the session when user logout"
         delete do
-          Session.find_by_authentication_token(params[:authentication_token]).destroy
+          session = Session.find_by_authentication_token(params[:authentication_token])
+          session.try(:destroy)
         end
       end
     end

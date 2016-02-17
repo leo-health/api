@@ -124,17 +124,11 @@ module AthenaHealthApiHelper
     # create open appointment in athena
     # returns the id of the newly created appointment
     # raises exceptions if anything goes wrong in the process
-    def create_appointment(appointmentdate: , appointmenttime:, 
+
+    def create_appointment(appointmentdate: , appointmenttime:,
       appointmenttypeid: nil, departmentid: , providerid: , reasonid: nil)
 
-      params = {}
-      params[:appointmentdate] = appointmentdate
-      params[:appointmenttime] = appointmenttime
-      params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
-      params[:departmentid] = departmentid
-      params[:providerid] = providerid
-      params[:reasonid] = reasonid if reasonid
-
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.POST("appointments/open", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -155,23 +149,7 @@ module AthenaHealthApiHelper
       insurancephone: nil, insuranceplanname: nil, insurancepolicyholder: nil, nopatientcase: false,
       patientid: , patientrelationshiptopolicyholder: nil, reasonid: nil)
 
-      params = {}
-      params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
-      params[:bookingnote] = bookingnote if bookingnote
-      params[:departmentid] = departmentid
-      params[:ignoreschedulablepermission] = ignoreschedulablepermission
-      params[:insurancecompany] = insurancecompany if insurancecompany
-      params[:insurancegroupid] = insurancegroupid if insurancegroupid
-      params[:insuranceidnumber] = insuranceidnumber if insuranceidnumber
-      params[:insurancenote] = insurancenote if insurancenote
-      params[:insurancephone] = insurancephone if insurancephone
-      params[:insuranceplanname] = insuranceplanname if insuranceplanname
-      params[:insurancepolicyholder] = insurancepolicyholder if insurancepolicyholder
-      params[:nopatientcase] = nopatientcase
-      params[:patientid] = patientid
-      params[:patientrelationshiptopolicyholder] = patientrelationshiptopolicyholder if patientrelationshiptopolicyholder
-      params[:reasonid] = reasonid if reasonid
-
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.PUT("appointments/#{appointmentid}", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -200,14 +178,7 @@ module AthenaHealthApiHelper
       ignoreschedulablepermission: true, newappointmentid: , nopatientcase: false, patientid: ,
       reasonid: nil, reschedulereason: nil)
 
-      params = {}
-      params[:ignoreschedulablepermission] = ignoreschedulablepermission
-      params[:newappointmentid] = newappointmentid
-      params[:nopatientcase] = nopatientcase
-      params[:patientid] = patientid
-      params[:reasonid] = reasonid if reasonid
-      params[:reschedulereason] = reschedulereason if reschedulereason
-
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.PUT("appointments/#{appointmentid}/reschedule", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -215,11 +186,7 @@ module AthenaHealthApiHelper
 
     # freezes/unfreezes an appointment
     def freeze_appointment(appointmentid:, freeze: true)
-
-      params = {}
-      params[:appointmentid] = appointmentid
-      params[:freeze] = freeze.to_s
-
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.PUT("appointments/#{appointmentid}/freeze", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -229,7 +196,6 @@ module AthenaHealthApiHelper
     # returns the id of the newly created appointment
     # raises exceptions if anything goes wrong in the process
     def checkin_appointment(appointmentid:)
-
       params = {}
       params[:appointmentid] = appointmentid
 
@@ -281,11 +247,7 @@ module AthenaHealthApiHelper
     def get_appointment_types(hidegeneric: false, 
       hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 5000)
 
-      params = {}
-      params[:hidegeneric] = hidegeneric
-      params[:hidenongeneric] = hidenongeneric
-      params[:hidenonpatient] = hidenonpatient
-      params[:hidetemplatetypeonly] = hidetemplatetypeonly
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/appointmenttypes", params: params, 
@@ -299,9 +261,7 @@ module AthenaHealthApiHelper
     def get_appointment_reasons(departmentid: , 
       providerid: , limit: 5000)
 
-      params = {}
-      params[:departmentid] = departmentid
-      params[:providerid] = providerid
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/patientappointmentreasons", params: params, 
@@ -316,16 +276,7 @@ module AthenaHealthApiHelper
       ignoreschedulablepermission: true, providerid: nil, reasonid: nil, showfrozenslots: false,
       startdate: nil, limit: 5000)
 
-      params = {}
-      params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
-      params[:bypassscheduletimechecks] = bypassscheduletimechecks
-      params[:departmentid] = departmentid
-      params[:enddate] = enddate if enddate
-      params[:ignoreschedulablepermission] = ignoreschedulablepermission
-      params[:providerid] = providerid if providerid
-      params[:reasonid] = reasonid if reasonid
-      params[:showfrozenslots] = showfrozenslots
-      params[:startdate] = startdate if startdate
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/appointments/open", params: params, 
@@ -342,27 +293,20 @@ module AthenaHealthApiHelper
       showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil, 
       limit: 5000)
 
-      params = {}
-      params[:appointmenttypeid] = appointmenttypeid if appointmenttypeid
-      params[:departmentid] = departmentid
-      params[:enddate] = enddate
-      params[:endlastmodified] = endlastmodified if endlastmodified
-      params[:ignorerestrictions] = ignorerestrictions
-      params[:patientid] = patientid if patientid
-      params[:providerid] = providerid if providerid
-      params[:scheduledenddate] = scheduledenddate if scheduledenddate
-      params[:scheduledstartdate] = scheduledstartdate if scheduledstartdate
-      params[:showcancelled] = showcancelled
-      params[:showclaimdetail] = showclaimdetail
-      params[:showcopay] = showcopay
-      params[:showinsurance] = showinsurance
-      params[:showpatientdetail] = showpatientdetail
-      params[:startdate] = startdate
-      params[:startlastmodified] = startlastmodified if startlastmodified
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/appointments/booked", params: params, 
         headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
+    end
+
+    #Get list of all patients: GET /preview1/:practiceid/patients
+    def get_patients(departmentid: )
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
+
+      return get_paged(
+        url: "patients", params: params, 
+        headers: AthenaHealthApiConnector.common_headers, field: :patients)
     end
 
     #Create a patient: POST /preview1/:practiceid/patients
@@ -392,30 +336,7 @@ module AthenaHealthApiHelper
       guarantorrelationshiptopatient: nil
       )
 
-      params = {}
-      params[:status] = status if status
-      params[:firstname] = firstname if firstname
-      params[:lastname] = lastname if lastname
-      params[:sex] = sex if sex
-      params[:dob] = dob if dob
-      params[:departmentid] = departmentid if departmentid
-      params[:middlename] = middlename if middlename
-      params[:homephone] = homephone if homephone
-
-      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
-      params[:guarantorlastname] = guarantorlastname if guarantorlastname
-      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
-      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
-      params[:guarantorstate] = guarantorstate if guarantorstate
-      params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantordob] = guarantordob if guarantordob
-      params[:guarantoremail] = guarantoremail if guarantoremail
-      params[:guarantorphone] = guarantorphone if guarantorphone
-      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
-      params[:guarantorcity] = guarantorcity if guarantorcity
-      params[:guarantorssn] = guarantorssn if guarantorssn
-      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
-
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.POST("patients", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -430,10 +351,7 @@ module AthenaHealthApiHelper
     #Get a patient: GET /preview1/:practiceid/patients/:patientid
     #returns null if patient does not exist
     def get_patient(patientid: )
-
-      params = {}
-
-      response = @connection.GET("patients/#{patientid}", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.GET("patients/#{patientid}", {}, AthenaHealthApiConnector.common_headers)
 
       #404 means the patient does not exist
       return nil if response.code.to_i == 404
@@ -470,30 +388,7 @@ module AthenaHealthApiHelper
       guarantorrelationshiptopatient: nil
       )
 
-      params = {}
-      params[:status] = status if status
-      params[:firstname] = firstname if firstname
-      params[:lastname] = lastname if lastname
-      params[:sex] = sex if sex
-      params[:dob] = dob if dob
-      params[:departmentid] = departmentid if departmentid
-      params[:middlename] = middlename if middlename
-      params[:homephone] = homephone if homephone
-
-      params[:guarantormiddlename] = guarantormiddlename if guarantormiddlename
-      params[:guarantorlastname] = guarantorlastname if guarantorlastname
-      params[:guarantoraddress1] = guarantoraddress1 if guarantoraddress1
-      params[:guarantoraddress2] = guarantoraddress2 if guarantoraddress2
-      params[:guarantorstate] = guarantorstate if guarantorstate
-      params[:guarantorzip] = guarantorzip if guarantorzip
-      params[:guarantordob] = guarantordob if guarantordob
-      params[:guarantoremail] = guarantoremail if guarantoremail
-      params[:guarantorphone] = guarantorphone if guarantorphone
-      params[:guarantorfirstname] = guarantorfirstname if guarantorfirstname
-      params[:guarantorcity] = guarantorcity if guarantorcity
-      params[:guarantorssn] = guarantorssn if guarantorssn
-      params[:guarantorrelationshiptopatient] = guarantorrelationshiptopatient if guarantorrelationshiptopatient
-
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.PUT("patients/#{patientid}", params, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
@@ -501,10 +396,7 @@ module AthenaHealthApiHelper
 
     #get a patient's photo in b64 encoded form
     def get_patient_photo(patientid: )
-
-      params = {}
-
-      response = @connection.GET("patients/#{patientid}/photo", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.GET("patients/#{patientid}/photo", {}, AthenaHealthApiConnector.common_headers)
 
       #404 means the patient does not exist or no photo found
       return nil if response.code.to_i == 404
@@ -529,10 +421,7 @@ module AthenaHealthApiHelper
 
     #delete a patient's photo
     def delete_patient_photo(patientid: )
-
-      params = {}
-
-      response = @connection.DELETE("patients/#{patientid}/photo", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.DELETE("patients/#{patientid}/photo", {}, AthenaHealthApiConnector.common_headers)
 
       raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
@@ -585,6 +474,37 @@ module AthenaHealthApiHelper
 
       #Athena is including each medication in an array.  Removing that extra array here
       val[:medications.to_s].flatten
+    end
+
+    def create_patient_insurance(
+      patientid: ,
+      insuranceidnumber: 'unknown',
+      insurancepackageid: ,
+      insurancephone: nil,
+      insurancepolicyholderaddress1: nil,
+      insurancepolicyholderaddress2: nil,
+      insurancepolicyholdercity: nil,
+      insurancepolicyholdercountrycode: nil,
+      insurancepolicyholdercountryiso3166: nil,
+      insurancepolicyholderdob: nil,
+      insurancepolicyholderfirstname: ,
+      insurancepolicyholderlastname: ,
+      insurancepolicyholdermiddlename: nil,
+      insurancepolicyholdersex: ,
+      insurancepolicyholderssn: nil,
+      insurancepolicyholderstate: nil,
+      insurancepolicyholdersuffix: nil,
+      insurancepolicyholderzip: nil,
+      policynumber: nil, #group number
+      relationshiptoinsuredid: nil,
+      sequencenumber: 1, #1=primary, 2=secondary
+      updateappointments: nil
+      )
+
+      params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
+      response = @connection.POST("patients/#{patientid}/insurances", params, AthenaHealthApiConnector.common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
 
     def get_patient_insurances(patientid:)

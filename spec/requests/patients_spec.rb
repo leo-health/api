@@ -2,11 +2,14 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Patients do
-  let!(:guardian_role){create(:role, :guardian)}
-  let!(:patient_role){create(:role, :patient)}
-  let(:family){create(:family_with_members)}
-  let!(:guardian){family.reload.members.first}
-  let!(:session){guardian.sessions.create}
+  let!(:bot){ create(:user, :bot)}
+  let!(:customer_service){ create(:user, :customer_service) }
+  let(:family){create(:family)}
+  let(:guardian){create(:user, family: family)}
+  let(:session){guardian.sessions.create}
+  let!(:patient){create(:patient, family: family)}
+  let!(:avatar){create(:avatar, owner: family.patients.first)}
+  let(:serializer){ Leo::Entities::PatientEntity }
 
   describe 'POST /api/v1/patients' do
     let(:patient_params){{first_name: "patient_first_name",
@@ -23,70 +26,61 @@ describe Leo::V1::Patients do
     it "should add a patient to the family" do
       do_request
       expect(response.status).to eq(201)
-      expect_json('data.patient.first_name', patient_params[:first_name])
-      expect_json('data.patient.family_id', guardian.family_id)
+      body = JSON.parse(response.body, symbolize_names: true )
+      patient_id = body[:data][:patient][:id]
+      expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(Patient.find(patient_id)).as_json.to_json)
     end
   end
 
   describe 'Delete /api/v1/patients/:id' do
-    let!(:patient){family.patients.first}
-
     def do_request
       delete "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token}
     end
 
     it 'should delete the indivial patient record, guardian only' do
-      expect{do_request}.to change{ family.patients.count }.from(3).to(2)
+      expect{do_request}.to change{ family.patients.count }.from(1).to(0)
       expect(response.status).to eq(200)
     end
   end
 
   describe 'Put /api/v1/patients/:id' do
-    let!(:patient){family.patients.first}
+    let(:new_email){ "new_email@leohealth.com" }
 
     def do_request
-      put "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, email: "new_email@leohealth.com"}
+      put "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, email: new_email}
     end
 
     it 'should update the individual patient record, guardian only' do
       original_email = patient.email
       do_request
       expect(response.status).to eq(200)
-      expect{patient.reload}.to change{patient.email}.from(original_email).to("new_email@leohealth.com")
+      expect{patient.reload}.to change{patient.email}.from(original_email).to(new_email)
     end
   end
 
   describe "Get /api/v1/patients/:id" do
-    let(:patient){family.patients.first}
-    let!(:avatar){create(:avatar, owner: family.patients.first)}
-    let(:serializer){ Leo::Entities::PatientEntity }
-
     def do_request
-      get "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token, avatar_size: "primary_3x"}
+      get "/api/v1/patients/#{patient.id}", {authentication_token: session.authentication_token}
     end
 
     it 'should show the patient' do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(patient.reload, {avatar_size: "primary_3x"}).as_json.to_json)
+      expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(patient).as_json.to_json)
     end
   end
 
   describe "Get /api/v1/patients" do
-    let(:patient){family.patients.first}
-    let!(:avatar){create(:avatar, owner: family.patients.first)}
-    let(:serializer){ Leo::Entities::PatientEntity }
-
     def do_request
-      get "/api/v1/patients", {authentication_token: session.authentication_token, avatar_size: "primary_3x"}
+      get "/api/v1/patients", {authentication_token: session.authentication_token}
     end
 
     it 'should show the patients' do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients, {avatar_size: "primary_3x"}).as_json.to_json)
+      expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients).as_json.to_json)
     end
   end
 end

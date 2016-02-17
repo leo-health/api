@@ -6,50 +6,18 @@ class AvatarUploader < CarrierWave::Uploader::Base
   # include CarrierWave::RMagick
   include CarrierWave::MiniMagick
 
-  # Choose what kind of storage to use for this uploader:
-  storage :file
-  # storage :fog
-
   # Override the directory where uploaded files will be stored.
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+    "#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
-  # Provide a default URL as a default if there hasn't been a file uploaded:
-  # def default_url
-  #   # For Rails 3.1+ asset pipeline compatibility:
-  #   # ActionController::Base.helpers.asset_path("fallback/" + [version_name, "default.png"].compact.join('_'))
-  #
-  #   "/images/fallback/" + [version_name, "default.png"].compact.join('_')
-  # end
-
-  # Process files as they are uploaded:
-  process :resize_to_fill => [214, 214]
-
-  # Create different versions of your uploaded files:
   version :primary_3x do
-    process :resize_to_fill => [214, 214]
+    process resize_to_fit: [300, 300]
   end
 
   version :primary_2x do
-    process :resize_to_fill => [144, 144]
-  end
-
-  version :primary_1x, if: :is_user? do
-    process :resize_to_fill => [132, 132]
-  end
-
-  version :secondary_3x, if: :is_user? do
-    process :resize_to_fill => [88, 88]
-  end
-
-  version :secondary_2x do
-    process :resize_to_fill => [72, 72]
-  end
-
-  version :secondary_1x, if: :is_user? do
-    process :resize_to_fill => [44, 44]
+    process resize_to_fit: [200, 200]
   end
 
   # Add a white list of extensions which are allowed to be uploaded.
@@ -69,9 +37,5 @@ class AvatarUploader < CarrierWave::Uploader::Base
   def secure_token
     var = :"@#{mounted_as}_secure_token"
     model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.uuid)
-  end
-
-  def is_user? owner
-    model.owner_type == "User"
   end
 end

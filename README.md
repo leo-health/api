@@ -1,4 +1,7 @@
-[![Circle CI](https://circleci.com/gh/leo-health/api/tree/develop.svg?style=svg)](https://circleci.com/gh/leo-health/api/tree/develop)
+[![Code Climate](https://codeclimate.com/repos/560ece1b695680474e006336/badges/8a6d0f411a2cb27cbc93/gpa.svg)](https://codeclimate.com/repos/560ece1b695680474e006336/feed)
+
+[![Test Coverage](https://codeclimate.com/repos/560ece1b695680474e006336/badges/8a6d0f411a2cb27cbc93/coverage.svg)](https://codeclimate.com/repos/560ece1b695680474e006336/coverage)
+
 # api
 
 This is the core api for the leo-health services.
@@ -8,13 +11,13 @@ If you are on an previous version of Ruby, be sure to run `rvm upgrade 2.2.0 2.2
 Ensure that version 2.2.2 is selected as current (and default) using `rvm list`
 
 ## Conventions
-1. Using rolify gem for roles.
-2. Using Devise gem for authentication
-3. Using pundit gem for authorization
-4. One user model for all users, with associated models for role-specific details
-5. Using 'grape' to model the core API calls
-6. Using 'grape-entity' to serialize the models for the API responses
-7. Using 'grape-swagger' to produce API documentation
+
+1. Using Devise gem for authentication
+2. Using cancancan gem for authorization
+3. One user model for all users, with associated models for role-specific details
+4. Using 'grape' to model the core API calls
+5. Using 'grape-entity' to serialize the models for the API responses
+6. Using 'rspec_api_documentation' to produce API documentation
 
 
 ## Project Structure
@@ -28,7 +31,7 @@ Ensure that version 2.2.2 is selected as current (and default) using `rvm list`
 1. The tests live at spec/[models, requests, etc]
 2. To run the test suite,
 2a. First run `rake db:test:prepare` on the command line
-2b. Then run `spring rspec`
+2b. Then run `rspec spec`
 
 
 ## Setting Up

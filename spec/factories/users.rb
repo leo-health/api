@@ -1,27 +1,20 @@
 FactoryGirl.define do
-  sequence :email do |n|
-    "user#{n}@test.com"
-  end
-
   factory :user do
     first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
     last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
     birth_date  { 29.years.ago }
     sex					{ ['M', 'F'].sample }
-    email
-    phone_number '1234567890'
+    email       {"user_#{rand(1000)}@test.com"}
+    phone '1234567890'
     password     'password'
-    association :family, factory: :family
+    password_confirmation 'password'
+    family
     association :role, factory: [:role, :guardian]
+    practice
 
     trait :guardian do
       sex					'M'
       association :role, factory: [:role, :guardian]
-    end
-
-    trait :super_user do
-      family      nil
-      association :role, factory: [:role, :super_user]
     end
 
     trait :financial do
@@ -42,6 +35,17 @@ FactoryGirl.define do
     trait :clinical do
       family      nil
       association :role, factory: [:role, :clinical]
+    end
+
+    trait :bot do
+      family      nil
+      email       "leo_bot@leohealth.com"
+      association :role, factory: [:role, :bot]
+    end
+
+    trait :operational do
+      family      nil
+      association :role, factory: [:role, :operational]
     end
   end
 end

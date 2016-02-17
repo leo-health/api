@@ -5,7 +5,7 @@ module Leo
       expose :insurer_name
       expose :phone
       expose :fax
-      expose :insurance_plans
+      expose :insurance_plans, with: Leo::Entities::InsurancePlanEntity
 
       private
 

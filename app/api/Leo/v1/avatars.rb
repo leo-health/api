@@ -2,8 +2,6 @@ module Leo
   module V1
     class Avatars < Grape::API
       resource :avatars do
-        authorize_routes!
-
         before do
           authenticated
         end
@@ -17,22 +15,8 @@ module Leo
         post authorize: [:create, Avatar] do
           patient = Patient.find(params[:patient_id])
           avatar = patient.avatars.new(owner: patient)
-          avatar.avatar = avatar_decoder(params[:avatar], patient)
-          if avatar.save
-            present :avatar, avatar, with: Leo::Entities::AvatarEntity
-          else
-            error!({error_code: 422, error_message: avatar.errors.full_messages }, 422)
-          end
-        end
-      end
-
-      helpers do
-        def avatar_decoder(avatar, patient)
-          data = StringIO.new(Base64.decode64(avatar))
-          data.class.class_eval { attr_accessor :original_filename, :content_type }
-          data.original_filename = "patient#{patient.id}upload.png"
-          data.content_type = "image/png"
-          data
+          avatar.avatar = image_decoder(params[:avatar])
+          create_success avatar, session_device_type
         end
       end
     end

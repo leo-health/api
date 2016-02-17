@@ -12,27 +12,34 @@ gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
 gem 'devise'                # Authentication
-gem 'devise_invitable'      # Inviting users
 gem 'cancancan', '~> 1.10'
-gem "paranoia", "~> 2.0"
+gem 'paranoia', '~> 2.0'
+gem 'goldiloader'
 gem 'grape'                 # Our API base
 gem 'grape-cancan'
 gem 'grape-entity'
 gem 'grape-kaminari'
-gem 'grape-swagger'					# Document the grape api
-gem 'grape-swagger-rails'
 gem 'mandrill_mailer'
+gem 'carrierwave-aws'
 gem 'carrierwave'
 gem 'haml-rails', '~> 0.8'  # For having cleaner view templates
 gem 'hashie-forbidden_attributes'
 gem 'rack-cors'
 gem 'simple_token_authentication', '~> 1.0'
 gem 'squeel'
-gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'pg'
 gem 'pusher'
 gem 'public_activity'
-gem "mini_magick"
+gem 'mini_magick'
+gem 'aasm'
+gem 'grocer'
+gem 'pg_search'
+gem 'redis'
+gem 'whenever', require: false
+gem 'twilio-ruby'
+gem 'rspec_junit_formatter', '0.2.2'
+gem 'figaro'
+gem 'unicorn'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -44,25 +51,31 @@ group :development, :test do
   gem 'spring'
   gem 'spring-commands-rspec'
   gem 'fuubar'
-end
-
-group :development do
-  gem 'bullet'
-  gem 'rails-footnotes'
-  gem 'rails_layout'
-  gem 'web-console', '~> 2.0'
+  gem 'rspec_api_documentation'
+  gem 'raddocs'
 end
 
 group :test do
+  gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers'
   gem 'grape-entity-matchers'
   gem 'database_cleaner'
-  gem "pusher-fake"
+  gem 'pusher-fake'
+  gem 'codeclimate-test-reporter'
+  gem 'fakeredis'
+  gem 'timecop'
 end
 
 group :production do
   gem 'rails_12factor'
-  gem 'unicorn'
+  gem 'health_check'
+  gem 'lograge'
+end
+
+group :develop do
+  gem 'health_check'
+  gem 'lograge'
+  gem 'raddocs'
 end
 
 ruby '2.2.2'

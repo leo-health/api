@@ -4,20 +4,10 @@ require "cancan/matchers"
 describe "User" do
   describe "abilities" do
     subject(:ability){ Ability.new(user) }
-    let!(:super_user){build(:user, :super_user)}
-
-    context "when user has the role super user" do
-      let!(:user){build(:user, :super_user)}
-
-      it{ should be_able_to(:manage, User.new) }
-      it{ should be_able_to(:manage, Patient.new) }
-      it{ should be_able_to(:manage, Conversation.new) }
-      it{ should be_able_to(:manage, Message.new) }
-      it{should be_able_to(:manage, Appointment.new)}
-    end
 
     context "when user has the role guardian" do
       let!(:user){build(:user, :guardian)}
+      let(:patient){create(:patient, family: user.family)}
 
       describe "ability for user" do
         let!(:provider){build(:user, :clinical)}
@@ -28,13 +18,10 @@ describe "User" do
         it{should be_able_to(:update, family_member)}
         it{should be_able_to(:create, family_member)}
         it{should be_able_to(:destroy, family_member)}
-
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for avatars" do
         let(:other_user){build(:user, :guardian)}
-        let(:patient){create(:patient, family: user.family)}
         let(:other_patient){create(:patient, family: other_user.family)}
         let!(:avatar){build(:avatar, owner: patient)}
         let!(:avatar_of_patient_from_other_family){build(:avatar, owner: other_patient)}
@@ -83,6 +70,14 @@ describe "User" do
       describe "ability for Appointments" do
         # it{should be_able_to(:read, Appointment.new)}
       end
+
+      describe "ability for Forms" do
+        let(:form){ build(:form, patient: patient)}
+
+        it{should be_able_to(:read, form)}
+        it{should be_able_to(:update, form)}
+        it{should be_able_to(:destroy, form)}
+      end
     end
 
     context "when user has the role financial" do
@@ -92,8 +87,6 @@ describe "User" do
         let!(:provider){build(:user, :clinical)}
 
         it{should be_able_to(:read, provider)}
-
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -122,7 +115,6 @@ describe "User" do
 
         it{should_not be_able_to(:create, provider)}
         it{should_not be_able_to(:destroy, provider)}
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -137,6 +129,14 @@ describe "User" do
 
       describe "ability for Appointments" do
         it{should be_able_to(:read, Appointment.new)}
+      end
+
+      describe "ability for Forms" do
+        let(:form){ build(:form, patient: patient)}
+
+        it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:update, Form.new)}
+        it{should be_able_to(:destroy, Form.new)}
       end
     end
 
@@ -148,8 +148,6 @@ describe "User" do
 
         it{should be_able_to(:read, provider)}
         it{should be_able_to(:update, provider)}
-
-        it{should_not be_able_to(:read, super_user)}
       end
 
       describe "ability for Conversation" do
@@ -165,6 +163,14 @@ describe "User" do
       describe "ability for Appointments" do
         it{should be_able_to(:read, Appointment.new)}
       end
+
+      describe "ability for Forms" do
+        let(:form){ build(:form, patient: patient)}
+
+        it{should be_able_to(:read, Form.new)}
+        it{should be_able_to(:update, Form.new)}
+        it{should be_able_to(:destroy, Form.new)}
+      end
     end
 
     context "when user has the role customer_service" do
@@ -175,7 +181,6 @@ describe "User" do
 
         it{should be_able_to(:read, provider)}
 
-        it{should_not be_able_to(:read, super_user)}
         it{should_not be_able_to(:update, provider)}
       end
 
@@ -187,6 +192,10 @@ describe "User" do
       describe "ability for Message" do
         it{should be_able_to(:create, Message.new)}
         it{should be_able_to(:read, Message.new)}
+      end
+
+      describe "ability for Forms" do
+        it{should be_able_to(:read, Form.new)}
       end
     end
   end

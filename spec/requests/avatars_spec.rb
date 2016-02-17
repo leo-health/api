@@ -2,8 +2,9 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Avatars do
+  let!(:customer_service){ create(:user, :customer_service) }
   let(:user){create(:user, :guardian)}
-  let(:session){user.sessions.create}
+  let(:session){user.sessions.create(device_type: 'iPhone 6')}
   let(:patient){create(:patient, family: user.family)}
   let!(:serializer){ Leo::Entities::AvatarEntity }
 

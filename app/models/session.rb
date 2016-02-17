@@ -5,6 +5,17 @@ class Session < ActiveRecord::Base
   belongs_to :user
 
   before_validation :ensure_authentication_token, on: [:create, :update]
-  validates :user, :authentication_token, presence: true
-  validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil)}
+  validates :user, presence: true
+  validates :device_type, :device_token, presence: true, if: :mobile?
+  validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
+
+  private
+
+  def mobile?
+    [:ios, :android].include?(platform.try(:to_sym))
+  end
+
+  def guardian?
+    user.has_role? :guardian
+  end
 end

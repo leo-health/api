@@ -2,11 +2,20 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Users do
+  let(:user_params){{ first_name: "first_name",
+                      last_name: "last_name",
+                      email: "guardian@leohealth.com",
+                      password: "password",
+                      sex: "M",
+                      phone: "1234445555"
+  }}
+  let!(:default_practice) { create(:practice) }
+  let(:serializer){ Leo::Entities::UserEntity }
+
   describe "Get /api/v1/staff" do
     let(:guardian){ create(:user, :guardian) }
     let(:session){ guardian.sessions.create }
     let!(:clinical){ create(:user, :clinical) }
-    let(:serializer){ Leo::Entities::UserEntity }
 
     def do_request
       get "/api/v1/staff", { authentication_token: session.authentication_token }
@@ -20,16 +29,25 @@ describe Leo::V1::Users do
     end
   end
 
+  describe "Get /api/v1/search_user" do
+    let(:serializer){ Leo::Entities::ShortUserEntity }
+    let(:user){ create(:user, :guardian, first_name: "test", last_name: "user") }
+    let(:session){ user.sessions.create }
+
+    def do_request
+      get "/api/v1/search_user", { authentication_token: session.authentication_token, query: "test" }
+    end
+
+    it "should return the user has name matches the query" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:guardians].as_json.to_json).to eq(serializer.represent([user]).as_json.to_json)
+    end
+  end
+
   describe "POST /api/v1/sign_up - create user with params" do
     let!(:role){create(:role, :guardian)}
-    let!(:user_params){{ first_name: "first_name",
-                         last_name: "last_name",
-                         email: "guardian@leohealth.com",
-                         password: "password",
-                         birth_date: 48.years.ago,
-                         sex: "M",
-                         phone_number: "12344555"
-                        }}
 
     def do_request
       post "/api/v1/sign_up", user_params, format: :json
@@ -42,26 +60,23 @@ describe Leo::V1::Users do
   end
 
   describe "POST /api/v1/users - create user from enrollment" do
-    let!(:role){create(:role, :guardian)}
-    let(:enrollment){ create( :enrollment,
-                               first_name: "first_name",
-                               last_name: "last_name",
-                               email: "guardian@leohealth.com",
-                               password: "password",
-                               birth_date: 48.years.ago,
-                               sex: "M",
-                               phone_number: "12344555"
-                             )}
-    let!(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: enrollment) }
+    let!(:guardian_role){create(:role, :guardian)}
+    let(:enrollment){create(:enrollment, email: "bigtree@gmail.com", password: "password")}
+    let(:serializer){ Leo::Entities::UserEntity }
+    let(:user_params){{ first_name: "first_name",
+                        last_name: "last_name",
+                        phone: "1234445555"
+    }}
 
     def do_request
-      post "/api/v1/users", {authentication_token: enrollment.authentication_token}, format: :json
+      post "/api/v1/users", user_params.merge!(authentication_token: enrollment.authentication_token), format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do
       expect{ do_request }.to change{ User.count }.from(0).to(1)
       expect(response.status).to eq(201)
-      expect( Patient.count ).to eq(1)
+      body = JSON.parse(response.body, symbolize_names: true)
+      expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent( User.first ).as_json.to_json )
     end
   end
 
@@ -96,37 +111,6 @@ describe Leo::V1::Users do
       do_request
       expect(response.status).to eq(200)
       expect{user.reload.confirm}.to change{user.email}.from(original_email).to(email)
-    end
-  end
-
-  describe "DELETE /api/v1/users/id" do
-    let!(:deleted_user){create(:user)}
-
-    def do_request
-      delete "/api/v1/users/#{deleted_user.id}", {authentication_token: session.authentication_token}
-    end
-
-    context "has the right to delete user" do
-      let(:user){create(:user, :super_user)}
-      let!(:session){user.sessions.create}
-
-      it "should delete selected user if current user has the right" do
-        expect(User.count).to eq(2)
-        do_request
-        expect(response.status).to eq(200)
-        expect(User.count).to eq(1)
-      end
-    end
-
-    context "does not have the right to delete user" do
-      let(:user){create(:user, :financial)}
-      let!(:session){user.sessions.create}
-
-      it "should not delete selected user and raise error when user do not have the access right" do
-        do_request
-        expect(response.status).to eq(403)
-        expect(User.count).to eq(2)
-      end
     end
   end
 end

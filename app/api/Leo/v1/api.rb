@@ -6,44 +6,19 @@ module Leo
 
       include Grape::Kaminari
 
-      require_relative '../entities/avatar_entity'
-      require_relative '../entities/role_entity'
-      require_relative '../entities/insurer_entity'
-      require_relative '../entities/user_entity'
-      require_relative '../entities/system_entity'
-      require_relative '../entities/appointment_status_entity'
-      require_relative '../entities/appointment_type_entity'
-      require_relative '../entities/message_entity'
-      require_relative '../entities/full_message_entity'
-      require_relative '../entities/patient_entity'
-      require_relative '../entities/conversation_entity'
-      require_relative '../entities/conversation_with_messages_entity'
-      require_relative '../entities/practice_entity'
-      require_relative '../entities/appointment_entity'
-      require_relative '../entities/card_entity'
-      require_relative '../entities/family_entity'
-      require_relative '../entities/session_entity'
+      ENTITIES = %w(image avatar role insurance_plan insurer user escalation_note system appointment_status
+                    appointment_type message short_user full_message patient conversation enrollment
+                    practice appointment short_patient short_conversation card family session vital allergy
+                    medication vaccine user_generated_health_record form patient_insurance
+                   )
+
+      ENTITIES.each do |entity_name|
+        require_relative "../entities/#{entity_name}_entity"
+      end
+
       require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
-      require_relative 'appointments'
-      require_relative 'appointment_slots'
-      require_relative 'conversations'
-      require_relative 'roles'
-      require_relative 'sessions'
-      require_relative 'users'
-      require_relative 'patients'
-      require_relative 'messages'
-      require_relative 'passwords'
-      require_relative 'read_receipts'
-      require_relative 'practices'
-      require_relative 'appointment_types'
-      require_relative 'families'
-      require_relative 'cards'
-      require_relative 'insurers'
-      require_relative 'enrollments'
-      require_relative 'patient_enrollments'
-      require_relative 'avatars'
 
       include Leo::V1::ExceptionsHandler
       formatter :json, Leo::V1::SuccessFormatter
@@ -61,33 +36,54 @@ module Leo
         end
 
         def current_user
-          (Session.find_by_authentication_token(params[:authentication_token]).try(:user)) if params[:authentication_token]
+          return unless params[:authentication_token]
+          @session = Session.find_by_authentication_token(params[:authentication_token])
+          @current_user ||= @session.try(:user)
+        end
+
+        def create_success object, device_type=nil
+          if object.save
+            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+          else
+            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+          end
+        end
+
+        def render_success object, device_type=session_device_type
+          present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+        end
+
+        def update_success object, update_params, device_type=session_device_type
+          if object.update_attributes(update_params)
+            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+          else
+            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+          end
+        end
+
+        def image_decoder(image)
+          data = StringIO.new(Base64.decode64(image))
+          data.class.class_eval { attr_accessor :original_filename, :content_type }
+          data.content_type = "image/png"
+          data.original_filename = "uploaded_image.png"
+          data
+        end
+
+        def session_device_type
+          @session.device_type.gsub(/\s+/, "").to_sym if @session.device_type
         end
       end
 
-      mount Leo::V1::Appointments
-      mount Leo::V1::AppointmentSlots
-      mount Leo::V1::Conversations
-      mount Leo::V1::Sessions
-      mount Leo::V1::Users
-      mount Leo::V1::Roles
-      mount Leo::V1::Passwords
-      mount Leo::V1::Patients
-      mount Leo::V1::Practices
-      mount Leo::V1::ReadReceipts
-      mount Leo::V1::Messages
-      mount Leo::V1::AppointmentTypes
-      mount Leo::V1::Families
-      mount Leo::V1::Cards
-      mount Leo::V1::Insurers
-      mount Leo::V1::Enrollments
-      mount Leo::V1::PatientEnrollments
-      mount Leo::V1::Avatars
+      ENDPOINTS = %w(appointments appointment_slots conversations sessions users
+                     roles passwords patients practices read_receipts messages
+                     appointment_types families cards insurers enrollments
+                     patient_enrollments avatars health_records notes pushers
+                     appointment_statuses forms patient_insurances)
 
-      add_swagger_documentation(
-          base_path: "/api",
-          hide_documentation_path: true
-      )
+      ENDPOINTS.each do |endpoint|
+        require_relative endpoint
+        mount "Leo::V1::#{endpoint.camelize}".constantize
+      end
     end
   end
 end

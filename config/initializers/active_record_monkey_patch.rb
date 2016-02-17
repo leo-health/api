@@ -7,6 +7,7 @@ class ActiveRecord::Base
       super
     end
   end
+
   def self.update_or_create(search, *args, &block)
     parameters = search.split("_and_")
     params = Hash[ parameters.zip(args) ]

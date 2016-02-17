@@ -24,6 +24,29 @@ require 'json'
 # Connection -- Connects to the API and performs HTTP requests
 #
 module AthenaHealthAPI
+  class Configuration
+    #Should ProcessSyncTasksJob reschedule itself on completion?
+    #Set to true unless doing some kind of testing
+    attr_accessor :min_request_interval
+
+    #logger
+    attr_accessor :logger
+
+    def initialize
+      @min_request_interval = (0.2).seconds
+      @logger = Rails.logger
+    end
+  end
+
+  class << self
+    attr_accessor :configuration
+  end
+
+  def self.configure
+    self.configuration ||= Configuration.new
+    yield(configuration)
+  end
+
   # This class abstracts away the HTTP connection and basic authentication from API calls.
   #
   # When an object of this class is initialized, it attempts to authenticate to the specified
@@ -54,9 +77,9 @@ module AthenaHealthAPI
     Connection.debug = false
 
     @@last_token = nil
+    @@last_request = Time.now
 
-    attr_reader :version
-    attr_reader :practiceid
+    attr_reader :version, :practiceid
 
     # Connects to the host, and authenticates to the specified API version using key and secret.
     #
@@ -69,7 +92,7 @@ module AthenaHealthAPI
     # * +practiceid+ - the practice ID to be used in constructing URLs
     #
     def initialize(version, key, secret, practiceid=nil)
-      Rails.logger.error("Athena key or secret are empty.  Please set ATHENA_KEY and ATHENA_SECRET env vars.") if key.to_s == '' || secret.to_s == ''
+      AthenaHealthAPI.configuration.logger.error("Athena key or secret are empty.  Please set ATHENA_KEY and ATHENA_SECRET env vars.") if key.to_s == '' || secret.to_s == ''
 
       uri = URI.parse('https://api.athenahealth.com/')
       @connection = Net::HTTP.new(uri.host, uri.port)
@@ -114,12 +137,12 @@ module AthenaHealthAPI
       request.basic_auth(@key, @secret)
       request.set_form_data({'grant_type' => 'client_credentials'})
       
-      Rails.logger.info("#{request.method} #{request.path}")
+      AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}")
 
       response = @connection.request(request)
 
-      Rails.logger.info("response code: #{response.code}") if Connection.debug
-      Rails.logger.info("response body: #{response.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.debug("response code: #{response.code}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.debug("response body: #{response.body}") if Connection.debug
 
       raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
 
@@ -138,7 +161,7 @@ module AthenaHealthAPI
     
     # Sets the request body, headers (including auth header) and JSON decodes the response.  If we
     # get a 401 Not Authorized, re-authenticate and try again.
-    def call(request, body, headers, secondcall=false)
+    def call(request, body, headers, secondcall=false, ignore_throttle=false)
       authenticate unless @token
 
       request.set_form_data(body)
@@ -149,13 +172,23 @@ module AthenaHealthAPI
       }
       request['authorization'] = "Bearer #{@token}"
       
-      Rails.logger.info("#{request.method} #{request.path}")
-      Rails.logger.info("request body: #{request.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}")
+      AthenaHealthAPI.configuration.logger.debug("request body: #{request.body}") if Connection.debug
 
+      #throttle API calls
+      unless ignore_throttle
+        while (Time.now - @@last_request) < AthenaHealthAPI.configuration.min_request_interval
+          AthenaHealthAPI.configuration.logger.info("Throttling Athena API call")
+          sleep(AthenaHealthAPI.configuration.min_request_interval * 0.5)
+        end
+      end
+      
       response = @connection.request(request)
 
-      Rails.logger.info("response code: #{response.code}") if Connection.debug
-      Rails.logger.info("response body: #{response.body}") if Connection.debug
+      @@last_request = Time.now
+
+      AthenaHealthAPI.configuration.logger.debug("response code: #{response.code}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.debug("response body: #{response.body}") if Connection.debug
 
       if response.code == '401' && !secondcall
         #force re-authentication by nulling out @token
@@ -174,7 +207,7 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def GET(path, parameters=nil, headers=nil)
+    def GET(path, parameters=nil, headers=nil, ignore_throttle=false)
       url = path
       if parameters
         # URI escape each key and value, join them with '=', and join those pairs with '&'.  Add
@@ -191,7 +224,7 @@ module AthenaHealthAPI
       headers ||= {}
       
       request = Net::HTTP::Get.new(path_join(@version, @practiceid, url))
-      return call(request, {}, headers)
+      return call(request, {}, headers, false, ignore_throttle)
     end 
     
     # Perform an HTTP POST request and return a hash of the API response.
@@ -202,13 +235,13 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def POST(path, parameters=nil, headers=nil)
+    def POST(path, parameters=nil, headers=nil, ignore_throttle=false)
       url = path
       parameters ||= {}
       headers ||= {}
       
       request = Net::HTTP::Post.new(path_join(@version, @practiceid, url))
-      return call(request, parameters, headers)
+      return call(request, parameters, headers, false, ignore_throttle)
     end
     
     # Perform an HTTP PUT request and return a hash of the API response.
@@ -219,13 +252,13 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def PUT(path, parameters=nil, headers=nil)
+    def PUT(path, parameters=nil, headers=nil, ignore_throttle=false)
       url = path
       parameters ||= {}
       headers ||= {}
       
       request = Net::HTTP::Put.new(path_join(@version, @practiceid, url))
-      return call(request, parameters, headers) 
+      return call(request, parameters, headers, false, ignore_throttle) 
     end
     
     # Perform an HTTP DELETE request and return a hash of the API response.
@@ -236,7 +269,7 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def DELETE(path, parameters=nil, headers=nil)
+    def DELETE(path, parameters=nil, headers=nil, ignore_throttle=false)
       url = path
       if parameters
         # URI escape each key and value, join them with '=', and join those pairs with '&'.  Add
@@ -253,9 +286,7 @@ module AthenaHealthAPI
       headers ||= {}
       
       request = Net::HTTP::Delete.new(path_join(@version, @practiceid, url))
-      return call(request, {}, headers)
+      return call(request, {}, headers, false, ignore_throttle)
     end
-    
   end
-  
 end
