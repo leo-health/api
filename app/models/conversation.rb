@@ -64,7 +64,7 @@ class Conversation < ActiveRecord::Base
   end
 
   def broadcast_state(message_type, changed_by, note_id, changed_to = nil)
-    channels =User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "private-#{user.id}"}
+    channels = User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "private-#{user.id}"}
     if channels.count > 0
       channels.each_slice(10) do |slice|
         begin
