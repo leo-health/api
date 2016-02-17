@@ -130,6 +130,6 @@ class User < ActiveRecord::Base
   end
 
   def add_default_practice_to_guardian
-    practice ||= Practice.first if has_role? :guardian
+    self.practice ||= Practice.first if has_role? :guardian
   end
 end
