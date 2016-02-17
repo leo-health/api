@@ -47,8 +47,7 @@ class Conversation < ActiveRecord::Base
     end
   end
 
-  def escalate_conversation_to_staff(escalation_params)
-    # NOTE: escalation_params = {escalated_to: staff, note: 'note', priority: 1, escalated_by: staff}
+  def escalate_conversation_to_staff(escalation_params) # NOTE: escalation_params = {escalated_to: staff, note: 'note', priority: 1, escalated_by: staff}
     ActiveRecord::Base.transaction do
       @escalation_note = escalation_notes.create!(escalation_params)
     end
@@ -56,8 +55,7 @@ class Conversation < ActiveRecord::Base
     false
   end
 
-  def close_conversation(close_params)
-    # NOTE: close_params = {closed_by: staff, note: 'note'}
+  def close_conversation(close_params) # NOTE: close_params = {closed_by: staff, note: 'note'}
     ActiveRecord::Base.transaction do
       @closure_note = closure_notes.create!(close_params)
     end
@@ -66,14 +64,20 @@ class Conversation < ActiveRecord::Base
   end
 
   def broadcast_state(message_type, changed_by, note_id, changed_to = nil)
-    channels =User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "newState#{user.id}"}
+    channels =User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "private-#{user.id}"}
     if channels.count > 0
-      Pusher.trigger(channels, 'new_state', { message_type: message_type,
-                                              conversation_id: id,
-                                              created_by: changed_by,
-                                              escalated_to: changed_to,
-                                              id: note_id
-                                            })
+      channels.each_slice(10) do |slice|
+        begin
+          Pusher.trigger(slice, 'new_state', { message_type: message_type,
+                                               conversation_id: id,
+                                               created_by: changed_by,
+                                               escalated_to: changed_to,
+                                               id: note_id
+                                              })
+        rescue Pusher::Error => e
+          Rails.logger.error "Pusher error: #{e.message}"
+        end
+      end
     end
   end
 
