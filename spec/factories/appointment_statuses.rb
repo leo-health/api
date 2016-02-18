@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :appointment_status do
-    description "Cancelled"
-    status "x"
+    description "Future"
+    status "f"
     initialize_with { AppointmentStatus.find_or_create_by(status: status)}
 
     trait :cancelled do

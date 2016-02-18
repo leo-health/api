@@ -11,7 +11,7 @@ RSpec.describe Appointment, type: :model do
   end
 
   describe 'validations' do
-    subject { FactoryGirl.create(:appointment) }
+    subject { FactoryGirl.create(:appointment, appointment_status: create(:appointment_status, :future)) }
 
     it { is_expected.to validate_presence_of(:duration) }
     it { is_expected.to validate_presence_of(:athena_id) }
@@ -22,8 +22,7 @@ RSpec.describe Appointment, type: :model do
     it { is_expected.to validate_presence_of(:booked_by) }
     it { is_expected.to validate_presence_of(:provider) }
     it { is_expected.to validate_presence_of(:patient) }
-    #todo: how to include condition???
-    #it { is_expected.to validate_uniqueness_of(:start_datetime).scoped_to(:provider_id) }
+    it { is_expected.to validate_uniqueness_of(:start_datetime).scoped_to(:provider_id) }
   end
 
   describe 'same_family?' do
