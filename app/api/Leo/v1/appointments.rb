@@ -79,7 +79,8 @@ module Leo
         def cancel_appointment
           appointment = Appointment.find(params[:id])
           authorize! :destroy, appointment
-          appointment.destroy
+          appointment.appointment_status = AppointmentStatus.cancelled
+          appointment.save!
         end
       end
     end

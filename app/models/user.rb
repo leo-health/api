@@ -30,8 +30,8 @@ class User < ActiveRecord::Base
   has_many :read_messages, class_name: 'Message', through: :read_receipts
   has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
-  has_many :provider_appointments, foreign_key: "provider_id", class_name: "Appointment"
-  has_many :booked_appointments, foreign_key: "booked_by_id", class_name: "Appointment"
+  has_many :provider_appointments, -> { where appointment_status: AppointmentStatus.booked }, foreign_key: "provider_id", class_name: "Appointment"
+  has_many :booked_appointments, -> { where appointment_status: AppointmentStatus.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
 
   devise :database_authenticatable, :registerable, :confirmable,
@@ -130,6 +130,6 @@ class User < ActiveRecord::Base
   end
 
   def add_default_practice_to_guardian
-    practice ||= Practice.first if has_role? :guardian
+    self.practice ||= Practice.first if has_role? :guardian
   end
 end

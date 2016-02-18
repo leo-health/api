@@ -1,23 +1,25 @@
-# require'rails_helper'
-# require 'timeout'
-#
-# describe ApnsNotification do
-#   before do
-#     @server = Grocer.server
-#     @server.accept
-#   end
-#
-#   after do
-#     @server.close
-#   end
-#
-#   describe "#send_hello_notification" do
-#     it "should send notification to user's device" do
-#       ApnsNotification.new.send_hello_notification
-#       Timeout.timeout(3) {
-#         notification = @server.notifications.pop # blocking
-#         expect(notification.alert).to eq("Hello!")
-#       }
-#     end
-#   end
-# end
+require'rails_helper'
+require 'timeout'
+
+describe ApnsNotification do
+  before do
+    @server = Grocer.server
+    @server.accept
+  end
+
+  after do
+    @server.close
+  end
+
+  describe "#notify_new_message" do
+    let(:device_token){"devicetoken"}
+
+    it "should send new message reminder to user's device" do
+      ApnsNotification.new.notify_new_message(device_token)
+      Timeout.timeout(3) {
+        notification = @server.notifications.pop
+        expect(notification.alert).to eq("You have a new message")
+      }
+    end
+  end
+end

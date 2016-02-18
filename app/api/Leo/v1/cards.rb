@@ -1,8 +1,6 @@
 module Leo
   module V1
     class Cards < Grape::API
-      include Grape::Kaminari
-
       desc "Return all cards of a user"
       namespace "cards" do
         before do
@@ -21,7 +19,7 @@ module Leo
               cards << {appointment_card_data: card, priority: index, type: 'appointment', type_id: 0}
             end
           end
-          present paginate(Kaminari.paginate_array(cards)), with: Leo::Entities::CardEntity
+          present cards, with: Leo::Entities::CardEntity
         end
       end
     end

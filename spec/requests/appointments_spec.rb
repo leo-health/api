@@ -55,9 +55,10 @@ describe Leo::V1::Appointments do
       delete "/api/v1/appointments/#{appointment.id}", {authentication_token: session.authentication_token}
     end
 
-    it "should delete the requested appointment" do
-      expect{ do_request }.to change{ Appointment.count }.from(1).to(0)
+    it "should change the status of requested appointment to cancelled" do
+      do_request
       expect(response.status).to eq(200)
+      expect(appointment.reload.cancelled?).to eq(true)
     end
   end
 
@@ -94,8 +95,9 @@ describe Leo::V1::Appointments do
     it "should cancel old appointment, and create a new appointment" do
       do_request
       expect(response.status).to eq(200)
+      expect(appointment.reload.cancelled?).to eq(true)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:appointment].as_json.to_json).to eq(serializer.represent(Appointment.first).as_json.to_json)
+      expect(body[:data][:appointment].as_json.to_json).to eq(serializer.represent(Appointment.last).as_json.to_json)
     end
   end
 end

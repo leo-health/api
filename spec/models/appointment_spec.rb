@@ -11,7 +11,7 @@ RSpec.describe Appointment, type: :model do
   end
 
   describe 'validations' do
-    subject { FactoryGirl.create(:appointment) }
+    subject { FactoryGirl.create(:appointment, appointment_status: create(:appointment_status, :future)) }
 
     it { is_expected.to validate_presence_of(:duration) }
     it { is_expected.to validate_presence_of(:athena_id) }
