@@ -72,7 +72,9 @@ class Message < ActiveRecord::Base
     apns = ApnsNotification.new
     guardians_to_notify = conversation.family.guardians.includes(:sessions).where.not(id: sender.id)
     guardians_to_notify.each do |guardian|
-      apns.delay.notify_new_message(device_token) if device_token = guardian.sessions.last.try(:device_token)
+      guardian.collect_device_tokens.each do |device_token|
+        apns.delay.notify_new_message(device_token)
+      end
     end
   end
 

@@ -91,6 +91,10 @@ class User < ActiveRecord::Base
     User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
   end
 
+  def collect_device_tokens
+    sessions.map{|session| session.device_token}.compact.uniq
+  end
+
   private
 
   def welcome_to_practice_email
