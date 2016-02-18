@@ -37,5 +37,15 @@ Spork.prefork do
     config.before(:each) do
       FakeSms.messages = []
     end
+
+    config.before(:each) do
+      FactoryGirl.create(:appointment_status, :cancelled)
+      FactoryGirl.create(:appointment_status, :checked_in)
+      FactoryGirl.create(:appointment_status, :checked_out)
+      FactoryGirl.create(:appointment_status, :charge_entered)
+      FactoryGirl.create(:appointment_status, :future)
+      FactoryGirl.create(:appointment_status, :open)
+    end
+
   end
 end
