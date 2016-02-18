@@ -102,7 +102,7 @@ describe User do
       end
     end
 
-    it "should collect all the uniq device toke" do
+    it "should collect all the unique device toke" do
       expect(user.collect_device_tokens).to eq(uniq_tokens)
     end
   end
