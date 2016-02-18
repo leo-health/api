@@ -19,7 +19,11 @@ class AppointmentStatus < ActiveRecord::Base
     find_by!(status: STATUS_CANCELLED)
   end
 
+  def self.future
+    find_by!(status: STATUS_FUTURE)
+  end
+
   def self.booked
-    find_by!(status: STATUSES_BOOKED)
+    where(status: STATUSES_BOOKED).all
   end
 end
