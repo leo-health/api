@@ -16,14 +16,14 @@ class AppointmentStatus < ActiveRecord::Base
   validates_uniqueness_of :description, :status
 
   def self.cancelled
-    find_by!(status: STATUS_CANCELLED)
+    find_by(status: STATUS_CANCELLED)
   end
 
   def self.future
-    find_by!(status: STATUS_FUTURE)
+    find_by(status: STATUS_FUTURE)
   end
 
   def self.booked
-    where(status: STATUSES_BOOKED).all
+    where(status: STATUSES_BOOKED)
   end
 end
