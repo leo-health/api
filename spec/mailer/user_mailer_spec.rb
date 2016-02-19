@@ -76,17 +76,6 @@ describe UserMailer do
     end
   end
 
-  describe "#remind_schedule_appointment" do
-    it "send the user an reminder" do
-      UserMailer.remind_schedule_appointment(user).deliver
-      email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Remind Schedule Appointment' &&
-          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
-      end
-      expect(email).to_not be_nil
-    end
-  end
-
   describe "#patient_birthday" do
     it "should send the guardian a email" do
       UserMailer.patient_birthday(user).deliver

@@ -90,4 +90,20 @@ describe User do
       expect( customer_service.primary_guardian? ).to eq(false)
     end
   end
+
+  describe "#collect_device_tokens" do
+    let(:device_tokens){ ['token_one', 'token_two', 'token_two'] }
+    let(:uniq_tokens){ ['token_two', 'token_one'] }
+    let(:user){ create(:user) }
+
+    before do
+      device_tokens.each do |device_token|
+        user.sessions.create(device_token: device_token)
+      end
+    end
+
+    it "should collect all the unique device tokens" do
+      expect(user.collect_device_tokens).to eq(uniq_tokens)
+    end
+  end
 end
