@@ -45,7 +45,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil)}
 
   after_update :welcome_to_practice_email, :notify_primary_guardian
-  after_commit :set_user_family, :remind_schedule_appointment, on: :create
+  after_commit :set_user_family, on: :create
 
   def self.customer_service_user
     self.joins(:role).where(roles: {name: "customer_service"}).order("created_at ASC").first
@@ -113,10 +113,6 @@ class User < ActiveRecord::Base
 
   def invited_guardian_confirmed_email?
     onboarding_group.try(:invited_secondary_guardian?) && guardian_confirmed_email?
-  end
-
-  def remind_schedule_appointment
-    RemindScheduleAppointmentJob.send(self.id) if has_role? :guardian
   end
 
   def password_required?
