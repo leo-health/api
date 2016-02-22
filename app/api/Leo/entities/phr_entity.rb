@@ -7,7 +7,6 @@ module Leo
       expose :allergies, with: Leo::Entities::AllergyEntity
       expose :immunizations, with: Leo::Entities::VaccineEntity
       expose :medications, with: Leo::Entities::MedicationEntity
-      expose :notes, with: Leo::Entities::UserGeneratedHealthRecordEntity 
     end
   end
 end
