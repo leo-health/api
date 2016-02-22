@@ -67,14 +67,6 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def remind_schedule_appointment(user)
-    mandrill_mail(
-      template: 'Leo - Remind Schedule Appointment',
-      subject: "Don't forget to schedule an appointment",
-      to: user.email
-    )
-  end
-
   def patient_birthday(guardian)
     mandrill_mail(
       template: 'Leo - Patient Happy Birthday',

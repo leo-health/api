@@ -61,12 +61,12 @@ staff = [
     },
 
     provider_sync_profile_attributes: {
-      athena_id: 4,
+      athena_id: 3,
       athena_department_id: 2
     },
 
     provider_schedule_attributes: {
-      athena_provider_id: 4,
+      athena_provider_id: 3,
       description: "Default Schedule",
       active: true,
       monday_start_time: "09:00",
@@ -106,12 +106,12 @@ staff = [
     },
 
     provider_sync_profile_attributes: {
-      athena_id: 3,
+      athena_id: 4,
       athena_department_id: 2
     },
 
     provider_schedule_attributes: {
-      athena_provider_id: 3,
+      athena_provider_id: 4,
       description: "Default Schedule",
       active: true,
       monday_start_time: "09:00",

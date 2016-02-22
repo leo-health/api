@@ -4,8 +4,10 @@ MandrillMailer.configure do |config|
 
   if %w(test development develop).any?{|e|e == Rails.env}
     config.interceptor = Proc.new {|params|
-      unless params["to"].split("@").last == "leohealth.com"
-        params[:to] =  [params[:to], { email: "mailer@leohealth.com", name: "Wuang"}].flatten
+      params['to'].each do |receiver|
+        unless receiver['email'].split("@").last.downcase == "leohealth.com"
+          receiver['email'] = "mailer@leohealth.com"
+        end
       end
     }
   end
