@@ -40,6 +40,7 @@ gem 'twilio-ruby'
 gem 'rspec_junit_formatter', '0.2.2'
 gem 'figaro'
 gem 'unicorn'
+gem 'newrelic_rpm'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
@@ -52,6 +53,9 @@ group :development, :test do
   gem 'spring-commands-rspec'
   gem 'fuubar'
   gem 'rspec_api_documentation'
+end
+
+group :development, :develop do
   gem 'raddocs'
 end
 
@@ -68,14 +72,11 @@ end
 
 group :production do
   gem 'rails_12factor'
-  gem 'health_check'
-  gem 'lograge'
 end
 
-group :develop do
+group :production, :develop do
   gem 'health_check'
   gem 'lograge'
-  gem 'raddocs'
 end
 
 ruby '2.2.2'
