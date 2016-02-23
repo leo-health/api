@@ -12,6 +12,48 @@ module Leo
             authorize! :read, @patient
           end
 
+          get 'phr' do
+            #vitals: height weight, bmi
+            height_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).order(:taken_at).collect() {
+              |vital| { taken_at: vital.taken_at, value: vital.value, percentile: GrowthCurvesHelper.height_percentile(@patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f) }
+            }
+
+            weight_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).order(:taken_at).collect() {
+              |vital| { taken_at: vital.taken_at, value: vital.value, percentile: GrowthCurvesHelper.height_percentile(@patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f) }
+            }
+
+            bmi_vitals = []
+            start_date = DateTime.new(1900, 1, 1)
+            Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).order(:taken_at).each do | weight_vital |
+              height_vital = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT, taken_at: start_date..weight_vital.taken_at.end_of_day).order(:taken_at).last
+              if height_vital
+                bmi = weight_vital.value.to_f/(height_vital.value.to_f * height_vital.value.to_f)
+                bmi_vitals << { taken_at: weight_vital.taken_at, value: bmi, percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f) }
+              end
+            end
+
+            #allergies
+            allergies = Allergy.where(patient: @patient).order(:onset_at)
+
+            #immunizations
+            immunizations = Vaccine.where(patient: @patient).order(:administered_at)
+
+            #medications
+            meds = Medication.where(patient: @patient, ended_at: nil).order(:started_at)
+
+            #phr
+            phr = {
+              :heights => height_vitals,
+              :weights => weight_vitals,
+              :bmis => bmi_vitals,
+              :allergies => allergies,
+              :immunizations => immunizations,
+              :medications => meds
+            }
+
+            present :phr, phr, with: Leo::Entities::PHREntity
+          end
+
           namespace 'vitals' do
             # get "patients/{patient_id}/vitals/height"
             desc "get height"
@@ -23,7 +65,7 @@ module Leo
             get 'height' do
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
-              vitals = Vital.where(patient_id: @patient.id, measurement: "VITALS.HEIGHT").where(taken_at: start_date..end_date.end_of_day).order(:taken_at).order(:taken_at).collect() {
+              vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
                 |vital| { taken_at: vital.taken_at, value: vital.value, percentile: GrowthCurvesHelper.height_percentile(@patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f) }
               }
 
@@ -40,7 +82,7 @@ module Leo
             get :weight do
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
-              vitals = Vital.where(patient_id: @patient.id, measurement: "VITALS.WEIGHT").where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
+              vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
                 |vital| { taken_at: vital.taken_at, value: vital.value, percentile: GrowthCurvesHelper.weight_percentile(@patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f) }
               }
 
@@ -58,8 +100,8 @@ module Leo
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = []
-              Vital.where(patient_id: @patient.id, measurement: "VITALS.WEIGHT").where(taken_at: start_date..end_date.end_of_day).order(:taken_at).each do | weight_vital |
-                height_vital = Vital.where(patient_id: @patient.id, measurement: "VITALS.HEIGHT", taken_at: start_date..weight_vital.taken_at.end_of_day).order(:taken_at).last
+              Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).each do | weight_vital |
+                height_vital = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT, taken_at: start_date..weight_vital.taken_at.end_of_day).order(:taken_at).last
                 if height_vital
                   bmi = weight_vital.value.to_f/(height_vital.value.to_f * height_vital.value.to_f)
                   vitals << { taken_at: weight_vital.taken_at, value: bmi, percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f) }
@@ -73,21 +115,21 @@ module Leo
           # get "patients/{patient_id}/allergies"
           desc "get allergies"
           get 'allergies' do
-            allergies = Allergy.where(patient_id: @patient.id).order(:onset_at)
+            allergies = Allergy.where(patient: @patient).order(:onset_at)
             present :allergies, allergies, with: Leo::Entities::AllergyEntity
           end
 
           # get "patients/{patient_id}/immunizations"
           desc "get immunizations"
           get 'immunizations' do
-            imunizations = Vaccine.where(patient_id: @patient.id).order(:administered_at)
+            imunizations = Vaccine.where(patient: @patient).order(:administered_at)
             present :immunizations, imunizations, with: Leo::Entities::VaccineEntity
           end
 
           # get "patients/{patient_id}/vitals/medications"
           desc "get medications"
           get 'medications' do
-            meds = Medication.where(patient_id: @patient.id, ended_at: nil).order(:started_at)
+            meds = Medication.where(patient: @patient, ended_at: nil).order(:started_at)
             present :medications, meds, with: Leo::Entities::MedicationEntity
           end
 
@@ -95,7 +137,7 @@ module Leo
             # get "patients/{patient_id}/notes"
             desc "get all notes"
             get do
-              notes = UserGeneratedHealthRecord.where(patient_id: @patient.id, deleted_at: nil)
+              notes = UserGeneratedHealthRecord.where(patient: @patient, deleted_at: nil)
               present :notes, notes, with: Leo::Entities::UserGeneratedHealthRecordEntity
             end
 
