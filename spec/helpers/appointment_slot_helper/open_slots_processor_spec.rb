@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe AppointmentSlotsHelper, type: :helper do
   describe "OpenSlotsProcessor" do
     let(:provider) { create(:user, :clinical) }
-    let(:provider_sync_profile) { provider.create_provider_sync_profile!(athena_id: 2, athena_department_id: 2) }
+    let(:provider_sync_profile) { provider.create_provider_sync_profile!(athena_id: 1, athena_department_id: 1) }
     let(:future_appointment_status){build(:appointment_status, :future)}
     let(:date){Date.today}
     let(:osp){AppointmentSlotsHelper::OpenSlotsProcessor.new}

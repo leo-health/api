@@ -62,7 +62,7 @@ staff = [
 
     provider_sync_profile_attributes: {
       athena_id: 3,
-      athena_department_id: 2
+      athena_department_id: 1
     },
 
     provider_schedule_attributes: {
@@ -107,7 +107,7 @@ staff = [
 
     provider_sync_profile_attributes: {
       athena_id: 4,
-      athena_department_id: 2
+      athena_department_id: 1
     },
 
     provider_schedule_attributes: {
