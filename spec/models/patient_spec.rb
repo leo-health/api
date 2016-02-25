@@ -18,10 +18,17 @@ RSpec.describe Patient, type: :model do
 
    describe "has many appointments" do
      let(:provider){ create(:user, :clinical) }
-     let!(:cancelled_appointment){ create(:appointment, :cancelled, patient: patient, provider: provider, start_datetime: 1.minutes.ago) }
-     let!(:checked_in_appointment){ create(:appointment, :checked_in, patient: patient, provider: provider, start_datetime: 2.minutes.ago) }
-     let!(:charge_entered_appointment){ create(:appointment, :charge_entered, patient: patient, provider: provider, start_datetime: 3.minutes.ago) }
-     let!(:open_appointmet){ create(:appointment, :open, patient: patient, provider: provider) }
+     let(:guardian){ create(:user, :guardian) }
+
+     let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
+     let!(:checked_in_appointment){ create(:appointment, :checked_in, booked_by: guardian, provider: provider, start_datetime: 2.minutes.ago) }
+     let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
+     let!(:open_appointmet){ create(:appointment, :open, booked_by: guardian, provider: provider) }
+
+     before do
+       patient.update_attributes(family: guardian.family)
+        Appointment.update_all(patient_id: patient.id)
+     end
 
      it "should return booked appointments for of patient" do
        expect(patient.appointments).to eq([checked_in_appointment, charge_entered_appointment])
