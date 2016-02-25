@@ -5,7 +5,12 @@ describe User do
   let!(:bot){ create(:user, :bot)}
 
   describe "relations" do
-    let(:booked_appointment_status){ create(:appointment_status, :checked_in) }
+    let(:guardian){ create(:user, :guardian) }
+    let(:provider){ create(:user, :clinical) }
+    let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
+    let!(:checked_in_appointment){ create(:appointment, :checked_in, booked_by: guardian, provider: provider, start_datetime: 2.minutes.ago) }
+    let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
+    let!(:open_appointmet){ create(:appointment, :open, booked_by: guardian, provider: provider) }
 
     it{ is_expected.to belong_to(:family) }
     it{ is_expected.to belong_to(:role) }
@@ -26,11 +31,21 @@ describe User do
     it{ is_expected.to have_many(:read_messages).class_name('Message').with_foreign_key('read_receipts') }
     it{ is_expected.to have_many(:sessions) }
     it{ is_expected.to have_many(:sent_messages).class_name('Message').with_foreign_key('sender_id') }
-    it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id').
-      conditions(appointment_status_id: 1) }
-    it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id').
-      conditions(appointment_status: booked_appointment_status) }
+    it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id') }
+    it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id') }
     it{ is_expected.to have_many(:user_generated_health_records) }
+
+    describe "has many provider appointments" do
+      it "should return provider appointments" do
+        expect(guardian.provider_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+      end
+    end
+
+    describe "has many booked appointments" do
+      it "should return booked appointments" do
+        expect(provider.provider_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+      end
+    end
   end
 
   describe "before validations" do

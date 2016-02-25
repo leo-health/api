@@ -9,7 +9,7 @@ FactoryGirl.define do
     password     'password'
     password_confirmation 'password'
     association :role, factory: [:role, :guardian]
-
+    practice
 
     trait :guardian do
       sex					'M'
