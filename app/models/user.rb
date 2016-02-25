@@ -31,8 +31,8 @@ class User < ActiveRecord::Base
   has_many :read_messages, class_name: 'Message', through: :read_receipts
   has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
-  has_many :provider_appointments, -> { where appointment_status: AppointmentStatus.booked }, foreign_key: "provider_id", class_name: "Appointment"
-  has_many :booked_appointments, -> { where appointment_status: AppointmentStatus.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
+  has_many :provider_appointments, -> {Appointment.booked }, foreign_key: "provider_id", class_name: "Appointment"
+  has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, if: :guardian?
   validates_confirmation_of :password

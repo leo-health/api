@@ -4,12 +4,10 @@ RSpec.describe Patient, type: :model do
  let!(:customer_service) { create(:user, :customer_service) }
  let!(:bot){ create(:user, :bot)}
  let!(:patient) { create(:patient) }
- # let(:booked_appointment_status){ create(:appointment_status, :checked_in) }
 
  describe 'relations' do
    it{ is_expected.to belong_to(:family) }
    it{ is_expected.to belong_to(:role) }
-   it{ is_expected.to have_many(:appointments).through(:appointment_status).conditions(id: 4) }
    it{ is_expected.to have_many(:medications) }
    it{ is_expected.to have_many(:photos) }
    it{ is_expected.to have_many(:vaccines) }
@@ -17,6 +15,18 @@ RSpec.describe Patient, type: :model do
    it{ is_expected.to have_many(:insurances) }
    it{ is_expected.to have_many(:avatars) }
    it{ is_expected.to have_many(:forms) }
+
+   describe "has many appointments" do
+     let(:provider){ create(:user, :clinical) }
+     let!(:cancelled_appointment){ create(:appointment, :cancelled, patient: patient, provider: provider, start_datetime: 1.minutes.ago) }
+     let!(:checked_in_appointment){ create(:appointment, :checked_in, patient: patient, provider: provider, start_datetime: 2.minutes.ago) }
+     let!(:charge_entered_appointment){ create(:appointment, :charge_entered, patient: patient, provider: provider, start_datetime: 3.minutes.ago) }
+     let!(:open_appointmet){ create(:appointment, :open, patient: patient, provider: provider) }
+
+     it "should return booked appointments for of patient" do
+       expect(patient.appointments).to eq([checked_in_appointment, charge_entered_appointment])
+     end
+   end
  end
 
   describe 'validations' do

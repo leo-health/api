@@ -37,13 +37,13 @@ describe User do
 
     describe "has many provider appointments" do
       it "should return provider appointments" do
-        expect(guardian.provider_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+        expect(provider.provider_appointments).to eq([checked_in_appointment, charge_entered_appointment])
       end
     end
 
     describe "has many booked appointments" do
       it "should return booked appointments" do
-        expect(provider.provider_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+        expect(guardian.booked_appointments).to eq([checked_in_appointment, charge_entered_appointment])
       end
     end
   end
@@ -67,7 +67,7 @@ describe User do
   end
 
   describe "validations" do
-    subject { FactoryGirl.build(:user) }
+    subject { build(:user) }
 
     it { is_expected.to validate_length_of(:password).is_at_least(8)}
     it { is_expected.to validate_presence_of(:first_name) }
@@ -107,11 +107,6 @@ describe User do
 
     describe "after commit on create" do
       it { expect(user).to callback(:set_user_type_on_secondary_user).after(:commit) }
-
-      # it "should set up a family for primary guardian" do
-      #   byebug
-      #   expect( user.family ).to exit
-      # end
 
       context "for secondary guardian" do
         it "should set the user type of secondary guardian to be intentical to the primary guadian" do
