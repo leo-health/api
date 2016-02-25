@@ -26,8 +26,8 @@ describe User do
     it{ is_expected.to have_many(:read_messages).class_name('Message').with_foreign_key('read_receipts') }
     it{ is_expected.to have_many(:sessions) }
     it{ is_expected.to have_many(:sent_messages).class_name('Message').with_foreign_key('sender_id') }
-    it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id')}
-      # conditions(appointment_status: booked_appointment_status) }
+    it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id').
+      conditions(appointment_status_id: 1) }
     it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id').
       conditions(appointment_status: booked_appointment_status) }
     it{ is_expected.to have_many(:user_generated_health_records) }

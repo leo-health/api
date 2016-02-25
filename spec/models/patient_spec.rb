@@ -4,11 +4,12 @@ RSpec.describe Patient, type: :model do
  let!(:customer_service) { create(:user, :customer_service) }
  let!(:bot){ create(:user, :bot)}
  let!(:patient) { create(:patient) }
+ # let(:booked_appointment_status){ create(:appointment_status, :checked_in) }
 
  describe 'relations' do
    it{ is_expected.to belong_to(:family) }
    it{ is_expected.to belong_to(:role) }
-   it{ is_expected.to have_many(:appointments) }
+   it{ is_expected.to have_many(:appointments).through(:appointment_status).conditions(id: 4) }
    it{ is_expected.to have_many(:medications) }
    it{ is_expected.to have_many(:photos) }
    it{ is_expected.to have_many(:vaccines) }

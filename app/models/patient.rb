@@ -12,7 +12,7 @@ class Patient < ActiveRecord::Base
 
   belongs_to :family
   belongs_to :role
-  has_many :appointments, -> { where appointment_status: AppointmentStatus.booked }
+  has_many :appointments, -> { Appointment.booked }
   has_many :medications
   has_many :allergies
   has_many :photos
