@@ -33,7 +33,7 @@ class User < ActiveRecord::Base
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :appointments
   has_many :provider_appointments, -> { where(appointment_status_id: 6) }, foreign_key: "provider_id", source: :appointment
-  has_many :booked_appointments, -> { Appointment.booked },foreign_key: "booked_by_id", source: :appointment
+  has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", source: :appointment
   has_many :user_generated_health_records
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, if: :guardian?
   validates_confirmation_of :password
