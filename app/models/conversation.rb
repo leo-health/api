@@ -10,12 +10,7 @@ class Conversation < ActiveRecord::Base
   belongs_to :family
 
   validates :family, :state, presence: true
-
   after_commit :load_initial_message, on: :create
-
-  def self.sort_conversations
-    self.where(state: [:open, :escalated, :closed]).order("state desc, updated_at desc")
-  end
 
   aasm whiny_transitions: false, column: :state do
     state :closed, initial: true

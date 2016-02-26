@@ -129,7 +129,7 @@ describe User do
     let!(:guardian){ create(:user) }
 
     it "should return all staff" do
-      expect(User.staff).to eq([customer_service, bot])
+      expect(User.staff.count).to eq(2)
     end
   end
 
