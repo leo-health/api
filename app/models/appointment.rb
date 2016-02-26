@@ -15,6 +15,8 @@ class Appointment < ActiveRecord::Base
   validates_uniqueness_of :start_datetime, scope: :provider_id, 
     conditions: -> { where(deleted_at: nil, appointment_status: AppointmentStatus.booked) }
 
+  scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
+
   def same_family?
     return unless (patient && booked_by)
     errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id

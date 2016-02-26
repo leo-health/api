@@ -7,7 +7,7 @@ describe Leo::V1::Appointments do
   let(:session){ user.sessions.create }
   let(:serializer){ Leo::Entities::AppointmentEntity }
   let(:appointment_type){ create(:appointment_type)}
-  let(:appointment_status){ create(:appointment_status)}
+  let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
   let(:provider){create(:user, :clinical)}
   let(:patient){create(:patient, family: user.family)}
   let(:practice){create(:practice)}
@@ -15,7 +15,7 @@ describe Leo::V1::Appointments do
   describe "Post /api/v1/appointments" do
     def do_request
       appointment_params = { start_datetime: Time.now,
-                             appointment_status_id: appointment_status.id,
+                             appointment_status_id: cancelled_appointment_status.id,
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,
                              patient_id: patient.id,
@@ -49,7 +49,7 @@ describe Leo::V1::Appointments do
   end
 
   describe "Delete /api/v1/appointments/:id" do
-    let!(:appointment){create(:appointment, booked_by: user)}
+    let!(:appointment){ create(:appointment, booked_by: user) }
 
     def do_request
       delete "/api/v1/appointments/#{appointment.id}", {authentication_token: session.authentication_token}
@@ -83,7 +83,7 @@ describe Leo::V1::Appointments do
 
     def do_request
       appointment_params = { start_datetime: Time.now,
-                             appointment_status_id: appointment_status.id,
+                             appointment_status_id: cancelled_appointment_status.id,
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,
                              patient_id: patient.id,

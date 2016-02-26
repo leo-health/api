@@ -1,5 +1,30 @@
 require 'csv'
 
+practices_seed = [
+    {
+        id: 1,
+        athena_id: 1,
+        name: "Leo @ Chelsea",
+        address_line_1: "33w 17th St",
+        address_line_2: "5th floor",
+        city: "New York",
+        state: "NY",
+        zip: "10011",
+        fax: "10543",
+        phone: "101-101-1001",
+        email: "info@leohealth.com",
+        time_zone: "Eastern Time (US & Canada)"
+    }
+]
+
+practices_seed.each do |param|
+  if practice = Practice.find_by(id: param[:id])
+    practice.update_attributes!(param)
+  else
+    Practice.create!(param)
+  end
+end
+
 roles_seed = {
           # Access accounting and billing data for administrative staff
           financial: 1,
@@ -62,7 +87,7 @@ staff = [
 
     provider_sync_profile_attributes: {
       athena_id: 3,
-      athena_department_id: 2
+      athena_department_id: 1
     },
 
     provider_schedule_attributes: {
@@ -107,7 +132,7 @@ staff = [
 
     provider_sync_profile_attributes: {
       athena_id: 4,
-      athena_department_id: 2
+      athena_department_id: 1
     },
 
     provider_schedule_attributes: {
@@ -372,31 +397,6 @@ appointment_types_seed.each do |param|
     appointment_type.update_attributes!(param)
   else
     AppointmentType.create!(param)
-  end
-end
-
-practices_seed = [
-  {
-    id: 1,
-    athena_id: 1,
-    name: "Leo @ Chelsea",
-    address_line_1: "33w 17th St",
-    address_line_2: "5th floor",
-    city: "New York",
-    state: "NY",
-    zip: "10011",
-    fax: "10543",
-    phone: "101-101-1001",
-    email: "info@leohealth.com",
-    time_zone: "Eastern Time (US & Canada)"
-  }
-]
-
-practices_seed.each do |param|
-  if practice = Practice.find_by(id: param[:id])
-    practice.update_attributes!(param)
-  else
-    Practice.create!(param)
   end
 end
 
