@@ -3,8 +3,8 @@ require 'sync_service_helper'
 
 RSpec.describe SyncServiceHelper, type: :helper do
   describe "Sync Service Helper - " do
-    let(:future_appointment_status){build(:appointment_status, :future)}
-    let(:cancelled_appointment_status){build(:appointment_status, :cancelled)}
+    let!(:future_appointment_status){ create(:appointment_status, :future) }
+    let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
     let!(:connector) { double("connector") }
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
     let!(:practice) { build(:practice, athena_id: 1) }
@@ -25,7 +25,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_scan_remote_appointments" do
-      let!(:future_appointment_status){create(:appointment_status, :future)}
       let!(:booked_appt) {
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
         .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")

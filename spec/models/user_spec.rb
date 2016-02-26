@@ -5,11 +5,20 @@ describe User do
   let!(:bot){ create(:user, :bot)}
 
   describe "relations" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:provider){ create(:user, :clinical) }
+    let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
+    let!(:checked_in_appointment){ create(:appointment, :checked_in, booked_by: guardian, provider: provider, start_datetime: 2.minutes.ago) }
+    let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
+    let!(:open_appointmet){ create(:appointment, :open, booked_by: guardian, provider: provider) }
+
     it{ is_expected.to belong_to(:family) }
     it{ is_expected.to belong_to(:role) }
     it{ is_expected.to belong_to(:practice) }
     it{ is_expected.to belong_to(:onboarding_group) }
+    it{ is_expected.to belong_to(:insurance_plan) }
 
+    it{ is_expected.to have_one(:avatar) }
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
     it{ is_expected.to have_one(:provider_sync_profile).with_foreign_key('provider_id') }
 
@@ -18,14 +27,47 @@ describe User do
     it{ is_expected.to have_many(:conversations).through(:user_conversations) }
     it{ is_expected.to have_many(:read_receipts).with_foreign_key('reader_id') }
     it{ is_expected.to have_many(:escalation_notes).class_name('EscalationNote').with_foreign_key('escalated_to_id') }
+    it{ is_expected.to have_many(:closure_notes).class_name('ClosureNote').with_foreign_key('closed_by_id') }
     it{ is_expected.to have_many(:read_messages).class_name('Message').with_foreign_key('read_receipts') }
     it{ is_expected.to have_many(:sessions) }
     it{ is_expected.to have_many(:sent_messages).class_name('Message').with_foreign_key('sender_id') }
     it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id') }
+    it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id') }
+    it{ is_expected.to have_many(:user_generated_health_records) }
+
+    describe "has many provider appointments" do
+      it "should return provider appointments" do
+        expect(provider.provider_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+      end
+    end
+
+    describe "has many booked appointments" do
+      it "should return booked appointments" do
+        expect(guardian.booked_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+      end
+    end
+  end
+
+  describe "before validations" do
+    let!(:guardian){ create(:user, :guardian) }
+    let(:customer_service_practice){ customer_service.practice }
+
+    it "should add default practice to guardian" do
+      expect(guardian.practice).not_to eq(nil)
+    end
+
+    it "should add family to guardian if not has one" do
+      expect(guardian.family).not_to eq(nil)
+    end
+
+    it "should not add default practice or default family to staff" do
+      expect(customer_service.family).to eq(nil)
+      expect(customer_service.practice).to eq(customer_service_practice)
+    end
   end
 
   describe "validations" do
-    subject { FactoryGirl.build(:user) }
+    subject { build(:user) }
 
     it { is_expected.to validate_length_of(:password).is_at_least(8)}
     it { is_expected.to validate_presence_of(:first_name) }
@@ -37,11 +79,13 @@ describe User do
   end
 
   describe "callbacks" do
-    describe "after update" do
-      let!(:user){ create(:user, email: "emailtest@testemail.com") }
+    let(:user){ create(:user, email: "emailtest@testemail.com", first_name: "first") }
+    let(:onboarding_group){ create(:onboarding_group) }
+    let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, first_name: "second", family: user.family) }
 
+    describe "after update" do
       context "for send welcome to practice email" do
-        it { expect(user).to callback(:welcome_to_practice_email).after(:update) }
+        it { expect(user).to callback(:welcome_onboarding_notifications).after(:update) }
 
         it "should send user an email to welcome to practice after user confirmed account" do
           expect{ user.confirm }.to change(Delayed::Job, :count).by(1)
@@ -49,17 +93,24 @@ describe User do
       end
 
       context "for notify primary guardian about sencond guardian joined leo" do
-        let(:onboarding_group){ create(:onboarding_group) }
-        let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, family: user.family) }
-
         before do
           secondary_guardian.confirm
         end
 
-        it { expect(secondary_guardian).to callback(:welcome_to_practice_email).after(:update) }
+        it { expect(secondary_guardian).to callback(:welcome_onboarding_notifications).after(:update) }
 
         it "should create a message" do
           expect( user.family.conversation.messages.last.body ).to eq("#{secondary_guardian.first_name} has joined Leo")
+        end
+      end
+    end
+
+    describe "after commit on create" do
+      it { expect(user).to callback(:set_user_type_on_secondary_user).after(:commit) }
+
+      context "for secondary guardian" do
+        it "should set the user type of secondary guardian to be intentical to the primary guadian" do
+          expect( secondary_guardian.type ).to eq(user.type)
         end
       end
     end
@@ -71,6 +122,14 @@ describe User do
 
     it "should return the first customer service staff" do
       expect(User.customer_service_user).to eq(customer_service)
+    end
+  end
+
+  describe ".staff" do
+    let!(:guardian){ create(:user) }
+
+    it "should return all staff" do
+      expect(User.staff).to eq([customer_service, bot])
     end
   end
 

@@ -4,9 +4,10 @@ require "cancan/matchers"
 describe "User" do
   describe "abilities" do
     subject(:ability){ Ability.new(user) }
+    let!(:user){ create(:user, :guardian) }
+    let(:other_user){ create(:user, :guardian) }
 
     context "when user has the role guardian" do
-      let!(:user){build(:user, :guardian)}
       let(:patient){create(:patient, family: user.family)}
 
       describe "ability for user" do
@@ -21,7 +22,6 @@ describe "User" do
       end
 
       describe "ability for avatars" do
-        let(:other_user){build(:user, :guardian)}
         let(:other_patient){create(:patient, family: other_user.family)}
         let!(:avatar){build(:avatar, owner: patient)}
         let!(:avatar_of_patient_from_other_family){build(:avatar, owner: other_patient)}
