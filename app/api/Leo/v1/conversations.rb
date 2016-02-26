@@ -65,7 +65,7 @@ module Leo
           if params[:state]
             conversations = Conversation.where(state: params[:state]).order('updated_at desc')
           else
-            conversations = Conversation.sort_conversations
+            conversations = Conversation.order("updated_at desc")
           end
           max_page = (conversations.count / 10.to_f).ceil
           authorize! :read, Conversation
