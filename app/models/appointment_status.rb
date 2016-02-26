@@ -19,10 +19,6 @@ class AppointmentStatus < ActiveRecord::Base
     find_by(status: STATUS_CANCELLED)
   end
 
-  def self.existing
-    where.not(status: STATUS_CANCELLED)
-  end
-
   def self.future
     find_by(status: STATUS_FUTURE)
   end
