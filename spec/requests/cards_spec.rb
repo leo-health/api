@@ -6,16 +6,14 @@ describe Leo::V1::Cards do
     let!(:customer_service){ create(:user, :customer_service) }
     let(:user){ create(:user, :guardian) }
     let!(:session){ user.sessions.create }
-    let(:cancelled_appointment_status){ create(:appointment_status, :cancelled)}
-    let!(:upcoming_appointment){create(:appointment, booked_by: user, start_datetime: Time.now + 1.day)}
-    let!(:past_appointment){create(:appointment, booked_by: user, start_datetime: Time.now - 1.day)}
-    let!(:cancelled_appointment){create(:appointment, booked_by: user, start_datetime: Time.now,
-                                         appointment_status: cancelled_appointment_status) }
-
+    let!(:upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 1.day)}
+    let!(:updated_upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 2.day)}
+    let!(:past_appointment){create(:appointment, :checked_in, booked_by: user, start_datetime: Time.now - 1.day)}
+    let!(:cancelled_appointment){create(:appointment, :cancelled, booked_by: user, start_datetime: Time.now) }
     let(:serializer){ Leo::Entities::CardEntity }
-    let!(:response_data){[{appointment_card_data: upcoming_appointment.reload, priority: 0, type: 'appointment', type_id: 0},
-                          {conversation_card_data: user.family.conversation, priority: 1, type: 'conversation', type_id: 1},
-                          {appointment_card_data: past_appointment.reload, priority: 2, type: 'appointment', type_id: 0}]}
+    let!(:response_data){[{conversation_card_data: user.family.conversation, priority: 0, type: 'conversation', type_id: 1},
+                          {appointment_card_data: upcoming_appointment.reload, priority: 1, type: 'appointment', type_id: 0},
+                          {appointment_card_data: updated_upcoming_appointment.reload, priority: 2, type: 'appointment', type_id: 0}]}
 
     def do_request
       get "/api/v1/cards", {authentication_token: session.authentication_token}
