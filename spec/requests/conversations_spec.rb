@@ -78,12 +78,12 @@ describe Leo::V1::Conversations do
     let!(:family_two ){ create(:family)}
 
     before do
-      @conversation = family.conversation
-      @conversation.update_attributes(state: :open)
-      @escalated_conversation = family_one.conversation
-      @escalated_conversation.update_attributes(state: :escalated)
-      @closed_conversation = family_two.conversation
-      @closed_conversation.update_attributes(state: :closed)
+      @new_conversation = family.conversation
+      @conversation = family_one.conversation
+      @old_conversation = family_two.conversation
+      @conversation.update_attributes(updated_at: Time.now - 1.day)
+      @new_conversation.update_attributes(updated_at: Time.now)
+      @old_conversation.update_attributes(updated_at: Time.now - 2.day)
     end
 
     def do_request
@@ -94,7 +94,7 @@ describe Leo::V1::Conversations do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data][:conversations].as_json.to_json).to eq( short_serializer.represent([@conversation, @escalated_conversation, @closed_conversation ] ).as_json.to_json)
+      expect(body[:data][:conversations].as_json.to_json).to eq( short_serializer.represent([@new_conversation, @conversation, @old_conversation ] ).as_json.to_json)
     end
   end
 

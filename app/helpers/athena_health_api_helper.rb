@@ -22,39 +22,39 @@ module AthenaHealthApiHelper
     end
 
     def booked?
-      return future? || checked_in? || checked_out? || charge_entered?
+      future? || checked_in? || checked_out? || charge_entered?
     end
 
     def pre_checked_in?
-      return future? || open? || cancelled?
+      future? || open? || cancelled?
     end
 
     def post_checked_in?
-      return !pre_checked_in
+      !pre_checked_in
     end
 
     def cancelled?
-      return @appointmentstatus == "x"
+      @appointmentstatus == "x"
     end
 
     def checked_in?
-      return @appointmentstatus == "2"
+      @appointmentstatus == "2"
     end
 
     def checked_out?
-      return @appointmentstatus == "3"
+      @appointmentstatus == "3"
     end
 
     def charge_entered?
-      return @appointmentstatus == "4"
+      @appointmentstatus == "4"
     end
 
     def future?
-      return @appointmentstatus == "f"
+      @appointmentstatus == "f"
     end
 
     def open?
-      return @appointmentstatus == "o"
+      @appointmentstatus == "o"
     end
   end
 

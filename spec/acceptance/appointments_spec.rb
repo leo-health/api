@@ -9,6 +9,7 @@ resource "Appointments" do
   let(:session){ user.sessions.create }
   let(:authentication_token){ session.authentication_token }
   let(:appointment_status){ create(:appointment_status)}
+  let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
   let(:appointment_type){ create(:appointment_type)}
   let(:provider){create(:user, :clinical)}
   let(:patient){create(:patient, family: user.family)}
