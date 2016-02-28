@@ -3,13 +3,18 @@ module Leo
     class DeepLinks < Grape::API
       desc "redirect user to proper page"
       namespace "deep_link" do
-        before do
-          authenticated
+        params do
+          requires :type, type: String, allow_blank: false
+          requires :type_id, type: Integer, allow_blank: false
         end
 
         get do
-          byebug
-          request.user_agent
+          user_agent = UserAgent.parse(request.user_agent)
+          if user_agent.platform == "iPhone"
+            redirect "leohealth://feed/#{params[:type]}/#{params[:type_id]}", permanent: true
+          else
+            redirect "http://leohealth.com", permanent: true
+          end
         end
       end
     end
