@@ -88,17 +88,6 @@ describe UserMailer do
     end
   end
 
-  describe "#notify_new_messages" do
-    it "should send user email when user received message" do
-      UserMailer.notify_new_message(user).deliver
-      email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Notify New Message' &&
-          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
-      end
-      expect(email).to_not be_nil
-    end
-  end
-
   describe "#account_confirmation_reminder" do
     it "should send user a reminder" do
       UserMailer.account_confirmation_reminder(user).deliver

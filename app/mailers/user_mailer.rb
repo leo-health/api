@@ -91,18 +91,6 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def notify_new_message(user)
-    mandrill_mail(
-      template: 'Leo - Notify New Message',
-      subject: 'You have a new message',
-      to: user.email,
-      vars: {
-        'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation.id}"
-      }
-    )
-  end
-
   def account_confirmation_reminder(user)
     mandrill_mail(
       template: 'Leo - Account Confirmation Reminder',
