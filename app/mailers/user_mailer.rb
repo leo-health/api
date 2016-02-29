@@ -95,7 +95,11 @@ class UserMailer < MandrillMailer::TemplateMailer
     mandrill_mail(
       template: 'Leo - Notify New Message',
       subject: 'You have a new message',
-      to: user.email
+      to: user.email,
+      vars: {
+        'FIRST_NAME': user.first_name,
+        'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation.id}"
+      }
     )
   end
 
