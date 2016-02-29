@@ -40,12 +40,21 @@ class UserMailer < MandrillMailer::TemplateMailer
   end
 
   def five_day_appointment_reminder(user, appointment)
+    patient = appointment.patient
+    start_datetime = appointment.start_datetime
+    day_of_week = start_datetime.strftime("%A")
+    appointment_time = start_datetime.in_time_zone.strftime("%I:%M %p")
+
     mandrill_mail(
       template: 'Leo - Five Day Appointment Reminder',
       subject: 'You have an appointment coming up soon!',
       to: user.email,
       vars: {
-        'LINK': "#{ENV['API_HOST']}/deep_link/appointment/#{appointment.id}"
+        'PRIMARY_GUARDIAN_FIRST_NAME': user.first_name,
+        'CHILD_FIRST_NAME': patient.first_name,
+        'APPOINTMENT_DAY_OF_WEEK': day_of_week,
+        'APPOINTMENT_TIME': appointment_time,
+        'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=appointment&type_id=#{appointment.id}"
       }
     )
   end
@@ -59,11 +68,18 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def same_day_appointment_reminder(user)
+  def same_day_appointment_reminder(user, appointment)
+    appointment_time = appointment.start_datetime.in_time_zone.strftime("%I:%M %p")
     mandrill_mail(
         template: 'Leo - Same Day Appointment Reminder',
         subject: 'You have an appointment today!',
-        to: user.email
+        to: user.email,
+        vars: {
+          'PRIMARY_GUARDIAN_FIRST_NAME': user.first_name,
+          'CHILD_FIRST_NAME': appointment.patient.first_name,
+          'APPOINTMENT_TIME': appointment_time,
+          'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=appointment&type_id=#{appointment.id}"
+        }
     )
   end
 

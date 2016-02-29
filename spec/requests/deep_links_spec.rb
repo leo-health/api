@@ -5,13 +5,11 @@ describe Leo::V1::DeepLinks do
 
     def do_request
       get "/api/v1/deep_link", { type: 'conversation', type_id: 1 }, { "HTTP_USER_AGENT": "iPhone" }
-      byebug
     end
 
     context "when access from iphone" do
       it "should redirect to a deeplink" do
         expect(response.status).to eq(301)
-        byebug
       end
     end
 

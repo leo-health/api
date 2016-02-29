@@ -66,8 +66,9 @@ describe UserMailer do
   end
 
   describe "#same_day_appointment_reminder" do
+    let(:appointment){ create(:appointment) }
     it "should send the user an reminder of the appointment on same day" do
-      UserMailer.same_day_appointment_reminder(user).deliver
+      UserMailer.same_day_appointment_reminder(user, appointment).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Same Day Appointment Reminder' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
