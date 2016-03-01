@@ -321,6 +321,89 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
       end
     end
 
+    describe "get_best_match_patient" do
+      it "should return a patient" do
+        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+          [{
+              "racename": "White",
+              "occupationcode": null,
+              "homephone": "5555173402",
+              "guarantorstate": "MA",
+              "portalaccessgiven": "true",
+              "driverslicense": "false",
+              "contactpreference_appointment_email": "true",
+              "contactpreference_appointment_sms": "false",
+              "contactpreference_billing_phone": "true",
+              "ethnicitycode": null,
+              "contactpreference_announcement_phone": "true",
+              "industrycode": null,
+              "contacthomephone": "8885551241",
+              "guarantorssn": null,
+              "contactpreference_lab_sms": "false",
+              "zip": "02539",
+              "guarantoraddresssameaspatient": "true",
+              "employerphone": null,
+              "contactmobilephone": null,
+              "nextkinphone": null,
+              "portaltermsonfile": "true",
+              "status": "active",
+              "lastname": "Jones",
+              "guarantorfirstname": "Donald",
+              "city": "EDGARTOWN",
+              "ssn": "*****5954",
+              "guarantorcity": "EDGARTOWN",
+              "guarantorzip": "02539",
+              "sex": "F",
+              "privacyinformationverified": "true",
+              "primarydepartmentid": "1",
+              "contactpreference_lab_email": "true",
+              "balances": [{
+                  "balance": 0,
+                  "departmentlist": "1,21,102,145,148,150,157,162",
+                  "providergroupid": "1",
+                  "cleanbalance": "true"
+              }, {
+                  "balance": 0,
+                  "departmentlist": "62,142,164",
+                  "providergroupid": "2",
+                  "cleanbalance": "true"
+              }],
+              "contactpreference_announcement_sms": "false",
+              "race": ["2106-3"],
+              "language6392code": "eng",
+              "primaryproviderid": "74",
+              "patientphoto": "false",
+              "contactpreference_billing_email": "true",
+              "contactpreference_announcement_email": "true",
+              "caresummarydeliverypreference": "PORTAL",
+              "guarantorlastname": "Jones",
+              "firstname": "Ariana",
+              "guarantorcountrycode": "USA",
+              "state": "MA",
+              "contactpreference_appointment_phone": "true",
+              "patientid": "1978",
+              "dob": "10\/13\/1951",
+              "guarantorrelationshiptopatient": "3",
+              "address1": "8762 Stoneridge Ct",
+              "contactpreference_billing_sms": "false",
+              "guarantorphone": null,
+              "maritalstatus": "S",
+              "countrycode": "USA",
+              "guarantoraddress1": "8762 Stoneridge Ct",
+              "maritalstatusname": "SINGLE",
+              "consenttotext": "false",
+              "countrycode3166": "US",
+              "contactpreference_lab_phone": "true",
+              "guarantorcountrycode3166": "US"
+          }]
+          )))
+
+        patient = connector.get_best_match_patient(firstname: "Ariana" , lastname: "Jones", dob: "10/13/1951", anyphone: "8885551241")
+        expect(patient).not_to be_nil
+        expect(patient.patientid).to eq ("1978")
+      end
+    end
+
     describe "get_patient_allergies" do
       it "should return allergies" do
         allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(

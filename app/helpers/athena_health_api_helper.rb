@@ -333,7 +333,10 @@ module AthenaHealthApiHelper
       guarantorcity: nil,
       middlename: nil,
       guarantorssn: nil,
-      guarantorrelationshiptopatient: nil
+      guarantorrelationshiptopatient: nil,
+      contactname: nil,
+      contactrelationship: nil,
+      contactmobilephone: nil
       )
 
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
@@ -361,6 +364,23 @@ module AthenaHealthApiHelper
       return AthenaStruct.new(JSON.parse(response.body)[0])
     end
 
+    def get_best_match_patient(anyfirstname: nil, anyphone: nil, appointmentdepartmentid: nil, appointmentproviderid: nil,
+                               dob: , email: nil, firstname: nil, guarantoremail: nil, guarantorphone: nil, homephone: nil,
+                               ignorerestrictions: nil, lastname: , middlename: nil, mobilephone: nil, preferredname: nil,
+                               showportalstatus: nil, ssn: nil, suffix: nil, upcomingappointmenthours: nil, workphone: nil,
+                               zip: nil)
+
+        params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
+
+        response = @connection.GET("patients/bestmatch", params, AthenaHealthApiConnector.common_headers)
+
+        raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
+
+        result = JSON.parse(response.body)
+        
+        return nil if result.empty?
+        return AthenaStruct.new(result[0])
+    end
 
     #Update a patient: PUT /preview1/:practiceid/patients/:patientid
     def update_patient(
@@ -385,7 +405,10 @@ module AthenaHealthApiHelper
       guarantorcity: nil,
       middlename: nil,
       guarantorssn: nil,
-      guarantorrelationshiptopatient: nil
+      guarantorrelationshiptopatient: nil,
+      contactname: nil,
+      contactrelationship: nil,
+      contactmobilephone: nil
       )
 
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
