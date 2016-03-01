@@ -333,7 +333,10 @@ module AthenaHealthApiHelper
       guarantorcity: nil,
       middlename: nil,
       guarantorssn: nil,
-      guarantorrelationshiptopatient: nil
+      guarantorrelationshiptopatient: nil,
+      contactname: nil,
+      contactrelationship: nil,
+      contactmobilephone: nil
       )
 
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
@@ -402,7 +405,10 @@ module AthenaHealthApiHelper
       guarantorcity: nil,
       middlename: nil,
       guarantorssn: nil,
-      guarantorrelationshiptopatient: nil
+      guarantorrelationshiptopatient: nil,
+      contactname: nil,
+      contactrelationship: nil,
+      contactmobilephone: nil
       )
 
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]

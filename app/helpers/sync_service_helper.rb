@@ -360,6 +360,18 @@ module SyncServiceHelper
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
       parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
 
+      leo_guardians = leo_patient.family.guardians
+
+      contactname = nil
+      contactrelationship = nil
+      contactmobilephone = nil
+
+      if leo_guardians.size >= 2
+        contactname = "#{leo_guardians[1].first_name} #{leo_guardians[1].last_name}"
+        contactrelationship = "GUARDIAN"
+        contactmobilephone = leo_guardians[1].phone
+      end
+
       if leo_patient.athena_id == 0
         #look existing athena patient with same info
         athena_patient = get_best_match_patient(leo_patient)
@@ -388,7 +400,10 @@ module SyncServiceHelper
             guarantorlastname: leo_parent.last_name,
             guarantordob: parent_birth_date,
             guarantoremail: leo_parent.email,
-            guarantorrelationshiptopatient: 3 #3==child
+            guarantorrelationshiptopatient: 3, #3==child
+            contactname: contactname,
+            contactrelationship: contactrelationship,
+            contactmobilephone: contactmobilephone
             ).to_i
 
           leo_patient.save!
@@ -408,7 +423,10 @@ module SyncServiceHelper
           guarantorlastname: leo_parent.last_name,
           guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
-          guarantorrelationshiptopatient: 3 #3==child
+          guarantorrelationshiptopatient: 3, #3==child
+          contactname: contactname,
+          contactrelationship: contactrelationship,
+          contactmobilephone: contactmobilephone
           )
       end
 
