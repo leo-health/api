@@ -28,8 +28,6 @@ CarrierWave.configure do |config|
   config.aws_bucket = ENV['CARRIERWAVE_AWS_BUCKET']
 
   config.aws_credentials = {
-      access_key_id:     ENV['CARRIERWAVE_ACCESS_KEY_ID'],
-      secret_access_key: ENV['CARRIERWAVE_SECRET_ACCESS_KEY'],
-      region:            ENV['CARRIERWAVE_REGION']
+    region: ENV['CARRIERWAVE_REGION']
   }
 end
