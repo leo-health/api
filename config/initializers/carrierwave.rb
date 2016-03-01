@@ -33,7 +33,7 @@ CarrierWave.configure do |config|
   config.root = Rails.root.join 'tmp'
   config.aws_authenticated_url_expiration = 60 * 15
   config.aws_bucket = ENV['CARRIERWAVE_AWS_BUCKET']
-  config.aws_credentials = {}
-  config.aws_credentials['CARRIERWAVE_REGION'] = ENV['CARRIERWAVE_REGION']
-  
+  config.aws_credentials = {
+    region: ENV['CARRIERWAVE_REGION']
+  }
 end
