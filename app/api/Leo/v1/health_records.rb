@@ -51,7 +51,7 @@ module Leo
               :medications => meds
             }
 
-            present :phr, phr, with: Leo::Entities::PHREntity
+            present phr, with: Leo::Entities::PHREntity
           end
 
           namespace 'vitals' do
