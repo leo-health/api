@@ -41,6 +41,7 @@ gem 'rspec_junit_formatter', '0.2.2'
 gem 'figaro'
 gem 'unicorn'
 gem 'newrelic_rpm'
+gem 'useragent'
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
