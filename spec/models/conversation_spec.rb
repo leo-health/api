@@ -18,22 +18,6 @@ describe Conversation, type: :model do
     it { is_expected.to validate_presence_of(:state) }
   end
 
-  describe '.sort_conversations' do
-    let!(:open_conversation){ create(:conversation, state: :open, updated_at: 10.minutes.ago) }
-    let!(:latest_open_conversation){ create(:conversation, state: :open, updated_at: 5.minutes.ago) }
-    let!(:closed_conversation){ create(:conversation, updated_at: 10.minutes.ago) }
-    let!(:latest_closed_conversation){ create(:conversation, updated_at: 5.minutes.ago) }
-    let!(:escalated_conversation){ create(:conversation, state: :escalated, updated_at: 10.minutes.ago) }
-    let!(:latest_escalated_conversation){ create(:conversation, state: :escalated, updated_at: 5.minutes.ago) }
-
-    it "should sort the conversations by status filed in oepn, escalated, closed order, and updated_at filed in descending order" do
-      sorted_conversation = [ latest_open_conversation, open_conversation,
-                              latest_escalated_conversation, escalated_conversation,
-                              latest_closed_conversation, closed_conversation ]
-      expect( Conversation.sort_conversations ).to match_array( sorted_conversation )
-    end
-  end
-
   describe "state machines - conversations" do
     let(:open_conversation){ create(:conversation, state: :open) }
     let(:escalated_conversation){ create(:conversation, state: :escalated) }

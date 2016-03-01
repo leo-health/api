@@ -12,4 +12,29 @@ RSpec.describe AppointmentStatus, type: :model do
     it { is_expected.to validate_uniqueness_of(:description) }
     it { is_expected.to validate_uniqueness_of(:status) }
   end
+
+  describe ".cancelled" do
+    let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
+
+    it "should return cancelled appointment status" do
+      expect(AppointmentStatus.cancelled).to eq(cancelled_appointment_status)
+    end
+  end
+
+  describe ".future" do
+    let!(:future_appointment_status){ create(:appointment_status, :future) }
+
+    it "should return cancelled appointment status" do
+      expect(AppointmentStatus.future).to eq(future_appointment_status)
+    end
+  end
+
+  describe ".booked" do
+    let!(:future_appointment_status){ create(:appointment_status, :future) }
+    let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
+
+    it "should return booked appointment status" do
+      expect(AppointmentStatus.booked).to eq([future_appointment_status])
+    end
+  end
 end
