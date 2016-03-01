@@ -48,12 +48,6 @@ RSpec.describe Patient, type: :model do
   describe 'callbacks' do
     describe "after_commit" do
       it { expect(patient).to callback(:upgrade_guardian!).after(:commit).on(:create) }
-
-      it { expect(patient).to callback(:notify_guardian).after(:commit).on(:create) }
-
-      it "should notify guardian about child's sign up" do
-        expect( patient.family.conversation.messages.last.body ).to eq( "#{patient.first_name.capitalize} has been enrolled successfully" )
-      end
     end
   end
 
