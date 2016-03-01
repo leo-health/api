@@ -360,7 +360,7 @@ module SyncServiceHelper
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
       parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
 
-      leo_guardians = leo_patient.family.guardians
+      leo_guardians = leo_patient.family.guardians.order('created_at ASC')
 
       contactname = nil
       contactrelationship = nil
