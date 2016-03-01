@@ -91,18 +91,6 @@ describe User do
           expect{ user.confirm }.to change(Delayed::Job, :count).by(1)
         end
       end
-
-      context "for notify primary guardian about sencond guardian joined leo" do
-        before do
-          secondary_guardian.confirm
-        end
-
-        it { expect(secondary_guardian).to callback(:welcome_onboarding_notifications).after(:update) }
-
-        it "should create a message" do
-          expect( user.family.conversation.messages.last.body ).to eq("#{secondary_guardian.first_name} has joined Leo")
-        end
-      end
     end
 
     describe "after commit on create" do
