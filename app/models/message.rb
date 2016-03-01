@@ -48,11 +48,10 @@ class Message < ActiveRecord::Base
   private
 
   def actions_after_message_sent
-    set_last_message_created_at
     return if ( sender.has_role?(:bot) || initial_welcome_message? )
     update_conversation_after_message_sent
     sms_cs_user
-    send_new_message_notification
+    send_new_message_apns_notification
     unread_message_reminder_email
   end
 
@@ -65,12 +64,13 @@ class Message < ActiveRecord::Base
   end
 
   def update_conversation_after_message_sent
+    set_last_message_created_at
     conversation.staff << sender unless ( sender.has_role? :guardian ) || ( conversation.staff.where(id: sender.id).exists? )
     conversation.user_conversations.update_all(read: false)
     conversation.open!
   end
 
-  def send_new_message_notification
+  def send_new_message_apns_notification
     apns = ApnsNotification.new
     guardians_to_notify = conversation.family.guardians.includes(:sessions).where.not(id: sender.id)
     guardians_to_notify.each do |guardian|
