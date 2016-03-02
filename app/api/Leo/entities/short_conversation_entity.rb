@@ -24,7 +24,7 @@ module Leo
       end
 
       def last_message
-        object.messages.order('created_at DESC').first.body || '[image]'
+        object.messages.order('created_at DESC').first.try(:body) || '[image]'
       end
     end
   end
