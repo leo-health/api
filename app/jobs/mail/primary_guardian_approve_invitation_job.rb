@@ -7,4 +7,8 @@ class PrimaryGuardianApproveInvitationJob < Struct.new(:primary_guardian_id, :en
     user = User.find_by_id(primary_guardian_id)
     UserMailer.primary_guardian_approve_invitation(user, enrollment_auth_token).deliver if user
   end
+
+  def queue_name
+    'registration_email'
+  end
 end

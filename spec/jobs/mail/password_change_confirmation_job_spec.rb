@@ -13,7 +13,7 @@ describe PasswordChangeConfirmationJob do
 
   describe "#send" do
     it "should send email to user via delayed_job" do
-      expect{ PasswordChangeConfirmationJob.send(user.id) }.to change(Delayed::Job, :count).by(1)
+      expect{ PasswordChangeConfirmationJob.send(user.id) }.to change(Delayed::Job.where(queue: 'registration_email'), :count).by(1)
     end
   end
 end
