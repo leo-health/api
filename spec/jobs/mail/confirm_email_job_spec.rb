@@ -13,7 +13,7 @@ describe ConfirmEmailJob do
 
   describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ ConfirmEmailJob.send(user.id, "test_token") }.to change(Delayed::Job, :count).by(1)
+      expect{ ConfirmEmailJob.send(user.id, "test_token") }.to change(Delayed::Job.where(queue: 'registration_email'), :count).by(1)
     end
   end
 end

@@ -14,7 +14,7 @@ describe SameDayAppointmentReminderJob do
 
   describe "#send" do
     it "should send email to user via delayed_job" do
-      expect{ SameDayAppointmentReminderJob.send(user.id, appointment.id) }.to change(Delayed::Job, :count).by(1)
+      expect{ SameDayAppointmentReminderJob.send(user.id, appointment.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
     end
   end
 end

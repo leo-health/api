@@ -7,4 +7,8 @@ class AccountConfirmationReminderJob < Struct.new(:user_id)
     user = User.find_by_id(user_id)
     UserMailer.account_confirmation_reminder(user).deliver if user
   end
+
+  def queue_name
+    'notification_email'
+  end
 end
