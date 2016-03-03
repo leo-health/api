@@ -67,10 +67,10 @@ module AthenaHealthApiHelper
     end
 
     def initialize(
-      key: ENV["ATHENA_KEY"], 
-      secret: ENV["ATHENA_SECRET"], 
-      version: ENV["ATHENA_VERSION"].to_s.empty? ? "preview1" : ENV["ATHENA_VERSION"], 
-      practice_id: ENV["ATHENA_PRACTICE_ID"].to_s.empty? ? "11060" : ENV["ATHENA_PRACTICE_ID"],
+      key: ENV["ATHENA_KEY"],
+      secret: ENV["ATHENA_SECRET"],
+      version: ENV["ATHENA_VERSION"].to_s.empty? ? "preview1" : ENV["ATHENA_VERSION"],
+      practice_id: ENV["ATHENA_PRACTICE_ID"].to_s.empty? ? "13092" : ENV["ATHENA_PRACTICE_ID"],
       connection: AthenaHealthAPI::Connection.new(version, key, secret, practice_id))
 
       @connection = connection
@@ -234,7 +234,7 @@ module AthenaHealthApiHelper
       if parsed[:next.to_s]
         entries.concat(
           get_paged(url: url,
-            params: params, headers: headers, field: field, offset: offset + limit, 
+            params: params, headers: headers, field: field, offset: offset + limit,
             limit: limit, structize: structize))
       end
 
@@ -244,13 +244,13 @@ module AthenaHealthApiHelper
     # get a list of available appointment types
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_appointment_types(hidegeneric: false, 
+    def get_appointment_types(hidegeneric: false,
       hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 5000)
 
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
-        url: "/appointmenttypes", params: params, 
+        url: "/appointmenttypes", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :appointmenttypes, limit: limit)
     end
 
@@ -258,13 +258,13 @@ module AthenaHealthApiHelper
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     # todo: do we need separate calls for existing vs new patients
-    def get_appointment_reasons(departmentid: , 
+    def get_appointment_reasons(departmentid: ,
       providerid: , limit: 5000)
 
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
-        url: "/patientappointmentreasons", params: params, 
+        url: "/patientappointmentreasons", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :patientappointmentreasons, limit: limit)
     end
 
@@ -279,7 +279,7 @@ module AthenaHealthApiHelper
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
-        url: "/appointments/open", params: params, 
+        url: "/appointments/open", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
     end
 
@@ -290,13 +290,13 @@ module AthenaHealthApiHelper
       appointmenttypeid: nil, departmentid: , enddate: , endlastmodified: nil,
       ignorerestrictions: true, patientid: nil, providerid: nil, scheduledenddate: nil,
       scheduledstartdate: nil, showcancelled: true, showclaimdetail: false, showcopay: true,
-      showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil, 
+      showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil,
       limit: 5000)
 
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
-        url: "/appointments/booked", params: params, 
+        url: "/appointments/booked", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
     end
 
@@ -305,7 +305,7 @@ module AthenaHealthApiHelper
       params = Hash[method(__callee__).parameters.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
-        url: "patients", params: params, 
+        url: "patients", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :patients)
     end
 
@@ -377,7 +377,7 @@ module AthenaHealthApiHelper
         raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
 
         result = JSON.parse(response.body)
-        
+
         return nil if result.empty?
         return AthenaStruct.new(result[0])
     end
@@ -467,10 +467,10 @@ module AthenaHealthApiHelper
 
       params = {}
       params[:departmentid] = departmentid
-      params[:source] = "ENCOUNTER"      
+      params[:source] = "ENCOUNTER"
 
       return get_paged(
-        url: "chart/#{patientid}/vitals", params: params, 
+        url: "chart/#{patientid}/vitals", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :vitals)
     end
 
@@ -480,7 +480,7 @@ module AthenaHealthApiHelper
       params[:departmentid] = departmentid
 
       return get_paged(
-        url: "chart/#{patientid}/vaccines", params: params, 
+        url: "chart/#{patientid}/vaccines", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :vaccines)
     end
 
@@ -535,7 +535,7 @@ module AthenaHealthApiHelper
       params = {}
 
       return get_paged(
-        url: "patients/#{patientid}/insurances", params: params, 
+        url: "patients/#{patientid}/insurances", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :insurances)
     end
   end
