@@ -38,7 +38,7 @@ class Message < ActiveRecord::Base
       channels.each_slice(10) do |slice|
         begin
           Pusher.trigger(slice, 'new_message', {message_id: message_id, conversation_id: conversation.id})
-        rescue
+        rescue Pusher::Error => e
           Rails.logger.error "Pusher error: #{e.message}"
         end
       end
