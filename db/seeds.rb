@@ -4,7 +4,7 @@ practices_seed = [
     {
         id: 1,
         athena_id: 1,
-        name: "Leo @ Flatiron",
+        name: "Flatiron Pediatrics",
         address_line_1: "27 E 22nd St",
         address_line_2: "",
         city: "New York",
