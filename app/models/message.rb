@@ -29,18 +29,13 @@ class Message < ActiveRecord::Base
   end
 
   def broadcast_message(sender)
-    message_id = id
-    conversation = self.conversation
-    participants = (conversation.staff + conversation.family.guardians)
-    participants.delete(sender)
+    participants = conversation.family.guardians.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "private-#{user.id}"; channels}
-      channels.each_slice(10) do |slice|
-        begin
-          Pusher.trigger(slice, 'new_message', {message_id: message_id, conversation_id: conversation.id})
-        rescue
-          Rails.logger.error "Pusher error: #{e.message}"
-        end
+      begin
+        Pusher.trigger(channels, 'new_message', {message_id: id, conversation_id: conversation.id})
+      rescue Pusher::Error => e
+        Rails.logger.error "Pusher error: #{e.message}"
       end
     end
   end
@@ -48,11 +43,20 @@ class Message < ActiveRecord::Base
   private
 
   def actions_after_message_sent
+    broadcast_message_by_conversation
     return if ( sender.has_role?(:bot) || initial_welcome_message? )
     update_conversation_after_message_sent
     sms_cs_user
     send_new_message_apns_notification
     unread_message_reminder_email
+  end
+
+  def broadcast_message_by_conversation
+    begin
+      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', {message_id: id, conversation_id: conversation.id})
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
+    end
   end
 
   def initial_welcome_message?
