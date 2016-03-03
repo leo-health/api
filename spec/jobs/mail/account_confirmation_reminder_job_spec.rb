@@ -3,7 +3,7 @@ require 'mandrill_mailer/offline'
 
 describe AccountConfirmationReminderJob do
   let!(:user){create(:user)}
-  let!(:account_confirmation_reminder_job){AccountConfirmationReminderJob.new(user.id)}
+  let!(:account_confirmation_reminder_job){ AccountConfirmationReminderJob.new(user.id) }
 
   describe "#perform" do
     it "should send the email via mandrill mailer" do
@@ -13,7 +13,7 @@ describe AccountConfirmationReminderJob do
 
   describe "#send" do
     it "should send email to user via delayed_job" do
-      expect{ AccountConfirmationReminderJob.send(user.id) }.to change(Delayed::Job, :count).by(1)
+      expect{ AccountConfirmationReminderJob.send(user.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
     end
   end
 end

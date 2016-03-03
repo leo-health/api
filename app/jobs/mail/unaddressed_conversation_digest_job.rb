@@ -7,4 +7,8 @@ class UnaddressedConversationDigestJob < Struct.new(:user_id, :count, :state)
     user = User.find_by_id(user_id)
     UserMailer.unaddressed_conversations_digest(user, count, state).deliver if user
   end
+
+  def queue_name
+    'notification_email'
+  end
 end

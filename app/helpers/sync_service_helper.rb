@@ -322,6 +322,27 @@ module SyncServiceHelper
       return leo_patient
     end
 
+    def get_best_match_patient(leo_patient)
+      leo_parent = leo_patient.family.primary_guardian
+      patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
+
+      #search by phone first
+      athena_patient = @connector.get_best_match_patient(
+        firstname: leo_patient.first_name, 
+        lastname: leo_patient.last_name, 
+        dob: patient_birth_date,
+        anyphone: leo_parent.phone) if leo_parent.phone
+
+      #search by email
+      athena_patient = @connector.get_best_match_patient(
+        firstname: leo_patient.first_name, 
+        lastname: leo_patient.last_name, 
+        dob: patient_birth_date,
+        guarantoremail: leo_parent.email) unless athena_patient
+
+      athena_patient
+    end
+
     #sync patient
     #SyncTask.sync_id = User.id
     #creates an instance of HealthRecord model if one does not exist, and then updates the patient in Athena
@@ -339,23 +360,54 @@ module SyncServiceHelper
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
       parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
 
+      leo_guardians = leo_patient.family.guardians.order('created_at ASC')
+
+      contactname = nil
+      contactrelationship = nil
+      contactmobilephone = nil
+
+      if leo_guardians.size >= 2
+        contactname = "#{leo_guardians[1].first_name} #{leo_guardians[1].last_name}"
+        contactrelationship = "GUARDIAN"
+        contactmobilephone = leo_guardians[1].phone
+      end
+
       if leo_patient.athena_id == 0
-        #create patient
-        leo_patient.athena_id = @connector.create_patient(
-          departmentid: leo_parent.practice.athena_id,
-          firstname: leo_patient.first_name,
-          middlename: leo_patient.middle_initial.to_s,
-          lastname: leo_patient.last_name,
-          sex: leo_patient.sex,
-          dob: patient_birth_date,
-          guarantorfirstname: leo_parent.first_name,
-          guarantormiddlename: leo_parent.middle_initial.to_s,
-          guarantorlastname: leo_parent.last_name,
-          guarantordob: parent_birth_date,
-          guarantoremail: leo_parent.email,
-          guarantorrelationshiptopatient: 3 #3==child
-          ).to_i
-        leo_patient.save!
+        #look existing athena patient with same info
+        athena_patient = get_best_match_patient(leo_patient)
+
+        if athena_patient
+          raise "patient.id #{leo_patient.id} has a best match in Athena (athena_id: #{athena_patient.patientid}), but that match is already connected to another patient" unless Patient.where(athena_id: athena_patient.patientid.to_i).empty?
+        
+          SyncService.configuration.logger.info("Syncer: connecting patient.id=#{leo_patient.id} to athena patient.id=#{athena_patient.patientid}")
+
+          #use existing patient
+          leo_patient.athena_id = athena_patient.patientid.to_i
+          leo_patient.save!
+        else          
+          SyncService.configuration.logger.info("Syncer: creating new Athena patient for leo patient.id=#{leo_patient.id}")
+
+          #create new patient
+          leo_patient.athena_id = @connector.create_patient(
+            departmentid: leo_parent.practice.athena_id,
+            firstname: leo_patient.first_name,
+            middlename: leo_patient.middle_initial.to_s,
+            lastname: leo_patient.last_name,
+            sex: leo_patient.sex,
+            dob: patient_birth_date,
+            guarantorfirstname: leo_parent.first_name,
+            guarantormiddlename: leo_parent.middle_initial.to_s,
+            guarantorlastname: leo_parent.last_name,
+            guarantordob: parent_birth_date,
+            guarantoremail: leo_parent.email,
+            guarantorrelationshiptopatient: 3, #3==child
+            contactname: contactname,
+            contactrelationship: contactrelationship,
+            contactmobilephone: contactmobilephone
+            ).to_i
+
+          leo_patient.save!
+        end
       else
         #update patient
         @connector.update_patient(
@@ -371,7 +423,10 @@ module SyncServiceHelper
           guarantorlastname: leo_parent.last_name,
           guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
-          guarantorrelationshiptopatient: 3 #3==child
+          guarantorrelationshiptopatient: 3, #3==child
+          contactname: contactname,
+          contactrelationship: contactrelationship,
+          contactmobilephone: contactmobilephone
           )
       end
 

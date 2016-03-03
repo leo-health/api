@@ -82,9 +82,13 @@ class Conversation < ActiveRecord::Base
 
   private
 
+  MESSAGE_BODY = "Welcome to Flatiron Pediatrics! My name is Catherine and I run the office here at Flatiron Peds. If
+                  you ever need to reach us with questions, concerns or requests, feel free to use this messaging
+                  channel and we'll get back to you right away."
+
   def load_initial_message
-    if sender = User.customer_service_user
-       messages.create( body: "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time.",
+    if sender = User.find_by_email('catherine@flatironpediatrics.com')
+       messages.create( body: MESSAGE_BODY,
                         sender: sender,
                         type_name: :text
                        )
