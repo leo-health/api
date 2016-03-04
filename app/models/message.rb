@@ -29,18 +29,13 @@ class Message < ActiveRecord::Base
   end
 
   def broadcast_message(sender)
-    message_id = id
-    conversation = self.conversation
-    participants = (conversation.staff + conversation.family.guardians)
-    participants.delete(sender)
+    participants = conversation.family.guardians.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "private-#{user.id}"; channels}
-      channels.each_slice(10) do |slice|
-        begin
-          Pusher.trigger(slice, 'new_message', {message_id: message_id, conversation_id: conversation.id})
-        rescue Pusher::Error => e
-          Rails.logger.error "Pusher error: #{e.message}"
-        end
+      begin
+        Pusher.trigger(channels, 'new_message', {message_id: id, conversation_id: conversation.id})
+      rescue Pusher::Error => e
+        Rails.logger.error "Pusher error: #{e.message}"
       end
     end
   end
@@ -59,7 +54,7 @@ class Message < ActiveRecord::Base
 
   def broadcast_message_by_conversation
     begin
-      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', {message_id: id, conversation_id: conversation.id})
+      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', {message_id: id, conversation_id: conversation.id, sender_id: sender.id})
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end

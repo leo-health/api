@@ -5,7 +5,7 @@ class EscalationNote < ActiveRecord::Base
 
   validates :conversation, :escalated_by, :escalated_to, :priority, presence: true
 
-  after_commit :notify_escalatee, on: :create
+  after_commit :notify_escalatee, :broadcast_escalation_note, on: :create
 
   def active?
     created_at > conversation.last_closed_at
@@ -19,8 +19,7 @@ class EscalationNote < ActiveRecord::Base
 
   def broadcast_escalation_note
     note_params = { message_type: :escalation,
-                    created_by: escalated_by,
-                    escalated_to: escalated_to,
+                    escalated_by_id: escalated_by.id,
                     id: id }
     begin
       Pusher.trigger("private-conversation#{conversation.id}", 'new_state', note_params)
