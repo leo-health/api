@@ -14,15 +14,18 @@ class EscalationNote < ActiveRecord::Base
   private
 
   def notify_escalatee
-    NotifyEscalatedConversationJob.send(escalated_to.id) if send_email?
-    SendSmsJob.send(escalated_to.id, escalated_by.id, :escalation, Time.now.to_s) if send_sms?
+    NotifyEscalatedConversationJob.send(escalated_to.id)
   end
 
-  def send_sms?
-    priority == 1 || escalated_to.practice.try(:in_office_hour?)
-  end
-
-  def send_email?
-    priority == 1 && !escalated_to.practice.try(:in_office_hour?)
+  def broadcast_escalation_note
+    note_params = { message_type: :escalation,
+                    created_by: escalated_by,
+                    escalated_to: escalated_to,
+                    id: id }
+    begin
+      Pusher.trigger("private-conversation#{conversation.id}", 'new_state', note_params)
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
+    end
   end
 end
