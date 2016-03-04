@@ -4,14 +4,14 @@ practices_seed = [
     {
         id: 1,
         athena_id: 1,
-        name: "Leo @ Chelsea",
-        address_line_1: "33w 17th St",
-        address_line_2: "5th floor",
+        name: "Flatiron Pediatrics",
+        address_line_1: "27 E 22nd St",
+        address_line_2: "",
         city: "New York",
         state: "NY",
         zip: "10011",
-        fax: "10543",
-        phone: "101-101-1001",
+        fax: "",
+        phone: "212-460-5600",
         email: "info@leohealth.com",
         time_zone: "Eastern Time (US & Canada)"
     }
@@ -86,12 +86,12 @@ staff = [
     },
 
     provider_sync_profile_attributes: {
-      athena_id: 3,
+      athena_id: 1,
       athena_department_id: 1
     },
 
     provider_schedule_attributes: {
-      athena_provider_id: 3,
+      athena_provider_id: 1,
       description: "Default Schedule",
       active: true,
       monday_start_time: "09:00",
@@ -131,12 +131,12 @@ staff = [
     },
 
     provider_sync_profile_attributes: {
-      athena_id: 4,
+      athena_id: 3,
       athena_department_id: 1
     },
 
     provider_schedule_attributes: {
-      athena_provider_id: 4,
+      athena_provider_id: 3,
       description: "Default Schedule",
       active: true,
       monday_start_time: "09:00",
@@ -357,36 +357,36 @@ end
 appointment_types_seed = [
   {
     id: 1,
-    athena_id: 43,
+    athena_id: 10,
     name: "Sick Visit",
-    duration: 20,
+    duration: 10,
     short_description: "New symptom",
     long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
   },
 
   {
     id: 2,
-    athena_id: 44,
+    athena_id: 12,
     name: "Follow Up Visit",
-    duration: 20,
+    duration: 10,
     short_description: "Unresolved illness or chronic condition",
     long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
   },
 
   {
     id: 3,
-    athena_id: 45,
+    athena_id: 8,
     name: "Immunization / Lab Visit",
-    duration: 20,
+    duration: 10,
     short_description: "Flu shot or scheduled vaccine",
     long_description: "A visit with a nurse to get one or more immunizations."
   },
 
   {
     id: 4,
-    athena_id: 46,
+    athena_id: 11,
     name: "Well Visit",
-    duration: 30,
+    duration: 20,
     short_description: "Regular check-up",
     long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
   }

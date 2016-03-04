@@ -23,17 +23,16 @@ CarrierWave.configure do |config|
     config.storage = :aws
   end
 
+  config.aws_credentials = {
+    region: ENV['CARRIERWAVE_REGION']
+  }
+
   if Rails.env.development?
-    config.aws_credentials = {
-        access_key_id:     ENV['CARRIERWAVE_ACCESS_KEY_ID'],
-        secret_access_key: ENV['CARRIERWAVE_SECRET_ACCESS_KEY']
-    }
+    config.aws_credentials[:access_key_id] = ENV['CARRIERWAVE_ACCESS_KEY_ID']
+    config.aws_credentials[:secret_access_key] = ENV['CARRIERWAVE_SECRET_ACCESS_KEY']
   end
 
   config.root = Rails.root.join 'tmp'
   config.aws_authenticated_url_expiration = 60 * 15
   config.aws_bucket = ENV['CARRIERWAVE_AWS_BUCKET']
-  config.aws_credentials = {
-    region: ENV['CARRIERWAVE_REGION']
-  }
 end

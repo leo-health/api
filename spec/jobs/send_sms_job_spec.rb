@@ -28,7 +28,7 @@ describe SendSmsJob do
 
   describe '.send' do
     it "should enqueue job, set cool down period and unpause schedule sms job" do
-      expect{ SendSmsJob.send(customer_service_user.id, sender.id, :batched, Time.now.to_s) }.to change(Delayed::Job, :count).by(1)
+      expect{ SendSmsJob.send(customer_service_user.id, sender.id, :batched, Time.now.to_s) }.to change(Delayed::Job.where(queue: 'sms_notification'), :count).by(1)
     end
   end
 end

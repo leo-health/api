@@ -13,7 +13,7 @@ describe WelcomeToPracticeJob do
 
   describe "#send" do
     it "should send email to user via delayed_job" do
-      expect{ WelcomeToPracticeJob.send(user.id) }.to change(Delayed::Job, :count).by(1)
+      expect{ WelcomeToPracticeJob.send(user.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
     end
   end
 end

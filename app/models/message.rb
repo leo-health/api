@@ -38,7 +38,7 @@ class Message < ActiveRecord::Base
       channels.each_slice(10) do |slice|
         begin
           Pusher.trigger(slice, 'new_message', {message_id: message_id, conversation_id: conversation.id})
-        rescue
+        rescue Pusher::Error => e
           Rails.logger.error "Pusher error: #{e.message}"
         end
       end
@@ -57,7 +57,7 @@ class Message < ActiveRecord::Base
   end
 
   def initial_welcome_message?
-    body == "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time."
+    body == "Welcome! My name is Catherine and I run the office here at Flatiron Pediatrics. If you ever need to reach us with questions, concerns or requests, feel free to use this messaging channel and we'll get back to you right away."
   end
 
   def set_last_message_created_at

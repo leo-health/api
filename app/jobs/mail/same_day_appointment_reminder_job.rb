@@ -8,4 +8,8 @@ class SameDayAppointmentReminderJob < Struct.new(:user_id, :appointment_id)
     appointment = Appointment.find_by_id(appointment_id)
     UserMailer.same_day_appointment_reminder(user, appointment).deliver if user && appointment
   end
+
+  def queue_name
+    'notification_email'
+  end
 end
