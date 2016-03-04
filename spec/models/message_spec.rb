@@ -99,6 +99,23 @@ RSpec.describe Message, type: :model do
           expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now  + 1.minute).to_s )
         end
       end
+
+      context "office is closed" do
+        before do
+          time = Time.now
+          time = Time.new(time.year, time.month, time.day)
+          Timecop.freeze time
+        end
+
+        after do
+          Timecop.return
+        end
+
+        it "should autoreply with a message from leo_bot" do
+          message = create_message
+          expect( conversation.reload.messages.last.sender ).to eq(User.leo_bot)
+        end
+      end
     end
   end
 
