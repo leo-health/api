@@ -29,18 +29,13 @@ class Message < ActiveRecord::Base
   end
 
   def broadcast_message(sender)
-    message_id = id
-    conversation = self.conversation
-    participants = (conversation.staff + conversation.family.guardians)
-    participants.delete(sender)
+    participants = conversation.family.guardians.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "private-#{user.id}"; channels}
-      channels.each_slice(10) do |slice|
-        begin
-          Pusher.trigger(slice, 'new_message', {message_id: message_id, conversation_id: conversation.id})
-        rescue Pusher::Error => e
-          Rails.logger.error "Pusher error: #{e.message}"
-        end
+      begin
+        Pusher.trigger(channels, 'new_message', {message_id: id, conversation_id: conversation.id})
+      rescue Pusher::Error => e
+        Rails.logger.error "Pusher error: #{e.message}"
       end
     end
   end
@@ -48,12 +43,20 @@ class Message < ActiveRecord::Base
   private
 
   def actions_after_message_sent
-    set_last_message_created_at
+    broadcast_message_by_conversation
     return if ( sender.has_role?(:bot) || initial_welcome_message? )
     update_conversation_after_message_sent
     sms_cs_user
-    send_new_message_notification
+    send_new_message_apns_notification
     unread_message_reminder_email
+  end
+
+  def broadcast_message_by_conversation
+    begin
+      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', {message_id: id, conversation_id: conversation.id})
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
+    end
   end
 
   def initial_welcome_message?
@@ -65,12 +68,13 @@ class Message < ActiveRecord::Base
   end
 
   def update_conversation_after_message_sent
+    set_last_message_created_at
     conversation.staff << sender unless ( sender.has_role? :guardian ) || ( conversation.staff.where(id: sender.id).exists? )
     conversation.user_conversations.update_all(read: false)
     conversation.open!
   end
 
-  def send_new_message_notification
+  def send_new_message_apns_notification
     apns = ApnsNotification.new
     guardians_to_notify = conversation.family.guardians.includes(:sessions).where.not(id: sender.id)
     guardians_to_notify.each do |guardian|
