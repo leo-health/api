@@ -16,6 +16,10 @@ class SendSmsJob < Struct.new(:receiver_id, :sender_id, :sms_type, :run_at)
     unpause_schedule_sms_jobs(receiver_id)
   end
 
+  def queue_name
+    'sms_notification'
+  end
+
   private
 
   def message_body(sender_id, run_at)

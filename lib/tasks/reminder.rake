@@ -14,7 +14,7 @@ namespace :notification do
   desc "send user a reminder for his appointment today"
   task one_day_prior_appointment: :environment do
     Appointment.where(start_datetime: Time.now.utc..1.day.from_now.utc).find_each do |appointment|
-      created_job = SameDayAppointmentReminderJob.send(appointment.booked_by.id)
+      created_job = SameDayAppointmentReminderJob.send(appointment.booked_by.id, appointment.id)
       if created_job.valid?
         print "*"
       else

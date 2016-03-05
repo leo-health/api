@@ -10,7 +10,7 @@ module Leo
         end
 
         get do
-          present AppointmentType.all, with: Leo::Entities::AppointmentTypeEntity
+          present AppointmentType.order("lower(name) DESC").all, with: Leo::Entities::AppointmentTypeEntity
         end
       end
     end

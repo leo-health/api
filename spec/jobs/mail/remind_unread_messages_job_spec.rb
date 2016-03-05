@@ -12,9 +12,9 @@ describe RemindUnreadMessagesJob do
     end
   end
 
-  describe "#send" do
+  describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ RemindUnreadMessagesJob.send(user.id, message.id) }.to change(Delayed::Job, :count).by(1)
+      expect{ RemindUnreadMessagesJob.send(user.id, message.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
     end
   end
 end

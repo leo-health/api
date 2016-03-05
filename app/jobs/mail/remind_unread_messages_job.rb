@@ -15,6 +15,10 @@ class RemindUnreadMessagesJob < Struct.new(:user_id, :staff_message_id)
     end
   end
 
+  def queue_name
+    'notification_email'
+  end
+
   private
 
   def guardian_not_response?(staff_message, guardian)
