@@ -10,10 +10,10 @@ class ClosureNote < ActiveRecord::Base
 
   def broadcast_closure_note
     note_params = { message_type: :close,
-                    closed_by_id: closed_by.id,
+                    sender_id: closed_by.id,
                     id: id }
     begin
-      Pusher.trigger("private-conversation#{conversation.id}", 'new_state', note_params)
+      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', note_params)
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end

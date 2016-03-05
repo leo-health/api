@@ -19,10 +19,10 @@ class EscalationNote < ActiveRecord::Base
 
   def broadcast_escalation_note
     note_params = { message_type: :escalation,
-                    escalated_by_id: escalated_by.id,
+                    sender_id: escalated_by.id,
                     id: id }
     begin
-      Pusher.trigger("private-conversation#{conversation.id}", 'new_state', note_params)
+      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', note_params)
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end

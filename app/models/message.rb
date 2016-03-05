@@ -69,7 +69,9 @@ class Message < ActiveRecord::Base
 
   def broadcast_message_by_conversation
     begin
-      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', {message_id: id, conversation_id: conversation.id, sender_id: sender.id})
+      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', {id: id,
+                                                                               message_type: :message,
+                                                                               sender_id: sender.id})
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end
