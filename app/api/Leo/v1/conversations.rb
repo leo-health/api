@@ -22,7 +22,7 @@ module Leo
               present :conversation_id, conversation.id
               present :created_by, current_user
               present :note, params[:note]
-              present :message_type, 'ClosureNote'
+              present :message_type, :close
             else
               error!({error_code: 422, error_message: "can't close the conversation" }, 422)
             end
@@ -47,7 +47,7 @@ module Leo
               present :note, params[:note]
               present :conversation_id, conversation.id
               present :created_by, current_user
-              present :message_type, 'EscalationNote'
+              present :message_type, :escalation
             else
               error!({error_code: 422, error_message: "can't escalte the conversation" }, 422)
             end
