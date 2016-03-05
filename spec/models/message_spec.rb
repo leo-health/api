@@ -102,9 +102,8 @@ RSpec.describe Message, type: :model do
 
       context "office is closed" do
         before do
-          time = Time.now
-          time = Time.new(time.year, time.month, time.day)
-          Timecop.freeze time
+          offwork_time = Time.local(2016, 3, 4, 23, 0, 0)
+          Timecop.freeze(offwork_time)
         end
 
         after do
@@ -112,8 +111,8 @@ RSpec.describe Message, type: :model do
         end
 
         it "should autoreply with a message from leo_bot" do
-          message = create_message
-          expect( conversation.reload.messages.last.sender ).to eq(User.leo_bot)
+          create_message
+          expect( conversation.messages.last.sender ).to eq(User.leo_bot)
         end
       end
     end

@@ -42,7 +42,9 @@ module Leo
 
           desc "Return all messages for a conversation with pagination options"
           get do
+            byebug
             messages = @conversation.messages.order('created_at DESC')
+            byebug
             authorize! :read, Message
             present paginate(messages), with: Leo::Entities::MessageEntity, device_type: session_device_type
           end
