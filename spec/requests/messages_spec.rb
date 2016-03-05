@@ -10,7 +10,7 @@ describe Leo::V1::Messages do
 
   before do
     in_hour_time = Time.local(2016, 3, 4, 12, 0, 0)
-    Timecop.freeze(in_hour_time)
+    Timecop.travel(in_hour_time)
   end
 
   after do
@@ -37,14 +37,13 @@ describe Leo::V1::Messages do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      byebug
       expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
     end
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
     let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: Time.now)}
-    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: Time.now + 1.minutes)}
+    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: Time.now)}
 
     def do_request
       get "/api/v1/conversations/#{conversation.id}/messages?per_page=2&page=1", { authentication_token: session.authentication_token }

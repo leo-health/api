@@ -59,6 +59,15 @@ RSpec.describe Message, type: :model do
       end
 
       context "on update conversation information" do
+        before do
+          in_hour_time = Time.local(2016, 3, 4, 12, 0, 0)
+          Timecop.travel(in_hour_time)
+        end
+
+        after do
+          Timecop.return
+        end
+
         it "should set or update last_message_created field on conversation" do
           message = create_message
           expect( conversation.reload.last_message_created_at.to_s ).to eq(message.created_at.to_s)
