@@ -3,11 +3,19 @@ require 'rails_helper'
 
 describe Leo::V1::Messages do
   let!(:bot){create(:user, :bot)}
-  let!(:customer_service){ create(:user, :customer_service) }
   let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
   let!(:conversation){ user.family.conversation }
   let(:serializer){ Leo::Entities::MessageEntity }
+
+  before do
+    in_hour_time = Time.new(2016, 3, 4, 12, 0, 0, "-05:00")
+    Timecop.travel(in_hour_time)
+  end
+
+  after do
+    Timecop.return
+  end
 
   describe "Get /api/v1/conversations/:conversation_id/messages/full" do
     let!(:first_message){conversation.messages.create(body: "message1", type_name: "text", sender: user)}
