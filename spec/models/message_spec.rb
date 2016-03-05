@@ -60,7 +60,7 @@ RSpec.describe Message, type: :model do
 
       context "on update conversation information" do
         before do
-          in_hour_time = Time.local(2016, 3, 4, 12, 0, 0)
+          in_hour_time = Time.new(2016, 3, 4, 12, 0, 0, "-05:00")
           Timecop.travel(in_hour_time)
         end
 
@@ -111,7 +111,7 @@ RSpec.describe Message, type: :model do
 
       context "office is closed" do
         before do
-          offwork_time = Time.local(2016, 3, 4, 23, 0, 0)
+          offwork_time = Time.new(2016, 3, 4, 23, 0, 0, "-05:00")
           Timecop.freeze(offwork_time)
         end
 
