@@ -326,19 +326,29 @@ module SyncServiceHelper
       leo_parent = leo_patient.family.primary_guardian
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
 
-      #search by phone first
-      athena_patient = @connector.get_best_match_patient(
-        firstname: leo_patient.first_name, 
-        lastname: leo_patient.last_name, 
-        dob: patient_birth_date,
-        anyphone: leo_parent.phone) if leo_parent.phone
+      athena_patient = nil
 
-      #search by email
-      athena_patient = @connector.get_best_match_patient(
-        firstname: leo_patient.first_name, 
-        lastname: leo_patient.last_name, 
-        dob: patient_birth_date,
-        guarantoremail: leo_parent.email) unless athena_patient
+      begin
+        #search by phone first
+        athena_patient = @connector.get_best_match_patient(
+          firstname: leo_patient.first_name, 
+          lastname: leo_patient.last_name, 
+          dob: patient_birth_date,
+          anyphone: leo_parent.phone.gsub(/[^\d,\.]/, '')) if leo_parent.phone
+      rescue => e
+        SyncService.configuration.logger.info "bestmatch lookup by phone failed"
+      end
+
+      begin
+        #search by email
+        athena_patient = @connector.get_best_match_patient(
+          firstname: leo_patient.first_name, 
+          lastname: leo_patient.last_name, 
+          dob: patient_birth_date,
+          guarantoremail: leo_parent.email) unless athena_patient
+      rescue => e
+        SyncService.configuration.logger.info "bestmatch lookup by email failed"
+      end
 
       athena_patient
     end

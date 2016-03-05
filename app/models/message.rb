@@ -29,7 +29,8 @@ class Message < ActiveRecord::Base
   end
 
   def broadcast_message(sender)
-    participants = conversation.family.guardians.delete(sender)
+    participants = conversation.family.guardians.to_a
+    participants.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "private-#{user.id}"; channels}
       begin
@@ -50,6 +51,20 @@ class Message < ActiveRecord::Base
     sms_cs_user
     send_new_message_notification
     unread_message_reminder_email
+    send_auto_reply_if_needed
+  end
+
+  def send_auto_reply_if_needed
+    if sender.guardian? && !sender.practice.in_office_hour?
+      phone_number = sender.practice.phone
+      message = Message.create( sender: User.leo_bot,
+                                type_name: 'text',
+                                conversation: conversation,
+                                body: "Hi #{sender.first_name}, our office is closed at the moment. If this is an emergency, please call 911 right away. If you need clinical assistance tonight, you can call our nurse line at #{phone_number}. For all other issues, we’ll get back to you first thing in the morning"
+                               )
+
+      message.broadcast_message(message.sender) if message.valid?
+    end
   end
 
   def broadcast_message_by_conversation
