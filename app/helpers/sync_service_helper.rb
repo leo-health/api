@@ -171,7 +171,7 @@ module SyncServiceHelper
           provider: provider_sync_profile.provider,
           appointment_type: appointment_type,
           duration: appt.duration,
-          start_datetime: Date.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
+          start_datetime: DateTime.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
           sync_updated_at: DateTime.now,
           athena_id: appt.appointmentid.to_i
         )
@@ -273,7 +273,7 @@ module SyncServiceHelper
         leo_appt.provider_id = provider_sync_profile.provider_id
         leo_appt.appointment_type_id = appointment_type.id
         leo_appt.duration = athena_appt.duration.to_i
-        leo_appt.start_datetime = Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")
+        leo_appt.start_datetime = DateTime.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")
         leo_appt.athena_id = athena_appt.appointmentid.to_i
 
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
@@ -507,7 +507,7 @@ module SyncServiceHelper
         leo_allergy.patient_id = leo_patient.id
         leo_allergy.athena_id = allergy[:allergenid.to_s].to_i
         leo_allergy.allergen = allergy[:allergenname.to_s]
-        leo_allergy.onset_at = DateTime.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
+        leo_allergy.onset_at = Date.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
 
         reactions = []
         reactions = allergy[:reactions.to_s] if allergy[:reactions.to_s]
@@ -567,12 +567,12 @@ module SyncServiceHelper
         leo_med.hidden_at = nil
 
         med[:events.to_s].each do | evt |
-          leo_med.started_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
-          leo_med.ended_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
-          leo_med.ordered_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
-          leo_med.filled_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
-          leo_med.entered_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
-          leo_med.hidden_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
+          leo_med.started_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
+          leo_med.ended_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
+          leo_med.ordered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
+          leo_med.filled_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
+          leo_med.entered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
+          leo_med.hidden_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
         end
 
         leo_med.save!
@@ -607,7 +607,7 @@ module SyncServiceHelper
           leo_vital.athena_id = reading[:vitalid.to_s].to_i
           leo_vital.measurement = reading[:clinicalelementid.to_s]
           leo_vital.value = reading[:value.to_s]
-          leo_vital.taken_at = DateTime.strptime(reading[:readingtaken.to_s], "%m/%d/%Y") if reading[:readingtaken.to_s]
+          leo_vital.taken_at = Date.strptime(reading[:readingtaken.to_s], "%m/%d/%Y") if reading[:readingtaken.to_s]
 
           leo_vital.save!
         end
@@ -639,7 +639,7 @@ module SyncServiceHelper
           leo_vacc.patient_id = leo_patient.id
           leo_vacc.athena_id = vacc[:vaccineid.to_s]
           leo_vacc.vaccine = vacc[:description.to_s]
-          leo_vacc.administered_at = DateTime.strptime(vacc[:administerdate.to_s], "%m/%d/%Y") if vacc[:administerdate.to_s]
+          leo_vacc.administered_at = Date.strptime(vacc[:administerdate.to_s], "%m/%d/%Y") if vacc[:administerdate.to_s]
 
           leo_vacc.save!
         end
