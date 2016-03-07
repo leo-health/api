@@ -74,40 +74,40 @@ RSpec.describe Message, type: :model do
         end
       end
 
-      context "customer user is offline, and not in cooldown period" do
-        before do
-          Timecop.freeze
-          $redis.set("#{customer_service.id}next_messageAt", Time.now - 1.minute)
-        end
-
-        after do
-          Timecop.return
-        end
-
-        def create_message
-          conversation.messages.create( body: "Hello", sender: guardian, type_name: "text")
-        end
-
-        it "should sms customer service user about the newly created message" do
-          expect{ create_message }.to change(Delayed::Job, :count).by(1)
-        end
-      end
-
-      context "customer user is offline, and in cooldown period" do
-        before do
-          Timecop.freeze
-          $redis.set("#{customer_service.id}next_messageAt", Time.now + 1.minute)
-        end
-
-        after do
-          Timecop.return
-        end
-
-        it "should not sms customer service user, but create a delayed job to run after cool down period" do
-          expect{ create_message }.to change(Delayed::Job, :count).by(1)
-          expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now  + 1.minute).to_s )
-        end
-      end
+      # context "customer user is offline, and not in cooldown period" do
+      #   before do
+      #     Timecop.freeze
+      #     $redis.set("#{customer_service.id}next_messageAt", Time.now - 1.minute)
+      #   end
+      #
+      #   after do
+      #     Timecop.return
+      #   end
+      #
+      #   def create_message
+      #     conversation.messages.create( body: "Hello", sender: guardian, type_name: "text")
+      #   end
+      #
+      #   it "should sms customer service user about the newly created message" do
+      #     expect{ create_message }.to change(Delayed::Job, :count).by(1)
+      #   end
+      # end
+      #
+      # context "customer user is offline, and in cooldown period" do
+      #   before do
+      #     Timecop.freeze
+      #     $redis.set("#{customer_service.id}next_messageAt", Time.now + 1.minute)
+      #   end
+      #
+      #   after do
+      #     Timecop.return
+      #   end
+      #
+      #   it "should not sms customer service user, but create a delayed job to run after cool down period" do
+      #     expect{ create_message }.to change(Delayed::Job, :count).by(1)
+      #     expect( $redis.get("#{customer_service.id}next_messageAt") ).to eq( (Time.now  + 1.minute).to_s )
+      #   end
+      # end
 
       context "office is closed" do
         before do
