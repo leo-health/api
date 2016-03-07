@@ -18,26 +18,14 @@ class Conversation < ActiveRecord::Base
     state :open
 
     event :escalate do
-      # after do |args|
-      #   broadcast_state(:escalation, args[:escalated_by], @escalation_note.id, args[:escalated_to])
-      # end
-
       transitions from: [:open, :escalated], to: :escalated, guard: :escalate_conversation_to_staff
     end
 
     event :close do
-      # after do |args|
-      #   broadcast_state(:close, args[:closed_by], @closure_note.id)
-      # end
-
       transitions from: [:open, :escalated], to: :closed, guard: :close_conversation
     end
 
     event :open do
-      # after do |args|
-      #   broadcast_state(:open, false, false)
-      # end
-
       transitions from: :closed, to: :open
     end
   end
@@ -57,24 +45,6 @@ class Conversation < ActiveRecord::Base
   rescue
     false
   end
-
-  # def broadcast_state(message_type, changed_by, note_id, changed_to = nil)
-  #   channels = User.includes(:role).where.not(roles: {name: :guardian}).map{|user| "private-#{user.id}"}
-  #   if channels.count > 0
-  #     channels.each_slice(10) do |slice|
-  #       begin
-  #         Pusher.trigger(slice, 'new_state', { message_type: message_type,
-  #                                              conversation_id: id,
-  #                                              created_by: changed_by,
-  #                                              escalated_to: changed_to,
-  #                                              id: note_id
-  #                                             })
-  #       rescue Pusher::Error => e
-  #         Rails.logger.error "Pusher error: #{e.message}"
-  #       end
-  #     end
-  #   end
-  # end
 
   def last_closed_at
     closure_notes.order('created_at DESC').first.try(:created_at)

@@ -58,7 +58,7 @@ class Message < ActiveRecord::Base
     if sender.guardian? && !sender.practice.in_office_hour?
       phone_number = sender.practice.phone
       message = Message.create( sender: User.leo_bot,
-                                type_name: 'text',
+                                type_name: :text,
                                 conversation: conversation,
                                 body: "Hi #{sender.first_name}, our office is closed at the moment. If this is an emergency, please call 911 right away. If you need clinical assistance tonight, you can call our nurse line at #{phone_number}. For all other issues, we’ll get back to you first thing in the morning"
                                )
