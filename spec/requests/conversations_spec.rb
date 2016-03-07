@@ -46,7 +46,7 @@ describe Leo::V1::Conversations do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect( body[:data][:message_type]).to eq('ClosureNote')
+      expect( body[:data][:message_type].to_sym).to eq(:close)
     end
   end
 
@@ -67,6 +67,8 @@ describe Leo::V1::Conversations do
     it "should update the specific conversation" do
       do_request
       expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect( body[:data][:message_type].to_sym).to eq(:escalation)
     end
   end
 

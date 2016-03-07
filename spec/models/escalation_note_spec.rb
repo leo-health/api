@@ -30,9 +30,9 @@ RSpec.describe EscalationNote, type: :model do
         Timecop.return
       end
 
-      it "should send a sms and email notification to staff" do
+      it "should send a email notification to staff" do
         expect( EscalationNote.count ).to eq(0)
-        expect{ conversation.escalate(escalation_params) }.to change(Delayed::Job, :count).by(2)
+        expect{ conversation.escalate(escalation_params) }.to change(Delayed::Job, :count).by(1)
         expect( EscalationNote.count ).to eq(1)
       end
     end
