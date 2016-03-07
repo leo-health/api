@@ -112,4 +112,19 @@ describe Leo::V1::Conversations do
       expect(body[:data][:conversation].as_json.to_json).to eq( short_serializer.represent(user.family.conversation).as_json.to_json)
     end
   end
+
+  describe "Get /api/v1/conversations/:id" do
+    let(:conversation){ user.family.conversation }
+
+    def do_request
+      get "/api/v1/conversations/#{conversation.id}", {authentication_token: session.authentication_token}
+    end
+
+    it "should return the conversation requested by id" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true)
+      expect(body[:data][:conversation].as_json.to_json).to eq( short_serializer.represent(conversation).as_json.to_json)
+    end
+  end
 end
