@@ -48,7 +48,6 @@ class Message < ActiveRecord::Base
     broadcast_message_by_conversation
     return if ( sender.has_role?(:bot) || initial_welcome_message? )
     update_conversation_after_message_sent
-    sms_cs_user
     send_new_message_notification
     unread_message_reminder_email
     send_auto_reply_if_needed
