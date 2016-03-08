@@ -9,15 +9,12 @@ module Leo
       expose :escalated_to, with: Leo::Entities::ShortUserEntity
       expose :created_by, with: Leo::Entities::ShortUserEntity
       expose :created_at
+      expose :conversation_id, unless: Proc.new {|g|g.class.name == 'Message'}
 
       private
 
       def conversation_id
-        if object.class == EscalationNote
-          object.user_conversation.conversation
-        else
-          object.conversation.id
-        end
+        object.conversation.id
       end
 
       def created_by
