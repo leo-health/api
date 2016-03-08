@@ -23,6 +23,7 @@ module SyncService
     if SyncService.configuration.auto_gen_scan_tasks && SyncTask.table_exists?
       SyncTask.find_or_create_by(sync_type: :scan_patients.to_s)
       SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s)
+      SyncTask.find_or_create_by(sync_type: :scan_providers.to_s)
 
       Practice.find_each { |practice|
         SyncTask.find_or_create_by(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
@@ -64,8 +65,6 @@ end
 
 module SyncServiceHelper
   class Syncer
-    @debug = false
-
     attr_reader :connector
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
@@ -123,6 +122,25 @@ module SyncServiceHelper
 
         rescue => e
           SyncService.configuration.logger.error "Syncer: Creating sync task for appointment.id=#{appt.id} failed"
+          SyncService.configuration.logger.error e.message
+          SyncService.configuration.logger.error e.backtrace.join("\n")
+        end
+      end
+    end
+
+    # Go through all existing providers and add all missing sync tasks for providers.
+    #
+    # ==== arguments
+    # * +task+ - the sync task to process
+    def process_scan_providers(task)
+      ProviderSyncProfile.find_each do |provider_sync_profile|
+        begin
+          if provider_sync_profile.leave_updated_at.nil? || (provider_sync_profile.leave_updated_at.utc + SyncService.configuration.appointment_data_interval) < DateTime.now.utc
+            SyncTask.find_or_create_by(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+          end
+
+        rescue => e
+          SyncService.configuration.logger.error "Syncer: Creating sync task for provider.id=#{provider_sync_profile.provider_id} failed"
           SyncService.configuration.logger.error e.message
           SyncService.configuration.logger.error e.backtrace.join("\n")
         end
@@ -285,6 +303,36 @@ module SyncServiceHelper
 
       leo_appt.sync_updated_at = DateTime.now.utc
       leo_appt.save!
+    end
+
+    def process_provider_leave(task)
+      provider_sync_profile = ProviderSyncProfile.find_by!(provider_id: task.sync_id)
+      blocked_appointment_type = AppointmentType.find_by!(name: "Block")
+
+      blocked_appts = @connector.get_open_appointments(
+        departmentid: provider_sync_profile.athena_department_id,
+        appointmenttypeid: blocked_appointment_type.athena_id,
+        providerid: provider_sync_profile.athena_id
+      ).select {|appt| (appt.appointmenttypeid.to_i == blocked_appointment_type.athena_id && appt.providerid.to_i == provider_sync_profile.athena_id) }
+
+      #delete all existing provider leaves that are synched from athena
+      ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).destroy_all
+
+      #add new entries
+      blocked_appts.each { |appt|
+        start_datetime = DateTime.strptime(appt.date + " " + appt.starttime, "%m/%d/%Y %H:%M")
+
+        ProviderLeave.create(
+          athena_id: appt.appointmentid.to_i, 
+          athena_provider_id: appt.providerid.to_i, 
+          description: "Synced from Athena block.id=#{appt.appointmentid}",
+          start_datetime: start_datetime,
+          end_datetime: start_datetime + appt.duration.to_i.minutes
+        )
+      }
+
+      provider_sync_profile.leave_updated_at = DateTime.now.utc
+      provider_sync_profile.save!
     end
 
     def find_preexisting_athena_patients()

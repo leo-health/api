@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160202172720) do
+ActiveRecord::Schema.define(version: 20160308205209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,13 +54,14 @@ ActiveRecord::Schema.define(version: 20160202172720) do
   end
 
   create_table "appointment_types", force: :cascade do |t|
-    t.integer  "athena_id",         default: 0, null: false
-    t.integer  "duration",                      null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.integer  "athena_id",         default: 0,     null: false
+    t.integer  "duration",                          null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
     t.string   "short_description"
     t.string   "long_description"
-    t.string   "name",                          null: false
+    t.string   "name",                              null: false
+    t.boolean  "hidden",            default: false
   end
 
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
@@ -443,6 +444,7 @@ ActiveRecord::Schema.define(version: 20160202172720) do
     t.datetime "updated_at",                     null: false
     t.datetime "start_datetime",                 null: false
     t.datetime "end_datetime",                   null: false
+    t.integer  "athena_id",          default: 0, null: false
   end
 
   add_index "provider_leaves", ["athena_provider_id"], name: "index_provider_leaves_on_athena_provider_id", using: :btree
@@ -472,9 +474,10 @@ ActiveRecord::Schema.define(version: 20160202172720) do
   add_index "provider_schedules", ["athena_provider_id"], name: "index_provider_schedules_on_athena_provider_id", using: :btree
 
   create_table "provider_sync_profiles", force: :cascade do |t|
-    t.integer "provider_id",                      null: false
-    t.integer "athena_department_id", default: 0
-    t.integer "athena_id",            default: 0
+    t.integer  "provider_id",                      null: false
+    t.integer  "athena_department_id", default: 0
+    t.integer  "athena_id",            default: 0
+    t.datetime "leave_updated_at"
   end
 
   create_table "read_receipts", force: :cascade do |t|

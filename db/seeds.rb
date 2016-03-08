@@ -361,7 +361,8 @@ appointment_types_seed = [
     name: "Sick Visit",
     duration: 10,
     short_description: "New symptom",
-    long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash."
+    long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash.",
+    hidden: false
   },
 
   {
@@ -370,7 +371,8 @@ appointment_types_seed = [
     name: "Follow Up Visit",
     duration: 10,
     short_description: "Unresolved illness or chronic condition",
-    long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema."
+    long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema.",
+    hidden: false
   },
 
   {
@@ -379,7 +381,8 @@ appointment_types_seed = [
     name: "Immunization / Lab Visit",
     duration: 10,
     short_description: "Flu shot or scheduled vaccine",
-    long_description: "A visit with a nurse to get one or more immunizations."
+    long_description: "A visit with a nurse to get one or more immunizations.",
+    hidden: false
   },
 
   {
@@ -388,7 +391,18 @@ appointment_types_seed = [
     name: "Well Visit",
     duration: 20,
     short_description: "Regular check-up",
-    long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter."
+    long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter.",
+    hidden: false
+  },
+
+  {
+    id: 5,
+    athena_id: 14,
+    name: "Block",
+    duration: 10,
+    short_description: "Block",
+    long_description: "Block",
+    hidden: true
   }
 ]
 
@@ -728,6 +742,30 @@ begin
       practice_schedule.update_attributes!(schedule_params)
     else
       PracticeSchedule.create!(schedule_params)
+    end
+  end
+
+  #add holidays
+  practice_holidays = [
+    "01/01/2016", #New Year's Day
+    "05/30/2016", #Memorial Day
+    "07/04/2016", #Independence Day
+    "09/05/2016", #Labor Day
+    "11/24/2016", #Thanksgiving
+    "12/25/2016"  #Christmas
+  ]
+
+  ProviderLeave.where(athena_id: 0).delete
+
+  ProviderSyncProfile.all.each do |provider_sync_profile|
+    practice_holidays.each do | holiday |
+      ProviderLeave.create(
+        athena_id: 0, 
+        athena_provider_id: provider_sync_profile.athena_id, 
+        description: "Seeded holiday",
+        start_datetime: DateTime.strptime(holiday, "%m/%d/%Y"),
+        end_datetime: DateTime.strptime(holiday, "%m/%d/%Y") + 24.hours
+      )
     end
   end
 end

@@ -70,12 +70,6 @@ module AthenaHealthAPI
   # * +PUT+ - Perform an HTTP PUT request
   # * +DELETE+ - Perform an HTTP DELETE request
   class Connection
-    class <<self
-      attr_accessor :debug
-    end
-
-    Connection.debug = false
-
     @@last_token = nil
     @@last_request = Time.now
 
@@ -141,8 +135,7 @@ module AthenaHealthAPI
 
       response = @connection.request(request)
 
-      AthenaHealthAPI.configuration.logger.debug("response code: #{response.code}") if Connection.debug
-      AthenaHealthAPI.configuration.logger.debug("response body: #{response.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
 
       raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
 
@@ -172,8 +165,7 @@ module AthenaHealthAPI
       }
       request['authorization'] = "Bearer #{@token}"
       
-      AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}")
-      AthenaHealthAPI.configuration.logger.debug("request body: #{request.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
 
       #throttle API calls
       unless ignore_throttle
@@ -187,8 +179,7 @@ module AthenaHealthAPI
 
       @@last_request = Time.now
 
-      AthenaHealthAPI.configuration.logger.debug("response code: #{response.code}") if Connection.debug
-      AthenaHealthAPI.configuration.logger.debug("response body: #{response.body}") if Connection.debug
+      AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
 
       if response.code == '401' && !secondcall
         #force re-authentication by nulling out @token
