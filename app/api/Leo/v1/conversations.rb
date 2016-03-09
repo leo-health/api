@@ -66,15 +66,18 @@ module Leo
         end
 
         get do
-          if params[:state]
-            conversations = Conversation.where(state: params[:state]).order('updated_at desc')
-          else
-            conversations = Conversation.order("updated_at desc")
-          end
+          conversations = params[:state] ? Conversation.where(state: params[:state]).order('updated_at desc') : Conversation.order("updated_at desc")
           max_page = (conversations.count / 10.to_f).ceil
           authorize! :read, Conversation
           present :max_page, max_page
           present :conversations, paginate(Kaminari.paginate_array(conversations)), with: Leo::Entities::ShortConversationEntity
+        end
+
+        desc "Return a conversation by id"
+        get ':id' do
+          conversation = Conversation.find(params[:id])
+          authorize! :read, conversation
+          present :conversation, conversation, with: Leo::Entities::ShortConversationEntity
         end
       end
 
