@@ -13,7 +13,7 @@ class ClosureNote < ActiveRecord::Base
                     sender_id: closed_by.id,
                     id: id }
     begin
-      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', note_params)
+      Pusher.trigger("private-conversation#{conversation.id}", :new_message, note_params)
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end

@@ -34,7 +34,7 @@ class Message < ActiveRecord::Base
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "private-#{user.id}"; channels}
       begin
-        Pusher.trigger(channels, 'new_message', {message_id: id, conversation_id: conversation.id})
+        Pusher.trigger(channels, :new_message, {message_id: id, conversation_id: conversation.id})
       rescue Pusher::Error => e
         Rails.logger.error "Pusher error: #{e.message}"
       end
@@ -57,7 +57,7 @@ class Message < ActiveRecord::Base
     if sender.guardian? && !sender.practice.in_office_hour?
       phone_number = sender.practice.phone
       message = Message.create( sender: User.leo_bot,
-                                type_name: 'text',
+                                type_name: :text,
                                 conversation: conversation,
                                 body: "Hi #{sender.first_name}, our office is closed at the moment. If this is an emergency, please call 911 right away. If you need clinical assistance tonight, you can call our nurse line at #{phone_number}. For all other issues, we’ll get back to you first thing in the morning"
                                )
@@ -68,9 +68,9 @@ class Message < ActiveRecord::Base
 
   def broadcast_message_by_conversation
     begin
-      Pusher.trigger("private-conversation#{conversation.id}", 'new_message', {id: id,
+      Pusher.trigger("private-conversation#{conversation.id}", :new_message, { id: id,
                                                                                message_type: :message,
-                                                                               sender_id: sender.id})
+                                                                               sender_id: sender.id })
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end
