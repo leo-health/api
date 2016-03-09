@@ -171,7 +171,7 @@ module SyncServiceHelper
           provider: provider_sync_profile.provider,
           appointment_type: appointment_type,
           duration: appt.duration,
-          start_datetime: Date.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
+          start_datetime: DateTime.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
           sync_updated_at: DateTime.now,
           athena_id: appt.appointmentid.to_i
         )
@@ -273,7 +273,7 @@ module SyncServiceHelper
         leo_appt.provider_id = provider_sync_profile.provider_id
         leo_appt.appointment_type_id = appointment_type.id
         leo_appt.duration = athena_appt.duration.to_i
-        leo_appt.start_datetime = Date.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")
+        leo_appt.start_datetime = DateTime.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")
         leo_appt.athena_id = athena_appt.appointmentid.to_i
 
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
@@ -322,6 +322,37 @@ module SyncServiceHelper
       return leo_patient
     end
 
+    def get_best_match_patient(leo_patient)
+      leo_parent = leo_patient.family.primary_guardian
+      patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
+
+      athena_patient = nil
+
+      begin
+        #search by phone first
+        athena_patient = @connector.get_best_match_patient(
+          firstname: leo_patient.first_name, 
+          lastname: leo_patient.last_name, 
+          dob: patient_birth_date,
+          anyphone: leo_parent.phone.gsub(/[^\d,\.]/, '')) if leo_parent.phone
+      rescue => e
+        SyncService.configuration.logger.info "bestmatch lookup by phone failed"
+      end
+
+      begin
+        #search by email
+        athena_patient = @connector.get_best_match_patient(
+          firstname: leo_patient.first_name, 
+          lastname: leo_patient.last_name, 
+          dob: patient_birth_date,
+          guarantoremail: leo_parent.email) unless athena_patient
+      rescue => e
+        SyncService.configuration.logger.info "bestmatch lookup by email failed"
+      end
+
+      athena_patient
+    end
+
     #sync patient
     #SyncTask.sync_id = User.id
     #creates an instance of HealthRecord model if one does not exist, and then updates the patient in Athena
@@ -339,23 +370,54 @@ module SyncServiceHelper
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
       parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
 
+      leo_guardians = leo_patient.family.guardians.order('created_at ASC')
+
+      contactname = nil
+      contactrelationship = nil
+      contactmobilephone = nil
+
+      if leo_guardians.size >= 2
+        contactname = "#{leo_guardians[1].first_name} #{leo_guardians[1].last_name}"
+        contactrelationship = "GUARDIAN"
+        contactmobilephone = leo_guardians[1].phone
+      end
+
       if leo_patient.athena_id == 0
-        #create patient
-        leo_patient.athena_id = @connector.create_patient(
-          departmentid: leo_parent.practice.athena_id,
-          firstname: leo_patient.first_name,
-          middlename: leo_patient.middle_initial.to_s,
-          lastname: leo_patient.last_name,
-          sex: leo_patient.sex,
-          dob: patient_birth_date,
-          guarantorfirstname: leo_parent.first_name,
-          guarantormiddlename: leo_parent.middle_initial.to_s,
-          guarantorlastname: leo_parent.last_name,
-          guarantordob: parent_birth_date,
-          guarantoremail: leo_parent.email,
-          guarantorrelationshiptopatient: 3 #3==child
-          ).to_i
-        leo_patient.save!
+        #look existing athena patient with same info
+        athena_patient = get_best_match_patient(leo_patient)
+
+        if athena_patient
+          raise "patient.id #{leo_patient.id} has a best match in Athena (athena_id: #{athena_patient.patientid}), but that match is already connected to another patient" unless Patient.where(athena_id: athena_patient.patientid.to_i).empty?
+        
+          SyncService.configuration.logger.info("Syncer: connecting patient.id=#{leo_patient.id} to athena patient.id=#{athena_patient.patientid}")
+
+          #use existing patient
+          leo_patient.athena_id = athena_patient.patientid.to_i
+          leo_patient.save!
+        else          
+          SyncService.configuration.logger.info("Syncer: creating new Athena patient for leo patient.id=#{leo_patient.id}")
+
+          #create new patient
+          leo_patient.athena_id = @connector.create_patient(
+            departmentid: leo_parent.practice.athena_id,
+            firstname: leo_patient.first_name,
+            middlename: leo_patient.middle_initial.to_s,
+            lastname: leo_patient.last_name,
+            sex: leo_patient.sex,
+            dob: patient_birth_date,
+            guarantorfirstname: leo_parent.first_name,
+            guarantormiddlename: leo_parent.middle_initial.to_s,
+            guarantorlastname: leo_parent.last_name,
+            guarantordob: parent_birth_date,
+            guarantoremail: leo_parent.email,
+            guarantorrelationshiptopatient: 3, #3==child
+            contactname: contactname,
+            contactrelationship: contactrelationship,
+            contactmobilephone: contactmobilephone
+            ).to_i
+
+          leo_patient.save!
+        end
       else
         #update patient
         @connector.update_patient(
@@ -371,7 +433,10 @@ module SyncServiceHelper
           guarantorlastname: leo_parent.last_name,
           guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
-          guarantorrelationshiptopatient: 3 #3==child
+          guarantorrelationshiptopatient: 3, #3==child
+          contactname: contactname,
+          contactrelationship: contactrelationship,
+          contactmobilephone: contactmobilephone
           )
       end
 
@@ -442,7 +507,7 @@ module SyncServiceHelper
         leo_allergy.patient_id = leo_patient.id
         leo_allergy.athena_id = allergy[:allergenid.to_s].to_i
         leo_allergy.allergen = allergy[:allergenname.to_s]
-        leo_allergy.onset_at = DateTime.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
+        leo_allergy.onset_at = Date.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
 
         reactions = []
         reactions = allergy[:reactions.to_s] if allergy[:reactions.to_s]
@@ -502,12 +567,12 @@ module SyncServiceHelper
         leo_med.hidden_at = nil
 
         med[:events.to_s].each do | evt |
-          leo_med.started_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
-          leo_med.ended_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
-          leo_med.ordered_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
-          leo_med.filled_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
-          leo_med.entered_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
-          leo_med.hidden_at = DateTime.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
+          leo_med.started_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
+          leo_med.ended_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
+          leo_med.ordered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
+          leo_med.filled_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
+          leo_med.entered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
+          leo_med.hidden_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
         end
 
         leo_med.save!
@@ -542,7 +607,7 @@ module SyncServiceHelper
           leo_vital.athena_id = reading[:vitalid.to_s].to_i
           leo_vital.measurement = reading[:clinicalelementid.to_s]
           leo_vital.value = reading[:value.to_s]
-          leo_vital.taken_at = DateTime.strptime(reading[:readingtaken.to_s], "%m/%d/%Y") if reading[:readingtaken.to_s]
+          leo_vital.taken_at = Date.strptime(reading[:readingtaken.to_s], "%m/%d/%Y") if reading[:readingtaken.to_s]
 
           leo_vital.save!
         end
@@ -574,7 +639,7 @@ module SyncServiceHelper
           leo_vacc.patient_id = leo_patient.id
           leo_vacc.athena_id = vacc[:vaccineid.to_s]
           leo_vacc.vaccine = vacc[:description.to_s]
-          leo_vacc.administered_at = DateTime.strptime(vacc[:administerdate.to_s], "%m/%d/%Y") if vacc[:administerdate.to_s]
+          leo_vacc.administered_at = Date.strptime(vacc[:administerdate.to_s], "%m/%d/%Y") if vacc[:administerdate.to_s]
 
           leo_vacc.save!
         end

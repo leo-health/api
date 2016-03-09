@@ -7,4 +7,8 @@ class WelcomeToPracticeJob < Struct.new(:user_id)
     user = User.find_by_id(user_id)
     UserMailer.welcome_to_pratice(user).deliver if user
   end
+
+  def queue_name
+    'notification_email'
+  end
 end

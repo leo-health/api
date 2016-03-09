@@ -11,9 +11,9 @@ describe PrimaryGuardianApproveInvitationJob do
     end
   end
 
-  describe "#send" do
+  describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ PrimaryGuardianApproveInvitationJob.send(user.id, "token") }.to change(Delayed::Job, :count).by(1)
+      expect{ PrimaryGuardianApproveInvitationJob.send(user.id, "token") }.to change(Delayed::Job.where(queue: 'registration_email'), :count).by(1)
     end
   end
 end

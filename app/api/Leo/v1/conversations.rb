@@ -19,10 +19,12 @@ module Leo
             authorize! :update, conversation
             close_params = {closed_by: current_user, note: params[:note]}
             if conversation.close!(close_params)
-              present :conversation_id, conversation.id
+              closure_note = ClosureNote.find_by(close_params)
+              present :conversation_id, closure_note.conversation_id
               present :created_by, current_user
-              present :note, params[:note]
-              present :message_type, 'ClosureNote'
+              present :note, closure_note.note
+              present :message_type, :close
+              present :id, closure_note.id
             else
               error!({error_code: 422, error_message: "can't close the conversation" }, 422)
             end
@@ -43,13 +45,15 @@ module Leo
             escalated_to = User.find(params[:escalated_to_id])
             escalate_params = {escalated_to: escalated_to, note: params[:note], priority: params[:priority], escalated_by: current_user}
             if conversation.escalate!(escalate_params)
+              escalation_note = EscalationNote.find_by(escalate_params)
               present :escalated_to, escalated_to,  with: Leo::Entities::UserEntity
-              present :note, params[:note]
-              present :conversation_id, conversation.id
+              present :note, escalation_note.note
+              present :conversation_id, escalation_note.conversation_id
               present :created_by, current_user
-              present :message_type, 'EscalationNote'
+              present :message_type, :escalation
+              present :id, escalation_note.id
             else
-              error!({error_code: 422, error_message: "can't escalte the conversation" }, 422)
+              error!({error_code: 422, error_message: "can't escalate the conversation" }, 422)
             end
           end
         end
@@ -62,15 +66,18 @@ module Leo
         end
 
         get do
-          if params[:state]
-            conversations = Conversation.where(state: params[:state]).order('updated_at desc')
-          else
-            conversations = Conversation.order("updated_at desc")
-          end
+          conversations = params[:state] ? Conversation.where(state: params[:state]).order('updated_at desc') : Conversation.order("updated_at desc")
           max_page = (conversations.count / 10.to_f).ceil
           authorize! :read, Conversation
           present :max_page, max_page
           present :conversations, paginate(Kaminari.paginate_array(conversations)), with: Leo::Entities::ShortConversationEntity
+        end
+
+        desc "Return a conversation by id"
+        get ':id' do
+          conversation = Conversation.find(params[:id])
+          authorize! :read, conversation
+          present :conversation, conversation, with: Leo::Entities::ShortConversationEntity
         end
       end
 

@@ -29,18 +29,14 @@ class Message < ActiveRecord::Base
   end
 
   def broadcast_message(sender)
-    message_id = id
-    conversation = self.conversation
-    participants = (conversation.staff + conversation.family.guardians)
+    participants = conversation.family.guardians.to_a
     participants.delete(sender)
     if participants.count > 0
       channels = participants.inject([]){|channels, user| channels << "private-#{user.id}"; channels}
-      channels.each_slice(10) do |slice|
-        begin
-          Pusher.trigger(slice, 'new_message', {message_id: message_id, conversation_id: conversation.id})
-        rescue
-          Rails.logger.error "Pusher error: #{e.message}"
-        end
+      begin
+        Pusher.trigger(channels, :new_message, {message_id: id, conversation_id: conversation.id})
+      rescue Pusher::Error => e
+        Rails.logger.error "Pusher error: #{e.message}"
       end
     end
   end
@@ -49,15 +45,39 @@ class Message < ActiveRecord::Base
 
   def actions_after_message_sent
     set_last_message_created_at
+    broadcast_message_by_conversation
     return if ( sender.has_role?(:bot) || initial_welcome_message? )
     update_conversation_after_message_sent
-    sms_cs_user
     send_new_message_notification
     unread_message_reminder_email
+    send_auto_reply_if_needed
+  end
+
+  def send_auto_reply_if_needed
+    if sender.guardian? && !sender.practice.in_office_hour?
+      phone_number = sender.practice.phone
+      message = Message.create( sender: User.leo_bot,
+                                type_name: :text,
+                                conversation: conversation,
+                                body: "Hi #{sender.first_name}, our office is closed at the moment. If this is an emergency, please call 911 right away. If you need clinical assistance tonight, you can call our nurse line at #{phone_number}. For all other issues, we’ll get back to you first thing in the morning"
+                               )
+
+      message.broadcast_message(message.sender) if message.valid?
+    end
+  end
+
+  def broadcast_message_by_conversation
+    begin
+      Pusher.trigger("private-conversation#{conversation.id}", :new_message, { id: id,
+                                                                               message_type: :message,
+                                                                               sender_id: sender.id })
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
+    end
   end
 
   def initial_welcome_message?
-    body == "Welcome to Leo! If you have any questions or requests, feel free to reach us at any time."
+    body == "Welcome! My name is Catherine and I run the office here at Flatiron Pediatrics. If you ever need to reach us with questions, concerns or requests, feel free to use this messaging channel and we'll get back to you right away."
   end
 
   def set_last_message_created_at

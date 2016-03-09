@@ -104,12 +104,6 @@ class User < ActiveRecord::Base
   def welcome_onboarding_notifications
     if confirmed_at_changed? && guardian?
       WelcomeToPracticeJob.send(id)
-      if onboarding_group.try(:invited_secondary_guardian?) && sender = User.leo_bot
-        family.conversation.messages.create( body: "#{first_name} has joined Leo",
-                                             sender: sender,
-                                             type_name: :text
-        )
-      end
     end
   end
 

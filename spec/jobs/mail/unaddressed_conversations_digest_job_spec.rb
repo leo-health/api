@@ -13,7 +13,7 @@ describe UnaddressedConversationDigestJob do
 
   describe "#send" do
     it "should send email to user via delayed_job" do
-      expect{ UnaddressedConversationDigestJob.send(user.id, 1, 'open') }.to change(Delayed::Job, :count).by(1)
+      expect{ UnaddressedConversationDigestJob.send(user.id, 1, 'open') }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
     end
   end
 end

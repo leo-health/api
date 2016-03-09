@@ -7,4 +7,8 @@ class PatientBirthdayJob < Struct.new(:guardian_id)
     user = User.find_by_id(guardian_id)
     UserMailer.patient_birthday(user).deliver if user
   end
+
+  def queue_name
+    'notification_email'
+  end
 end
