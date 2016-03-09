@@ -755,7 +755,7 @@ begin
     "12/25/2016"  #Christmas
   ]
 
-  ProviderLeave.where(athena_id: 0).delete
+  ProviderLeave.where(athena_id: 0).delete_all
 
   ProviderSyncProfile.all.each do |provider_sync_profile|
     practice_holidays.each do | holiday |
