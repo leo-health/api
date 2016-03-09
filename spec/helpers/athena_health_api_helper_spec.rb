@@ -256,6 +256,45 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
       end
     end
 
+    describe "get_open_appointments" do
+      it "should return a list of open appointments" do
+        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+          {
+          "totalcount": 2,
+          "appointments": [{
+          "date": "10\/10\/2015",
+          "appointmentid": "378717",
+          "departmentid": "1",
+          "appointmenttype": "Block",
+          "providerid": "1",
+          "starttime": "12:12",
+          "duration": "30",
+          "appointmenttypeid": "1",
+          "reasonid": ["-1"],
+          "patientappointmenttypename": "Block"
+          }, {
+          "date": "12\/06\/2015",
+          "appointmentid": "389202",
+          "departmentid": "1",
+          "appointmenttype": "Block",
+          "providerid": "1",
+          "starttime": "10:30",
+          "duration": "10",
+          "appointmenttypeid": "2",
+          "reasonid": ["-1"],
+          "patientappointmenttypename": "Block"
+          }]
+          }
+          )))
+
+        appointments = connector.get_open_appointments(departmentid: 1, providerid: 1)
+
+        expect(appointments).not_to be_nil
+        expect(appointments.length).to be(2)
+        expect(appointments[0].appointmentid).to eq("378717")
+      end
+    end
+
     describe "create_patient" do
       it "should create a patient" do
         allow(connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(

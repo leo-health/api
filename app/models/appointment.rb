@@ -1,4 +1,6 @@
 class Appointment < ActiveRecord::Base
+  MIN_INTERVAL_TO_SCHEDULE = 15.minutes
+  
   acts_as_paranoid
 
   belongs_to :patient

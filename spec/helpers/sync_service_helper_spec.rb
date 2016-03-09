@@ -9,7 +9,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
     let!(:practice) { build(:practice, athena_id: 1) }
 
-
     describe "process_scan_appointments" do
       it "creates sync task for unsynced appointment" do
         appt = create(:appointment, athena_id: 0)
@@ -21,6 +20,23 @@ RSpec.describe SyncServiceHelper, type: :helper do
         appt = create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago)
         expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
+      end
+    end
+
+    describe "process_scan_providers" do
+      let!(:provider_sync_profile) { create(:provider_sync_profile) }
+
+      it "creates provider_leave sync task for new provider" do
+        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+        syncer.process_scan_providers(SyncTask.new())
+      end
+
+      it "creates provider_leave sync task for stale provider" do
+        provider_sync_profile.leave_updated_at = 1.year.ago
+        provider_sync_profile.save!
+
+        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+        syncer.process_scan_providers(SyncTask.new())
       end
     end
 
@@ -50,12 +66,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates athena appointment when missing" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status, notes: "notes")
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
         expect(connector).to receive("create_appointment").and_return(1000)
         expect(connector).to receive("book_appointment")
+        expect(connector).to receive("create_appointment_note")
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
           "date": "04\/18\/2009",
           "appointmentid": "1000",
@@ -682,6 +699,46 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
         syncer.process_patient_insurances(SyncTask.new(sync_id: patient.id))
         expect(Insurance.count).to be(1)
+      end
+    end
+
+    describe "process_provider_leave" do
+      it "creates new provider leave entries" do
+        provider_sync_profile = create(:provider_sync_profile, athena_id: 1)
+        block_appointment_type = create(:appointment_type, :block, athena_id: 1)
+
+        expect(connector).to receive("get_open_appointments").and_return(
+          [
+            AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(%q({
+              "date": "10\/30\/2015",
+              "appointmentid": "378717",
+              "departmentid": "1",
+              "appointmenttype": "Block",
+              "providerid": "1",
+              "starttime": "12:12",
+              "duration": "30",
+              "appointmenttypeid": "1",
+              "reasonid": ["-1"],
+              "patientappointmenttypename": "Block"
+              }))), 
+            AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(%q({
+              "date": "12\/26\/2015",
+              "appointmentid": "389202",
+              "departmentid": "1",
+              "appointmenttype": "Block",
+              "providerid": "1",
+              "starttime": "10:30",
+              "duration": "10",
+              "appointmenttypeid": "2",
+              "reasonid": ["-1"],
+              "patientappointmenttypename": "Block"
+              })))
+          ]
+          )
+        syncer.process_provider_leave(SyncTask.new(sync_id: provider_sync_profile.provider_id))
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).count).to be(1)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.start_datetime).to eq(Time.zone.parse("30/10/2015 12:12").to_datetime)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.end_datetime).to eq(Time.zone.parse("30/10/2015 12:42").to_datetime)
       end
     end
   end

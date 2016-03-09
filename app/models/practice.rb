@@ -19,8 +19,8 @@ class Practice < ActiveRecord::Base
     wday = date_today.strftime("%A").downcase
     start_time = active_schedule.public_send("#{wday}_start_time")
     end_time = active_schedule.public_send("#{wday}_end_time")
-    start_time = DateTime.parse(Time.zone.parse("#{date_today.to_date.inspect} #{start_time}").to_s).in_time_zone
-    end_time = DateTime.parse(Time.zone.parse("#{date_today.to_date.inspect} #{end_time}").to_s).in_time_zone
+    start_time = Time.zone.parse("#{date_today.to_date.inspect} #{start_time}").to_datetime
+    end_time = Time.zone.parse("#{date_today.to_date.inspect} #{end_time}").to_datetime
     return start_time, end_time
   end
 end

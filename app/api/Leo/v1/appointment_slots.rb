@@ -29,7 +29,7 @@ module Leo
           end
 
           current_datetime = DateTime.now
-          filtered_open_slots = open_slots.select { |x| x.start_datetime >  current_datetime }
+          filtered_open_slots = open_slots.select { |x| x.start_datetime >  (current_datetime + Appointment::MIN_INTERVAL_TO_SCHEDULE)}
 
             [
               {

@@ -1,6 +1,11 @@
 require "athena_health_api"
 
 module AthenaHealthApiHelper
+  def self.to_datetime(athena_date, athena_time)
+    date = Date.strptime(athena_date, '%m/%d/%Y')
+    Time.zone.parse("#{date.to_s} #{athena_time}").to_datetime
+  end
+
   #athena appointmentstatus
   #The athenaNet appointment status.
   #x=cancelled
@@ -537,6 +542,17 @@ module AthenaHealthApiHelper
       return get_paged(
         url: "patients/#{patientid}/insurances", params: params,
         headers: AthenaHealthApiConnector.common_headers, field: :insurances)
+    end
+
+    def create_appointment_note(
+      appointmentid: ,
+      notetext:
+      )
+
+      params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
+      response = @connection.POST("appointments/#{appointmentid}/notes", params, AthenaHealthApiConnector.common_headers)
+
+      raise "response.code: #{response.code}\nresponse.body: #{response.body}" unless response.code.to_i == 200
     end
   end
 end
