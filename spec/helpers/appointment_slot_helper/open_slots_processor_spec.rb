@@ -26,15 +26,15 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
                             sunday_end_time: "17:00" )}
 
     let!(:additional_availability){create( :provider_additional_availability, athena_provider_id: provider_sync_profile.athena_id,
-                                           start_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 17:00").to_s).in_time_zone,
-                                           end_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 20:00").to_s).in_time_zone )}
+                                           start_datetime: Time.zone.parse("#{date.inspect} 17:00").to_datetime,
+                                           end_datetime: Time.zone.parse("#{date.inspect} 20:00").to_datetime )}
 
     let!(:leaves){create(:provider_leave, athena_provider_id: provider_sync_profile.athena_id,
-                         start_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 09:00").to_s).in_time_zone,
-                         end_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 12:00").to_s).in_time_zone)}
+                         start_datetime: Time.zone.parse("#{date.inspect} 09:00").to_datetime,
+                         end_datetime: Time.zone.parse("#{date.inspect} 12:00").to_datetime)}
 
     let!(:appointment){create(:appointment, provider_id: provider.id, appointment_status: future_appointment_status,
-                              start_datetime: DateTime.parse(Time.zone.parse("#{date.inspect} 14:00").to_s).in_time_zone,
+                              start_datetime: Time.zone.parse("#{date.inspect} 14:00").to_datetime,
                               duration: 20)}
 
     describe "get_provider_availability" do
@@ -50,19 +50,19 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
     describe "get_open_slots" do
       let(:open_slots){[
           AppointmentSlotsHelper::OpenSlot.new(
-              DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone, 60),
+              Time.zone.parse(date.inspect + " " + "12:00").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(
-              DateTime.parse(Time.zone.parse(date.inspect + " " + "13:00").to_s).in_time_zone, 60),
+              Time.zone.parse(date.inspect + " " + "13:00").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(
-              DateTime.parse(Time.zone.parse(date.inspect + " " + "14:20").to_s).in_time_zone, 60),
+              Time.zone.parse(date.inspect + " " + "14:20").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(
-              DateTime.parse(Time.zone.parse(date.inspect + " " + "15:20").to_s).in_time_zone, 60),
+              Time.zone.parse(date.inspect + " " + "15:20").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(
-              DateTime.parse(Time.zone.parse(date.inspect + " " + "16:20").to_s).in_time_zone, 60),
+              Time.zone.parse(date.inspect + " " + "16:20").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(
-              DateTime.parse(Time.zone.parse(date.inspect + " " + "17:20").to_s).in_time_zone, 60),
+              Time.zone.parse(date.inspect + " " + "17:20").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(
-              DateTime.parse(Time.zone.parse(date.inspect + " " + "18:20").to_s).in_time_zone, 60)
+              Time.zone.parse(date.inspect + " " + "18:20").to_datetime, 60)
       ]}
 
       it "returns slots" do

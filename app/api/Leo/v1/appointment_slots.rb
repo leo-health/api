@@ -29,7 +29,7 @@ module Leo
           end
 
           current_datetime = DateTime.now
-          filtered_open_slots = open_slots.select { |x| x.start_datetime >  current_datetime }
+          filtered_open_slots = open_slots.select { |x| x.start_datetime >  (current_datetime + 15.minutes)}
 
             [
               {

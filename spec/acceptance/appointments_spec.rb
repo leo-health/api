@@ -27,7 +27,7 @@ resource "Appointments" do
     parameter :notes
     parameter :athena_id
 
-    let(:start_datetime){ Time.now }
+    let(:start_datetime){ Time.now + 16.minutes }
     let(:appointment_status_id){ appointment_status.id }
     let(:appointment_type_id){ appointment_type.id }
     let(:provider_id){ provider.id }
@@ -80,7 +80,7 @@ resource "Appointments" do
     parameter :athena_id
 
     let(:id){ appointment.id }
-    let(:start_datetime){ Time.now }
+    let(:start_datetime){ Time.now + 16.minutes }
     let(:appointment_status_id){ appointment_status.id }
     let(:appointment_type_id){ appointment_type.id }
     let(:provider_id){ provider.id }

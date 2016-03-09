@@ -1,8 +1,7 @@
 module AppointmentSlotsHelper
   class OpenSlotsProcessor
     def to_datetime_str(date, time)
-      tm = Time.zone.parse(date.inspect + " " + time)
-      DateTime.parse(tm.to_s).in_time_zone
+      Time.zone.parse(date.inspect + " " + time).to_datetime
     end
 
     def day_schedule_to_interval(schedule, date)

@@ -763,8 +763,8 @@ begin
         athena_id: 0, 
         athena_provider_id: provider_sync_profile.athena_id, 
         description: "Seeded holiday",
-        start_datetime: DateTime.strptime(holiday, "%m/%d/%Y"),
-        end_datetime: DateTime.strptime(holiday, "%m/%d/%Y") + 24.hours
+        start_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00"),
+        end_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00") + 24.hours
       )
     end
   end

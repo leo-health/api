@@ -66,12 +66,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates athena appointment when missing" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status, notes: "notes")
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
         expect(connector).to receive("create_appointment").and_return(1000)
         expect(connector).to receive("book_appointment")
+        expect(connector).to receive("create_appointment_note")
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
           "date": "04\/18\/2009",
           "appointmentid": "1000",
@@ -736,8 +737,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
           )
         syncer.process_provider_leave(SyncTask.new(sync_id: provider_sync_profile.provider_id))
         expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).count).to be(1)
-        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.start_datetime).to eq(DateTime.strptime("10/10/2015 12:12", "%m/%d/%Y %H:%M"))
-        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.end_datetime).to eq(DateTime.strptime("10/10/2015 12:42", "%m/%d/%Y %H:%M"))
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.start_datetime).to eq(Time.zone.parse("10/10/2015 12:12").to_datetime)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.end_datetime).to eq(Time.zone.parse("10/10/2015 12:42").to_datetime)
       end
     end
   end

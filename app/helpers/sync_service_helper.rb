@@ -153,7 +153,7 @@ module SyncServiceHelper
 
       #mm/dd/yyyy hh:mi:ss
       start_date = nil
-      start_date = DateTime.iso8601(sync_params[:start_date.to_s]).strftime("%m/%d/%Y %H:%M:00") if sync_params[:start_date.to_s]
+      start_date = DateTime.parse(sync_params[:start_date.to_s]) if sync_params[:start_date.to_s]
       next_start_date = DateTime.now.to_s
 
       booked_appts = @connector.get_booked_appointments(
@@ -189,7 +189,7 @@ module SyncServiceHelper
           provider: provider_sync_profile.provider,
           appointment_type: appointment_type,
           duration: appt.duration,
-          start_datetime: DateTime.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
+          start_datetime: AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime),
           sync_updated_at: DateTime.now,
           athena_id: appt.appointmentid.to_i
         )
@@ -268,6 +268,11 @@ module SyncServiceHelper
             departmentid: leo_appt.provider.provider_sync_profile.athena_department_id
         )
 
+        #add appointment notes
+        if leo_appt.notes
+          @connector.create_appointment_note(appointmentid: leo_appt.athena_id, notetext: leo_appt.notes)
+        end
+
         leo_appt.save!
       end
 
@@ -291,7 +296,8 @@ module SyncServiceHelper
         leo_appt.provider_id = provider_sync_profile.provider_id
         leo_appt.appointment_type_id = appointment_type.id
         leo_appt.duration = athena_appt.duration.to_i
-        leo_appt.start_datetime = DateTime.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")
+
+        leo_appt.start_datetime = AthenaHealthApiHelper.to_datetime(athena_appt.date, athena_appt.starttime)
         leo_appt.athena_id = athena_appt.appointmentid.to_i
 
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
@@ -320,7 +326,7 @@ module SyncServiceHelper
 
       #add new entries
       blocked_appts.each { |appt|
-        start_datetime = DateTime.strptime(appt.date + " " + appt.starttime, "%m/%d/%Y %H:%M")
+        start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
 
         ProviderLeave.create(
           athena_id: appt.appointmentid.to_i, 
@@ -361,7 +367,7 @@ module SyncServiceHelper
       leo_patient = family.patients.new(
         first_name: athena_patient.firstname,
         last_name: athena_patient.lastname,
-        birth_date: DateTime.strptime(athena_patient.dob, "%m/%d/%Y"),
+        birth_date: Date.strptime(athena_patient.dob, "%m/%d/%Y"),
         sex: athena_patient.sex,
         athena_id: athena_id)
 

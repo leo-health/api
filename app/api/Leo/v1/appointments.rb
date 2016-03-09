@@ -69,6 +69,8 @@ module Leo
 
       helpers do
         def generate_appointment
+          error! 'Appointment start time is before or within 15 minutes of this request' if params[:start_datetime] < (DateTime.now + 15.minutes)
+
           duration = AppointmentType.find(params[:appointment_type_id]).duration
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
