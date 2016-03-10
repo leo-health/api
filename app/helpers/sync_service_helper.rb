@@ -154,13 +154,15 @@ module SyncServiceHelper
       #mm/dd/yyyy hh:mi:ss
       start_date = nil
       start_date = DateTime.parse(sync_params[:start_date.to_s]) if sync_params[:start_date.to_s]
+      start_last_modified = nil
+      start_last_modified = start_date.strftime("%m/%d/%Y") if start_date
       next_start_date = DateTime.now.to_s
 
       booked_appts = @connector.get_booked_appointments(
         departmentid: task.sync_id,
         startdate: 1.year.ago.strftime("%m/%d/%Y"),
         enddate: 1.year.from_now.strftime("%m/%d/%Y"),
-        startlastmodified: start_date.strftime("%m/%d/%Y")
+        startlastmodified: start_last_modified
       )
 
       booked_appts.each { |appt|
@@ -301,7 +303,7 @@ module SyncServiceHelper
         leo_appt.athena_id = athena_appt.appointmentid.to_i
 
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
-        if athena_appt.respond_to? :rescheduledappointmentid
+        if (athena_appt.respond_to? :rescheduledappointmentid) && (athena_appt.rescheduledappointmentid.to_i != 0)
           rescheduled_appt = Appointment.find_by(athena_id: athena_appt.rescheduledappointmentid.to_i)
           leo_appt.rescheduled_id = rescheduled_appt.id if rescheduled_appt
         end
