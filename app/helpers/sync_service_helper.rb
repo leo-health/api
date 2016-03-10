@@ -160,7 +160,7 @@ module SyncServiceHelper
         departmentid: task.sync_id,
         startdate: 1.year.ago.strftime("%m/%d/%Y"),
         enddate: 1.year.from_now.strftime("%m/%d/%Y"),
-        startlastmodified: start_date
+        startlastmodified: start_date.strftime("%m/%d/%Y")
       )
 
       booked_appts.each { |appt|

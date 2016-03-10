@@ -170,7 +170,6 @@ module AthenaHealthAPI
       #throttle API calls
       unless ignore_throttle
         while (Time.now - @@last_request) < AthenaHealthAPI.configuration.min_request_interval
-          AthenaHealthAPI.configuration.logger.info("Throttling Athena API call")
           sleep(AthenaHealthAPI.configuration.min_request_interval * 0.5)
         end
       end
