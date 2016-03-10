@@ -91,11 +91,10 @@ class Message < ActiveRecord::Base
   end
 
   def send_new_message_notification
-    apns = ApnsNotification.new
     guardians_to_notify = conversation.family.guardians.includes(:sessions).where.not(id: sender.id)
     guardians_to_notify.each do |guardian|
       guardian.collect_device_tokens.each do |device_token|
-        apns.delay.notify_new_message(device_token)
+        NewMessageApnsJob.send(device_token)
       end
     end
   end
