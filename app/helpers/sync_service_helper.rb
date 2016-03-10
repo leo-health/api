@@ -303,7 +303,7 @@ module SyncServiceHelper
         leo_appt.athena_id = athena_appt.appointmentid.to_i
 
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
-        if athena_appt.respond_to? :rescheduledappointmentid && athena_appt.rescheduledappointmentid.to_i != 0
+        if (athena_appt.respond_to? :rescheduledappointmentid) && (athena_appt.rescheduledappointmentid.to_i != 0)
           rescheduled_appt = Appointment.find_by(athena_id: athena_appt.rescheduledappointmentid.to_i)
           leo_appt.rescheduled_id = rescheduled_appt.id if rescheduled_appt
         end
