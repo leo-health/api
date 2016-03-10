@@ -81,15 +81,20 @@ module Leo
         end
       end
 
-      namespace 'staff/:staff_id/conversations' do
+      namespace 'staff/:staff_id/conversations/assigned' do
         before do
           authenticated
         end
 
         desc "Return all relevant conversations of a user"
         get do
-          staff = User.find(params[:staff_id])
-          present :conversations, staff.conversations, with: Leo::Entities::ShortConversationEntity
+          conversations = EscalationNote.includes(:conversation).where(escalated_to_id: params[:staff_id]).reduce([]) do |conversations, escalation_note|
+            if escalation_note.active? && escalation_note.conversation.escalation_notes.order('create_at desc').first == escalation_note
+              conversations << escalation_note.conversation
+            end
+            conversations
+          end
+          present :conversations, conversations, with: Leo::Entities::ShortConversationEntity
         end
       end
 
