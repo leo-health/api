@@ -10,7 +10,7 @@ class Conversation < ActiveRecord::Base
   belongs_to :family
 
   validates :family, :state, presence: true
-  after_commit :load_initial_message, :broadcast_new_conversation, on: :create
+  after_commit :load_initial_message, :broadcast_conversation_by_state, on: :create
 
   aasm whiny_transitions: false, column: :state do
     state :closed, initial: true
