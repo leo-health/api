@@ -183,6 +183,7 @@ module SyncServiceHelper
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
+        practice = Practice.find_by!(athena_id: appt.departmentid)
         
         new_appt = Appointment.create!(
           appointment_status: appointment_status,
