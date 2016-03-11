@@ -155,7 +155,7 @@ module SyncServiceHelper
       start_date = nil
       start_date = DateTime.parse(sync_params[:start_date.to_s]) if sync_params[:start_date.to_s]
       start_last_modified = nil
-      start_last_modified = start_date.strftime("%m/%d/%Y %H:%M") if start_date
+      start_last_modified = start_date.strftime("%m/%d/%Y %H:%M:00") if start_date
       next_start_date = DateTime.now.to_s
 
       booked_appts = @connector.get_booked_appointments(
