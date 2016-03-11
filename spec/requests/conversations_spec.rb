@@ -9,16 +9,17 @@ describe Leo::V1::Conversations do
   let(:serializer){ Leo::Entities::ConversationEntity }
   let(:short_serializer){ Leo::Entities::ShortConversationEntity }
 
-  describe "Get /api/v1/staff/:staff_id/conversations" do
+  describe "Get /api/v1/staff/:staff_id/conversations/assigned" do
     let(:session){ customer_service.sessions.create }
 
     def do_request
-      get "/api/v1/staff/#{customer_service.id}/conversations", {authentication_token: session.authentication_token}
+      get "/api/v1/staff/#{customer_service.id}/conversations/assigned", {authentication_token: session.authentication_token}
     end
 
     before do
       @conversation_one = Conversation.find_by_family_id(user.family_id)
       @conversation_one.messages.create(body: 'test', sender: customer_service, type_name: 'text')
+      @conversation_one.escalate!(note: 'test', escalated_by: customer_service, priority: 1, escalated_to: customer_service)
     end
 
     it "should return all conversations the staff participated" do
