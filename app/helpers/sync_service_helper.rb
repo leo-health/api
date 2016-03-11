@@ -305,7 +305,7 @@ module SyncServiceHelper
           unless rescheduled_appt
             #sync rescheduled appointment
             rescheduled_athena_appt = @connector.get_appointment(appointmentid: leo_appt.athena_id)
-            rescheduled_appt = impl_create_leo_appt_from_athena(rescheduled_athena_appt) if rescheduled_athena_appt
+            rescheduled_appt = impl_create_leo_appt_from_athena(appt: rescheduled_athena_appt) if rescheduled_athena_appt
           end
 
           leo_appt.rescheduled_id = rescheduled_appt.id if rescheduled_appt
