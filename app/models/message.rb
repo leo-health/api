@@ -47,7 +47,7 @@ class Message < ActiveRecord::Base
     set_last_message_created_at
     broadcast_message_by_conversation
     return if ( sender.has_role?(:bot) || initial_welcome_message? )
-    conversation.open!
+    update_conversation_after_message_sent
     send_new_message_notification
     unread_message_reminder_email
     send_auto_reply_if_needed
@@ -82,6 +82,11 @@ class Message < ActiveRecord::Base
 
   def set_last_message_created_at
     conversation.update_columns(last_message_created_at: created_at, updated_at: created_at)
+  end
+
+  def update_conversation_after_message_sent
+    conversation.staff << sender unless ( sender.has_role? :guardian ) || ( conversation.staff.where(id: sender.id).exists? )
+    conversation.open!
   end
 
   def send_new_message_notification
