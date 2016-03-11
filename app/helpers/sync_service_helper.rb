@@ -175,12 +175,15 @@ module SyncServiceHelper
     end
 
     def impl_create_leo_appt_from_athena(appt: )
+      new_appt = nil
+
       begin
         patient = Patient.find_by!(athena_id: appt.patientid.to_i)
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
-        Appointment.create!(
+        
+        new_appt = Appointment.create!(
           appointment_status: appointment_status,
           booked_by: provider_sync_profile.provider,
           patient: patient,
@@ -196,6 +199,8 @@ module SyncServiceHelper
           SyncService.configuration.logger.error e.message
           SyncService.configuration.logger.error e.backtrace.join("\n")
       end
+
+      new_appt
     end
 
     def process_scan_patients(task)
