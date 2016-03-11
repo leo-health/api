@@ -86,7 +86,6 @@ class Message < ActiveRecord::Base
 
   def update_conversation_after_message_sent
     conversation.staff << sender unless ( sender.has_role? :guardian ) || ( conversation.staff.where(id: sender.id).exists? )
-    conversation.user_conversations.update_all(read: false)
     conversation.open!
   end
 

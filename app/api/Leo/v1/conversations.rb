@@ -86,10 +86,24 @@ module Leo
           authenticated
         end
 
+        params do
+          optional :state, type: String
+        end
+
         desc "Return all relevant conversations of a user"
         get do
-          staff = User.find(params[:staff_id])
-          present :conversations, staff.conversations, with: Leo::Entities::ShortConversationEntity
+          if params[:state].try(:to_sym) == :escalated
+            conversations = EscalationNote.includes(:conversation).where(escalated_to_id: params[:staff_id]).reduce([]) do |conversations, escalation_note|
+              if escalation_note.active? && escalation_note.conversation.escalation_notes.order('created_at desc').first == escalation_note
+                conversations << escalation_note.conversation
+              end
+              conversations
+            end
+          else
+            conversations = User.find(params[:staff_id]).try(:conversations)
+          end
+
+          present :conversations, conversations, with: Leo::Entities::ShortConversationEntity
         end
       end
 
