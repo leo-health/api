@@ -41,13 +41,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_scan_remote_appointments" do
+      let!(:provider) { create(:user, :clinical) }
       let!(:booked_appt) {
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
-        .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", "1", "1", "1")
+        .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
       }
       let(:family) { create(:family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
-      let(:provider) { create(:user, :clinical) }
       let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
