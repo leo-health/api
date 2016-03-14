@@ -13,7 +13,7 @@ module Leo
           if user_agent.platform == "iPhone"
             redirect "leohealth://feed/#{params[:type]}/#{params[:type_id]}", permanent: true
           else
-            redirect "#{ENV['PROVIDER_APP_HOST']}/#/deeplink", permanent: true
+            redirect "#{ENV['PROVIDER_APP_HOST']}/#/invalid-device", permanent: true
           end
         end
       end
