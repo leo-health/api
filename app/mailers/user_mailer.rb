@@ -129,7 +129,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'A conversation has been assigned to you!',
       to: user.email,
       vars: {
-        'STAFF_FIRST_NAME': user.staff_name,
+        'STAFF_FIRST_NAME': user.first_name,
         'LINK': "#{ENV['PROVIDER_APP_HOST']}"
       }
     )
@@ -148,12 +148,14 @@ class UserMailer < MandrillMailer::TemplateMailer
   end
 
   def remind_unread_messages(user, staff_message)
+    conversation_id = user.family.conversation.id if user.family
+
     mandrill_mail(
       template: 'Leo - Unread Message',
       subject: "You have unread messages!",
       to: user.email,
       vars: {
-        'LINK':"#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{user.family.conversation.id}",
+        'LINK':"#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation_id}",
         'STAFF_FULL_NAME': staff_message.sender.full_name,
         'GUARDIAN_FIRST_NAME': user.first_name
       }
@@ -169,7 +171,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
         'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
         'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/acceptInvitation?token=#{enrollment.auth_token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/acceptInvitation?token=#{enrollment.authentication_token}"
       }
     )
   end
