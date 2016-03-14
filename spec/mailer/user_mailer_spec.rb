@@ -123,7 +123,7 @@ describe UserMailer do
 
   describe "#unaddressed_conversations_digest" do
     it "should notify staff the number of unaddressed escalated conversations" do
-      UserMailer.unaddressed_conversations_digest(user, 5, :escalated).deliver
+      UserMailer.unaddressed_conversations_digest(user, 5).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Unaddressed Conversations Digest' &&
           mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
