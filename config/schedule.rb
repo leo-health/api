@@ -17,8 +17,10 @@ every 1.day, :at => '12:00pm' do
   rake 'notification:open_conversation_email_digest'
 end
 
-every 1.minute do
-  #make sure that the sync service is running once a minute
-  #if the service is already running, this call is a noop
-  runner "SyncService.start"
+unless Rails.env.development?
+  every 1.minute do
+    #make sure that the sync service is running once a minute
+    #if the service is already running, this call is a noop
+    runner "SyncService.start"
+  end
 end

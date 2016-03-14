@@ -39,3 +39,8 @@ Ensure that version 2.2.2 is selected as current (and default) using `rvm list`
 2. Clone repository from git
 3. Run `rake db:seed` to populate the database with seeds (roles, etc.)
 4. Run `rails s` to start the local server
+
+### Running Delayed jobs from local
+Run `rake jobs:clear` to clear the queue
+Run `rake jobs:work` to start the jobs services
+Run `rake jobs:workoff` for one time queue completion
