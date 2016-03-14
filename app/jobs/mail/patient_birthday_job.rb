@@ -1,4 +1,4 @@
-class PatientBirthdayJob < Struct.new(:guardian_id)
+class PatientBirthdayJob < Struct.new(:guardian_id, :patient_id)
   def self.send(guardian_id, patient_id)
     Delayed::Job.enqueue(new(guardian_id, patient_id))
   end

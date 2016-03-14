@@ -5,7 +5,7 @@ class PrimaryGuardianApproveInvitationJob < Struct.new(:primary_guardian_id, :en
 
   def perform
     user = User.find_by_id(primary_guardian_id)
-    enrollment = Enrollment.find_by_id(enrolment_id)
+    enrollment = Enrollment.find_by_id(enrollment_id)
     UserMailer.primary_guardian_approve_invitation(user, enrollment).deliver if user && enrollment
   end
 

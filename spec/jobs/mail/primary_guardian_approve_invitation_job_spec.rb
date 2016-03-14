@@ -2,8 +2,9 @@ require 'rails_helper'
 require 'mandrill_mailer/offline'
 
 describe PrimaryGuardianApproveInvitationJob do
-  let!(:user){create(:user)}
-  let!(:primary_guardian_approve_invitation_job){PrimaryGuardianApproveInvitationJob.new(user.id, "token")}
+  let(:user){ create :user }
+  let(:enrollment){ create(:enrollment, family: user.family)}
+  let(:primary_guardian_approve_invitation_job){PrimaryGuardianApproveInvitationJob.new(user.id, enrollment.id)}
 
   describe "#perform" do
     it "should send the email via mandrill mailer" do
@@ -13,7 +14,7 @@ describe PrimaryGuardianApproveInvitationJob do
 
   describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ PrimaryGuardianApproveInvitationJob.send(user.id, "token") }.to change(Delayed::Job.where(queue: 'registration_email'), :count).by(1)
+      expect{ PrimaryGuardianApproveInvitationJob.send(user.id, enrollment.id) }.to change(Delayed::Job.where(queue: 'registration_email'), :count).by(1)
     end
   end
 end
