@@ -10,7 +10,7 @@ class Conversation < ActiveRecord::Base
   belongs_to :family
 
   validates :family, :state, presence: true
-  after_commit :load_initial_message, :broadcast_new_conversation, on: :create
+  after_commit :load_initial_message, :broadcast_conversation_by_state, on: :create
 
   aasm whiny_transitions: false, column: :state do
     state :closed, initial: true
@@ -18,14 +18,26 @@ class Conversation < ActiveRecord::Base
     state :open
 
     event :escalate do
+      after do
+        broadcast_conversation_by_state
+      end
+
       transitions from: [:open, :escalated], to: :escalated, guard: :escalate_conversation_to_staff
     end
 
     event :close do
+      after do
+        broadcast_conversation_by_state
+      end
+
       transitions from: [:open, :escalated], to: :closed, guard: :close_conversation
     end
 
     event :open do
+      after do
+        broadcast_conversation_by_state
+      end
+
       transitions from: :closed, to: :open
     end
   end
@@ -63,10 +75,9 @@ class Conversation < ActiveRecord::Base
     end
   end
 
-  def broadcast_new_conversation
+  def broadcast_conversation_by_state
     begin
-      Pusher.trigger("private-conversation", :new_conversation, { id: id,
-                                                                  conversation_state: state })
+      Pusher.trigger("private-newConversation", :new_conversation, { id: id, conversation_state: state })
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end

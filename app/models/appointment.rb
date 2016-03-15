@@ -1,4 +1,6 @@
 class Appointment < ActiveRecord::Base
+  MIN_INTERVAL_TO_SCHEDULE = 15.minutes
+  
   acts_as_paranoid
 
   belongs_to :patient
@@ -18,8 +20,8 @@ class Appointment < ActiveRecord::Base
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
   def same_family?
-    return unless (patient && booked_by)
-    errors.add(:patient_id, "patient and guardian should have same family") unless patient.family_id == booked_by.family_id
+    return unless booked_by.try(:guardian?)
+    errors.add(:patient_id, "patient and guardian should have same family") unless patient.try(:family_id) == booked_by.try(:family_id)
   end
 
   #helpers for athena appointment statuses

@@ -34,15 +34,15 @@ describe Leo::V1::AppointmentSlots do
         sunday_end_time: "17:00")
     }
     let!(:additional_availability) { create(:provider_additional_availability, athena_provider_id: provider_sync_profile.athena_id,
-        start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "17:00").to_s).in_time_zone,
-        end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "20:00").to_s).in_time_zone)
+        start_datetime: Time.zone.parse(date.inspect + " " + "17:00").to_datetime,
+        end_datetime: Time.zone.parse(date.inspect + " " + "20:00").to_datetime)
     }
     let!(:leaves) { create(:provider_leave, athena_provider_id: provider_sync_profile.athena_id,
-      start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "09:00").to_s).in_time_zone, 
-      end_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "12:00").to_s).in_time_zone)
+      start_datetime: Time.zone.parse(date.inspect + " " + "09:00").to_datetime, 
+      end_datetime: Time.zone.parse(date.inspect + " " + "12:00").to_datetime)
     }
     let!(:appointment) { create(:appointment, provider_id: provider.id, appointment_status_id: AppointmentStatus.find_by(status: 'f').id,
-      start_datetime: DateTime.parse(Time.zone.parse(date.inspect + " " + "14:00").to_s).in_time_zone,
+      start_datetime: Time.zone.parse(date.inspect + " " + "14:00").to_datetime,
       duration: 20)
     }
     let(:user){ create(:user, :guardian) }

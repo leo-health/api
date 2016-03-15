@@ -58,7 +58,7 @@ module Leo
         desc "return appointments of current user"
         get do
           if current_user.has_role? :guardian
-            appointments = current_user.booked_appointments
+            appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id))
           elsif current_user.has_role? :clinical
             appointments = current_user.provider_appointments
           end
@@ -69,6 +69,8 @@ module Leo
 
       helpers do
         def generate_appointment
+          error! 'Appointment start time is before or within 15 minutes of this request' if params[:start_datetime] < (DateTime.now + Appointment::MIN_INTERVAL_TO_SCHEDULE)
+
           duration = AppointmentType.find(params[:appointment_type_id]).duration
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)

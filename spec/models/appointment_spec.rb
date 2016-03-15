@@ -27,14 +27,27 @@ RSpec.describe Appointment, type: :model do
 
   describe 'same_family?' do
     let(:first_family){create(:family)}
-    let(:second_family){create(:family)}
     let(:patient){create(:patient, family: first_family)}
-    let(:guardian){create(:user, :guardian, family: second_family)}
 
-    it 'should raise error' do
-      appointment = Appointment.new(patient: patient, booked_by: guardian)
-      appointment.valid?
-      expect(appointment.errors[:patient_id]).to eq(["patient and guardian should have same family"])
+    context "booked by a guaridan" do
+      let(:guardian){create(:user, :guardian, family: second_family)}
+      let(:second_family){create(:family)}
+
+      it 'should raise error' do
+        appointment = Appointment.new(patient: patient, booked_by: guardian)
+        appointment.valid?
+        expect(appointment.errors[:patient_id]).to eq(["patient and guardian should have same family"])
+      end
+    end
+
+    context "booked by a provider" do
+      let(:provider){ create(:user, :clinical) }
+
+      it 'should allow booking by provider' do
+        appointment = Appointment.new(patient: patient, booked_by: provider)
+        appointment.valid?
+        expect(appointment.errors[:patient_id]).to eq([])
+      end
     end
   end
 end

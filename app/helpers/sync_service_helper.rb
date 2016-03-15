@@ -23,6 +23,7 @@ module SyncService
     if SyncService.configuration.auto_gen_scan_tasks && SyncTask.table_exists?
       SyncTask.find_or_create_by(sync_type: :scan_patients.to_s)
       SyncTask.find_or_create_by(sync_type: :scan_appointments.to_s)
+      SyncTask.find_or_create_by(sync_type: :scan_providers.to_s)
 
       Practice.find_each { |practice|
         SyncTask.find_or_create_by(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
@@ -64,8 +65,6 @@ end
 
 module SyncServiceHelper
   class Syncer
-    @debug = false
-
     attr_reader :connector
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
@@ -129,21 +128,38 @@ module SyncServiceHelper
       end
     end
 
+    # Go through all existing providers and add all missing sync tasks for providers.
+    #
+    # ==== arguments
+    # * +task+ - the sync task to process
+    def process_scan_providers(task)
+      ProviderSyncProfile.find_each do |provider_sync_profile|
+        begin
+          if provider_sync_profile.leave_updated_at.nil? || (provider_sync_profile.leave_updated_at.utc + SyncService.configuration.appointment_data_interval) < DateTime.now.utc
+            SyncTask.find_or_create_by(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+          end
+
+        rescue => e
+          SyncService.configuration.logger.error "Syncer: Creating sync task for provider.id=#{provider_sync_profile.provider_id} failed"
+          SyncService.configuration.logger.error e.message
+          SyncService.configuration.logger.error e.backtrace.join("\n")
+        end
+      end
+    end
+
     def process_scan_remote_appointments(task)
       sync_params = {}
       sync_params = JSON.parse(task.sync_params) if task.sync_params.to_s != ''
 
       #mm/dd/yyyy hh:mi:ss
       start_date = nil
-      start_date = DateTime.iso8601(sync_params[:start_date.to_s]).strftime("%m/%d/%Y %H:%M:00") if sync_params[:start_date.to_s]
+      start_date = DateTime.parse(sync_params[:start_date.to_s]) if sync_params[:start_date.to_s]
       next_start_date = DateTime.now.to_s
 
       booked_appts = @connector.get_booked_appointments(
         departmentid: task.sync_id,
         startdate: 1.year.ago.strftime("%m/%d/%Y"),
-        enddate: 1.year.from_now.strftime("%m/%d/%Y"),
-        startlastmodified: start_date
-      )
+        enddate: 1.year.from_now.strftime("%m/%d/%Y"))
 
       booked_appts.each { |appt|
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
@@ -159,19 +175,24 @@ module SyncServiceHelper
     end
 
     def impl_create_leo_appt_from_athena(appt: )
+      new_appt = nil
+
       begin
         patient = Patient.find_by!(athena_id: appt.patientid.to_i)
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
-        Appointment.create!(
+        practice = Practice.find_by!(athena_id: appt.departmentid)
+        
+        new_appt = Appointment.create!(
           appointment_status: appointment_status,
           booked_by: provider_sync_profile.provider,
           patient: patient,
           provider: provider_sync_profile.provider,
+          practice: practice,
           appointment_type: appointment_type,
           duration: appt.duration,
-          start_datetime: DateTime.strptime("#{appt.date} #{appt.starttime}", "%m/%d/%Y %H:%M"),
+          start_datetime: AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime),
           sync_updated_at: DateTime.now,
           athena_id: appt.appointmentid.to_i
         )
@@ -180,6 +201,8 @@ module SyncServiceHelper
           SyncService.configuration.logger.error e.message
           SyncService.configuration.logger.error e.backtrace.join("\n")
       end
+
+      new_appt
     end
 
     def process_scan_patients(task)
@@ -250,6 +273,11 @@ module SyncServiceHelper
             departmentid: leo_appt.provider.provider_sync_profile.athena_department_id
         )
 
+        #add appointment notes
+        if leo_appt.notes
+          @connector.create_appointment_note(appointmentid: leo_appt.athena_id, notetext: leo_appt.notes)
+        end
+
         leo_appt.save!
       end
 
@@ -273,18 +301,56 @@ module SyncServiceHelper
         leo_appt.provider_id = provider_sync_profile.provider_id
         leo_appt.appointment_type_id = appointment_type.id
         leo_appt.duration = athena_appt.duration.to_i
-        leo_appt.start_datetime = DateTime.strptime(athena_appt.date + " " + athena_appt.starttime, "%m/%d/%Y %H:%M")
+
+        leo_appt.start_datetime = AthenaHealthApiHelper.to_datetime(athena_appt.date, athena_appt.starttime)
         leo_appt.athena_id = athena_appt.appointmentid.to_i
 
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
-        if athena_appt.respond_to? :rescheduledappointmentid
+        if (athena_appt.respond_to? :rescheduledappointmentid) && (athena_appt.rescheduledappointmentid.to_i != 0)
           rescheduled_appt = Appointment.find_by(athena_id: athena_appt.rescheduledappointmentid.to_i)
+
+          unless rescheduled_appt
+            #sync rescheduled appointment
+            rescheduled_athena_appt = @connector.get_appointment(appointmentid: athena_appt.rescheduledappointmentid)
+            rescheduled_appt = impl_create_leo_appt_from_athena(appt: rescheduled_athena_appt) if rescheduled_athena_appt
+          end
+
           leo_appt.rescheduled_id = rescheduled_appt.id if rescheduled_appt
         end
       end
 
       leo_appt.sync_updated_at = DateTime.now.utc
       leo_appt.save!
+    end
+
+    def process_provider_leave(task)
+      provider_sync_profile = ProviderSyncProfile.find_by!(provider_id: task.sync_id)
+      blocked_appointment_type = AppointmentType.find_by!(name: "Block")
+
+      blocked_appts = @connector.get_open_appointments(
+        departmentid: provider_sync_profile.athena_department_id,
+        appointmenttypeid: blocked_appointment_type.athena_id,
+        providerid: provider_sync_profile.athena_id
+      ).select {|appt| (appt.appointmenttypeid.to_i == blocked_appointment_type.athena_id && appt.providerid.to_i == provider_sync_profile.athena_id) }
+
+      #delete all existing provider leaves that are synched from athena
+      ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).destroy_all
+
+      #add new entries
+      blocked_appts.each { |appt|
+        start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
+
+        ProviderLeave.create(
+          athena_id: appt.appointmentid.to_i, 
+          athena_provider_id: appt.providerid.to_i, 
+          description: "Synced from Athena block.id=#{appt.appointmentid}",
+          start_datetime: start_datetime,
+          end_datetime: start_datetime + appt.duration.to_i.minutes
+        )
+      }
+
+      provider_sync_profile.leave_updated_at = DateTime.now.utc
+      provider_sync_profile.save!
     end
 
     def find_preexisting_athena_patients()
@@ -313,7 +379,7 @@ module SyncServiceHelper
       leo_patient = family.patients.new(
         first_name: athena_patient.firstname,
         last_name: athena_patient.lastname,
-        birth_date: DateTime.strptime(athena_patient.dob, "%m/%d/%Y"),
+        birth_date: Date.strptime(athena_patient.dob, "%m/%d/%Y"),
         sex: athena_patient.sex,
         athena_id: athena_id)
 

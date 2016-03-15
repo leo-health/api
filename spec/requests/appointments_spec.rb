@@ -14,7 +14,7 @@ describe Leo::V1::Appointments do
 
   describe "Post /api/v1/appointments" do
     def do_request
-      appointment_params = { start_datetime: Time.now,
+      appointment_params = { start_datetime: Time.now + Appointment::MIN_INTERVAL_TO_SCHEDULE + 1.minute,
                              appointment_status_id: cancelled_appointment_status.id,
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,
@@ -82,7 +82,7 @@ describe Leo::V1::Appointments do
     let!(:appointment){create(:appointment, booked_by: user)}
 
     def do_request
-      appointment_params = { start_datetime: Time.now,
+      appointment_params = { start_datetime: Time.now + Appointment::MIN_INTERVAL_TO_SCHEDULE + 1.minute,
                              appointment_status_id: cancelled_appointment_status.id,
                              appointment_type_id: appointment_type.id,
                              provider_id: provider.id,

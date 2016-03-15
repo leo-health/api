@@ -8,6 +8,7 @@ class EscalationNote < ActiveRecord::Base
   after_commit :notify_escalatee, :broadcast_escalation_note, on: :create
 
   def active?
+    return true unless conversation.last_closed_at
     created_at > conversation.last_closed_at
   end
 
