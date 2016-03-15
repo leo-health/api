@@ -22,7 +22,7 @@ module Leo
           open_slots = []
 
           appointment = Appointment.find_by_id(params[:appointment_id])
-          if appointment && appointment.provider_id == params[:provider_id]
+          if appointment.try(:provider_id) == params[:provider_id]
               open_slots += [AppointmentSlotsHelper::OpenSlot.new(appointment.start_datetime, appointment.duration)]
           end
 
