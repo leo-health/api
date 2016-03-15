@@ -12,6 +12,7 @@ module Leo
           requires :end_date, type: String, desc: "End date", allow_blank: false
           requires :appointment_type_id, type: Integer, desc: "Appointment Type", allow_blank: false
           requires :provider_id, type: Integer, desc: "Provider Id", allow_blank: false
+          optional :appointment_id, type: Integer, desc: "Existing appointment to reschedule", allow_blank: false
         end
 
         get do
@@ -20,12 +21,17 @@ module Leo
 
           open_slots = []
 
+          appointment = Appointment.find_by_id(params[:appointment_id])
+          if appointment && appointment.provider_id == params[:provider_id]
+              open_slots += [AppointmentSlotsHelper::OpenSlot.new(appointment.start_datetime, appointment.duration)]
+          end
+
           type = AppointmentType.find(params[:appointment_type_id])
           provider = User.find(params[:provider_id])
 
           osp = AppointmentSlotsHelper::OpenSlotsProcessor.new
           start_date.upto(end_date) do |date|
-            open_slots = open_slots + osp.get_open_slots(athena_provider_id: provider.provider_sync_profile.athena_id, date: date, durations: [ type.duration ])
+            open_slots += osp.get_open_slots(athena_provider_id: provider.provider_sync_profile.athena_id, date: date, durations: [ type.duration ])
           end
 
           current_datetime = DateTime.now
