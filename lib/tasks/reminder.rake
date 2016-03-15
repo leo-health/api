@@ -25,9 +25,9 @@ namespace :notification do
 
   desc "send guardian email on their children birthday"
   task patient_birthday: :environment do
-    Patient.includes(family: :guardians).where(birth_date: Time.now.utc..1.day.from_now.utc).find_each do |patient|
+    Patient.includes(family: :guardians).where(birth_date: Time.now..1.day.from_now).find_each do |patient|
       patient.family.guardians.each do |guardian|
-        created_job = PatientBirthdayJob.send(guardian.id)
+        created_job = PatientBirthdayJob.send(guardian.id. patient.id)
         if created_job.valid?
           print "*"
         else
@@ -58,21 +58,6 @@ namespace :notification do
 
       next if count == 0
       created_job = UnaddressedConversationDigestJob.send(staff.id, count, :escalated)
-      if created_job.valid?
-        print "*"
-      else
-        print "x"
-      end
-    end
-  end
-
-
-  desc "send email digest to customer service about open conversations"
-  task open_conversation_email_digest: :environment do
-    User.joins(:role).where(roles: {name: "customer_service"}).each do |cs_user|
-      count = Conversation.where(state: :open).count
-      next if count == 0
-      created_job = UnaddressedConversationDigestJob.send(cs_user.id, count, :open)
       if created_job.valid?
         print "*"
       else

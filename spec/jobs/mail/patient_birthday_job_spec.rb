@@ -2,8 +2,9 @@ require 'rails_helper'
 require 'mandrill_mailer/offline'
 
 describe PatientBirthdayJob do
-  let!(:user){create(:user)}
-  let!(:patient_birthday_job){PatientBirthdayJob.new(user.id)}
+  let(:user){ create :user }
+  let(:patient){ create(:patient, family: user.family) }
+  let!(:patient_birthday_job){PatientBirthdayJob.new(user.id, patient.id)}
 
   describe "#perform" do
     it "should send the email via mandrill mailer" do
@@ -13,7 +14,7 @@ describe PatientBirthdayJob do
 
   describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ PatientBirthdayJob.send(user.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
+      expect{ PatientBirthdayJob.send(user.id, patient.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
     end
   end
 end
