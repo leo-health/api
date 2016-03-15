@@ -26,13 +26,13 @@ RSpec.describe GrowthCurvesHelper, type: :helper do
       let!(:entry_2) { create(:weight_growth_curve, days: 2, sex: "M", m: 50) }
 
       it "returns correct weight_percentile at 0 days" do
-        expect(GrowthCurvesHelper.weight_percentile(entry_0.sex, 0.days.ago, 0.days.ago, entry_0.m)).to eq(50)
+        expect(GrowthCurvesHelper.weight_percentile(entry_0.sex, 0.hours.ago, 0.hours.ago, entry_0.m)).to eq(50)
       end
       it "returns correct weight_percentile at 1 days" do
-        expect(GrowthCurvesHelper.weight_percentile(entry_1.sex, 1.days.ago, 0.days.ago, entry_1.m)).to eq(50)
+        expect(GrowthCurvesHelper.weight_percentile(entry_1.sex, 24.hours.ago, 0.hours.ago, entry_1.m)).to eq(50)
       end
       it "returns correct weight_percentile at 2 days" do
-        expect(GrowthCurvesHelper.weight_percentile(entry_2.sex, 2.days.ago, 0.days.ago, entry_2.m)).to eq(50)
+        expect(GrowthCurvesHelper.weight_percentile(entry_2.sex, 48.hours.ago, 0.hours.ago, entry_2.m)).to eq(50)
       end
     end
 
@@ -42,13 +42,13 @@ RSpec.describe GrowthCurvesHelper, type: :helper do
       let!(:entry_2) { create(:height_growth_curve, days: 2, sex: "M", m: 50) }
 
       it "returns correct height_percentile at 0 days" do
-        expect(GrowthCurvesHelper.height_percentile(entry_0.sex, 0.days.ago, 0.days.ago, entry_0.m)).to eq(50)
+        expect(GrowthCurvesHelper.height_percentile(entry_0.sex, 0.hours.ago, 0.hours.ago, entry_0.m)).to eq(50)
       end
       it "returns correct height_percentile at 1 days" do
-        expect(GrowthCurvesHelper.height_percentile(entry_1.sex, 1.days.ago, 0.days.ago, entry_1.m)).to eq(50)
+        expect(GrowthCurvesHelper.height_percentile(entry_1.sex, 24.hours.ago, 0.hours.ago, entry_1.m)).to eq(50)
       end
       it "returns correct height_percentile at 2 days" do
-        expect(GrowthCurvesHelper.height_percentile(entry_2.sex, 2.days.ago, 0.days.ago, entry_2.m)).to eq(50)
+        expect(GrowthCurvesHelper.height_percentile(entry_2.sex, 48.hours.ago, 0.hours.ago, entry_2.m)).to eq(50)
       end
     end
 
@@ -58,13 +58,13 @@ RSpec.describe GrowthCurvesHelper, type: :helper do
       let!(:entry_2) { create(:bmi_growth_curve, days: 2, sex: "M", m: 50) }
 
       it "returns correct bmi_percentile at 0 days" do
-        expect(GrowthCurvesHelper.bmi_percentile(entry_0.sex, 0.days.ago, 0.days.ago, entry_0.m)).to eq(50)
+        expect(GrowthCurvesHelper.bmi_percentile(entry_0.sex, 0.hours.ago, 0.hours.ago, entry_0.m)).to eq(50)
       end
       it "returns correct bmi_percentile at 1 days" do
-        expect(GrowthCurvesHelper.bmi_percentile(entry_1.sex, 1.days.ago, 0.days.ago, entry_1.m)).to eq(50)
+        expect(GrowthCurvesHelper.bmi_percentile(entry_1.sex, 24.hours.ago, 0.hours.ago, entry_1.m)).to eq(50)
       end
       it "returns correct bmi_percentile at 2 days" do
-        expect(GrowthCurvesHelper.bmi_percentile(entry_2.sex, 2.days.ago, 0.days.ago, entry_2.m)).to eq(50)
+        expect(GrowthCurvesHelper.bmi_percentile(entry_2.sex, 48.hours.ago, 0.hours.ago, entry_2.m)).to eq(50)
       end
     end
   end

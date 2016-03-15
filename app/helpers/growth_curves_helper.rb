@@ -13,6 +13,30 @@ module GrowthCurvesHelper
     ]
   end
 
+  def self.lbs_to_kg(lbs)
+    0.45 * lbs
+  end
+
+  def self.kg_to_lbs(kg)
+    kg / 0.45
+  end
+
+  def self.m_to_inches(m)
+    m * 39.3701
+  end
+
+  def self.inches_to_m(inches)
+    inches / 39.3701
+  end
+
+  def self.celsius_to_farenheit(c)
+    c * 1.8 + 32
+  end
+
+  def self.farenheit_to_celsius(f)
+    (f - 32.0) / 1.8
+  end
+
   def self.min_days_window
     31
   end
