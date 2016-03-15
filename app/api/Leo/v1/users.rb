@@ -123,6 +123,20 @@ module Leo
             update_success @user, user_params
           end
         end
+
+        desc "confirm user's email address"
+        namespace "/confirm_email" do
+          params do
+            requires :token, type: String
+          end
+
+          post do
+            user = User.find_by!(confirmation_token: params[:token])
+            if user.confirm
+              redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true
+            end
+          end
+        end
       end
     end
   end

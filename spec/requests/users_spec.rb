@@ -113,4 +113,27 @@ describe Leo::V1::Users do
       expect{user.reload.confirm}.to change{user.email}.from(original_email).to(email)
     end
   end
+
+  describe "POST /api/v1/users/confirm_email" do
+    let(:user){create(:user)}
+
+    before do
+      Timecop.freeze(Time.now)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    def do_request
+      post "/api/v1/users/confirm_email", { token: user.confirmation_token }
+    end
+
+    it "should confirm the user's account" do
+      do_request
+      expect(response.status).to eq(301)
+      expect(response.header['Location']).to eq("http://localhost:8888/#/success")
+      expect(user.reload.confirmed_at).to eq(Time.now)
+    end
+  end
 end

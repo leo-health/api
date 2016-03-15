@@ -2,14 +2,14 @@ class UserMailer < MandrillMailer::TemplateMailer
   default from: 'info@leohealth.com'
 
   def confirmation_instructions(user, token, opts={})
-    @token = token
+    byebug
     mandrill_mail(
       template: 'Leo - Sign Up Confirmation',
       subject: 'Leo - Please confirm your account!',
       to: user.email,
       vars: {
         'GUARDIAN_FIRST_NAME': user.first_name,
-        'LINK': ""
+        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?confirmation_token=#{token}"
       }
     )
   end
@@ -106,7 +106,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "whatever link goes here"
+        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{user.confirmation_token}"
       }
     )
   end
