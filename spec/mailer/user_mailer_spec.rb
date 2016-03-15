@@ -12,7 +12,7 @@ describe UserMailer do
     it "should send the user a confirmation_instructions email" do
       UserMailer.confirmation_instructions(user, "token").deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Sign Up - Confirmation' &&
+        mail.template_name == 'Leo - Sign Up Confirmation' &&
           mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -23,7 +23,7 @@ describe UserMailer do
     it "should send the user a reset_password_instructions email" do
       UserMailer.reset_password_instructions(user, "token").deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Password - Reset Password' &&
+        mail.template_name == 'Leo - Password Reset' &&
           mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -32,10 +32,11 @@ describe UserMailer do
 
   describe "#invite_secondary_parent" do
     let(:enrollment){ build(:enrollment) }
+
     it "should send the secondary parent a invite" do
       UserMailer.invite_secondary_parent(enrollment, user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Invite User' &&
+        mail.template_name == 'Leo - Invite a Secondary Guardian' &&
           mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -43,7 +44,8 @@ describe UserMailer do
   end
 
   describe "#five_day_appointment_reminder" do
-    let(:appointment){ create(:appointment) }
+    let(:appointment){ build :appointment }
+
     it "should send the user an reminder of the appointment 5 days prior to the scheduled visit" do
       UserMailer.five_day_appointment_reminder(user, appointment).deliver
       email = MandrillMailer::deliveries.detect do |mail|
@@ -66,7 +68,8 @@ describe UserMailer do
   end
 
   describe "#same_day_appointment_reminder" do
-    let(:appointment){ create(:appointment) }
+    let(:appointment){ build :appointment }
+
     it "should send the user an reminder of the appointment on same day" do
       UserMailer.same_day_appointment_reminder(user, appointment).deliver
       email = MandrillMailer::deliveries.detect do |mail|
@@ -78,10 +81,12 @@ describe UserMailer do
   end
 
   describe "#patient_birthday" do
+    let(:patient){ build :patient }
+
     it "should send the guardian a email" do
-      UserMailer.patient_birthday(user).deliver
+      UserMailer.patient_birthday(user, patient).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Patient Happy Birthday' &&
+        mail.template_name == 'Leo - Patient Birthday' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -103,7 +108,7 @@ describe UserMailer do
     it "should send the user a email confirmation that they have successfully changed their password" do
       UserMailer.password_change_confirmation(user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Password Changed' &&
+        mail.template_name == 'Leo - Password Changed Confirmation' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -114,7 +119,7 @@ describe UserMailer do
     it "should send user a email when a conversation escalated to the user" do
       UserMailer.notify_escalated_conversation(user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Escalated Conversation' &&
+        mail.template_name == 'Leo Provider - Case Assigned' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -123,9 +128,9 @@ describe UserMailer do
 
   describe "#unaddressed_conversations_digest" do
     it "should notify staff the number of unaddressed escalated conversations" do
-      UserMailer.unaddressed_conversations_digest(user, 5, :escalated).deliver
+      UserMailer.unaddressed_conversations_digest(user, 5).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Unaddressed Conversations Digest' &&
+        mail.template_name == 'Leo Provider - Unresolved Assigned Cases' &&
           mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -133,12 +138,12 @@ describe UserMailer do
   end
 
   describe "#remind_unread_messages" do
-    let(:message){ create(:message) }
+    let(:message){ build :message }
 
     it "should notify guardian of read message from staff" do
       UserMailer.remind_unread_messages(user, message).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Message Not Read Over an Hour' &&
+        mail.template_name == 'Leo - Unread Message' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -146,10 +151,12 @@ describe UserMailer do
   end
 
   describe "#primary_guardian_approve_invitation" do
+    let(:enrollment){ build :enrollment }
+
     it "should ask primary guardian for approval of pending invitation" do
-      UserMailer.primary_guardian_approve_invitation(user, "token").deliver
+      UserMailer.primary_guardian_approve_invitation(user, enrollment).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Approve Invitation' &&
+        mail.template_name == 'Leo - Secondary Guardian Confirmation' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil

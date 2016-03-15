@@ -2,22 +2,21 @@ class UserMailer < MandrillMailer::TemplateMailer
   default from: 'info@leohealth.com'
 
   def confirmation_instructions(user, token, opts={})
-    @token = token
     mandrill_mail(
-      template: 'Leo - Sign Up - Confirmation',
-      subject: 'Leo - Please confirm your account with us.',
+      template: 'Leo - Sign Up Confirmation',
+      subject: 'Leo - Please confirm your account!',
       to: user.email,
       vars: {
-        'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/deep_link/confirm_email"
+        'GUARDIAN_FIRST_NAME': user.first_name,
+        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?confirmation_token=#{token}"
       }
     )
   end
 
   def reset_password_instructions(user, token, opts={})
     mandrill_mail(
-      template: 'Leo - Password - Reset Password',
-      subject: 'Leo - Instructions to reset your password',
+      template: 'Leo - Password Reset',
+      subject: 'Leo - Password reset request.',
       to: user.email,
       vars: {
         'FIRST_NAME': user.first_name,
@@ -28,8 +27,8 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def invite_secondary_parent(enrollment, current_user)
     mandrill_mail(
-      template: 'Leo - Invite User',
-      subject: 'Leo Invitation',
+      template: 'Leo - Invite a Secondary Guardian',
+      subject: "You've been invited to join Leo @ Flatiron Pediatrics!",
       to: enrollment.email,
       vars: {
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/registration?token=#{enrollment.authentication_token}",
@@ -41,16 +40,18 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def five_day_appointment_reminder(user, appointment)
     patient = appointment.patient
-    start_datetime = appointment.start_datetime
-    day_of_week = start_datetime.strftime("%A")
-    appointment_time = start_datetime.in_time_zone.strftime("%I:%M %p")
+    if appointment.start_datetime
+      day_of_week = appointment.start_datetime.strftime("%A")
+      appointment_time = appointment.start_datetime.in_time_zone.strftime("%I:%M %p")
+    end
 
     mandrill_mail(
       template: 'Leo - Five Day Appointment Reminder',
-      subject: 'You have an appointment coming up soon!',
+      subject: 'Leo - Friendly reminder, you have an upcoming appointment!',
       to: user.email,
+      from: "info@leohealth.com",
       vars: {
-        'PRIMARY_GUARDIAN_FIRST_NAME': user.first_name,
+        'GUARDIAN_FIRST_NAME': user.first_name,
         'CHILD_FIRST_NAME': patient.first_name,
         'APPOINTMENT_DAY_OF_WEEK': day_of_week,
         'APPOINTMENT_TIME': appointment_time,
@@ -60,11 +61,13 @@ class UserMailer < MandrillMailer::TemplateMailer
   end
 
   def welcome_to_pratice(user)
-    #this is just a placeholder, subject to change
     mandrill_mail(
       template: 'Leo - Welcome to Practice',
-      subject: 'Welcome to Leo',
-      to: user.email
+      subject: 'Welcome to Leo @ Flatiron Pediatrics!',
+      to: user.email,
+      vars: {
+        'GUARDIAN_FIRST_NAME': user.first_name
+      }
     )
   end
 
@@ -72,7 +75,8 @@ class UserMailer < MandrillMailer::TemplateMailer
     appointment_time = appointment.start_datetime.in_time_zone.strftime("%I:%M %p")
     mandrill_mail(
         template: 'Leo - Same Day Appointment Reminder',
-        subject: 'You have an appointment today!',
+        subject: 'Leo - Appointment Reminder, see you soon!',
+        from: 'info@leohealth.com',
         to: user.email,
         vars: {
           'PRIMARY_GUARDIAN_FIRST_NAME': user.first_name,
@@ -83,71 +87,90 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def patient_birthday(guardian)
+  def patient_birthday(guardian, patient)
     mandrill_mail(
-      template: 'Leo - Patient Happy Birthday',
-      subject: 'Anniversary of having kids!',
-      to: guardian.email
+      template: 'Leo - Patient Birthday',
+      subject: 'Happy Birthday!',
+      to: guardian.email,
+      vars: {
+        'PATIENT_FIRST_NAME': patient.first_name
+      }
     )
   end
 
   def account_confirmation_reminder(user)
     mandrill_mail(
       template: 'Leo - Account Confirmation Reminder',
-      subject: 'One day left to confirm your account with Leo',
-      to: user.email
+      subject: 'Important - Please confirm your account with Leo!',
+      to: user.email,
+      vars: {
+        'FIRST_NAME': user.first_name,
+        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{user.confirmation_token}"
+      }
     )
   end
 
   def password_change_confirmation(user)
     mandrill_mail(
-      template: 'Leo - Password Changed',
-      subject: 'Successfully changed your password!',
-      to: user.email
+      template: 'Leo - Password Changed Confirmation',
+      subject: 'Leo - Your password has been successfully changed!',
+      to: user.email,
+      vars: {
+        'FIRST_NAME': user.first_name
+      }
     )
   end
 
 
   def notify_escalated_conversation(user)
     mandrill_mail(
-      template: 'Leo - Escalated Conversation',
-      subject: 'A conversation has been escalated to you with high priority!',
-      to: user.email
+      template: 'Leo Provider - Case Assigned',
+      subject: 'A conversation has been assigned to you!',
+      to: user.email,
+      vars: {
+        'STAFF_FIRST_NAME': user.first_name,
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}"
+      }
     )
   end
 
-  def unaddressed_conversations_digest(user, count, state)
+  def unaddressed_conversations_digest(user, count)
     mandrill_mail(
-      template: 'Leo - Unaddressed Conversations Digest',
-      subject: "You have some work to do now, address your #{state} conversations",
+      template: 'Leo Provider - Unresolved Assigned Cases',
+      subject: "You have unresolved cases that have been assigned to you.",
       to: user.email,
       vars: {
+        'STAFF_FIRST_NAME': user.first_name,
         'COUNT': count
       }
     )
   end
 
   def remind_unread_messages(user, staff_message)
+    conversation_id = user.family.conversation.id if user.family
+
     mandrill_mail(
-      template: 'Leo - Message Not Read Over an Hour',
-      subject: "You have unread message from last hour!",
+      template: 'Leo - Unread Message',
+      subject: "You have unread messages!",
       to: user.email,
       vars: {
-        'BODY': staff_message.body,
-        'STAFF': staff_message.sender.full_name,
+        'LINK':"#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation_id}",
+        'STAFF_FULL_NAME': staff_message.sender.full_name,
         'GUARDIAN_FIRST_NAME': user.first_name
       }
     )
   end
 
-  def primary_guardian_approve_invitation(primary_guardian, enrollment_auth_token)
+  def primary_guardian_approve_invitation(primary_guardian, enrollment)
     mandrill_mail(
-      template: 'Leo - Approve Invitation',
-      subject: "You have a pending invitation needs action!",
+      template: 'Leo - Secondary Guardian Confirmation',
+      subject: "Leo - Please confirm #{enrollment.first_name}'s account'",
       to: primary_guardian.email,
       vars: {
         'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/acceptInvitation?token=#{enrollment_auth_token}"
+        'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
+        'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/acceptInvitation?token=#{enrollment.authentication_token}"
       }
     )
   end
