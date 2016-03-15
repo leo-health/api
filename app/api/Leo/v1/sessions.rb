@@ -23,7 +23,7 @@ module Leo
           session_params = {
             platform: params[:platform],
             device_type: params[:device_type],
-            device_token: params[:device_token],
+            device_token: params[:device_token]
           }
 
           session = user.sessions.create(session_params)

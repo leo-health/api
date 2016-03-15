@@ -57,8 +57,6 @@ module Leo
         post do
           user = User.new(declared(params, include_missing: false).merge({role_id: 4}))
           create_success user
-          session = user.sessions.create
-          present :session, session
         end
       end
 
@@ -73,28 +71,35 @@ module Leo
           optional :middle_initial, type: String
           optional :title, type: String
           optional :suffix, type: String
+          optional :device_token, type: String
+          optional :device_type, type: String
         end
 
         post do
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
-
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
-          enrollment_params = { encrypted_password: enrollment.encrypted_password,
-                                email: enrollment.email,
-                                first_name: enrollment.first_name,
-                                last_name: enrollment.last_name,
-                                phone: enrollment.phone,
-                                onboarding_group: enrollment.onboarding_group,
-                                role_id: enrollment.role_id,
-                                family_id: enrollment.family_id,
-                                birth_date: enrollment.birth_date,
-                                sex: enrollment.sex,
-                                insurance_plan_id: enrollment.insurance_plan_id
-                              }
+          enrollment_params = {
+            encrypted_password: enrollment.encrypted_password,
+            email: enrollment.email,
+            first_name: enrollment.first_name,
+            last_name: enrollment.last_name,
+            phone: enrollment.phone,
+            onboarding_group: enrollment.onboarding_group,
+            role_id: enrollment.role_id,
+            family_id: enrollment.family_id,
+            birth_date: enrollment.birth_date,
+            sex: enrollment.sex,
+            insurance_plan_id: enrollment.insurance_plan_id
+          }
 
           user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
           create_success user
-          session = user.sessions.create
+          session_params = {
+            device_type: params[:device_type],
+            device_token: params[:device_token]
+          }
+
+          session = user.sessions.create(session_params)
           present :session, session
         end
 
