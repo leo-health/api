@@ -2,7 +2,6 @@ class UserMailer < MandrillMailer::TemplateMailer
   default from: 'info@leohealth.com'
 
   def confirmation_instructions(user, token, opts={})
-    byebug
     mandrill_mail(
       template: 'Leo - Sign Up Confirmation',
       subject: 'Leo - Please confirm your account!',

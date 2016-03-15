@@ -6,6 +6,7 @@ module Leo
         expose :taken_at
       end
       expose :value
+      expose :unit
       expose :percentile
     end
   end

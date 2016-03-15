@@ -9,7 +9,7 @@ module Leo
 
         get do
           family = Family.includes(:guardians).find(current_user.family_id)
-          appointments = Appointment.booked.where( booked_by_id: family.guardians.pluck(:id) )
+          appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id))
                            .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
           cards = sort_cards(appointments + [family.conversation])
