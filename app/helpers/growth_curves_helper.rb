@@ -29,11 +29,11 @@ module GrowthCurvesHelper
     inches / 39.3701
   end
 
-  def self.celsius_to_farenheit(c)
+  def self.celsius_to_fahrenheit(c)
     c * 1.8 + 32
   end
 
-  def self.farenheit_to_celsius(f)
+  def self.fahrenheit_to_celsius(f)
     (f - 32.0) / 1.8
   end
 
