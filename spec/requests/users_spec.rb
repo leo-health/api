@@ -118,7 +118,8 @@ describe Leo::V1::Users do
     let(:user){create(:user)}
 
     before do
-      Timecop.freeze(Time.now)
+      current_time = Time.new(2016, 3, 4, 12, 0, 0, "-05:00")
+      Timecop.freeze(current_time)
     end
 
     after do
