@@ -86,7 +86,7 @@ describe UserMailer do
     it "should send the guardian a email" do
       UserMailer.patient_birthday(user, patient).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Patient Happy Birthday' &&
+        mail.template_name == 'Leo - Patient Birthday' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
@@ -130,7 +130,7 @@ describe UserMailer do
     it "should notify staff the number of unaddressed escalated conversations" do
       UserMailer.unaddressed_conversations_digest(user, 5).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo Provider- Unresolved Assigned Cases' &&
+        mail.template_name == 'Leo Provider - Unresolved Assigned Cases' &&
           mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil

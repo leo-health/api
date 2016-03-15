@@ -9,7 +9,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'GUARDIAN_FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/deep_link/confirm_email"
+        'LINK': ""
       }
     )
   end
@@ -50,7 +50,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       template: 'Leo - Five Day Appointment Reminder',
       subject: 'Leo - Friendly reminder, you have an upcoming appointment!',
       to: user.email,
-      from: "info@flatironpediatrics.com",
+      from: "info@leohealth.com",
       vars: {
         'GUARDIAN_FIRST_NAME': user.first_name,
         'CHILD_FIRST_NAME': patient.first_name,
@@ -77,7 +77,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     mandrill_mail(
         template: 'Leo - Same Day Appointment Reminder',
         subject: 'Leo - Appointment Reminder, see you soon!',
-        from: 'info@flatironpediatrics.com',
+        from: 'info@leohealth.com',
         to: user.email,
         vars: {
           'PRIMARY_GUARDIAN_FIRST_NAME': user.first_name,
@@ -90,7 +90,7 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def patient_birthday(guardian, patient)
     mandrill_mail(
-      template: 'Leo - Patient Happy Birthday',
+      template: 'Leo - Patient Birthday',
       subject: 'Happy Birthday!',
       to: guardian.email,
       vars: {
@@ -137,7 +137,7 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def unaddressed_conversations_digest(user, count)
     mandrill_mail(
-      template: 'Leo Provider- Unresolved Assigned Cases',
+      template: 'Leo Provider - Unresolved Assigned Cases',
       subject: "You have unresolved cases that have been assigned to you.",
       to: user.email,
       vars: {
