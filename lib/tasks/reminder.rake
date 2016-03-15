@@ -1,24 +1,28 @@
 namespace :notification do
   desc "send user a reminder 5 days prior to upcoming appointment"
   task five_day_prior_appointment: :environment do
-    Appointment.where(start_datetime: 5.days.from_now.utc..6.days.from_now.utc).find_each do |appointment|
-      created_job = FiveDayAppointmentReminderJob.send(appointment.booked_by.id, appointment.id)
-      if created_job.valid?
-        print "*"
-      else
-        print "x"
+    Appointment.where.not(appointment_status: AppointmentStatus.cancelled).where(start_datetime: 5.days.from_now.utc..6.days.from_now.utc).includes(:patient => {:family => :guardians}).find_each do |appointment|
+      appointment.patient.family.guardians.each do |guardian|
+        created_job = FiveDayAppointmentReminderJob.send(guardian, appointment.id)
+        if created_job.valid?
+          print "*"
+        else
+          print "x"
+        end
       end
     end
   end
 
   desc "send user a reminder for his appointment today"
   task one_day_prior_appointment: :environment do
-    Appointment.where(start_datetime: Time.now.utc..1.day.from_now.utc).find_each do |appointment|
-      created_job = SameDayAppointmentReminderJob.send(appointment.booked_by.id, appointment.id)
-      if created_job.valid?
-        print "*"
-      else
-        print "x"
+    Appointment.where.not(appointment_status: AppointmentStatus.cancelled).where(start_datetime: Time.now.utc..1.day.from_now.beginning_of_day.utc).includes(:patient => {:family => :guardians}).find_each do |appointment|
+      appointment.patient.family.guardians.each do |guardian|
+        created_job = SameDayAppointmentReminderJob.send(guardian, appointment.id)
+        if created_job.valid?
+          print "*"
+        else
+          print "x"
+        end
       end
     end
   end
