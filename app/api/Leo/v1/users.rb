@@ -60,6 +60,19 @@ module Leo
         end
       end
 
+      desc "confirm user's email address"
+      namespace "users/confirm_email" do
+        params do
+          requires :token, type: String
+        end
+
+        get do
+          user = User.find_by!(confirmation_token: params[:token])
+          user.confirm
+          redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true
+        end
+      end
+
       resource :users do
         desc '#create user from enrollment'
         params do
@@ -129,19 +142,6 @@ module Leo
           end
         end
 
-        desc "confirm user's email address"
-        namespace "/confirm_email" do
-          params do
-            requires :token, type: String
-          end
-
-          get do
-            user = User.find_by!(confirmation_token: params[:token])
-            if user.confirm
-              redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true
-            end
-          end
-        end
       end
     end
   end
