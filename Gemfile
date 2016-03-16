@@ -78,6 +78,7 @@ end
 group :production, :develop do
   gem 'health_check'
   gem 'lograge'
+  gem "delayed_job_web"
 end
 
 ruby '2.2.2'
