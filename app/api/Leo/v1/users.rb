@@ -92,7 +92,7 @@ module Leo
             insurance_plan_id: enrollment.insurance_plan_id
           }
 
-          user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
+          user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type'))
           create_success user
           session_params = {
             device_type: params[:device_type],
