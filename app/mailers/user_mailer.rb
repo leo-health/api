@@ -164,7 +164,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def primary_guardian_approve_invitation(primary_guardian, enrollment)
     mandrill_mail(
       template: 'Leo - Secondary Guardian Confirmation',
-      subject: "Leo - Please confirm #{enrollment.first_name}'s account'",
+      subject: "Leo - Please confirm #{enrollment.first_name}'s account!",
       to: primary_guardian.email,
       vars: {
         'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
