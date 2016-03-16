@@ -114,7 +114,7 @@ describe Leo::V1::Users do
     end
   end
 
-  describe "POST /api/v1/users/confirm_email" do
+  describe "GET /api/v1/users/confirm_email" do
     let(:user){create(:user)}
 
     before do
@@ -127,7 +127,7 @@ describe Leo::V1::Users do
     end
 
     def do_request
-      post "/api/v1/users/confirm_email", { token: user.confirmation_token }
+      get "/api/v1/users/confirm_email", { token: user.confirmation_token }
     end
 
     it "should confirm the user's account" do
