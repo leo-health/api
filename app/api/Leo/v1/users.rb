@@ -135,7 +135,7 @@ module Leo
             requires :token, type: String
           end
 
-          post do
+          get do
             user = User.find_by!(confirmation_token: params[:token])
             if user.confirm
               redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true

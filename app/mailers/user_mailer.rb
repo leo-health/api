@@ -8,7 +8,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.email,
       vars: {
         'GUARDIAN_FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?confirmation_token=#{token}"
+        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{token}"
       }
     )
   end
