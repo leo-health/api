@@ -110,7 +110,7 @@ module SyncServiceHelper
     # ==== arguments
     # * +task+ - the sync task to process
     def process_scan_appointments(task)
-      Appointment.find_each do |appt|
+      Appointment.where("start_datetime > ?", DateTime.now).find_each do |appt|
         begin
           if appt.athena_id == 0
             SyncTask.find_or_create_by(sync_id: appt.id, sync_type: :appointment.to_s)
@@ -158,7 +158,7 @@ module SyncServiceHelper
 
       booked_appts = @connector.get_booked_appointments(
         departmentid: task.sync_id,
-        startdate: 1.year.ago.strftime("%m/%d/%Y"),
+        startdate: Date.today.strftime("%m/%d/%Y"),
         enddate: 1.year.from_now.strftime("%m/%d/%Y"))
 
       booked_appts.each { |appt|
