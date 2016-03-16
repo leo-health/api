@@ -16,7 +16,7 @@ module Leo
         desc "create a session when user login"
         post do
           user = User.find_by_email(params[:email].downcase)
-          unless user && !user.has_role?(:bot) && user.valid_password?(params[:password])
+          unless user && user.has_role?(:guardian) && user.valid_password?(params[:password])
             error!({error_code: 403, error_message: "Invalid Email or Password."}, 422)
           end
 
@@ -45,6 +45,28 @@ module Leo
         delete do
           session = Session.find_by_authentication_token(params[:authentication_token])
           session.try(:destroy)
+        end
+      end
+
+      namespace :provider_login do
+        params do
+          requires :email, type: String, allow_blank: false
+          requires :password, type: String, allow_blank: false
+        end
+
+        post do
+          user = User.find_by_email(params[:email].downcase)
+          unless user && !user.has_role?(:guardian) && user.valid_password?(params[:password])
+            error!({error_code: 403, error_message: "Invalid Email or Password."}, 422)
+          end
+
+          session = user.sessions.create
+          if session.valid?
+            present :user, user, with: Leo::Entities::UserEntity
+            present :session, session, with: Leo::Entities::SessionEntity
+          else
+            error!({error_code: 422, error_message: session.errors.full_messages }, 422)
+          end
         end
       end
     end
