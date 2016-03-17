@@ -11,13 +11,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_scan_appointments" do
       it "creates sync task for unsynced appointment" do
-        appt = create(:appointment, athena_id: 0)
+        appt = create(:appointment, athena_id: 0, start_datetime: DateTime.now + 1.minutes)
         expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
 
       it "creates sync task for stale appointment" do
-        appt = create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago)
+        appt = create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago, start_datetime: DateTime.now + 1.minutes)
         expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
