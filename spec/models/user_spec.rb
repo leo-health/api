@@ -49,7 +49,7 @@ describe User do
   end
 
   describe "before validations" do
-    let!(:guardian){ create(:user, :guardian) }
+    let!(:guardian){ create(:user, :guardian, phone: "+1(123)234-9848") }
     let(:customer_service_practice){ customer_service.practice }
 
     it "should add default practice to guardian" do
@@ -63,6 +63,10 @@ describe User do
     it "should not add default practice or default family to staff" do
       expect(customer_service.family).to eq(nil)
       expect(customer_service.practice).to eq(customer_service_practice)
+    end
+
+    it "should format phone numbers to number only, exclude all symbols" do
+      expect( guardian.phone ).to eq("1232349848")
     end
   end
 
