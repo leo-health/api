@@ -87,6 +87,10 @@ GEM
     delayed_job_active_record (4.0.3)
       activerecord (>= 3.0, < 5.0)
       delayed_job (>= 3.0, < 4.1)
+    delayed_job_web (1.2.10)
+      activerecord (> 3.0.0)
+      delayed_job (> 2.0.3)
+      sinatra (>= 1.4.4)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     devise (3.5.2)
@@ -424,6 +428,7 @@ DEPENDENCIES
   daemons
   database_cleaner
   delayed_job_active_record
+  delayed_job_web
   devise
   factory_girl_rails
   fakeredis

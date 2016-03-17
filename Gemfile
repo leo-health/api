@@ -75,9 +75,10 @@ group :production do
   gem 'rails_12factor'
 end
 
-group :production, :develop do
+group :production, :develop, :development do
   gem 'health_check'
   gem 'lograge'
+  gem "delayed_job_web"
 end
 
 ruby '2.2.2'
