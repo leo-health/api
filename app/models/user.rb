@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
   has_many :provider_appointments, -> { Appointment.booked }, foreign_key: "provider_id", class_name: "Appointment"
   has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
-  before_validation :add_default_practice_to_guardian, :add_family_to_guardian, if: :guardian?
+  before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
   validates :family, presence: true, if: :guardian?
@@ -117,5 +117,9 @@ class User < ActiveRecord::Base
 
   def set_user_type_on_secondary_user
     update_columns(type: family.primary_guardian.type) unless primary_guardian?
+  end
+
+  def format_phone_number
+    self.phone = phone.scan(/\d+/).join[-10..-1] if phone
   end
 end

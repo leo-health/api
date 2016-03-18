@@ -7,5 +7,7 @@ Rails.application.routes.draw do
    mount Raddocs::App => "/docs"
   end
 
+  match "/delayed_job" => DelayedJobWeb, :anchor => false, via: [:get, :post]
+
   root 'home#index'
 end

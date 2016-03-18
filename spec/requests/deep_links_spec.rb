@@ -11,7 +11,7 @@ describe Leo::V1::DeepLinks do
       it "should redirect to a deeplink" do
         do_request
         expect(response.status).to eq(301)
-        expect(response.header['Location']).to eq( "leohealth://feed/conversation/1" )
+        expect(response.header['Location']).to eq( "#{ENV['DEEPLINK_SCHEME']}://feed/conversation/1" )
       end
     end
 

@@ -54,4 +54,19 @@ describe Leo::V1::Sessions do
       expect(Session.unscoped.count).to eq(1)
     end
   end
+
+  describe "POST /api/v1/provider_login" do
+    let!(:user){ create(:user, :clinical, password: "password", password_confirmation: "password") }
+
+    def do_request(login_params)
+      post "/api/v1/provider_login", login_params, format: :json
+    end
+
+    it "should allow a provider to login" do
+      expect{ do_request({ email: user.email, password: 'password' }) }.to change{ Session.count }.from(0).to(1)
+      expect(response.status).to eq(201)
+      body = JSON.parse( response.body, symbolize_names: true )
+      expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
+    end
+  end
 end
