@@ -442,94 +442,80 @@ insurance_plan_seed = [
   {
     insurer: {
       id: 1,
-      insurer_name:"Cigna"
+      insurer_name:"Aetna"
     },
     plans: [
-             {id: 1, plan_name: "PPO", insurer_id: 1},
-             {id: 2, plan_name: "POS", insurer_id: 1},
-             {id: 3, plan_name: "HMO", insurer_id: 1}
+             {id: 1, plan_name: "Choice", insurer_id: 1},
+             {id: 2, plan_name: "Referral", insurer_id: 1},
+             {id: 3, plan_name: "Value Performance", insurer_id: 1},
+             {id: 4, plan_name: "Managed Choice", insurer_id: 1},
+             {id: 5, plan_name: "Select", insurer_id: 1},
+             {id: 6, plan_name: "EPO", insurer_id: 1},
+             {id: 7, plan_name: "Elect", insurer_id: 1},
+             {id: 8, plan_name: "National Advantage", insurer_id: 1},
+             {id: 9, plan_name: "Open Choice", insurer_id: 1},
+             {id: 10, plan_name: "QPOS", insurer_id: 1},
+             {id: 11, plan_name: "Voluntary", insurer_id: 1},
+             {id: 12, plan_name: "PPO", insurer_id: 1},
+             {id: 13, plan_name: "POS", insurer_id: 1}
            ]
   },
 
   {
     insurer: {
       id: 2,
-      insurer_name:"Empire BlueCross BlueShield"
+      insurer_name:"Cigna"
     },
     plans: [
-             {id: 4, plan_name: "PPO", insurer_id: 2},
-             {id: 5, plan_name: "POS", insurer_id: 2},
-             {id: 6, plan_name: "HMO", insurer_id: 2}
+             {id: 14, plan_name: "Network", insurer_id: 2},
+             {id: 15, plan_name: "HMO", insurer_id: 2},
+             {id: 16, plan_name: "Open Access", insurer_id: 2},
+             {id: 17, plan_name: "Choice Fund", insurer_id: 2},
+             {id: 18, plan_name: "POS", insurer_id: 2},
+             {id: 19, plan_name: "PPO", insurer_id: 2}
            ]
   },
+
 
   {
     insurer: {
       id: 3,
-      insurer_name:"EmblemHealth"
+      insurer_name:"Empire Blue Cross Blue Shield"
     },
     plans: [
-             {id: 7, plan_name: "PPO", insurer_id: 3},
-             {id: 8, plan_name: "POS", insurer_id: 3},
-             {id: 9, plan_name: "HMO", insurer_id: 3}
+             {id: 20, plan_name: "Access", insurer_id: 3},
+             {id: 21, plan_name: "GuidedAccess", insurer_id: 3},
+             {id: 22, plan_name: "HealthPlus", insurer_id: 3},
+             {id: 23, plan_name: "Pathway", insurer_id: 3},
+             {id: 24, plan_name: "Healthy", insurer_id: 3},
+             {id: 25, plan_name: "Hospital", insurer_id: 3},
+             {id: 26, plan_name: "Prism", insurer_id: 3},
+             {id: 27, plan_name: "Indemnity", insurer_id: 3},
+             {id: 28, plan_name: "TotalBlue", insurer_id: 3},
+             {id: 29, plan_name: "Unite Here", insurer_id: 3},
+             {id: 30, plan_name: "HSA", insurer_id: 3},
+             {id: 31, plan_name: "PPO", insurer_id: 3},
+             {id: 32, plan_name: "POS", insurer_id: 3},
+             {id: 33, plan_name: "HMO", insurer_id: 3},
+             {id: 34, plan_name: "EPO", insurer_id: 3}
            ]
   },
 
   {
     insurer: {
       id: 4,
-      insurer_name:"MultiPlan"
+      insurer_name:"United Healthcare"
     },
     plans: [
-             {id: 10, plan_name: "PPO", insurer_id: 4},
-             {id: 11, plan_name: "POS", insurer_id: 4}
-           ]
-  },
-
-  {
-    insurer: {
-      id: 5,
-      insurer_name:"Oxford"
-    },
-    plans: [
-             {id: 12, plan_name: "PPO", insurer_id: 5},
-             {id: 13, plan_name: "POS", insurer_id: 5},
-             {id: 14, plan_name: "HMO", insurer_id: 5}
-           ]
-  },
-
-  {
-    insurer: {
-      id: 6,
-      insurer_name:"The Empire Plan"
-    },
-    plans: [
-             {id: 15, plan_name: "PPO", insurer_id: 6},
-             {id: 16, plan_name: "POS", insurer_id: 6},
-             {id: 17, plan_name: "HMO", insurer_id: 6}
-           ]
-  },
-
-  {
-    insurer: {
-      id: 7,
-      insurer_name:"UnitedHealthcare"
-    },
-    plans: [
-             {id: 18, plan_name: "PPO", insurer_id: 7},
-             {id: 19, plan_name: "POS", insurer_id: 7},
-             {id: 20, plan_name: "HMO", insurer_id: 7}
-           ]
-  },
-  {
-    insurer: {
-      id: 8,
-      insurer_name:"Aetna"
-    },
-    plans: [
-             {id: 21, plan_name: "PPO", insurer_id: 8},
-             {id: 22, plan_name: "POS", insurer_id: 8},
-             {id: 23, plan_name: "HMO", insurer_id: 8}
+             {id: 35, plan_name: "Core", insurer_id: 4},
+             {id: 36, plan_name: "Navigate", insurer_id: 4},
+             {id: 37, plan_name: "Passport Connect", insurer_id: 4},
+             {id: 38, plan_name: "Options", insurer_id: 4},
+             {id: 39, plan_name: "Select", insurer_id: 4},
+             {id: 40, plan_name: "Medica Choice", insurer_id: 4},
+             {id: 41, plan_name: "PacifiCare", insurer_id: 4},
+             {id: 42, plan_name: "PPO", insurer_id: 4},
+             {id: 43, plan_name: "HMO", insurer_id: 4}
            ]
   }
 ]
@@ -738,8 +724,8 @@ begin
   ProviderSyncProfile.all.each do |provider_sync_profile|
     practice_holidays.each do | holiday |
       ProviderLeave.create(
-        athena_id: 0, 
-        athena_provider_id: provider_sync_profile.athena_id, 
+        athena_id: 0,
+        athena_provider_id: provider_sync_profile.athena_id,
         description: "Seeded holiday",
         start_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00"),
         end_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00") + 24.hours
