@@ -53,7 +53,6 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'spring'
   gem 'spring-commands-rspec'
-  gem 'fuubar'
   gem 'rspec_api_documentation'
 end
 
@@ -62,6 +61,8 @@ group :development, :develop do
 end
 
 group :test do
+  gem "parallel_tests"
+  gem 'zeus-parallel_tests'
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers'
   gem 'grape-entity-matchers'

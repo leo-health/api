@@ -12,7 +12,7 @@ development:
 
 test: &test
   <<: *default
-  database: leo_test
+  database: leo_test<%= ENV['TEST_ENV_NUMBER'] %>
 
 production:
   adapter: postgresql
