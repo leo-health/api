@@ -51,8 +51,6 @@ group :development, :test do
   gem 'quiet_assets'
   gem 'spork'
   gem 'rspec-rails'
-  gem 'spring'
-  gem 'spring-commands-rspec'
   gem 'rspec_api_documentation'
 end
 
