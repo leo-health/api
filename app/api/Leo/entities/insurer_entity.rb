@@ -10,7 +10,7 @@ module Leo
       private
 
       def insurance_plans
-        object.insurance_plans
+        object.insurance_plans.where(active: true)
       end
     end
   end
