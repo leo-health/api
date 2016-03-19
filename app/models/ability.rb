@@ -12,7 +12,7 @@ class Ability
       can :read, Conversation, family_id: user.family_id
       can :read, Message, conversation_id: Conversation.find_by_family_id(user.family_id).id
       can [:read, :create], Message, conversation_id: Conversation.find_by_family_id(user.family_id).id
-      can [:create, :read, :destroy], Appointment, booked_by_id: user.id
+      can [:create, :read, :destroy], Appointment, patient: {family_id: user.family_id}
       can :create, Avatar, owner_type: "Patient", owner_id: patient_ids(user)
       can [:read, :update, :destroy], Form, patient_id: patient_ids(user)
     elsif user.has_role? :financial
