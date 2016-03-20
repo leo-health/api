@@ -32,6 +32,9 @@ module SyncService
   end
 
   class Configuration
+    #admin emails for failed sync job notifications
+    attr_accessor :admin_emails
+
     #Should ProcessSyncTasksJob reschedule itself on completion?
     #Set to true unless doing some kind of testing
     attr_accessor :auto_reschedule_job
@@ -59,6 +62,7 @@ module SyncService
       @patient_data_interval = 15.minutes
       @appointment_data_interval = 15.minutes
       @logger = Rails.logger
+      @admin_emails = []
     end
   end
 end
@@ -69,6 +73,11 @@ module SyncServiceHelper
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
       @connector = connector
+    end
+
+    def on_failure(subject, message)
+      SyncService.configuration.logger.error "#{subject}\n\n#{message}"
+      SyncServiceMailer.error(subject, message)
     end
 
     # Process all sync tasks
@@ -82,9 +91,27 @@ module SyncServiceHelper
           #destroy task if everything went ok
           task.destroy
         rescue => e
-          SyncService.configuration.logger.error "Syncer: Processing sync task id=#{task.id} failed"
-          SyncService.configuration.logger.error e.message
-          SyncService.configuration.logger.error e.backtrace.join("\n")
+          on_failure(
+            "Failed to process SyncTask.id=#{task.id}", 
+            "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
+        end
+      end
+
+      #re-create all the scan tasks
+      SyncService.create_scan_tasks
+    end
+
+    def process_all_sync_tasks_with_type(types)
+      SyncTask.where(sync_type: types).find_each() do |task|
+        begin
+          process_sync_task(task)
+
+          #destroy task if everything went ok
+          task.destroy
+        rescue => e
+          on_failure(
+            "Failed to process SyncTask.id=#{task.id}", 
+            "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
         end
       end
 
@@ -121,9 +148,9 @@ module SyncServiceHelper
           end
 
         rescue => e
-          SyncService.configuration.logger.error "Syncer: Creating sync task for appointment.id=#{appt.id} failed"
-          SyncService.configuration.logger.error e.message
-          SyncService.configuration.logger.error e.backtrace.join("\n")
+          on_failure(
+            "Failed to create SyncTask for Appointment.id=#{appt.id}", 
+            "#{appt.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
         end
       end
     end
@@ -140,9 +167,9 @@ module SyncServiceHelper
           end
 
         rescue => e
-          SyncService.configuration.logger.error "Syncer: Creating sync task for provider.id=#{provider_sync_profile.provider_id} failed"
-          SyncService.configuration.logger.error e.message
-          SyncService.configuration.logger.error e.backtrace.join("\n")
+          on_failure(
+            "Failed to create SyncTask for ProviderSyncProfile.provider_id=#{provider_sync_profile.provider_id}", 
+            "#{provider_sync_profile.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
         end
       end
     end
@@ -178,6 +205,11 @@ module SyncServiceHelper
       new_appt = nil
 
       begin
+        start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
+
+        #early exit if appointment start time is in the past
+        return if start_datetime < DateTime.now
+
         patient = Patient.find_by!(athena_id: appt.patientid.to_i)
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
@@ -192,14 +224,14 @@ module SyncServiceHelper
           practice: practice,
           appointment_type: appointment_type,
           duration: appt.duration,
-          start_datetime: AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime),
+          start_datetime: start_datetime,
           sync_updated_at: DateTime.now,
           athena_id: appt.appointmentid.to_i
         )
       rescue => e
-          SyncService.configuration.logger.error "Syncer: impl_create_leo_appt_from_athena appt=#{appt.to_json} failed"
-          SyncService.configuration.logger.error e.message
-          SyncService.configuration.logger.error e.backtrace.join("\n")
+          on_failure(
+            "Failed to create Appointment for Appointment.athena_id=#{appt.appointmentid}", 
+            "#{appt.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
       end
 
       new_appt
@@ -236,9 +268,9 @@ module SyncServiceHelper
             SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: patient.id)
           end
         rescue => e
-          SyncService.configuration.logger.error "Syncer: Creating sync task for patient user.id=#{user.id} failed"
-          SyncService.configuration.logger.error e.message
-          SyncService.configuration.logger.error e.backtrace.join("\n")
+          on_failure(
+            "Failed to create SyncTask for patient.id=#{patient.id}", 
+            "#{patient.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
         end
       end
     end
@@ -280,6 +312,9 @@ module SyncServiceHelper
 
         leo_appt.save!
       end
+
+      #early exit if the appointment date is older then current time
+      return if leo_appt.start_datetime < DateTime.now
 
       athena_appt = @connector.get_appointment(appointmentid: leo_appt.athena_id)
       raise "Could not find athena appointment with id=#{leo_appt.athena_id}" unless athena_appt
