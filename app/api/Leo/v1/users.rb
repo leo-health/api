@@ -60,6 +60,22 @@ module Leo
         end
       end
 
+      desc "confirm user's email address"
+      namespace "users/confirm_email" do
+        params do
+          requires :token, type: String
+        end
+
+        get do
+          if user = User.find_by(confirmation_token: params[:token])
+            user.confirm
+            redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true
+          else
+            redirect "#{ENV['PROVIDER_APP_HOST']}/#/404", permanent: true
+          end
+        end
+      end
+
       resource :users do
         desc '#create user from enrollment'
         params do
@@ -92,7 +108,7 @@ module Leo
             insurance_plan_id: enrollment.insurance_plan_id
           }
 
-          user = User.new(enrollment_params.merge!(declared(params, include_missing: false)))
+          user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type'))
           create_success user
           session_params = {
             device_type: params[:device_type],
@@ -129,19 +145,6 @@ module Leo
           end
         end
 
-        desc "confirm user's email address"
-        namespace "/confirm_email" do
-          params do
-            requires :token, type: String
-          end
-
-          post do
-            user = User.find_by!(confirmation_token: params[:token])
-            if user.confirm
-              redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true
-            end
-          end
-        end
       end
     end
   end

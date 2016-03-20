@@ -11,7 +11,7 @@ module Leo
         get do
           user_agent = UserAgent.parse(request.user_agent)
           if user_agent.platform == "iPhone"
-            redirect "leohealth://feed/#{params[:type]}/#{params[:type_id]}", permanent: true
+            redirect "#{ENV['DEEPLINK_SCHEME']}://feed/#{params[:type]}/#{params[:type_id]}", permanent: true
           else
             redirect "#{ENV['PROVIDER_APP_HOST']}/#/invalid-device", permanent: true
           end

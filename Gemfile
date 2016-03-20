@@ -42,6 +42,7 @@ gem 'figaro'
 gem 'unicorn'
 gem 'newrelic_rpm'
 gem 'useragent'
+gem "delayed_job_web"
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
