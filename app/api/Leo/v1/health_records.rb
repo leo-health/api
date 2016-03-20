@@ -17,20 +17,20 @@ module Leo
             height_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).order(:taken_at).collect() {
               |vital| { 
                 taken_at: vital.taken_at, 
-                value: vital.value.to_f.round(2), 
+                value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2), 
                 unit: "inches", 
                 percentile: GrowthCurvesHelper.height_percentile(
-                  @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, GrowthCurvesHelper.inches_to_m(vital.value.to_f) * 100)
+                  @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f)
               }
             }
 
             weight_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).order(:taken_at).collect() {
               |vital| { 
                 taken_at: vital.taken_at, 
-                value: vital.value.to_f.round(2), 
+                value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2), 
                 unit: "lbs", 
                 percentile: GrowthCurvesHelper.weight_percentile(
-                  @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, GrowthCurvesHelper.lbs_to_kg(vital.value.to_f))
+                  @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f/1000)
               }
             }
 
@@ -39,8 +39,8 @@ module Leo
             Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).order(:taken_at).each do | weight_vital |
               height_vital = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT, taken_at: start_date..weight_vital.taken_at.end_of_day).order(:taken_at).last
               if height_vital
-                weight_kg = GrowthCurvesHelper.lbs_to_kg(weight_vital.value.to_f)
-                height_m = GrowthCurvesHelper.inches_to_m(height_vital.value.to_f)
+                weight_kg = weight_vital.value.to_f/1000
+                height_m = height_vital.value.to_f/100
                 bmi = weight_kg/(height_m * height_m)
                 bmi_vitals << { 
                   taken_at: weight_vital.taken_at, 
@@ -87,10 +87,10 @@ module Leo
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
                 |vital| { 
                   taken_at: vital.taken_at, 
-                  value: vital.value.to_f.round(2), 
+                  value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2), 
                   unit: "inches", 
                   percentile: GrowthCurvesHelper.height_percentile(
-                    @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, GrowthCurvesHelper.inches_to_m(vital.value.to_f) * 100)
+                    @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f)
                 }
               }
               present :heights, vitals, with: Leo::Entities::VitalEntity
@@ -109,10 +109,10 @@ module Leo
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
                 |vital| { 
                   taken_at: vital.taken_at, 
-                  value: vital.value.to_f.round(2), 
+                  value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2), 
                   unit: "lbs", 
                   percentile: GrowthCurvesHelper.weight_percentile(
-                    @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, GrowthCurvesHelper.lbs_to_kg(vital.value.to_f))
+                    @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f/1000)
                 }
               }
 
@@ -133,8 +133,8 @@ module Leo
               Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).each do | weight_vital |
                 height_vital = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT, taken_at: start_date..weight_vital.taken_at.end_of_day).order(:taken_at).last
                 if height_vital
-                  weight_kg = GrowthCurvesHelper.lbs_to_kg(weight_vital.value.to_f)
-                  height_m = GrowthCurvesHelper.inches_to_m(height_vital.value.to_f)
+                  weight_kg = weight_vital.value.to_f/1000
+                  height_m = height_vital.value.to_f/100
                   bmi = weight_kg/(height_m * height_m)
                   vitals << { 
                     taken_at: weight_vital.taken_at, 

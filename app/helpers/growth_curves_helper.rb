@@ -21,8 +21,16 @@ module GrowthCurvesHelper
     kg / 0.45
   end
 
+  def self.g_to_lbs(g)
+    (g / 1000.0) / 0.45
+  end
+
   def self.m_to_inches(m)
     m * 39.3701
+  end
+
+  def self.cm_to_inches(cm)
+    cm * 0.393701
   end
 
   def self.inches_to_m(inches)
