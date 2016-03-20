@@ -44,7 +44,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:provider) { create(:user, :clinical) }
       let!(:booked_appt) {
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
-        .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
+        .new('f', "appointmenttype", "1", "30", Date.tomorrow.strftime("%m/%d/%Y"), "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
       }
       let(:family) { create(:family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
@@ -66,7 +66,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates athena appointment when missing" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status, notes: "notes")
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, appointment_status: future_appointment_status, notes: "notes", start_datetime: DateTime.now + 1.minutes)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -74,7 +74,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         expect(connector).to receive("book_appointment")
         expect(connector).to receive("create_appointment_note")
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
@@ -93,12 +93,12 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "cancels athena appointment when cancelled" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: cancelled_appointment_status)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: cancelled_appointment_status, start_datetime: DateTime.now + 1.minutes)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
@@ -119,12 +119,12 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment" do
-        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status, start_datetime: DateTime.now + 1.minutes)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
@@ -145,7 +145,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment with rescheduled_id" do
-        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status)
+        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status, start_datetime: DateTime.now + 1.minutes)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
@@ -154,7 +154,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         resched_appointment.patient.save!
 
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
