@@ -3,12 +3,12 @@ require 'athena_health_api_helper'
 
 RSpec.describe AthenaHealthApiHelper, type: :helper do
   describe "Athena Health Api Connector - " do
-    let(:connection){double("connection")}
-    let!(:connector) {AthenaHealthApiHelper::AthenaHealthApiConnector.new(connection: connection)}
+    # let(:connection){double("connection")}
+    let!(:connector) {AthenaHealthApiHelper::AthenaHealthApiConnector.new}
 
     describe "get_appointment" do
       it "should return an appointment" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           [{
           "date": "04\/18\/2009",
           "appointmentid": "1000",
@@ -32,7 +32,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "delete_appointment" do
       it "should delete an appointment" do
-        allow(connection).to receive("DELETE").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("DELETE").and_return(Struct.new(:code, :body).new(200, %q(
           [{
           "appointmentid": "1000"
           }]
@@ -44,7 +44,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "create_appointment" do
       it "should create an appointment" do
-        allow(connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "appointmentids": {
           "393837": "01:00"
@@ -59,7 +59,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "book_appointment" do
       it "should book an appointment" do
-        allow(connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
           [{
           "date": "01\/01\/2010",
           "appointmentid": "393837",
@@ -78,7 +78,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "cancel_appointment" do
       it "should cancel an appointment" do
-        allow(connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "status": "x"
           }
@@ -90,7 +90,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "reschedule_appointment" do
       it "should reschedule an appointment" do
-        allow(connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
           [{
           "appointmentid": "393841",
           "departmentid": "1",
@@ -108,7 +108,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "freeze_appointment" do
       it "should freeze an appointment" do
-        allow(connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("PUT").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "success": "true"
           }
@@ -121,7 +121,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
     describe "checkin_appointment" do
 
       it "should checkin an appointment" do
-        allow(connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
           )))
         expect { connector.checkin_appointment(appointmentid: 393837) }.not_to raise_error
       end
@@ -129,7 +129,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_appointment_types" do
       it "should get a list of appointment types" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "totalcount": 2,
           "appointmenttypes": [{
@@ -164,7 +164,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_appointment_reasons" do
       it "should get the appointment reasons" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "totalcount": 0,
           "patientappointmentreasons": []
@@ -180,7 +180,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_open_appointments" do
       it "should return a list of appointments" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "totalcount": 2,
           "appointments": [{
@@ -219,7 +219,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_booked_appointments" do
       it "should return a list of booked appointments" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "totalcount": 2,
           "appointments": [{
@@ -258,7 +258,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_open_appointments" do
       it "should return a list of open appointments" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "totalcount": 2,
           "appointments": [{
@@ -297,7 +297,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "create_patient" do
       it "should create a patient" do
-        allow(connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
           [{
           "patientid": "5031"
           }]
@@ -310,7 +310,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_patient" do
       it "should return a patient" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           [{
           "occupationcode": null,
           "departmentid": "1",
@@ -362,7 +362,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_best_match_patient" do
       it "should return a patient" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           [{
               "racename": "White",
               "occupationcode": null,
@@ -445,7 +445,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_patient_allergies" do
       it "should return allergies" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
           "nkda": "true",
           "sectionnote": "test",
@@ -489,7 +489,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_patient_medications" do
       it "should return medications" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
               "medications": [
                   [{
@@ -537,7 +537,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_patient_vitals" do
       it "should return vitals" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
             {
                 "vitals": [{
                     "ordering": 0,
@@ -617,7 +617,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_patient_vacinnes" do
       it "should return vaccines" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
           {
               "totalcount": 1,
               "vaccines": [{
@@ -640,7 +640,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "create_patient_insurance" do
       it "should succeed" do
-        allow(connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("POST").and_return(Struct.new(:code, :body).new(200, %q(
           {
               "success": "true"
           }
@@ -661,7 +661,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_patient_insurances" do
       it "should return insurances" do
-        allow(connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
             {
                 "insurances": [{
                     "insurancepolicyholdercountrycode": "USA",
