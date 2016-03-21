@@ -15,7 +15,7 @@ module Leo
           end
 
           post do
-            error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
+            error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
             onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_guardian)
             enrollment = Enrollment.create(declared(params).merge( role_id: 4,
                                                                    family_id: current_user.family_id,
@@ -48,7 +48,7 @@ module Leo
         end
 
         post do
-          error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
+          error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
           enrollment = Enrollment.create(declared(params).merge({role_id: 4}))
           if enrollment.valid?
             present_session(enrollment)
@@ -72,7 +72,7 @@ module Leo
         end
 
         put :current do
-          error!({error_code: 422, error_message: 'email is taken'}) if email_taken?(params[:email])
+          error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
           find_enrollment
           if @enrollment.update_attributes(declared(params, include_missing: false))
             present_session(@enrollment)

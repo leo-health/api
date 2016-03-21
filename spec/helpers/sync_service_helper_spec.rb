@@ -71,7 +71,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:provider) { create(:user, :clinical) }
       let!(:booked_appt) {
         Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
-        .new('f', "appointmenttype", "1", "30", "01/01/2015", "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
+        .new('f', "appointmenttype", "1", "30", Date.tomorrow.strftime("%m/%d/%Y"), "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
       }
       let(:family) { create(:family) }
       let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
@@ -95,12 +95,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       it "creates athena appointment when missing" do
         appointment.patient.update_attributes(athena_id: 1)
-
         expect(connector).to receive("create_appointment").and_return(1000)
         expect(connector).to receive("book_appointment")
         expect(connector).to receive("create_appointment_note")
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
@@ -121,9 +120,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "cancels athena appointment when cancelled" do
         appointment.update_attributes(athena_id: 1000, appointment_status: cancelled_appointment_status)
         appointment.patient.update_attributes(athena_id: 1)
-
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
@@ -135,10 +133,9 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "appointmenttypeid": appointment_type.athena_id.to_s,
           "patientappointmenttypename": "Lab Work"
           }))
+
         expect(connector).to receive("cancel_appointment")
-
         syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
-
         appointment.reload
         expect(appointment.athena_id).to eq(1000)
       end
@@ -146,9 +143,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "updates leo appointment" do
         appointment.update_attributes(athena_id: 1000)
         appointment.patient.update_attributes(athena_id: 1)
-
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
@@ -162,7 +158,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
           }))
 
         syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
-
         appointment.reload
         expect(appointment.athena_id).to eq(1000)
         expect(appointment.duration).to eq(60)
@@ -172,9 +167,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
         appointment.update_attributes(start_datetime: 5.minutes.ago, athena_id: 1000)
         appointment.patient.update_attributes(athena_id: 1)
         resched_appointment.patient.update_attributes(athena_id: 1)
-
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
-          "date": "04\/18\/2009",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
           "departmentid": "1",
           "appointmenttype": "Lab Work",
@@ -189,7 +183,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
           }))
 
         syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
-
         appointment.reload
         expect(appointment.athena_id).to eq(1000)
         expect(appointment.duration).to eq(60)
