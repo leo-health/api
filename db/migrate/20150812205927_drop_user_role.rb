@@ -15,5 +15,7 @@ class DropUserRole < ActiveRecord::Migration
       t.belongs_to :role, index: true
       t.timestamps null: false
     end
+
+    add_index(:users_roles, [ :user_id, :role_id ])
   end
 end
