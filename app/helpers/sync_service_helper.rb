@@ -77,7 +77,7 @@ module SyncServiceHelper
 
     def on_failure(subject, message)
       SyncService.configuration.logger.error "#{subject}\n\n#{message}"
-      SyncServiceMailer.error(subject, message)
+      SyncServiceMailer.error(subject, message).deliver
     end
 
     # Process all sync tasks
