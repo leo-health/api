@@ -332,7 +332,7 @@ module SyncServiceHelper
       if athena_appt.future? && leo_appt.cancelled?
         #cancel
         @connector.cancel_appointment(appointmentid: leo_appt.athena_id,
-          patientid: leo_appt.patient.athena_id) if athena_appt.booked?
+          patientid: athena_appt.patientid) if athena_appt.booked?
       else
         #update from athena
         patient = Patient.find_by(athena_id: athena_appt.patientid.to_i)
