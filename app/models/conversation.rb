@@ -22,7 +22,7 @@ class Conversation < ActiveRecord::Base
         broadcast_conversation_by_state
       end
 
-      transitions from: [:open, :escalated, :closed], to: :escalated, guard: :escalate_conversation_to_staff
+      transitions from: [:open, :escalated], to: :escalated, guard: :escalate_conversation_to_staff
     end
 
     event :close do
