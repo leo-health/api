@@ -735,8 +735,8 @@ begin
 
   #add a dummy patient that will be used for syncing appointments from Athena
   syncServiceUser = User.create_with(first_name: 'Guardian', last_name: 'SyncService', password: 'SyncService-password', phone: '0000000000', role: Role.find(4), practice: Practice.first)
-    .find_or_create_by!(email: 'sync_service@leohealth.com')
+    .find_or_create_by!(email: 'sync@leohealth.com')
   Patient.create_with(first_name: 'Patient', last_name: 'SyncService', birth_date: Date.today, sex: 'M')
     .find_or_create_by!(family: syncServiceUser.family)
-  
+
 end

@@ -6,7 +6,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
     let!(:future_appointment_status){ create(:appointment_status, :future) }
     let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
     let!(:connector) { double("connector") }
-    let!(:unknown_user) { create(:user, :guardian, email: 'sync_service@leohealth.com') }
+    let!(:unknown_user) { create(:user, :guardian, email: 'sync@leohealth.com') }
     let!(:unknown_patient) { create(:patient, family: unknown_user.family)}
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
     let!(:practice) { build(:practice, athena_id: 1) }
