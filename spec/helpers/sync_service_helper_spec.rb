@@ -6,6 +6,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
     let!(:future_appointment_status){ create(:appointment_status, :future) }
     let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
     let!(:connector) { double("connector") }
+    let!(:unknown_user) { create(:user, :guardian, email: 'sync_service@leohealth.com') }
+    let!(:unknown_patient) { create(:patient, family: unknown_user.family)}
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
     let!(:practice) { build(:practice, athena_id: 1) }
 
@@ -47,14 +49,25 @@ RSpec.describe SyncServiceHelper, type: :helper do
         .new('f', "appointmenttype", "1", "30", Date.tomorrow.strftime("%m/%d/%Y"), "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
       }
       let(:family) { create(:family) }
-      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
       let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates leo appointment when missing" do
+        patient = create(:patient, athena_id: 1, family_id: family.id)
+
         expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
-        expect(Appointment).to receive(:create!)
         syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
+        appt = Appointment.find_by(athena_id: booked_appt.appointmentid.to_i)
+        expect(appt).not_to be_nil
+        expect(appt.patient_id).to eq(patient.id)
+      end
+
+      it "creates leo appointment with unknown patient when missing" do
+        expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
+        syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
+        appt = Appointment.find_by(athena_id: booked_appt.appointmentid.to_i)
+        expect(appt).not_to be_nil
+        expect(appt.patient_id).to eq(unknown_patient.id)
       end
     end
 
@@ -145,11 +158,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment with rescheduled_id" do
-        appointment = create(:appointment, start_datetime: 5.minutes.ago, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status, start_datetime: DateTime.now + 1.minutes)
+        appointment = create(:appointment, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1000, appointment_status: future_appointment_status, start_datetime: DateTime.now + 1.minutes)
         appointment.patient.athena_id = 1
         appointment.patient.save!
 
-        resched_appointment = create(:appointment, start_datetime: DateTime.now, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1001)
+        resched_appointment = create(:appointment, start_datetime: DateTime.now + 10.minutes, provider_id: provider.id, appointment_type_id: appointment_type.id, athena_id: 1001)
         resched_appointment.patient.athena_id = 1
         resched_appointment.patient.save!
 

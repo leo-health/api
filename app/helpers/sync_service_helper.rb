@@ -70,14 +70,19 @@ end
 module SyncServiceHelper
   class Syncer
     attr_reader :connector
+    attr_reader :unknown_patient
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
       @connector = connector
+
+      #patient to use for syncing appointments for patients that have not been synced with athena
+      unknown_user = User.find_by(email: 'sync_service@leohealth.com')
+      @unknown_patient = Patient.find_by!(family: unknown_user.family) if unknown_user
     end
 
     def on_failure(subject, message)
       SyncService.configuration.logger.error "#{subject}\n\n#{message}"
-      SyncServiceMailer.error(subject, message).deliver
+      SyncServiceErrorJob.send(subject, message)
     end
 
     # Process all sync tasks
@@ -210,7 +215,10 @@ module SyncServiceHelper
         #early exit if appointment start time is in the past
         return if start_datetime < DateTime.now
 
-        patient = Patient.find_by!(athena_id: appt.patientid.to_i)
+        patient = Patient.find_by(athena_id: appt.patientid.to_i)
+        patient ||= @unknown_patient
+        raise "Could not find patient.athena_id=#{appt.patientid}" unless patient
+
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
@@ -240,32 +248,34 @@ module SyncServiceHelper
     def process_scan_patients(task)
       Patient.find_each do |patient|
         begin
-          if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: patient.id)
-          end
+          unless @unknown_patient && patient.id == @unknown_patient.id
+            if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient.to_s, sync_id: patient.id)
+            end
 
-          if patient.photos_updated_at.nil? || (patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: patient.id)
-          end
+            if patient.photos_updated_at.nil? || (patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              SyncTask.create_with(sync_source: :leo).find_or_create_by(sync_type: :patient_photo.to_s, sync_id: patient.id)
+            end
 
-          if patient.allergies_updated_at.nil? || (patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies.to_s, sync_id: patient.id)
-          end
+            if patient.allergies_updated_at.nil? || (patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_allergies.to_s, sync_id: patient.id)
+            end
 
-          if patient.insurances_updated_at.nil? || (patient.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_insurances.to_s, sync_id: patient.id)
-          end
+            if patient.insurances_updated_at.nil? || (patient.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_insurances.to_s, sync_id: patient.id)
+            end
 
-          if patient.medications_updated_at.nil? || (patient.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_medications.to_s, sync_id: patient.id)
-          end
+            if patient.medications_updated_at.nil? || (patient.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_medications.to_s, sync_id: patient.id)
+            end
 
-          if patient.vaccines_updated_at.nil? || (patient.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vaccines.to_s, sync_id: patient.id)
-          end
+            if patient.vaccines_updated_at.nil? || (patient.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vaccines.to_s, sync_id: patient.id)
+            end
 
-          if patient.vitals_updated_at.nil? || (patient.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: patient.id)
+            if patient.vitals_updated_at.nil? || (patient.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+              SyncTask.create_with(sync_source: :athena).find_or_create_by(sync_type: :patient_vitals.to_s, sync_id: patient.id)
+            end
           end
         rescue => e
           on_failure(
@@ -325,7 +335,11 @@ module SyncServiceHelper
           patientid: leo_appt.patient.athena_id) if athena_appt.booked?
       else
         #update from athena
-        patient = Patient.find_by!(athena_id: athena_appt.patientid.to_i)
+        patient = Patient.find_by(athena_id: athena_appt.patientid.to_i)
+        patient ||= @unknown_patient
+
+        raise "Could not find patient.athena_id=#{athena_appt.patientid}" unless patient
+
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: athena_appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: athena_appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by(status: athena_appt.appointmentstatus)
