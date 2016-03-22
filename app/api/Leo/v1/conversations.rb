@@ -19,7 +19,7 @@ module Leo
             authorize! :update, conversation
             close_params = {closed_by: current_user, note: params[:note]}
             if conversation.close!(close_params)
-              closure_note = ClosureNote.find_by(close_params)
+              closure_note = conversation.last_closure_note
               present :conversation_id, closure_note.conversation_id
               present :created_by, current_user
               present :note, closure_note.note
@@ -45,7 +45,7 @@ module Leo
             escalated_to = User.find(params[:escalated_to_id])
             escalate_params = {escalated_to: escalated_to, note: params[:note], priority: params[:priority], escalated_by: current_user}
             if conversation.escalate!(escalate_params)
-              escalation_note = EscalationNote.find_by(escalate_params)
+              escalation_note = conversation.last_escalation_note
               present :escalated_to, escalated_to,  with: Leo::Entities::UserEntity
               present :note, escalation_note.note
               present :conversation_id, escalation_note.conversation_id

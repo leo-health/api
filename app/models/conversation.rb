@@ -22,7 +22,7 @@ class Conversation < ActiveRecord::Base
         broadcast_conversation_by_state
       end
 
-      transitions from: [:open, :escalated], to: :escalated, guard: :escalate_conversation_to_staff
+      transitions from: [:open, :escalated, :closed], to: :escalated, guard: :escalate_conversation_to_staff
     end
 
     event :close do
@@ -59,7 +59,15 @@ class Conversation < ActiveRecord::Base
   end
 
   def last_closed_at
-    closure_notes.order('created_at DESC').first.try(:created_at)
+    last_closure_note.try(:created_at)
+  end
+
+  def last_closure_note
+    closure_notes.order('created_at DESC').first
+  end
+
+  def last_escalation_note
+    escalation_notes.order('created_at DESC').first
   end
 
   private
