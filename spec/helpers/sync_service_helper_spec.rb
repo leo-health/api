@@ -14,13 +14,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_scan_appointments" do
       it "creates sync task for unsynced appointment" do
         appt = create(:appointment, athena_id: 0, start_datetime: DateTime.now + 1.minutes)
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
 
       it "creates sync task for stale appointment" do
         appt = create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago, start_datetime: DateTime.now + 1.minutes)
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
     end
@@ -29,7 +29,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:provider_sync_profile) { create(:provider_sync_profile) }
 
       it "creates provider_leave sync task for new provider" do
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
         syncer.process_scan_providers(SyncTask.new())
       end
 
@@ -37,7 +37,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         provider_sync_profile.leave_updated_at = 1.year.ago
         provider_sync_profile.save!
 
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
         syncer.process_scan_providers(SyncTask.new())
       end
     end
