@@ -49,5 +49,6 @@ class ChangeAppointments < ActiveRecord::Migration
     add_column :appointments, :athena_appointment_type_id, :integer, null: false
     add_column :appointments, :family_id, :integer, null: false
     add_column :appointments, :athena_department_id, :integer, default: 0, null: false
+    add_index :appointments, :athena_department_id
   end
 end
