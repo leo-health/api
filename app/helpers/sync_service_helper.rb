@@ -76,6 +76,7 @@ module SyncServiceHelper
       @connector = connector
 
       #patient to use for syncing appointments for patients that have not been synced with athena
+      #there will be only one patient in this family, and this family is seeded in seeds.rb
       unknown_user = User.find_by(email: 'sync@leohealth.com')
       @unknown_patient = Patient.find_by!(family: unknown_user.family) if unknown_user
     end
