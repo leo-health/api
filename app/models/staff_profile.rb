@@ -1,5 +1,5 @@
 class StaffProfile < ActiveRecord::Base
-  belongs_to :staff, ->{where('role_id != ?', 4)}, class_name: "User"
+  belongs_to :staff, ->{where.not(role: Role.find_by(name: :guardian))}, class_name: "User"
 
   validates :staff, presence: true
 end

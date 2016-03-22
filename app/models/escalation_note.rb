@@ -1,6 +1,6 @@
 class EscalationNote < ActiveRecord::Base
-  belongs_to :escalated_to, ->{where('role_id != ?', 4)}, class_name: 'User'
-  belongs_to :escalated_by, ->{where('role_id != ?', 4)}, class_name: 'User'
+  belongs_to :escalated_to, ->{where.not(role: Role.find_by(name: :guardian))}, class_name: 'User'
+  belongs_to :escalated_by, ->{where.not(role: Role.find_by(name: :guardian))}, class_name: 'User'
   belongs_to :conversation
 
   validates :conversation, :escalated_by, :escalated_to, :priority, presence: true

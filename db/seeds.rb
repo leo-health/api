@@ -43,7 +43,7 @@ staff = [
     email: "leo_bot@leohealth.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 7,
+    role: Role.find_by(name: :bot),
     practice_id: 1,
     phone: '1234567890',
     avatar_attributes: {
@@ -402,7 +402,7 @@ appointment_statuses_seed = [
 ]
 
 appointment_statuses_seed.each do |param|
-  AppointmentType.update_or_create!(:status, param)
+  AppointmentStatus.update_or_create!(:status, param)
 end
 
 insurance_plan_seed = [
