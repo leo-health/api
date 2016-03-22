@@ -1,52 +1,38 @@
 require 'csv'
 
 practices_seed = [
-    {
-        id: 1,
-        athena_id: 1,
-        name: "Flatiron Pediatrics",
-        address_line_1: "27 E 22nd St",
-        address_line_2: "",
-        city: "New York",
-        state: "NY",
-        zip: "10011",
-        fax: "",
-        phone: "212-460-5600",
-        email: "info@leohealth.com",
-        time_zone: "Eastern Time (US & Canada)"
-    }
+  {
+    athena_id: 1,
+    name: "Flatiron Pediatrics",
+    address_line_1: "27 E 22nd St",
+    address_line_2: "",
+    city: "New York",
+    state: "NY",
+    zip: "10011",
+    fax: "",
+    phone: "212-460-5600",
+    email: "info@leohealth.com",
+    time_zone: "Eastern Time (US & Canada)"
+  }
 ]
 
 practices_seed.each do |param|
-  if practice = Practice.find_by(id: param[:id])
-    practice.update_attributes!(param)
-  else
-    Practice.create!(param)
-  end
+  Practice.update_or_create!(:name, param)
 end
 
-roles_seed = {
-          # Access accounting and billing data for administrative staff
-          financial: 1,
-          # Access to clinical data for non-provider roles including a nurse practicioner, medical asssitant, or nurse
-          clinical_support: 2,
-          # Access to service level data to provide support for non-clinical issues and feedback
-          customer_service: 3,
-          # Access to user their data and shared data where relationships are maintained
-          guardian: 4,
-          # Access to clinical data for provider roles and other (sub)specialists
-          clinical: 5,
-          # Access to all data pertaining to the patient
-          patient: 6,
-          # bot user
-          bot: 7,
-          operational: 8
-        }
+roles_seed = [
+  { name: :financial },
+  { name: :clinical_support },
+  { name: :customer_service },
+  { name: :guaridan },
+  { name: :clinical },
+  { name: :patient },
+  { name: :bot },
+  { name: :operational }
+]
 
-roles_seed.each do |role, id|
-  Role.update_or_create_by_id_and_name(id, role) do |r|
-    r.save!
-  end
+roles_seed.each do |param|
+  Role.update_or_create!(:name, param)
 end
 
 staff = [
@@ -334,7 +320,6 @@ end
 
 appointment_types_seed = [
   {
-    id: 1,
     athena_id: 10,
     name: "Sick Visit",
     duration: 10,
@@ -344,7 +329,6 @@ appointment_types_seed = [
   },
 
   {
-    id: 2,
     athena_id: 12,
     name: "Follow Up Visit",
     duration: 10,
@@ -354,7 +338,6 @@ appointment_types_seed = [
   },
 
   {
-    id: 3,
     athena_id: 8,
     name: "Immunization / Lab Visit",
     duration: 10,
@@ -364,7 +347,6 @@ appointment_types_seed = [
   },
 
   {
-    id: 4,
     athena_id: 11,
     name: "Well Visit",
     duration: 20,
@@ -374,7 +356,6 @@ appointment_types_seed = [
   },
 
   {
-    id: 5,
     athena_id: 14,
     name: "Block",
     duration: 10,
@@ -385,65 +366,51 @@ appointment_types_seed = [
 ]
 
 appointment_types_seed.each do |param|
-  if appointment_type = AppointmentType.find_by(id: param[:id])
-    appointment_type.update_attributes!(param)
-  else
-    AppointmentType.create!(param)
-  end
+  AppointmentType.update_or_create!(:name, param)
 end
 
 appointment_statuses_seed = [
-    {
-      id: 1,
-      description: "Checked In",
-      status: "2"
-    },
+  {
+    description: "Checked In",
+    status: "2"
+  },
 
-    {
-      id: 2,
-      description: "Checked Out",
-      status: "3"
-    },
+  {
+    description: "Checked Out",
+    status: "3"
+  },
 
-    {
-      id: 3,
-      description: "Charge Entered",
-      status: "4"
-    },
+  {
+    description: "Charge Entered",
+    status: "4"
+  },
 
-    {
-      id: 4,
-      description: "Future",
-      status: "f"
-    },
+  {
+    description: "Future",
+    status: "f"
+  },
 
-    {
-      id: 5,
-      description: "Open",
-      status: "o"
-    },
+  {
+    description: "Open",
+    status: "o"
+  },
 
-    {
-      id: 6,
-      description: "Cancelled",
-      status: "x"
-    }
+  {
+    description: "Cancelled",
+    status: "x"
+  }
 ]
 
 appointment_statuses_seed.each do |param|
-  if appointment_status = AppointmentStatus.find_by(id: param[:id])
-    appointment_status.update_attributes!(param)
-  else
-    AppointmentStatus.create!(param)
-  end
+  AppointmentType.update_or_create!(:status, param)
 end
 
 insurance_plan_seed = [
   {
     insurer: {
-      id: 1,
       insurer_name:"Aetna"
     },
+
     plans: [
              {id: 1, plan_name: "Choice", insurer_id: 1},
              {id: 2, plan_name: "Referral", insurer_id: 1},
@@ -463,9 +430,9 @@ insurance_plan_seed = [
 
   {
     insurer: {
-      id: 2,
       insurer_name:"Cigna"
     },
+
     plans: [
              {id: 14, plan_name: "Network", insurer_id: 2},
              {id: 15, plan_name: "HMO", insurer_id: 2},
@@ -479,9 +446,9 @@ insurance_plan_seed = [
 
   {
     insurer: {
-      id: 3,
       insurer_name:"Empire Blue Cross Blue Shield"
     },
+
     plans: [
              {id: 20, plan_name: "Access", insurer_id: 3},
              {id: 21, plan_name: "GuidedAccess", insurer_id: 3},
@@ -503,9 +470,9 @@ insurance_plan_seed = [
 
   {
     insurer: {
-      id: 4,
       insurer_name:"United Healthcare"
     },
+
     plans: [
              {id: 35, plan_name: "Core", insurer_id: 4},
              {id: 36, plan_name: "Navigate", insurer_id: 4},
@@ -521,66 +488,49 @@ insurance_plan_seed = [
 ]
 
 insurance_plan_seed.each do |insurance_plan|
-  if insurer = Insurer.find_by(id: insurance_plan[:insurer][:id])
-    insurer.update_attributes!(insurance_plan[:insurer])
-  else
-    Insurer.create!(insurance_plan[:insurer])
-  end
+  Insurer.update_or_create!(:insurer_name, insurance_plan[:insurer])
 
   insurance_plan[:plans].each do |plan|
-    if insurance_plan = InsurancePlan.find_by(id: plan[:id])
-      insurance_plan.update_attributes!(plan)
-    else
-      InsurancePlan.create!(plan)
-    end
+    InsurancePlan.update_or_create!(:id, plan)
   end
 end
 
 onboarding_group_seed = [
-  {
-    id: 1,
-    group_name: :invited_secondary_guardian
-  }
+  { group_name: :invited_secondary_guardian }
 ]
 
-
-onboarding_group_seed.each do |onboarding_group_param|
-  if onboarding_group = OnboardingGroup.find_by(id: onboarding_group_param[:id])
-    onboarding_group.update_attributes!(onboarding_group_param)
-  else
-    OnboardingGroup.create!(onboarding_group_param)
-  end
+onboarding_group_seed.each do |param|
+  OnboardingGroup.update_or_create!(:group_name, param)
 end
 
 #Seed the database with growth curves
 begin
   folder = "lib/assets/percentile/oct_2015"
-  optionsWho = { :col_sep => "\t", :headers => true }
-  optionsCdc = { :headers => true }
+  optionsWho = { col_sep: "\t", headers: true }
+  optionsCdc = { headers: true }
 
   HeightGrowthCurve.delete_all
 
   #populate boys 0-24 months height
   CSV.foreach("#{folder}/lhfa_boys_p_exp.txt", optionsWho) do |row|
-    entry = HeightGrowthCurve.new({ :sex=> "M", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry = HeightGrowthCurve.new({ sex: "M", days: row["Day"], l: row["L"], m: row["M"], s: row["S"]})
     entry.save! if (entry.days <= 712)
   end
 
   #populate girls 0-24 months height
   CSV.foreach("#{folder}/lhfa_girls_p_exp.txt", optionsWho) do |row|
-    entry = HeightGrowthCurve.new({ :sex=> "F", :days => row["Day"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry = HeightGrowthCurve.new({ sex: "F", days: row["Day"], l: row["L"], m: row["M"], s: row["S"]})
     entry.save! if (entry.days <= 712)
   end
 
   #populate boys & girls 2-20 years height
   CSV.foreach("#{folder}/statage.csv", optionsCdc) do |row|
     entry = HeightGrowthCurve.new({
-      #Sex==1 for boys, 2 for girls
-      :sex=> (row["Sex"] == "1" ? "M" : "F"),
-      :days => (row["Agemos"].to_i * 365 / 12),
-      :l => row["L"],
-      :m => row["M"],
-      :s => row["S"]})
+      sex: (row["Sex"] == "1" ? "M" : "F"),
+      days: (row["Agemos"].to_i * 365 / 12),
+      l: row["L"],
+      m: row["M"],
+      s: row["S"]})
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
@@ -588,13 +538,13 @@ begin
 
   #populate boys 0-24 months weight
   CSV.foreach("#{folder}/wfa_boys_p_exp.txt", optionsWho) do |row|
-    entry = WeightGrowthCurve.new({ :sex=> "M", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry = WeightGrowthCurve.new({ sex: "M", days: row["Age"], l: row["L"], m: row["M"], s: row["S"]})
     entry.save! if (entry.days <= 712)
   end
 
   #populate girls 0-24 months weight
   CSV.foreach("#{folder}/wfa_girls_p_exp.txt", optionsWho) do |row|
-    entry = WeightGrowthCurve.new({ :sex=> "F", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry = WeightGrowthCurve.new({ sex: "F", days: row["Age"], l: row["L"], m: row["M"], s: row["S"]})
     entry.save! if (entry.days <= 712)
   end
 
@@ -603,10 +553,10 @@ begin
     entry = WeightGrowthCurve.new({
       #Sex==1 for boys, 2 for girls
       :sex=> (row["Sex"] == "1" ? "M" : "F"),
-      :days => (row["Agemos"].to_i * 365 / 12),
+      days: (row["Agemos"].to_i * 365 / 12),
       :l => row["L"],
       :m => row["M"],
-      :s => row["S"]})
+      s: row["S"]})
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
@@ -614,13 +564,13 @@ begin
 
   #populate boys 0-24 months bmi
   CSV.foreach("#{folder}/bfa_boys_p_exp.txt", optionsWho) do |row|
-    entry = BmiGrowthCurve.new({ :sex=> "M", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry = BmiGrowthCurve.new({ sex: "M", days: row["Age"], l: row["L"], m: row["M"], s: row["S"]})
     entry.save! if (entry.days <= 712)
   end
 
   #populate girls 0-24 months bmi
   CSV.foreach("#{folder}/bfa_girls_p_exp.txt", optionsWho) do |row|
-    entry = BmiGrowthCurve.new({ :sex=> "F", :days => row["Age"], :l => row["L"], :m => row["M"], :s => row["S"]})
+    entry = BmiGrowthCurve.new({ sex: "F", days: row["Age"], l: row["L"], m: row["M"], s: row["S"]})
     entry.save! if (entry.days <= 712)
   end
 
@@ -628,11 +578,11 @@ begin
   CSV.foreach("#{folder}/bmiagerev.csv", optionsCdc) do |row|
     entry = BmiGrowthCurve.new({
       #Sex==1 for boys, 2 for girls
-      :sex=> (row["Sex"] == "1" ? "M" : "F"),
-      :days => (row["Agemos"].to_i * 365 / 12),
-      :l => row["L"],
-      :m => row["M"],
-      :s => row["S"]})
+      sex: (row["Sex"] == "1" ? "M" : "F"),
+      days: (row["Agemos"].to_i * 365 / 12),
+      l: row["L"],
+      m: row["M"],
+      s: row["S"]})
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
@@ -701,15 +651,11 @@ begin
     },
   ]
 
-  practice_schedules.each do |schedule_params|
-    if practice_schedule = PracticeSchedule.find_by(id: schedule_params[:id])
-      practice_schedule.update_attributes!(schedule_params)
-    else
-      PracticeSchedule.create!(schedule_params)
-    end
+  practice_schedules.each do |params|
+    PracticeSchedule.update_or_create!(:id, params)
   end
 
-  #add holidays
+
   practice_holidays = [
     "01/01/2016", #New Year's Day
     "05/30/2016", #Memorial Day
