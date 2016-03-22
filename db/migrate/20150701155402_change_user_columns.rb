@@ -17,5 +17,6 @@ class ChangeUserColumns < ActiveRecord::Migration
     add_column :users, :sign_in_count, :integer, default: 0,  null: false
     add_column :users, :remember_created_at, :datetime
     add_column :users, :authentication_token, :string
+    add_index :users, :authentication_token
   end
 end

@@ -6,6 +6,7 @@ class RemoveConversationChanges < ActiveRecord::Migration
   def down
     create_table :conversation_changes do |t|
       t.integer :conversation_id, null: false
+      t.integer :changed_by_id, null: false
       t.string :conversation_change
       t.timestamps null: false
     end
