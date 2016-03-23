@@ -1,6 +1,6 @@
 class EscalationNote < ActiveRecord::Base
-  belongs_to :escalated_to, ->{where(role: Role.staff)}, class_name: 'User'
-  belongs_to :escalated_by, ->{where(role: Role.staff)}, class_name: 'User'
+  belongs_to :escalated_to, ->{ staff }, class_name: 'User'
+  belongs_to :escalated_by, ->{ staff }, class_name: 'User'
   belongs_to :conversation
 
   validates :conversation, :escalated_by, :escalated_to, :priority, presence: true

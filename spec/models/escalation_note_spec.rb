@@ -7,9 +7,9 @@ RSpec.describe EscalationNote, type: :model do
   let(:escalation_params){ { escalated_to: clinical, note: 'escalation note', priority: 1, escalated_by: customer_service } }
 
   describe "relations" do
-    it{ is_expected.to belong_to(:escalated_to) }
-    it{ is_expected.to belong_to(:conversation) }
+    it{ is_expected.to belong_to(:escalated_to).class_name('User') }
     it{ is_expected.to belong_to(:escalated_by).class_name('User') }
+    it{ is_expected.to belong_to(:conversation) }
   end
 
   describe "validations" do
