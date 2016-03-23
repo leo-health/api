@@ -14,6 +14,7 @@ class User < ActiveRecord::Base
   scope :guardians, -> { where(role: Role.guardian_roles) }
   scope :staff, -> { where(role: Role.staff_roles) }
   scope :clinical_staff, -> { where(role: Role.clinical_staff_roles) }
+  scope :provider, -> { where(role: Role.provider_roles) }
   belongs_to :family
   belongs_to :role
   belongs_to :practice
