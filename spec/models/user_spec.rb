@@ -117,14 +117,6 @@ describe User do
     end
   end
 
-  describe ".staff" do
-    let!(:guardian){ create(:user) }
-
-    it "should return all staff" do
-      expect(User.staff.count).to eq(2)
-    end
-  end
-
   describe "#primary_guardian?" do
     let(:primary_guardian){ create(:user) }
     let(:secondary_guardian){ create(:user, family: primary_guardian.family) }

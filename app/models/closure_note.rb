@@ -1,6 +1,6 @@
 class ClosureNote < ActiveRecord::Base
   belongs_to :conversation
-  belongs_to :closed_by, ->{where.not(role: Role.find_by(name: :guardian))}, class_name: 'User'
+  belongs_to :closed_by, ->{ where(role: Role.staff) }, class_name: 'User'
 
   validates :conversation, :closed_by, presence: true
 
