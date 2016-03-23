@@ -18,7 +18,6 @@ describe Leo::V1::Enrollments do
     end
 
     it "should send a invite to the user" do
-      do_request
       expect{ do_request }.to change{ Delayed::Job.count }.from(1).to(2)
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )

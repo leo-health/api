@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :role do
     name :guardian
+    initialize_with { Role.find_or_create_by(name: name)}
 
     trait :financial do
       name  :financial
