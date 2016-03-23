@@ -42,64 +42,51 @@ describe Leo::V1::Messages do
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
-    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: Time.now)}
-    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: Time.now)}
-
-    def do_request
-      get "/api/v1/conversations/#{conversation.id}/messages?per_page=2&page=1", { authentication_token: session.authentication_token }
-    end
-
-    it "should get all the messages of a conversation" do
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent([second_message, first_message]).as_json.to_json)
-    end
-  end
-
-  describe "Get /api/v1/conversations/:conversation_id/messages" do
-    let!(:ten_days_ago){DateTime.now - 10.days}
-    let!(:five_days_ago){DateTime.now - 5.days}
-    let!(:zero_days_ago){DateTime.now}
+    let(:ten_days_ago){DateTime.now - 10.days}
+    let(:five_days_ago){DateTime.now - 5.days}
+    let(:zero_days_ago){DateTime.now}
     let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: ten_days_ago)}
     let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: five_days_ago)}
     let!(:third_message){create(:message, conversation: conversation, sender: user, created_at: zero_days_ago)}
 
-    def do_request_start
-      do_request({start_datetime: five_days_ago})
+    def do_request(params = {})
+      get "/api/v1/conversations/#{conversation.id}/messages?per_page=3&page=1", { authentication_token: session.authentication_token }.merge(params)
     end
 
-    def do_request_end
-      do_request({end_datetime: five_days_ago})
+    context "when requesting all messages" do
+      it "should get all the messages of a conversation" do
+        do_request
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data].as_json.to_json).to eq(serializer.represent([third_message, second_message, first_message]).as_json.to_json)
+      end
     end
 
-    def do_request_range
-      do_request({start_datetime: ten_days_ago, end_datetime: zero_days_ago})
+    context "when requesting messages after a certain date" do
+      it "should get all the messages after start_datetime" do
+        do_request({start_datetime: five_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N')})
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data].as_json.to_json).to eq(serializer.represent([third_message]).as_json.to_json)
+      end
     end
 
-    def do_request(params)
-      get "/api/v1/conversations/#{conversation.id}/messages?per_page=2&page=1", { authentication_token: session.authentication_token }.merge(params)
+    context "when requesting messages before a certain date" do
+      it "should get all the messages before end_datetime" do
+        do_request({end_datetime: five_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N')})
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data].as_json.to_json).to eq(serializer.represent([first_message]).as_json.to_json)
+      end
     end
 
-    it "should get all the messages after start_datetime" do
-      do_request_start
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent([third_message]).as_json.to_json)
-    end
-
-    it "should get all the messages before end_datetime" do
-      do_request_end
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent([first_message]).as_json.to_json)
-    end
-
-    it "should get all the messages after start_datetime and before end_datetime" do
-      do_request_range
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent([second_message]).as_json.to_json)
+    context "when requesting messages within a certain date range" do
+      it "should get all the messages after start_datetime and before end_datetime" do
+        do_request({start_datetime: ten_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N'), end_datetime: zero_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N')})
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data].as_json.to_json).to eq(serializer.represent([second_message]).as_json.to_json)
+      end
     end
   end
 
