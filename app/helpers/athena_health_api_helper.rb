@@ -6,14 +6,6 @@ module AthenaHealthApiHelper
     Time.zone.parse("#{date.to_s} #{athena_time}").to_datetime
   end
 
-  #athena appointmentstatus
-  #The athenaNet appointment status.
-  #x=cancelled
-  #f=future (f can include appointments where were never checked in, even if the appointment date is in the past. It is up to a practice to cancel appointments as a no show when appropriate to do so.)
-  #o=open
-  #2=checked in
-  #3=checked out
-  #4=charge entered (i.e. a past appointment).
   class AthenaStruct
     def initialize(args)
       args.each do |k,v|
@@ -64,65 +56,46 @@ module AthenaHealthApiHelper
   end
 
   class AthenaHealthApiConnector
-    attr_reader :connection
+    attr_reader :connection, :common_headers
 
-    #for some reason, gzip encoding returns invalid blocks in failure cases
-    def self.common_headers
-      { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
-    end
-
-    def initialize(
-      key: ENV["ATHENA_KEY"],
-      secret: ENV["ATHENA_SECRET"],
-      version: ENV["ATHENA_VERSION"].to_s.empty? ? "preview1" : ENV["ATHENA_VERSION"],
-      practice_id: ENV["ATHENA_PRACTICE_ID"].to_s.empty? ? "13092" : ENV["ATHENA_PRACTICE_ID"],
-      connection: AthenaHealthAPI::Connection.new(version, key, secret, practice_id))
-
-      @connection = connection
+    def initialize(config: Rails.application.config_for(:athena_health_api_connector).symbolize_keys)
+      @common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
+      @connection = AthenaHealthAPI::Connection.new(config[:key], config[:secret], config[:practice_id])
     end
 
     def get(path: , params: {})
-      @connection.GET(path, params, AthenaHealthApiConnector.common_headers)
+      connection.GET(path, params, common_headers)
     end
 
     def put(path: , params: {})
-      @connection.PUT(path, params, AthenaHealthApiConnector.common_headers)
+      connection.PUT(path, params, common_headers)
     end
 
     def post(path: , params: {})
-      @connection.POST(path, params, AthenaHealthApiConnector.common_headers)
+      connection.POST(path, params, common_headers)
     end
 
     def delete(path: , params: {})
-      @connection.DELETE(path, params, AthenaHealthApiConnector.common_headers)
+      connection.DELETE(path, params, common_headers)
     end
 
     # obtain information on an athena appointment
     # returns an instance of AthenaStruct, nil of not found
     # raises exceptions if anything goes wrong
     def get_appointment(appointmentid: , showinsurance: false)
-
-      params = {}
-      params[:showinsurance] = showinsurance
-
-      response = @connection.GET("appointments/#{appointmentid}", params, AthenaHealthApiConnector.common_headers)
-
+      params = {showinsurance: showinsurance}
+      response = @connection.GET("appointments/#{appointmentid}", params, common_headers)
       #410 means the appointment does not exist
       return nil if response.code.to_i == 410
-
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
-
-      return AthenaStruct.new(JSON.parse(response.body)[0])
+      AthenaStruct.new(JSON.parse(response.body)[0])
     end
 
     # delete an open appointment
     # no return value
     # raises exceptions if anything goes wrong
-    def delete_appointment(appointmentid: )
-      params = {}
-
-      response = @connection.DELETE("appointments/#{appointmentid}", params, AthenaHealthApiConnector.common_headers)
-
+    def delete_appointment(appointmentid)
+      response = @connection.DELETE("appointments/#{appointmentid}", {}, common_headers)
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
 
@@ -134,15 +107,11 @@ module AthenaHealthApiHelper
       appointmenttypeid: nil, departmentid: , providerid: , reasonid: nil)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.POST("appointments/open", params, AthenaHealthApiConnector.common_headers)
-
+      response = @connection.POST("appointments/open", params, common_headers)
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
-
       val = JSON.parse(response.body)
-
       raise "unexpected size of appointmentids encountered: #{val[:appointmentids.to_s].length}" unless val[:appointmentids.to_s].length == 1
-
-      return val[:appointmentids.to_s].keys[0].to_i
+      val[:appointmentids.to_s].keys[0].to_i
     end
 
     # books an appointment slot for a specified patient
@@ -155,7 +124,7 @@ module AthenaHealthApiHelper
       patientid: , patientrelationshiptopolicyholder: nil, reasonid: nil)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.PUT("appointments/#{appointmentid}", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
@@ -171,7 +140,7 @@ module AthenaHealthApiHelper
       params[:ignoreschedulablepermission] = ignoreschedulablepermission
       params[:patientid] = patientid
 
-      response = @connection.PUT("appointments/#{appointmentid}/cancel", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}/cancel", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
@@ -184,7 +153,7 @@ module AthenaHealthApiHelper
       reasonid: nil, reschedulereason: nil)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.PUT("appointments/#{appointmentid}/reschedule", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}/reschedule", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
@@ -192,7 +161,7 @@ module AthenaHealthApiHelper
     # freezes/unfreezes an appointment
     def freeze_appointment(appointmentid:, freeze: true)
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.PUT("appointments/#{appointmentid}/freeze", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.PUT("appointments/#{appointmentid}/freeze", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
@@ -204,7 +173,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:appointmentid] = appointmentid
 
-      response = @connection.POST("appointments/#{appointmentid}/checkin", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.POST("appointments/#{appointmentid}/checkin", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
@@ -256,7 +225,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointmenttypes", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :appointmenttypes, limit: limit)
+        headers: common_headers, field: :appointmenttypes, limit: limit)
     end
 
     # get a list of available appointment reasons
@@ -270,7 +239,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/patientappointmentreasons", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :patientappointmentreasons, limit: limit)
+        headers: common_headers, field: :patientappointmentreasons, limit: limit)
     end
 
     # get a list of open appointments
@@ -285,7 +254,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/open", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
+        headers: common_headers, field: :appointments, limit: limit, structize: true)
     end
 
     # get a list of booked appointments
@@ -302,7 +271,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/booked", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :appointments, limit: limit, structize: true)
+        headers: common_headers, field: :appointments, limit: limit, structize: true)
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients
@@ -311,7 +280,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "patients", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :patients)
+        headers: common_headers, field: :patients)
     end
 
     #Create a patient: POST /preview1/:practiceid/patients
@@ -345,7 +314,7 @@ module AthenaHealthApiHelper
       )
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.POST("patients", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.POST("patients", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
 
@@ -359,7 +328,7 @@ module AthenaHealthApiHelper
     #Get a patient: GET /preview1/:practiceid/patients/:patientid
     #returns null if patient does not exist
     def get_patient(patientid: )
-      response = @connection.GET("patients/#{patientid}", {}, AthenaHealthApiConnector.common_headers)
+      response = @connection.GET("patients/#{patientid}", {}, common_headers)
 
       #404 means the patient does not exist
       return nil if response.code.to_i == 404
@@ -377,7 +346,7 @@ module AthenaHealthApiHelper
 
         params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
-        response = @connection.GET("patients/bestmatch", params, AthenaHealthApiConnector.common_headers)
+        response = @connection.GET("patients/bestmatch", params, common_headers)
 
         raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
 
@@ -417,14 +386,14 @@ module AthenaHealthApiHelper
       )
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.PUT("patients/#{patientid}", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.PUT("patients/#{patientid}", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
 
     #get a patient's photo in b64 encoded form
     def get_patient_photo(patientid: )
-      response = @connection.GET("patients/#{patientid}/photo", {}, AthenaHealthApiConnector.common_headers)
+      response = @connection.GET("patients/#{patientid}/photo", {}, common_headers)
 
       #404 means the patient does not exist or no photo found
       return nil if response.code.to_i == 404
@@ -442,14 +411,14 @@ module AthenaHealthApiHelper
       params = {}
       params[:image] = image
 
-      response = @connection.POST("patients/#{patientid}/photo", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.POST("patients/#{patientid}/photo", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
 
     #delete a patient's photo
     def delete_patient_photo(patientid: )
-      response = @connection.DELETE("patients/#{patientid}/photo", {}, AthenaHealthApiConnector.common_headers)
+      response = @connection.DELETE("patients/#{patientid}/photo", {}, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
@@ -459,7 +428,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:departmentid] = departmentid
 
-      response = @connection.GET("chart/#{patientid}/allergies", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.GET("chart/#{patientid}/allergies", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
 
@@ -476,7 +445,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "chart/#{patientid}/vitals", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :vitals)
+        headers: common_headers, field: :vitals)
     end
 
     def get_patient_vaccines(patientid: , departmentid: )
@@ -486,7 +455,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "chart/#{patientid}/vaccines", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :vaccines)
+        headers: common_headers, field: :vaccines)
     end
 
     def get_patient_medications(patientid: , departmentid: )
@@ -494,7 +463,7 @@ module AthenaHealthApiHelper
       params = {}
       params[:departmentid] = departmentid
 
-      response = @connection.GET("chart/#{patientid}/medications", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.GET("chart/#{patientid}/medications", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
 
@@ -530,7 +499,7 @@ module AthenaHealthApiHelper
       )
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.POST("patients/#{patientid}/insurances", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.POST("patients/#{patientid}/insurances", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
@@ -541,7 +510,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "patients/#{patientid}/insurances", params: params,
-        headers: AthenaHealthApiConnector.common_headers, field: :insurances)
+        headers: common_headers, field: :insurances)
     end
 
     def create_appointment_note(
@@ -550,7 +519,7 @@ module AthenaHealthApiHelper
       )
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-      response = @connection.POST("appointments/#{appointmentid}/notes", params, AthenaHealthApiConnector.common_headers)
+      response = @connection.POST("appointments/#{appointmentid}/notes", params, common_headers)
 
       raise "HTTP error code encountered: #{response.code}" unless response.code.to_i == 200
     end
