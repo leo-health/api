@@ -1,9 +1,8 @@
 class ClosureNote < ActiveRecord::Base
   belongs_to :conversation
-  belongs_to :closed_by, ->{ where(role: Role.staff) }, class_name: 'User'
+  belongs_to :closed_by, ->{ staff }, class_name: 'User'
 
   validates :conversation, :closed_by, presence: true
-
   after_commit :broadcast_closure_note, on: :create
 
   private
