@@ -6,6 +6,7 @@ module ActiveRecordExtras
       def update_or_create!(search, attributes)
         object = find_or_initialize_by({"#{search}": attributes[search]})
         object.update_attributes!(attributes)
+        object
       end
     end
   end

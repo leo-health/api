@@ -5,11 +5,9 @@ practices_seed = [
     athena_id: 1,
     name: "Flatiron Pediatrics",
     address_line_1: "27 E 22nd St",
-    address_line_2: "",
     city: "New York",
     state: "NY",
     zip: "10011",
-    fax: "",
     phone: "212-460-5600",
     email: "info@leohealth.com",
     time_zone: "Eastern Time (US & Canada)"
@@ -412,19 +410,19 @@ insurance_plan_seed = [
     },
 
     plans: [
-             {id: 1, plan_name: "Choice", insurer_id: 1},
-             {id: 2, plan_name: "Referral", insurer_id: 1},
-             {id: 3, plan_name: "Value Performance", insurer_id: 1},
-             {id: 4, plan_name: "Managed Choice", insurer_id: 1},
-             {id: 5, plan_name: "Select", insurer_id: 1},
-             {id: 6, plan_name: "EPO", insurer_id: 1},
-             {id: 7, plan_name: "Elect", insurer_id: 1},
-             {id: 8, plan_name: "National Advantage", insurer_id: 1},
-             {id: 9, plan_name: "Open Choice", insurer_id: 1},
-             {id: 10, plan_name: "QPOS", insurer_id: 1},
-             {id: 11, plan_name: "Voluntary", insurer_id: 1},
-             {id: 12, plan_name: "PPO", insurer_id: 1},
-             {id: 13, plan_name: "POS", insurer_id: 1}
+      {id: 1, plan_name: "Choice"},
+      {id: 2, plan_name: "Referral"},
+      {id: 3, plan_name: "Value Performance"},
+      {id: 4, plan_name: "Managed Choice"},
+      {id: 5, plan_name: "Select"},
+      {id: 6, plan_name: "EPO"},
+      {id: 7, plan_name: "Elect"},
+      {id: 8, plan_name: "National Advantage"},
+      {id: 9, plan_name: "Open Choice"},
+      {id: 10, plan_name: "QPOS"},
+      {id: 11, plan_name: "Voluntary"},
+      {id: 12, plan_name: "PPO"},
+      {id: 13, plan_name: "POS"}
            ]
   },
 
@@ -434,13 +432,13 @@ insurance_plan_seed = [
     },
 
     plans: [
-             {id: 14, plan_name: "Network", insurer_id: 2},
-             {id: 15, plan_name: "HMO", insurer_id: 2},
-             {id: 16, plan_name: "Open Access", insurer_id: 2},
-             {id: 17, plan_name: "Choice Fund", insurer_id: 2},
-             {id: 18, plan_name: "POS", insurer_id: 2},
-             {id: 19, plan_name: "PPO", insurer_id: 2}
-           ]
+      {id: 14, plan_name: "Network"},
+      {id: 15, plan_name: "HMO"},
+      {id: 16, plan_name: "Open Access"},
+      {id: 17, plan_name: "Choice Fund"},
+      {id: 18, plan_name: "POS"},
+      {id: 19, plan_name: "PPO"}
+    ]
   },
 
 
@@ -450,22 +448,22 @@ insurance_plan_seed = [
     },
 
     plans: [
-             {id: 20, plan_name: "Access", insurer_id: 3},
-             {id: 21, plan_name: "GuidedAccess", insurer_id: 3},
-             {id: 22, plan_name: "HealthPlus", insurer_id: 3},
-             {id: 23, plan_name: "Pathway", insurer_id: 3},
-             {id: 24, plan_name: "Healthy", insurer_id: 3},
-             {id: 25, plan_name: "Hospital", insurer_id: 3},
-             {id: 26, plan_name: "Prism", insurer_id: 3},
-             {id: 27, plan_name: "Indemnity", insurer_id: 3},
-             {id: 28, plan_name: "TotalBlue", insurer_id: 3},
-             {id: 29, plan_name: "Unite Here", insurer_id: 3},
-             {id: 30, plan_name: "HSA", insurer_id: 3},
-             {id: 31, plan_name: "PPO", insurer_id: 3},
-             {id: 32, plan_name: "POS", insurer_id: 3},
-             {id: 33, plan_name: "HMO", insurer_id: 3},
-             {id: 34, plan_name: "EPO", insurer_id: 3}
-           ]
+      {id: 20, plan_name: "Access"},
+      {id: 21, plan_name: "GuidedAccess"},
+      {id: 22, plan_name: "HealthPlus"},
+      {id: 23, plan_name: "Pathway"},
+      {id: 24, plan_name: "Healthy"},
+      {id: 25, plan_name: "Hospital"},
+      {id: 26, plan_name: "Prism"},
+      {id: 27, plan_name: "Indemnity"},
+      {id: 28, plan_name: "TotalBlue"},
+      {id: 29, plan_name: "Unite Here"},
+      {id: 30, plan_name: "HSA"},
+      {id: 31, plan_name: "PPO"},
+      {id: 32, plan_name: "POS"},
+      {id: 33, plan_name: "HMO"},
+      {id: 34, plan_name: "EPO"}
+    ]
   },
 
   {
@@ -474,24 +472,24 @@ insurance_plan_seed = [
     },
 
     plans: [
-             {id: 35, plan_name: "Core", insurer_id: 4},
-             {id: 36, plan_name: "Navigate", insurer_id: 4},
-             {id: 37, plan_name: "Passport Connect", insurer_id: 4},
-             {id: 38, plan_name: "Options", insurer_id: 4},
-             {id: 39, plan_name: "Select", insurer_id: 4},
-             {id: 40, plan_name: "Medica Choice", insurer_id: 4},
-             {id: 41, plan_name: "PacifiCare", insurer_id: 4},
-             {id: 42, plan_name: "PPO", insurer_id: 4},
-             {id: 43, plan_name: "HMO", insurer_id: 4}
-           ]
+      {id: 35, plan_name: "Core"},
+      {id: 36, plan_name: "Navigate"},
+      {id: 37, plan_name: "Passport Connect"},
+      {id: 38, plan_name: "Options"},
+      {id: 39, plan_name: "Select"},
+      {id: 40, plan_name: "Medica Choice"},
+      {id: 41, plan_name: "PacifiCare"},
+      {id: 42, plan_name: "PPO"},
+      {id: 43, plan_name: "HMO"}
+    ]
   }
 ]
 
 insurance_plan_seed.each do |insurance_plan|
-  Insurer.update_or_create!(:insurer_name, insurance_plan[:insurer])
+  insurer = Insurer.update_or_create!(:insurer_name, insurance_plan[:insurer])
 
   insurance_plan[:plans].each do |plan|
-    InsurancePlan.update_or_create!(:id, plan)
+    InsurancePlan.update_or_create!(:id, plan.merge(insurer_id: insurer.id))
   end
 end
 
@@ -684,5 +682,4 @@ begin
     .find_or_create_by!(email: 'sync@leohealth.com')
   Patient.create_with(first_name: 'Patient', last_name: 'SyncService', birth_date: Date.today, sex: 'M')
     .find_or_create_by!(family: syncServiceUser.family)
-
 end
