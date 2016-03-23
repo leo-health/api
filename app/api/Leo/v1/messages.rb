@@ -49,12 +49,12 @@ module Leo
           get do
             messages = @conversation.messages.order('created_at DESC')
 
-            if params[:start_date]
-              messages = messages.where("created_at > ?", params[:start_date])
+            if params[:start_datetime]
+              messages = messages.where("created_at > ?", Time.zone.parse(params[:start_datetime]) + 1.second)
             end
 
-            if params[:end_date]
-              messages = messages.where("created_at < ?", params[:end_date])
+            if params[:end_datetime]
+              messages = messages.where("created_at < ?", Time.zone.parse(params[:end_datetime]) - 1.second)
             end
 
             authorize! :read, Message
