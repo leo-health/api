@@ -51,12 +51,9 @@ describe Leo::V1::Messages do
       Timecop.return
     end
 
-    let(:ten_days_ago){DateTime.now - 10.days}
-    let(:five_days_ago){DateTime.now - 5.days}
-    let(:zero_days_ago){DateTime.now}
-    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: ten_days_ago)}
-    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: five_days_ago)}
-    let!(:third_message){create(:message, conversation: conversation, sender: user, created_at: zero_days_ago)}
+    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: 10.days.ago)}
+    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: 5.days.ago)}
+    let!(:third_message){create(:message, conversation: conversation, sender: user, created_at: 0.days.ago)}
 
     def do_request(params = {})
       get "/api/v1/conversations/#{conversation.id}/messages?per_page=3&page=1", { authentication_token: session.authentication_token }.merge(params)
@@ -73,7 +70,7 @@ describe Leo::V1::Messages do
 
     context "when requesting messages after a certain date" do
       it "should get all the messages after start_datetime" do
-        do_request({start_datetime: five_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
+        do_request({start_datetime: 5.days.ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
         expect(body[:data].as_json.to_json).to eq(serializer.represent([third_message]).as_json.to_json)
@@ -82,7 +79,7 @@ describe Leo::V1::Messages do
 
     context "when requesting messages before a certain date" do
       it "should get all the messages before end_datetime" do
-        do_request({end_datetime: five_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
+        do_request({end_datetime: 5.days.ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
         expect(body[:data].as_json.to_json).to eq(serializer.represent([first_message]).as_json.to_json)
@@ -91,7 +88,7 @@ describe Leo::V1::Messages do
 
     context "when requesting messages within a certain date range" do
       it "should get all the messages after start_datetime and before end_datetime" do
-        do_request({start_datetime: ten_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z'), end_datetime: zero_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
+        do_request({start_datetime: 10.days.ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z'), end_datetime: 0.days.ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
         expect(body[:data].as_json.to_json).to eq(serializer.represent([second_message]).as_json.to_json)

@@ -8,6 +8,32 @@ module Leo
       expose :value
       expose :unit
       expose :percentile
+      expose :formatted_value_with_units
+
+      private
+      def formatted_value_with_units
+        if object[:measurement] == Vital::MEASUREMENT_HEIGHT
+          format_inches_to_feet_and_inches(object[:value])
+        else
+          "#{object[:value]} #{object[:unit]}"
+        end
+      end
+
+      private
+      def format_inches_to_feet_and_inches(total_inches)
+        whole_inches = total_inches.floor
+        fractional_inches = total_inches - whole_inches
+        feet = whole_inches / 12
+        inches = whole_inches % 12 + fractional_inches
+        inches_plurality = if inches == 1 then "inch" else "inches" end
+        inches_format = "#{"#{inches.round(2)}".chomp(".0")} #{inches_plurality}"
+        if feet == 0
+          inches_format
+        else
+          feet_plurality = if feet == 1 then "foot" else "feet" end
+          "#{feet} #{feet_plurality} #{inches_format}"
+        end
+      end
     end
   end
 end
