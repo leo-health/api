@@ -8,11 +8,10 @@ describe Leo::V1::Patients do
   let(:serializer){ Leo::Entities::PatientEntity }
 
   describe 'POST /api/v1/patients' do
-    # let!(:patient_role){ create(:role, :patient)}
     let(:patient_params){{first_name: "patient_first_name",
                           last_name: "patient_last_name",
                           birth_date: 5.years.ago,
-                          sex: "M",
+                          sex: "M"
                         }}
 
     def do_request
@@ -22,7 +21,6 @@ describe Leo::V1::Patients do
 
     it "should add a patient to the family" do
       do_request
-      byebug
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       patient_id = body[:data][:patient][:id]

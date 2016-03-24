@@ -23,8 +23,8 @@ class Patient < ActiveRecord::Base
   has_many :user_generated_health_records
   has_many :forms
 
-  before_validation :add_patient_role
-  validates :first_name, :last_name, :birth_date, :sex, :family, :role, presence: true
+  before_validation :ensure_patient_role
+  validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 
   after_commit :upgrade_guardian!, on: :create
 
@@ -34,8 +34,8 @@ class Patient < ActiveRecord::Base
 
   private
 
-  def add_patient_role
-    role ||= Role.patient
+  def ensure_patient_role
+    self.role ||= Role.patient
   end
 
   def upgrade_guardian!

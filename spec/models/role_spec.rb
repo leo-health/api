@@ -51,4 +51,12 @@ RSpec.describe Role, type: :model do
       expect(Role.guardian).to eq(guardian)
     end
   end
+
+  describe ".patient" do
+    let!(:patient){ create(:role, :patient) }
+
+    it "should return the guardian role" do
+      expect(Role.patient).to eq(patient)
+    end
+  end
 end
