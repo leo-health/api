@@ -3,7 +3,6 @@ require 'rails_helper'
 RSpec.describe Patient, type: :model do
  describe 'relations' do
    it{ is_expected.to belong_to(:family) }
-   it{ is_expected.to belong_to(:role) }
    it{ is_expected.to have_many(:medications) }
    it{ is_expected.to have_many(:photos) }
    it{ is_expected.to have_many(:vaccines) }
@@ -42,10 +41,6 @@ RSpec.describe Patient, type: :model do
   end
 
   describe 'callbacks' do
-    describe "before valiation" do
-      it { is_expected.to callback(:ensure_patient_role).before(:validation) }
-    end
-
     describe "after_commit" do
       it { is_expected.to callback(:upgrade_guardian!).after(:commit).on(:create) }
     end

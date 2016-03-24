@@ -12,8 +12,4 @@ class Role < ActiveRecord::Base
   def self.guardian
     Role.find_by(name: :guardian)
   end
-
-  def self.patient
-    Role.find_by(name: :patient)
-  end
 end

@@ -24,7 +24,6 @@ roles_seed = [
   { name: :customer_service },
   { name: :guaridan },
   { name: :clinical },
-  { name: :patient },
   { name: :bot },
   { name: :operational }
 ]
