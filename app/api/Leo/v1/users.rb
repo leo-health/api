@@ -55,7 +55,7 @@ module Leo
         end
 
         post do
-          user = User.new(declared(params, include_missing: false).merge({role_id: 4}))
+          user = User.new(declared(params, include_missing: false).merge({ role: Role.guardian }))
           create_success user
         end
       end

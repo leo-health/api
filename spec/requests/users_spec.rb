@@ -31,7 +31,7 @@ describe Leo::V1::Users do
 
   describe "Get /api/v1/search_user" do
     let(:serializer){ Leo::Entities::ShortUserEntity }
-    let(:user){ create(:user, :guardian, first_name: "test", last_name: "user") }
+    let(:user){ create(:user, first_name: "test", last_name: "user") }
     let(:session){ user.sessions.create }
 
     def do_request
