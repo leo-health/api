@@ -8,6 +8,6 @@ class SyncServiceErrorJob < Struct.new(:subject, :message)
   end
 
   def queue_name
-    'notification_email'
+    'sync_error_email'
   end
 end

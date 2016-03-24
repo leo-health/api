@@ -30,6 +30,8 @@ resource "Messages" do
     parameter :page, "Page Number (default 1)"
     parameter :per_page, "Record Per Page (default 25)"
     parameter :offset, "The Offset to Start from (default: 0)"
+    parameter :start_datetime, "start of date range to return, non-inclusive, format 2016-03-15T11:27:50.438-04:00"
+    parameter :end_datetime, "end of date range to return, non-inclusive, format 2016-03-20T11:27:50.438-04:00"
 
     let(:encoded_image){ Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'support', 'Zen-Dog1.png')) }
     let(:photo_message_params){{ message_photo_attributes: { image: encoded_image },
