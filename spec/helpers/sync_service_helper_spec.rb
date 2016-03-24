@@ -33,19 +33,21 @@ RSpec.describe SyncServiceHelper, type: :helper do
     let!(:future_appointment_status){ create(:appointment_status, :future) }
     let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
     let!(:connector) { double("connector") }
+    let!(:unknown_user) { create(:user, :guardian, email: 'sync@leohealth.com') }
+    let!(:unknown_patient) { create(:patient, family: unknown_user.family)}
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
     let!(:practice) { build(:practice, athena_id: 1) }
 
     describe "process_scan_appointments" do
       it "creates sync task for unsynced appointment" do
         appt = create(:appointment, athena_id: 0, start_datetime: DateTime.now + 1.minutes)
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
 
       it "creates sync task for stale appointment" do
         appt = create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago, start_datetime: DateTime.now + 1.minutes)
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: appt.id, sync_type: :appointment.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: appt.id, sync_type: :appointment.to_s)
         syncer.process_scan_appointments(SyncTask.new())
       end
     end
@@ -54,7 +56,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:provider_sync_profile) { create(:provider_sync_profile) }
 
       it "creates provider_leave sync task for new provider" do
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
         syncer.process_scan_providers(SyncTask.new())
       end
 
@@ -62,7 +64,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         provider_sync_profile.leave_updated_at = 1.year.ago
         provider_sync_profile.save!
 
-        expect(SyncTask).to receive(:find_or_create_by).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+        expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
         syncer.process_scan_providers(SyncTask.new())
       end
     end
@@ -74,14 +76,25 @@ RSpec.describe SyncServiceHelper, type: :helper do
         .new('f', "appointmenttype", "1", "30", Date.tomorrow.strftime("%m/%d/%Y"), "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
       }
       let(:family) { create(:family) }
-      let!(:patient) { create(:patient, athena_id: 1, family_id: family.id) }
       let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
       let!(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
 
       it "creates leo appointment when missing" do
+        patient = create(:patient, athena_id: 1, family_id: family.id)
+
         expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
-        expect(Appointment).to receive(:create!)
         syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
+        appt = Appointment.find_by(athena_id: booked_appt.appointmentid.to_i)
+        expect(appt).not_to be_nil
+        expect(appt.patient_id).to eq(patient.id)
+      end
+
+      it "creates leo appointment with unknown patient when missing" do
+        expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
+        syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
+        appt = Appointment.find_by(athena_id: booked_appt.appointmentid.to_i)
+        expect(appt).not_to be_nil
+        expect(appt.patient_id).to eq(unknown_patient.id)
       end
     end
 
@@ -167,6 +180,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         appointment.update_attributes(start_datetime: 5.minutes.ago, athena_id: 1000)
         appointment.patient.update_attributes(athena_id: 1)
         resched_appointment.patient.update_attributes(athena_id: 1)
+
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
           "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",

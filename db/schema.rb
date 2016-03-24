@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160316202501) do
+ActiveRecord::Schema.define(version: 20160321191814) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -133,15 +133,6 @@ ActiveRecord::Schema.define(version: 20160316202501) do
     t.datetime "deleted_at"
     t.string   "state",                   default: "closed"
   end
-
-  create_table "conversations_participants", id: false, force: :cascade do |t|
-    t.integer "conversation_id"
-    t.integer "participant_id"
-    t.string  "participant_role"
-  end
-
-  add_index "conversations_participants", ["conversation_id", "participant_id"], name: "conversations_participants_convid_pid", unique: true, using: :btree
-  add_index "conversations_participants", ["participant_id", "conversation_id"], name: "conversations_participants_pid_convid", unique: true, using: :btree
 
   create_table "delayed_jobs", force: :cascade do |t|
     t.integer  "priority",   default: 0, null: false
@@ -360,6 +351,8 @@ ActiveRecord::Schema.define(version: 20160316202501) do
     t.string   "email"
     t.string   "avatar_url"
     t.integer  "role_id",                default: 6, null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.datetime "deleted_at"
     t.date     "birth_date",                         null: false
     t.integer  "athena_id",              default: 0, null: false

@@ -1,0 +1,21 @@
+common: &default_settings
+  key: <%= ENV['ATHENA_KEY'] %>
+  secret: <%= ENV['ATHENA_SECRET'] %>
+  version: preview1
+  practice_id: 13092
+
+development:
+  <<: *default_settings
+
+test:
+  <<: *default_settings
+
+develop:
+  <<: *default_settings
+  version: <%= ENV['ATHENA_VERSION'] %>
+  practice_id: <%= ENV['ATHENA_PRACTICE_ID'] %>
+
+production:
+  <<: *default_settings
+  version: <%= ENV['ATHENA_VERSION'] %>
+  practice_id: <%= ENV['ATHENA_PRACTICE_ID'] %>
