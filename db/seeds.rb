@@ -44,7 +44,7 @@ staff = [
     practice_id: 1,
     phone: '1234567890',
     avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Guardian_Mom.png'))
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
     }
   },
 
