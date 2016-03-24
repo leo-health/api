@@ -23,6 +23,11 @@ module Leo
             authenticated
           end
 
+          params do
+            optional :start_datetime, type: DateTime, desc: "Start datetime", allow_blank: false
+            optional :end_datetime, type: DateTime, desc: "End datetime", allow_blank: false
+          end
+
           after_validation do
             @conversation = Conversation.find(params[:conversation_id])
           end
@@ -43,6 +48,17 @@ module Leo
           desc "Return all messages for a conversation with pagination options"
           get do
             messages = @conversation.messages.order('created_at DESC')
+
+            if params[:start_datetime]
+              start_datetime = Time.zone.parse(params[:start_datetime])
+              messages = messages.where("created_at > ?", start_datetime)
+            end
+
+            if params[:end_datetime]
+              end_datetime = Time.zone.parse(params[:end_datetime])
+              messages = messages.where("created_at < ?", end_datetime)
+            end
+
             authorize! :read, Message
             present paginate(messages), with: Leo::Entities::MessageEntity, device_type: session_device_type
           end
