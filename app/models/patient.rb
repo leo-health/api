@@ -5,8 +5,8 @@ class Patient < ActiveRecord::Base
     :search,
     against: %i( first_name last_name ),
     using: {
-        tsearch: { prefix: true },
-        trigram: { threshold: 0.3 }
+      tsearch: { prefix: true },
+      trigram: { threshold: 0.3 }
     }
   )
 
@@ -23,6 +23,7 @@ class Patient < ActiveRecord::Base
   has_many :user_generated_health_records
   has_many :forms
 
+  before_validation :add_patient_role
   validates :first_name, :last_name, :birth_date, :sex, :family, :role, presence: true
 
   after_commit :upgrade_guardian!, on: :create
@@ -32,6 +33,10 @@ class Patient < ActiveRecord::Base
   end
 
   private
+
+  def add_patient_role
+    role ||= Role.patient
+  end
 
   def upgrade_guardian!
     family.primary_guardian.try(:upgrade!)
