@@ -106,8 +106,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let(:appointment){ create(:appointment, provider: provider, appointment_type: appointment_type, appointment_status: future_appointment_status, notes: "notes")}
       let(:resched_appointment){ create(:appointment, start_datetime: DateTime.now, provider: provider, appointment_type: appointment_type, athena_id: 1001)}
 
-      it "creates athena appointment when missing" do
+      before do
         appointment.patient.update_attributes(athena_id: 1)
+      end
+
+      it "creates athena appointment when missing" do
         expect(connector).to receive("create_appointment").and_return(1000)
         expect(connector).to receive("book_appointment")
         expect(connector).to receive("create_appointment_note")

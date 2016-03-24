@@ -45,12 +45,12 @@ gem "delayed_job_web"
 
 group :development, :test do
   gem 'airborne'  # Allow easily testing json responses
-  gem "spring"
   gem 'factory_girl_rails'
   gem 'byebug'
   gem 'quiet_assets'
   gem 'spork'
   gem 'rspec-rails'
+  gem "spring"
   gem 'rspec_api_documentation'
 end
 
