@@ -42,6 +42,15 @@ describe Leo::V1::Messages do
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
+
+    before do
+      Timecop.freeze
+    end
+
+    after do
+      Timecop.return
+    end
+
     let(:ten_days_ago){DateTime.now - 10.days}
     let(:five_days_ago){DateTime.now - 5.days}
     let(:zero_days_ago){DateTime.now}
@@ -64,7 +73,7 @@ describe Leo::V1::Messages do
 
     context "when requesting messages after a certain date" do
       it "should get all the messages after start_datetime" do
-        do_request({start_datetime: five_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N')})
+        do_request({start_datetime: five_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
         expect(body[:data].as_json.to_json).to eq(serializer.represent([third_message]).as_json.to_json)
@@ -73,7 +82,7 @@ describe Leo::V1::Messages do
 
     context "when requesting messages before a certain date" do
       it "should get all the messages before end_datetime" do
-        do_request({end_datetime: five_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N')})
+        do_request({end_datetime: five_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
         expect(body[:data].as_json.to_json).to eq(serializer.represent([first_message]).as_json.to_json)
@@ -82,7 +91,7 @@ describe Leo::V1::Messages do
 
     context "when requesting messages within a certain date range" do
       it "should get all the messages after start_datetime and before end_datetime" do
-        do_request({start_datetime: ten_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N'), end_datetime: zero_days_ago.strftime('%Y-%m-%d %H:%M:%S.%N')})
+        do_request({start_datetime: ten_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z'), end_datetime: zero_days_ago.strftime('%Y-%m-%dT%H:%M:%S.%N%z')})
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
         expect(body[:data].as_json.to_json).to eq(serializer.represent([second_message]).as_json.to_json)
