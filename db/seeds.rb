@@ -22,7 +22,7 @@ roles_seed = [
   { name: :financial },
   { name: :clinical_support },
   { name: :customer_service },
-  { name: :guaridan },
+  { name: :guardian },
   { name: :clinical },
   { name: :bot },
   { name: :operational }
