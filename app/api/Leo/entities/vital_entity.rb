@@ -19,7 +19,6 @@ module Leo
         end
       end
 
-      private
       def format_inches_to_feet_and_inches(total_inches)
         whole_inches = total_inches.floor
         fractional_inches = total_inches - whole_inches
