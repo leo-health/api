@@ -52,25 +52,25 @@ describe User do
 
     context "guaridans" do
       it "should return all the guaridans" do
-        expect(User.guardians).to eq([guardian])
+        expect(User.guardians).to match_array([guardian])
       end
     end
 
     context "staff" do
       it "should return all the staff" do
-        expect(User.staff).to eq([clinical, customer_service])
+        expect(User.staff).to match_array([clinical, customer_service])
       end
     end
 
     context "clinical_staff" do
       it "should return all the clinical_staff" do
-        expect(User.clinical_staff).to eq([clinical, customer_service])
+        expect(User.clinical_staff).to match_array([clinical, customer_service])
       end
     end
 
     context "provider" do
       it "should return all the providers" do
-        expect(User.provider).to eq([clinical])
+        expect(User.provider).to match_array([clinical])
       end
     end
   end
