@@ -5,6 +5,5 @@ FactoryGirl.define do
     birth_date { 10.years.ago.to_s }
     sex { ['M', 'F'].sample }
     family
-    association :role, factory: [:role, :patient]
   end
 end
