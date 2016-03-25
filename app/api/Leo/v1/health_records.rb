@@ -15,20 +15,21 @@ module Leo
           get 'phr' do
             #vitals: height weight, bmi
             height_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).order(:taken_at).collect() {
-              |vital| { 
-                taken_at: vital.taken_at, 
-                value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2), 
-                unit: "inches", 
+              |vital| {
+                measurement: vital.measurement,
+                taken_at: vital.taken_at,
+                value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2),
+                unit: "inches",
                 percentile: GrowthCurvesHelper.height_percentile(
                   @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f)
               }
             }
 
             weight_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).order(:taken_at).collect() {
-              |vital| { 
-                taken_at: vital.taken_at, 
-                value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2), 
-                unit: "lbs", 
+              |vital| {
+                taken_at: vital.taken_at,
+                value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2),
+                unit: "lbs",
                 percentile: GrowthCurvesHelper.weight_percentile(
                   @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f/1000)
               }
@@ -42,10 +43,10 @@ module Leo
                 weight_kg = weight_vital.value.to_f/1000
                 height_m = height_vital.value.to_f/100
                 bmi = weight_kg/(height_m * height_m)
-                bmi_vitals << { 
-                  taken_at: weight_vital.taken_at, 
-                  value: bmi.round(2), 
-                  unit: "kg/m2", 
+                bmi_vitals << {
+                  taken_at: weight_vital.taken_at,
+                  value: bmi.round(2),
+                  unit: "",
                   percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f)
                 }
               end
@@ -85,10 +86,11 @@ module Leo
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
-                |vital| { 
-                  taken_at: vital.taken_at, 
-                  value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2), 
-                  unit: "inches", 
+                |vital| {
+                  measurement: vital.measurement,
+                  taken_at: vital.taken_at,
+                  value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2),
+                  unit: "inches",
                   percentile: GrowthCurvesHelper.height_percentile(
                     @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f)
                 }
@@ -107,10 +109,10 @@ module Leo
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
-                |vital| { 
-                  taken_at: vital.taken_at, 
-                  value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2), 
-                  unit: "lbs", 
+                |vital| {
+                  taken_at: vital.taken_at,
+                  value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2),
+                  unit: "lbs",
                   percentile: GrowthCurvesHelper.weight_percentile(
                     @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f/1000)
                 }
@@ -136,10 +138,10 @@ module Leo
                   weight_kg = weight_vital.value.to_f/1000
                   height_m = height_vital.value.to_f/100
                   bmi = weight_kg/(height_m * height_m)
-                  vitals << { 
-                    taken_at: weight_vital.taken_at, 
-                    value: bmi.round(2), 
-                    unit: "kg/m2", 
+                  vitals << {
+                    taken_at: weight_vital.taken_at,
+                    value: bmi.round(2),
+                    unit: "",
                     percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f)
                   }
                 end
