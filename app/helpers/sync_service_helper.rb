@@ -85,10 +85,10 @@ module SyncServiceHelper
     # Process specified sync tasks
     # Tasks that are completed will be removed from the table.  Tasks that failed
     # will stay.
-    def process_one_task()
+    def process_one_task(task=nil)
       begin
         #acquire task
-        task = SyncTask.where(working: false).order(num_failed: :asc).first
+        task ||= SyncTask.where(working: false).order(num_failed: :asc).first
         return unless task
 
         #lock the record
