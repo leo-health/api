@@ -102,11 +102,11 @@ module SyncServiceHelper
       rescue => e
         on_failure(
           "Failed to process SyncTask.id=#{task.id}", 
-          "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
-        
+          "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")        
+
         task.num_failed += 1
         task.working = false
-        task.save
+        task.save!
       end
     end
 
