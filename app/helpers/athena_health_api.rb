@@ -25,15 +25,21 @@ require 'json'
 #
 module AthenaHealthAPI
   class Configuration
-    #Set to true unless doing some kind of testing
     attr_accessor :min_request_interval
+
+    attr_accessor :num_workers
 
     #logger
     attr_accessor :logger
 
     def initialize
       @min_request_interval = (0.2).seconds
+      @num_workers = 4
       @logger = Rails.logger
+    end
+
+    def effective_min_request_interval
+      @min_request_interval * @num_workers
     end
   end
 
@@ -168,8 +174,8 @@ module AthenaHealthAPI
 
       #throttle API calls
       unless ignore_throttle
-        while (Time.now - @@last_request) < AthenaHealthAPI.configuration.min_request_interval
-          sleep(AthenaHealthAPI.configuration.min_request_interval * 0.5)
+        while (Time.now - @@last_request) < AthenaHealthAPI.configuration.effective_min_request_interval
+          sleep(AthenaHealthAPI.configuration.effective_min_request_interval * 0.5)
         end
       end
       
