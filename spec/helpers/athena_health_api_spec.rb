@@ -27,7 +27,7 @@ RSpec.describe AthenaHealthAPI, type: :helper do
           }]
           )))
 
-        sleep(AthenaHealthAPI.configuration.min_request_interval)
+        sleep(AthenaHealthAPI.configuration.effective_min_request_interval)
 
         start_time = Time.now
 
@@ -35,7 +35,7 @@ RSpec.describe AthenaHealthAPI, type: :helper do
           appointment = api_connection.GET("/api/foo")
         end
 
-        expect(Time.now - start_time).to be >= AthenaHealthAPI.configuration.min_request_interval
+        expect(Time.now - start_time).to be >= AthenaHealthAPI.configuration.effective_min_request_interval
       end
 
       it "should not throttle requests on ignore_throttle" do
@@ -54,7 +54,7 @@ RSpec.describe AthenaHealthAPI, type: :helper do
           }]
           )))
 
-        sleep(AthenaHealthAPI.configuration.min_request_interval)
+        sleep(AthenaHealthAPI.configuration.effective_min_request_interval)
 
         start_time = Time.now
 
@@ -62,7 +62,7 @@ RSpec.describe AthenaHealthAPI, type: :helper do
           appointment = api_connection.GET("/api/foo", nil, nil, true)
         end
 
-        expect(Time.now - start_time).to be < AthenaHealthAPI.configuration.min_request_interval
+        expect(Time.now - start_time).to be < AthenaHealthAPI.configuration.effective_min_request_interval
       end
     end
   end
