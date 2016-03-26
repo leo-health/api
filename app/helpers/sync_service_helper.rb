@@ -95,6 +95,7 @@ module SyncServiceHelper
         num_updated = SyncTask.where(id: task.id, working: false).update_all(working: true)
         return unless num_updated > 0
 
+        task.reload
         process_sync_task(task)
 
         #destroy task if everything went ok
