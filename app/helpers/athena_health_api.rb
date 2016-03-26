@@ -25,7 +25,6 @@ require 'json'
 #
 module AthenaHealthAPI
   class Configuration
-    #Should ProcessSyncTasksJob reschedule itself on completion?
     #Set to true unless doing some kind of testing
     attr_accessor :min_request_interval
 

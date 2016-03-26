@@ -11,36 +11,32 @@ module SyncService
   end
 
   def self.start
-    #make sure that the sync job is scheduled.  It will reschedule automatically.
-    ProcessSyncTasksJob.schedule if Delayed::Job.table_exists?
-
-    #create scan tasks
     SyncService.create_scan_tasks
+    
+    #make sure that the sync job is scheduled.  It will reschedule automatically.
+    SyncTaskJob.schedule_if_needed if Delayed::Job.table_exists?
   end
 
   def self.create_scan_tasks
-    #create scan tasks
-    if SyncService.configuration.auto_gen_scan_tasks && SyncTask.table_exists?
-      SyncTask.find_or_create_by!(sync_type: :scan_patients.to_s)
-      SyncTask.find_or_create_by!(sync_type: :scan_appointments.to_s)
-      SyncTask.find_or_create_by!(sync_type: :scan_providers.to_s)
+    SyncTask.find_or_create_by!(sync_type: :scan_patients.to_s)
+    SyncTask.find_or_create_by!(sync_type: :scan_appointments.to_s)
+    SyncTask.find_or_create_by!(sync_type: :scan_providers.to_s)
 
-      Practice.find_each { |practice|
-        SyncTask.find_or_create_by!(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
-      }
-    end
+    Practice.find_each { |practice|
+      SyncTask.find_or_create_by!(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
+    }
   end
 
   class Configuration
     #admin emails for failed sync job notifications
     attr_accessor :admin_emails
 
-    #Should ProcessSyncTasksJob reschedule itself on completion?
-    #Set to true unless doing some kind of testing
-    attr_accessor :auto_reschedule_job
-
-    #Interval between successive runs of ProcessSyncTasksJob
+    #Interval between successive runs of SyncTaskJobs when no tasks are present
     attr_accessor :job_interval
+
+    #numer of SyncTaskJobs that will be maintained.  Needs to be at least the same as the number of worker threads
+    #that process sync tasks
+    attr_accessor :minimum_number_of_jobs
 
     #Should scanner tasks be auto-generated?  Scanner tasks scan the Leo DB and schedule SyncTasks for individual entities
     #Set to true unless doing testing.
@@ -56,8 +52,8 @@ module SyncService
     attr_accessor :logger
 
     def initialize
-      @auto_reschedule_job = true
       @job_interval = 1.minutes
+      @minimum_number_of_jobs = 4
       @auto_gen_scan_tasks = true
       @patient_data_interval = 15.minutes
       @appointment_data_interval = 15.minutes
@@ -86,43 +82,32 @@ module SyncServiceHelper
       SyncServiceErrorJob.send(subject, message)
     end
 
-    # Process all sync tasks
+    # Process specified sync tasks
     # Tasks that are completed will be removed from the table.  Tasks that failed
     # will stay.
-    def process_all_sync_tasks()
-      SyncTask.find_each() do |task|
-        begin
-          process_sync_task(task)
+    def process_one_task(task=nil)
+      begin
+        #acquire task
+        task ||= SyncTask.where(working: false).order(num_failed: :asc).first
+        return unless task
 
-          #destroy task if everything went ok
-          task.destroy
-        rescue => e
-          on_failure(
-            "Failed to process SyncTask.id=#{task.id}", 
-            "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
-        end
+        #lock the record
+        num_updated = SyncTask.where(id: task.id, working: false).update_all(working: true)
+        return unless num_updated > 0
+
+        process_sync_task(task)
+
+        #destroy task if everything went ok
+        task.destroy
+      rescue => e
+        on_failure(
+          "Failed to process SyncTask.id=#{task.id}", 
+          "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
+        
+        task.num_failed += 1
+        task.working = false
+        task.save
       end
-
-      #re-create all the scan tasks
-      SyncService.create_scan_tasks
-    end
-
-    def process_all_sync_tasks_with_type(types)
-      SyncTask.where(sync_type: types).find_each() do |task|
-        begin
-          process_sync_task(task)
-
-          #destroy task if everything went ok
-          task.destroy
-        rescue => e
-          on_failure(
-            "Failed to process SyncTask.id=#{task.id}", 
-            "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
-        end
-      end
-
-      #re-create all the scan tasks
-      SyncService.create_scan_tasks
     end
 
     # process a single sync task.  An exception will be thrown if anything goes wrong.

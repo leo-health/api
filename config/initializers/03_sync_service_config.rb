@@ -4,9 +4,8 @@ SyncService.configure do |config|
   #list of emails to notify when a sync task fails
   config.admin_emails = [ "sync@leohealth.com" ]
 
-  #automatically schedule sync related jobs and tasks
+  #automatically schedule sync related tasks
   #should be true for every configuration other then test
-  config.auto_reschedule_job = !%w[ test ].include?(Rails.env)
   config.auto_gen_scan_tasks = !%w[ test ].include?(Rails.env)
 
   #sync service job will run at this interval

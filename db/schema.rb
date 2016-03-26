@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160324180802) do
+ActiveRecord::Schema.define(version: 20160325194510) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -520,15 +520,19 @@ ActiveRecord::Schema.define(version: 20160324180802) do
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
 
   create_table "sync_tasks", force: :cascade do |t|
-    t.integer  "sync_id",     default: 0,  null: false
-    t.string   "sync_type",   default: "", null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.string   "sync_params", default: "", null: false
+    t.integer  "sync_id",     default: 0,     null: false
+    t.string   "sync_type",   default: "",    null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "sync_params", default: "",    null: false
+    t.integer  "num_failed",  default: 0,     null: false
+    t.boolean  "working",     default: false, null: false
   end
 
+  add_index "sync_tasks", ["num_failed"], name: "index_sync_tasks_on_num_failed", using: :btree
   add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id", using: :btree
   add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type", using: :btree
+  add_index "sync_tasks", ["working"], name: "index_sync_tasks_on_working", using: :btree
 
   create_table "user_conversations", force: :cascade do |t|
     t.integer  "user_id"
