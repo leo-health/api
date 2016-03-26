@@ -5,13 +5,12 @@ class Patient < ActiveRecord::Base
     :search,
     against: %i( first_name last_name ),
     using: {
-        tsearch: { prefix: true },
-        trigram: { threshold: 0.3 }
+      tsearch: { prefix: true },
+      trigram: { threshold: 0.3 }
     }
   )
 
   belongs_to :family
-  belongs_to :role
   has_many :appointments, -> { Appointment.booked }
   has_many :medications
   has_many :allergies
@@ -23,7 +22,7 @@ class Patient < ActiveRecord::Base
   has_many :user_generated_health_records
   has_many :forms
 
-  validates :first_name, :last_name, :birth_date, :sex, :family, :role, presence: true
+  validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 
   after_commit :upgrade_guardian!, on: :create
 

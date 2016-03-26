@@ -11,7 +11,7 @@ class AppointmentStatus < ActiveRecord::Base
   STATUSES_POSTCHECKEDIN = [ STATUS_CHECKED_IN, STATUS_CHECKED_OUT, STATUS_CHARGE_ENTERED ]
 
   has_many :appointments
-
+  scope :booked, -> { where(status: STATUSES_BOOKED) }
   validates :description, :status, presence: true
   validates_uniqueness_of :description, :status
 
@@ -21,9 +21,5 @@ class AppointmentStatus < ActiveRecord::Base
 
   def self.future
     find_by(status: STATUS_FUTURE)
-  end
-
-  def self.booked
-    where(status: STATUSES_BOOKED)
   end
 end

@@ -350,7 +350,6 @@ ActiveRecord::Schema.define(version: 20160325194510) do
     t.integer  "family_id",                          null: false
     t.string   "email"
     t.string   "avatar_url"
-    t.integer  "role_id",                default: 6, null: false
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
     t.datetime "deleted_at"
