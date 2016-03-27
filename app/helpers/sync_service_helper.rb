@@ -362,7 +362,7 @@ module SyncServiceHelper
         appointmenttypeid: 0,
         providerid: provider_sync_profile.athena_id,
         showfrozenslots: true
-      ).select {|appt| (appt.frozen == "true" && appt.providerid.to_i == provider_sync_profile.athena_id) }
+      ).select {|appt| (appt.try(:frozen) == "true" && appt.providerid.to_i == provider_sync_profile.athena_id) }
 
       #delete all existing provider leaves that are synched from athena
       ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).destroy_all
