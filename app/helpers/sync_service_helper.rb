@@ -170,11 +170,6 @@ module SyncServiceHelper
       sync_params = {}
       sync_params = JSON.parse(task.sync_params) if task.sync_params.to_s != ''
 
-      #mm/dd/yyyy hh:mi:ss
-      start_date = nil
-      start_date = DateTime.parse(sync_params[:start_date.to_s]) if sync_params[:start_date.to_s]
-      next_start_date = DateTime.now.to_s
-
       booked_appts = @connector.get_booked_appointments(
         departmentid: task.sync_id,
         startdate: Date.today.strftime("%m/%d/%Y"),
@@ -184,13 +179,6 @@ module SyncServiceHelper
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
         impl_create_leo_appt_from_athena(appt: appt) unless leo_appt
       }
-
-      #reschedule the task
-      if SyncService.configuration.auto_gen_scan_tasks
-        if SyncTask.where(sync_type: :scan_remote_appointments.to_s, sync_id: task.sync_id).where.not(id: task.id).count <= 0
-          SyncTask.create(sync_type: :scan_remote_appointments.to_s, sync_id: task.sync_id, sync_params: { :start_date => next_start_date }.to_json)
-        end
-      end
     end
 
     def impl_create_leo_appt_from_athena(appt: )
@@ -369,11 +357,30 @@ module SyncServiceHelper
         providerid: provider_sync_profile.athena_id
       ).select {|appt| (appt.appointmenttypeid.to_i == blocked_appointment_type.athena_id && appt.providerid.to_i == provider_sync_profile.athena_id) }
 
+      frozen_appts = @connector.get_open_appointments(
+        departmentid: provider_sync_profile.athena_department_id,
+        appointmenttypeid: 0,
+        providerid: provider_sync_profile.athena_id,
+        showfrozenslots: true
+      ).select {|appt| (appt.frozen == "true" && appt.providerid.to_i == provider_sync_profile.athena_id) }
+
       #delete all existing provider leaves that are synched from athena
       ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).destroy_all
 
       #add new entries
       blocked_appts.each { |appt|
+        start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
+
+        ProviderLeave.create(
+          athena_id: appt.appointmentid.to_i, 
+          athena_provider_id: appt.providerid.to_i, 
+          description: "Synced from Athena block.id=#{appt.appointmentid}",
+          start_datetime: start_datetime,
+          end_datetime: start_datetime + appt.duration.to_i.minutes
+        )
+      }
+
+      frozen_appts.each { |appt|
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
 
         ProviderLeave.create(
