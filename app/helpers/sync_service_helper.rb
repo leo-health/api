@@ -177,7 +177,7 @@ module SyncServiceHelper
 
       booked_appts.each { |appt|
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
-        impl_create_leo_appt_from_athena(appt: appt) unless leo_appt
+        impl_create_leo_appt_from_athena(appt: appt) unless (leo_appt || !appt.future?)
       }
     end
 

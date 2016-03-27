@@ -45,8 +45,19 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_scan_remote_appointments" do
       let!(:provider) { create(:user, :clinical) }
       let!(:booked_appt) {
-        Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
-        .new('f', "appointmenttype", "1", "30", Date.tomorrow.strftime("%m/%d/%Y"), "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
+        AthenaHealthApiHelper::AthenaStruct.new({
+          "appointmentstatus": 'f', 
+          "appointmenttype": "appointmenttype",
+          "providerid": "1",
+          "duration": "30",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
+          "starttime": "08:00", 
+          "patientappointmenttypename": "patientappointmenttypename", 
+          "appointmenttypeid": "1",
+          "departmentid": provider.practice.athena_id.to_s, 
+          "appointmentid": "1", 
+          "patientid": "1"
+        })
       }
       let(:family) { create(:family) }
       let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
