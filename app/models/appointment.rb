@@ -14,7 +14,7 @@ class Appointment < ActiveRecord::Base
             :appointment_type, :booked_by, :provider, :patient, :practice, presence: true
 
   validate :same_family?, on: :create
-  validates_uniqueness_of :start_datetime, scope: :provider_id, 
+  validates_uniqueness_of :start_datetime, scope: :provider_id, if: :booked?,
     conditions: -> { where(deleted_at: nil, appointment_status: AppointmentStatus.booked) }
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
