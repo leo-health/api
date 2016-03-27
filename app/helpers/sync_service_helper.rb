@@ -88,7 +88,7 @@ module SyncServiceHelper
     def process_one_task(task=nil)
       begin
         #acquire task
-        task ||= SyncTask.where(working: false).order(num_failed: :asc).first
+        task ||= SyncTask.where(working: false).order(num_failed: :asc, id: :asc).first
         return unless task
 
         #lock the record
