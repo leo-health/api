@@ -18,12 +18,13 @@ module SyncService
   end
 
   def self.create_scan_tasks
-    SyncTask.find_or_create_by!(sync_type: :scan_patients.to_s)
-    SyncTask.find_or_create_by!(sync_type: :scan_appointments.to_s)
-    SyncTask.find_or_create_by!(sync_type: :scan_providers.to_s)
+    max_failed = SyncTask.maximum(:num_failed)
+    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_patients.to_s)
+    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_appointments.to_s)
+    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_providers.to_s)
 
     Practice.find_each { |practice|
-      SyncTask.find_or_create_by!(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
+      SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
     }
   end
 
