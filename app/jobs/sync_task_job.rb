@@ -16,7 +16,7 @@ class SyncTaskJob
   end
 
   def after(job)
-    SyncTaskJob.schedule_if_needed
+    SyncService.start
   end
 
   def self.schedule_if_needed()

@@ -16,7 +16,7 @@ class SyncTaskScanAppointmentsJob
   end
 
   def after(job)
-    SyncTaskScanAppointmentsJob.schedule_if_needed
+    SyncService.start
   end
 
   def self.schedule_if_needed(run_at = SyncService.configuration.scan_appointments_interval.from_now.utc)
