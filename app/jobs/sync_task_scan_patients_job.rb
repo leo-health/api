@@ -3,7 +3,7 @@ require "athena_health_api_helper"
 
 class SyncTaskScanPatientsJob
   def perform(*args)
-    SyncServiceHelper::Syncer.new.process_scan_patients(SyncTask.new)
+    SyncServiceHelper::Syncer.new.process_scan_patients(SyncTask.new) if (Rails.env.develop? || Rails.env.production?)
   end
 
   #limit to one attempt.  We will reschedule the job manually if failed
@@ -16,7 +16,7 @@ class SyncTaskScanPatientsJob
   end
 
   def after(job)
-    SyncTaskScanPatientsJob.schedule_if_needed
+    SyncService.start
   end
 
   def self.schedule_if_needed(run_at = SyncService.configuration.scan_patients_interval.from_now.utc)
