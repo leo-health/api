@@ -25,7 +25,6 @@ class SyncTaskJob
     num_jobs = Delayed::Job.where("handler LIKE ? AND failed_at IS NULL", "%SyncTaskJob%").count
     return if num_jobs > min_jobs
 
-    SyncService.create_scan_tasks
     num_tasks = SyncTask.where(working: false, num_failed: 0).where.not("sync_type LIKE ?", "scan_%").count
 
     run_at = DateTime.now

@@ -11,17 +11,12 @@ module SyncService
   end
 
   def self.start
-    SyncService.create_scan_tasks
-    
-    #make sure that the sync job is scheduled.  It will reschedule automatically.
-    SyncTaskJob.schedule_if_needed if Delayed::Job.table_exists?
-  end
-
-  def self.create_scan_tasks
-    max_failed = SyncTask.maximum(:num_failed)
-    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_patients.to_s)
-    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_appointments.to_s)
-    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_providers.to_s)
+    #make sure that the sync jobs are scheduled
+    SyncTaskJob.schedule_if_needed
+    SyncTaskScanAppointmentsJob.schedule_if_needed
+    SyncTaskScanPatientsJob.schedule_if_needed
+    SyncTaskScanProvidersJob.schedule_if_needed
+    SyncTaskScanRemoteAppointmentsJob.schedule_if_needed
   end
 
   class Configuration
@@ -45,6 +40,11 @@ module SyncService
     #The interval between successive appointment updates
     attr_accessor :appointment_data_interval
 
+    attr_accessor :scan_appointments_interval
+    attr_accessor :scan_remote_appointments_interval
+    attr_accessor :scan_patients_interval
+    attr_accessor :scan_providers_interval
+
     #logger
     attr_accessor :logger
 
@@ -56,6 +56,10 @@ module SyncService
       @appointment_data_interval = 15.minutes
       @logger = Rails.logger
       @admin_emails = []
+      @scan_appointments_interval = 1.minute
+      @scan_remote_appointments_interval = 5.minutes
+      @scan_patients_interval = 1.minute
+      @scan_providers_interval = 1.minute
     end
   end
 end
