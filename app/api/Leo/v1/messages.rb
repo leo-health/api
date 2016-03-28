@@ -52,6 +52,11 @@ module Leo
             if params[:start_datetime]
               start_datetime = Time.zone.parse(params[:start_datetime])
               messages = messages.where("created_at > ?", start_datetime)
+              message_to_truncate = messages.last
+              truncated_date = message_to_truncate.created_at.iso8601.to_datetime
+              if truncated_date <= start_datetime
+                messages = messages.where.not id:messages.last.id
+              end
             end
 
             if params[:end_datetime]
