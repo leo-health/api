@@ -71,9 +71,6 @@ describe Leo::V1::Messages do
     context "when requesting messages after a certain date" do
       it "should get all the messages after start_datetime" do
         do_request({start_datetime: 5.days.ago.iso8601})
-
-        byebug
-
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
         expect(body[:data].as_json.to_json).to eq(serializer.represent([third_message]).as_json.to_json)
