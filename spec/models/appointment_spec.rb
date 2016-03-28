@@ -22,7 +22,14 @@ RSpec.describe Appointment, type: :model do
     it { is_expected.to validate_presence_of(:booked_by) }
     it { is_expected.to validate_presence_of(:provider) }
     it { is_expected.to validate_presence_of(:patient) }
-    it { is_expected.to validate_uniqueness_of(:start_datetime).scoped_to(:provider_id) }
+  end
+
+  describe 'validation' do
+    let(:appt) { FactoryGirl.create(:appointment, :future) }
+
+    it 'should raise error if start_datetime is duplicated' do
+      expect { appt.dup.save! }.to raise_error(ActiveRecord::RecordInvalid, 'Validation failed: Start datetime has already been taken')
+    end
   end
 
   describe 'same_family?' do
