@@ -52,7 +52,6 @@ group :development, :test do
   gem 'spork'
   gem 'rspec-rails'
   gem 'spring'
-  gem 'spring-commands-rspec'
   gem 'fuubar'
   gem 'rspec_api_documentation'
 end

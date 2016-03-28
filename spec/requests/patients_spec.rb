@@ -2,20 +2,16 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Patients do
-  let!(:bot){ create(:user, :bot)}
-  let!(:customer_service){ create(:user, :customer_service) }
-  let(:family){create(:family)}
-  let(:guardian){create(:user, family: family)}
+  let(:guardian){create(:user)}
   let(:session){guardian.sessions.create}
-  let!(:patient){create(:patient, family: family)}
-  let!(:avatar){create(:avatar, owner: family.patients.first)}
+  let!(:patient){create(:patient, family: guardian.family)}
   let(:serializer){ Leo::Entities::PatientEntity }
 
   describe 'POST /api/v1/patients' do
     let(:patient_params){{first_name: "patient_first_name",
                           last_name: "patient_last_name",
                           birth_date: 5.years.ago,
-                          sex: "M",
+                          sex: "M"
                         }}
 
     def do_request
@@ -38,7 +34,7 @@ describe Leo::V1::Patients do
     end
 
     it 'should delete the indivial patient record, guardian only' do
-      expect{do_request}.to change{ family.patients.count }.from(1).to(0)
+      expect{do_request}.to change{ Patient.count }.from(1).to(0)
       expect(response.status).to eq(200)
     end
   end
@@ -80,7 +76,7 @@ describe Leo::V1::Patients do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(family.patients).as_json.to_json)
+      expect(body[:data][:patients].as_json.to_json).to eq(serializer.represent(Patient.all).as_json.to_json)
     end
   end
 end

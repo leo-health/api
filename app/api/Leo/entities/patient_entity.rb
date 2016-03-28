@@ -2,7 +2,6 @@ module Leo
   module Entities
     class PatientEntity < Grape::Entity
       expose :id, :title, :first_name, :last_name, :sex, :family_id, :email
-      expose :role, with: Leo::Entities::RoleEntity
       format_with(:iso_timestamp) { |dt| dt.iso8601 }
       with_options(format_with: :iso_timestamp) do
         expose :birth_date

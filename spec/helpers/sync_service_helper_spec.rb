@@ -45,8 +45,19 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_scan_remote_appointments" do
       let!(:provider) { create(:user, :clinical) }
       let!(:booked_appt) {
-        Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
-        .new('f', "appointmenttype", "1", "30", Date.tomorrow.strftime("%m/%d/%Y"), "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
+        AthenaHealthApiHelper::AthenaStruct.new({
+          "appointmentstatus": 'f', 
+          "appointmenttype": "appointmenttype",
+          "providerid": "1",
+          "duration": "30",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
+          "starttime": "08:00", 
+          "patientappointmenttypename": "patientappointmenttypename", 
+          "appointmenttypeid": "1",
+          "departmentid": provider.practice.athena_id.to_s, 
+          "appointmentid": "1", 
+          "patientid": "1"
+        })
       }
       let(:family) { create(:family) }
       let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
@@ -733,25 +744,44 @@ RSpec.describe SyncServiceHelper, type: :helper do
               "appointmenttypeid": "1",
               "reasonid": ["-1"],
               "patientappointmenttypename": "Block"
-              }))), 
+              })))
+          ]
+          )
+        expect(connector).to receive("get_open_appointments").and_return(
+          [
             AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(%q({
               "date": "12\/26\/2015",
               "appointmentid": "389202",
               "departmentid": "1",
-              "appointmenttype": "Block",
+              "appointmenttype": "Test",
               "providerid": "1",
               "starttime": "10:30",
               "duration": "10",
-              "appointmenttypeid": "2",
+              "appointmenttypeid": "21",
               "reasonid": ["-1"],
-              "patientappointmenttypename": "Block"
+              "patientappointmenttypename": "Test",
+              "frozen": "true"
+              }))),
+            AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(%q({
+              "date": "12\/27\/2015",
+              "appointmentid": "389202",
+              "departmentid": "1",
+              "appointmenttype": "Test",
+              "providerid": "1",
+              "starttime": "10:30",
+              "duration": "10",
+              "appointmenttypeid": "21",
+              "reasonid": ["-1"],
+              "patientappointmenttypename": "Test"
               })))
           ]
           )
         syncer.process_provider_leave(SyncTask.new(sync_id: provider_sync_profile.provider_id))
-        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).count).to be(1)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).count).to be(2)
         expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.start_datetime).to eq(Time.zone.parse("30/10/2015 12:12").to_datetime)
         expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.end_datetime).to eq(Time.zone.parse("30/10/2015 12:42").to_datetime)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).second.start_datetime).to eq(Time.zone.parse("26/12/2015 10:30").to_datetime)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).second.end_datetime).to eq(Time.zone.parse("26/12/2015 10:40").to_datetime)
       end
     end
   end

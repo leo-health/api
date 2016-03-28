@@ -11,36 +11,33 @@ module SyncService
   end
 
   def self.start
-    #make sure that the sync job is scheduled.  It will reschedule automatically.
-    ProcessSyncTasksJob.schedule if Delayed::Job.table_exists?
-
-    #create scan tasks
     SyncService.create_scan_tasks
+    
+    #make sure that the sync job is scheduled.  It will reschedule automatically.
+    SyncTaskJob.schedule_if_needed if Delayed::Job.table_exists?
   end
 
   def self.create_scan_tasks
-    #create scan tasks
-    if SyncService.configuration.auto_gen_scan_tasks && SyncTask.table_exists?
-      SyncTask.find_or_create_by!(sync_type: :scan_patients.to_s)
-      SyncTask.find_or_create_by!(sync_type: :scan_appointments.to_s)
-      SyncTask.find_or_create_by!(sync_type: :scan_providers.to_s)
+    max_failed = SyncTask.maximum(:num_failed)
+    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_patients.to_s)
+    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_appointments.to_s)
+    SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_providers.to_s)
 
-      Practice.find_each { |practice|
-        SyncTask.find_or_create_by!(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
-      }
-    end
+    Practice.find_each { |practice|
+      SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
+    }
   end
 
   class Configuration
     #admin emails for failed sync job notifications
     attr_accessor :admin_emails
 
-    #Should ProcessSyncTasksJob reschedule itself on completion?
-    #Set to true unless doing some kind of testing
-    attr_accessor :auto_reschedule_job
-
-    #Interval between successive runs of ProcessSyncTasksJob
+    #Interval between successive runs of SyncTaskJobs when no tasks are present
     attr_accessor :job_interval
+
+    #numer of SyncTaskJobs that will be maintained.  Needs to be at least the same as the number of worker threads
+    #that process sync tasks
+    attr_accessor :minimum_number_of_jobs
 
     #Should scanner tasks be auto-generated?  Scanner tasks scan the Leo DB and schedule SyncTasks for individual entities
     #Set to true unless doing testing.
@@ -56,8 +53,8 @@ module SyncService
     attr_accessor :logger
 
     def initialize
-      @auto_reschedule_job = true
       @job_interval = 1.minutes
+      @minimum_number_of_jobs = 4
       @auto_gen_scan_tasks = true
       @patient_data_interval = 15.minutes
       @appointment_data_interval = 15.minutes
@@ -86,43 +83,33 @@ module SyncServiceHelper
       SyncServiceErrorJob.send(subject, message)
     end
 
-    # Process all sync tasks
+    # Process specified sync tasks
     # Tasks that are completed will be removed from the table.  Tasks that failed
     # will stay.
-    def process_all_sync_tasks()
-      SyncTask.find_each() do |task|
-        begin
-          process_sync_task(task)
+    def process_one_task(task=nil)
+      begin
+        #acquire task
+        task ||= SyncTask.where(working: false).order(num_failed: :asc, id: :asc).first
+        return unless task
 
-          #destroy task if everything went ok
-          task.destroy
-        rescue => e
-          on_failure(
-            "Failed to process SyncTask.id=#{task.id}", 
-            "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
-        end
+        #lock the record
+        num_updated = SyncTask.where(id: task.id, working: false).update_all(working: true)
+        return unless num_updated > 0
+
+        task.reload
+        process_sync_task(task)
+
+        #destroy task if everything went ok
+        task.destroy
+      rescue => e
+        on_failure(
+          "Failed to process SyncTask.id=#{task.id}", 
+          "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")        
+
+        task.num_failed += 1
+        task.working = false
+        task.save!
       end
-
-      #re-create all the scan tasks
-      SyncService.create_scan_tasks
-    end
-
-    def process_all_sync_tasks_with_type(types)
-      SyncTask.where(sync_type: types).find_each() do |task|
-        begin
-          process_sync_task(task)
-
-          #destroy task if everything went ok
-          task.destroy
-        rescue => e
-          on_failure(
-            "Failed to process SyncTask.id=#{task.id}", 
-            "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
-        end
-      end
-
-      #re-create all the scan tasks
-      SyncService.create_scan_tasks
     end
 
     # process a single sync task.  An exception will be thrown if anything goes wrong.
@@ -184,11 +171,6 @@ module SyncServiceHelper
       sync_params = {}
       sync_params = JSON.parse(task.sync_params) if task.sync_params.to_s != ''
 
-      #mm/dd/yyyy hh:mi:ss
-      start_date = nil
-      start_date = DateTime.parse(sync_params[:start_date.to_s]) if sync_params[:start_date.to_s]
-      next_start_date = DateTime.now.to_s
-
       booked_appts = @connector.get_booked_appointments(
         departmentid: task.sync_id,
         startdate: Date.today.strftime("%m/%d/%Y"),
@@ -196,15 +178,8 @@ module SyncServiceHelper
 
       booked_appts.each { |appt|
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
-        impl_create_leo_appt_from_athena(appt: appt) unless leo_appt
+        impl_create_leo_appt_from_athena(appt: appt) unless (leo_appt || !appt.future?)
       }
-
-      #reschedule the task
-      if SyncService.configuration.auto_gen_scan_tasks
-        if SyncTask.where(sync_type: :scan_remote_appointments.to_s, sync_id: task.sync_id).where.not(id: task.id).count <= 0
-          SyncTask.create(sync_type: :scan_remote_appointments.to_s, sync_id: task.sync_id, sync_params: { :start_date => next_start_date }.to_json)
-        end
-      end
     end
 
     def impl_create_leo_appt_from_athena(appt: )
@@ -383,11 +358,30 @@ module SyncServiceHelper
         providerid: provider_sync_profile.athena_id
       ).select {|appt| (appt.appointmenttypeid.to_i == blocked_appointment_type.athena_id && appt.providerid.to_i == provider_sync_profile.athena_id) }
 
+      frozen_appts = @connector.get_open_appointments(
+        departmentid: provider_sync_profile.athena_department_id,
+        appointmenttypeid: 0,
+        providerid: provider_sync_profile.athena_id,
+        showfrozenslots: true
+      ).select {|appt| (appt.try(:frozen) == "true" && appt.providerid.to_i == provider_sync_profile.athena_id) }
+
       #delete all existing provider leaves that are synched from athena
       ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).destroy_all
 
       #add new entries
       blocked_appts.each { |appt|
+        start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
+
+        ProviderLeave.create(
+          athena_id: appt.appointmentid.to_i, 
+          athena_provider_id: appt.providerid.to_i, 
+          description: "Synced from Athena block.id=#{appt.appointmentid}",
+          start_datetime: start_datetime,
+          end_datetime: start_datetime + appt.duration.to_i.minutes
+        )
+      }
+
+      frozen_appts.each { |appt|
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
 
         ProviderLeave.create(

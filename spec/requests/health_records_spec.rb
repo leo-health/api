@@ -14,44 +14,44 @@ describe Leo::V1::HealthRecords do
     let(:raw_post){ params.to_json }
 
     let!(:weights) {
-      [ 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :weight, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
 
     let!(:heights) {
-      [ 
-        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :height, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
 
     let!(:allergies) {
-      [ 
-        create(:allergy, patient_id: patient.id), 
-        create(:allergy, patient_id: patient.id), 
+      [
+        create(:allergy, patient_id: patient.id),
+        create(:allergy, patient_id: patient.id),
         create(:allergy, patient_id: patient.id)
       ]
     }
 
     let!(:medications) {
-      [ 
-        create(:medication, patient_id: patient.id), 
-        create(:medication, patient_id: patient.id), 
+      [
         create(:medication, patient_id: patient.id),
-        create(:medication, patient_id: patient.id, ended_at: DateTime.now) 
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id, ended_at: DateTime.now)
       ]
     }
 
     let!(:immunizations) {
-      [ 
-        create(:vaccine, patient_id: patient.id), 
-        create(:vaccine, patient_id: patient.id), 
+      [
         create(:vaccine, patient_id: patient.id),
-        create(:vaccine, patient_id: patient.id) 
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id)
       ]
     }
 
@@ -67,10 +67,11 @@ describe Leo::V1::HealthRecords do
 
   describe "GET /api/v1/patients/:id/vitals/height" do
     let!(:heights) {
-      [ 
-        create(:vital, :height, patient_id: patient.id), 
-        create(:vital, :height, patient_id: patient.id), 
-        create(:vital, :height, patient_id: patient.id)
+      [
+        create(:vital, :height, patient_id: patient.id, value: 27.9399),
+        create(:vital, :height, patient_id: patient.id, value: 33.0199),
+        create(:vital, :height, patient_id: patient.id, value: 63.4999),
+        create(:vital, :height, patient_id: patient.id, value: 63.8123)
       ]
     }
 
@@ -82,17 +83,25 @@ describe Leo::V1::HealthRecords do
       do_request
       expect(response.status).to eq(200)
       resp = JSON.parse(response.body)
+      
       expect(resp["status"]).to eq("ok")
       expect(resp["data"].size).to eq(1)
-      expect(resp["data"]["heights"].size).to eq(3)
+
+      heights = resp["data"]["heights"].sort_by {|height| height["value"]}
+      expect(heights.size).to eq(4)
+
+      expect(heights[0]["formatted_value_with_units"]).to eq("11 inches")
+      expect(heights[1]["formatted_value_with_units"]).to eq("1 foot 1 inch")
+      expect(heights[2]["formatted_value_with_units"]).to eq("2 feet 1 inch")
+      expect(heights[3]["formatted_value_with_units"]).to eq("2 feet 1.12 inches")
     end
   end
 
   describe "GET /api/v1/patients/:id/vitals/weight" do
     let!(:weights) {
-      [ 
-        create(:vital, :weight, patient_id: patient.id), 
-        create(:vital, :weight, patient_id: patient.id), 
+      [
+        create(:vital, :weight, patient_id: patient.id),
+        create(:vital, :weight, patient_id: patient.id),
         create(:vital, :weight, patient_id: patient.id)
       ]
     }
@@ -113,17 +122,17 @@ describe Leo::V1::HealthRecords do
 
   describe "GET /api/v1/patients/:id/vitals/bmis" do
     let!(:weights) {
-      [ 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :weight, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
 
     let!(:heights) {
-      [ 
-        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :height, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
@@ -144,9 +153,9 @@ describe Leo::V1::HealthRecords do
 
   describe "GET /api/v1/patients/:id/allergies" do
     let!(:allergies) {
-      [ 
-        create(:allergy, patient_id: patient.id), 
-        create(:allergy, patient_id: patient.id), 
+      [
+        create(:allergy, patient_id: patient.id),
+        create(:allergy, patient_id: patient.id),
         create(:allergy, patient_id: patient.id)
       ]
     }
@@ -167,11 +176,11 @@ describe Leo::V1::HealthRecords do
 
   describe "GET /api/v1/patients/:id/medications" do
     let!(:medications) {
-      [ 
-        create(:medication, patient_id: patient.id), 
-        create(:medication, patient_id: patient.id), 
+      [
         create(:medication, patient_id: patient.id),
-        create(:medication, patient_id: patient.id, ended_at: DateTime.now) 
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id, ended_at: DateTime.now)
       ]
     }
 
@@ -191,11 +200,11 @@ describe Leo::V1::HealthRecords do
 
   describe "GET /api/v1/patients/:id/immunizations" do
     let!(:medications) {
-      [ 
-        create(:vaccine, patient_id: patient.id), 
-        create(:vaccine, patient_id: patient.id), 
+      [
         create(:vaccine, patient_id: patient.id),
-        create(:vaccine, patient_id: patient.id) 
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id)
       ]
     }
 
@@ -215,11 +224,11 @@ describe Leo::V1::HealthRecords do
 
   describe "GET /api/v1/patients/:id/notes" do
     let!(:notes) {
-      [ 
-        create(:user_generated_health_record, patient: patient, user: user), 
-        create(:user_generated_health_record, patient: patient, user: user), 
+      [
         create(:user_generated_health_record, patient: patient, user: user),
-        create(:user_generated_health_record, patient: patient, user: user, deleted_at: DateTime.now) 
+        create(:user_generated_health_record, patient: patient, user: user),
+        create(:user_generated_health_record, patient: patient, user: user),
+        create(:user_generated_health_record, patient: patient, user: user, deleted_at: DateTime.now)
       ]
     }
 
