@@ -14,15 +14,15 @@ module GrowthCurvesHelper
   end
 
   def self.lbs_to_kg(lbs)
-    0.45 * lbs
+     lbs / (0.00220462*1000.0)
   end
 
   def self.kg_to_lbs(kg)
-    kg / 0.45
+    self.g_to_lbs(kg / 1000.0)
   end
 
   def self.g_to_lbs(g)
-    (g / 1000.0) / 0.45
+    g * 0.00220462
   end
 
   def self.m_to_inches(m)
@@ -38,7 +38,7 @@ module GrowthCurvesHelper
   end
 
   def self.celsius_to_fahrenheit(c)
-    c * 1.8 + 32
+    c * 1.8 + 32.0
   end
 
   def self.fahrenheit_to_celsius(f)
