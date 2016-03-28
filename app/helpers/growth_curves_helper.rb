@@ -14,7 +14,7 @@ module GrowthCurvesHelper
   end
 
   def self.lbs_to_kg(lbs)
-     lbs / (0.00220462*1000.0)
+     lbs / (0.00220462 * 1000.0)
   end
 
   def self.kg_to_lbs(kg)
