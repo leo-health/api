@@ -25,12 +25,7 @@ require 'json'
 #
 module AthenaHealthAPI
   class Configuration
-    attr_accessor :min_request_interval
-
-    attr_accessor :num_workers
-
-    #logger
-    attr_accessor :logger
+    attr_accessor :min_request_interval, :num_workers, :logger
 
     def initialize
       @min_request_interval = (0.2).seconds

@@ -40,13 +40,8 @@ module SyncService
     #The interval between successive appointment updates
     attr_accessor :appointment_data_interval
 
-    attr_accessor :scan_appointments_interval
-    attr_accessor :scan_remote_appointments_interval
-    attr_accessor :scan_patients_interval
-    attr_accessor :scan_providers_interval
-
-    #logger
-    attr_accessor :logger
+    attr_accessor :scan_appointments_interval, :scan_remote_appointments_interval, :scan_patients_interval,
+                  :scan_providers_interval, :logger
 
     def initialize
       @job_interval = 1.minutes
@@ -184,14 +179,11 @@ module SyncServiceHelper
 
       begin
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
-
         #early exit if appointment start time is in the past
         return if start_datetime < DateTime.now
-
         patient = Patient.find_by(athena_id: appt.patientid.to_i)
         patient ||= @unknown_patient
         raise "Could not find patient.athena_id=#{appt.patientid}" unless patient
-
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
@@ -473,12 +465,9 @@ module SyncServiceHelper
 
       leo_parent = leo_patient.family.primary_guardian
       raise "patient.id #{leo_patient.id} has a primary guardian that is not associated with a practice" unless leo_parent.practice
-
       patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
       parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
-
       leo_guardians = leo_patient.family.guardians.order('created_at ASC')
-
       contactname = nil
       contactrelationship = nil
       contactmobilephone = nil
