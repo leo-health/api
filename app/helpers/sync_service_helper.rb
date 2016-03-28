@@ -22,10 +22,6 @@ module SyncService
     SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_patients.to_s)
     SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_appointments.to_s)
     SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_providers.to_s)
-
-    Practice.find_each { |practice|
-      SyncTask.create_with(num_failed: max_failed+1).find_or_create_by!(sync_type: :scan_remote_appointments.to_s, sync_id: practice.athena_id)        
-    }
   end
 
   class Configuration
@@ -168,9 +164,6 @@ module SyncServiceHelper
     end
 
     def process_scan_remote_appointments(task)
-      sync_params = {}
-      sync_params = JSON.parse(task.sync_params) if task.sync_params.to_s != ''
-
       booked_appts = @connector.get_booked_appointments(
         departmentid: task.sync_id,
         startdate: Date.today.strftime("%m/%d/%Y"),
