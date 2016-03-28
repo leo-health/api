@@ -19,6 +19,11 @@ SyncService.configure do |config|
   #this does not apply to first sync.  That one is performed as soon as new data is entered in Leo.
   config.appointment_data_interval = 5.minutes
 
+  config.scan_appointments_interval = 1.minute
+  config.scan_remote_appointments_interval = 5.minutes
+  config.scan_patients_interval = 1.minute
+  config.scan_providers_interval = 1.minute
+  
   #use delayed job logger for sync service
   config.logger = Delayed::Worker.logger
 end
