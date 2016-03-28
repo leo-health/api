@@ -14,7 +14,7 @@ class Appointment < ActiveRecord::Base
             :appointment_type, :booked_by, :provider, :patient, :practice, presence: true
 
   validate :same_family?, on: :create
-  validates_uniqueness_of :start_datetime, scope: :provider_id, 
+  validates_uniqueness_of :start_datetime, scope: :provider_id, if: :booked?,
     conditions: -> { where(deleted_at: nil, appointment_status: AppointmentStatus.booked) }
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
@@ -37,26 +37,26 @@ class Appointment < ActiveRecord::Base
   end
 
   def cancelled?
-    appointment_status.status == AppointmentStatus::STATUS_CANCELLED
+    appointment_status.try(:status) == AppointmentStatus::STATUS_CANCELLED
   end
 
   def future?
-    appointment_status.status == AppointmentStatus::STATUS_FUTURE
+    appointment_status.try(:status) == AppointmentStatus::STATUS_FUTURE
   end
 
   def open?
-    appointment_status.status == AppointmentStatus::STATUS_OPEN
+    appointment_status.try(:status) == AppointmentStatus::STATUS_OPEN
   end
 
   def checked_in?
-    appointment_status.status == AppointmentStatus::STATUS_CHECKED_IN
+    appointment_status.try(:status) == AppointmentStatus::STATUS_CHECKED_IN
   end
 
   def checked_out?
-    appointment_status.status == AppointmentStatus::STATUS_CHECKED_OUT
+    appointment_status.try(:status) == AppointmentStatus::STATUS_CHECKED_OUT
   end
 
   def charge_entered?
-    appointment_status.status == AppointmentStatus::STATUS_CHARGE_ENTERED
+    appointment_status.try(:status) == AppointmentStatus::STATUS_CHARGE_ENTERED
   end
 end

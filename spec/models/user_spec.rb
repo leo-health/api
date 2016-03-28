@@ -1,9 +1,6 @@
 require 'rails_helper'
 
 describe User do
-  let!(:customer_service){ create(:user, :customer_service) }
-  let!(:bot){ create(:user, :bot)}
-
   describe "relations" do
     let(:guardian){ create(:user, :guardian) }
     let(:provider){ create(:user, :clinical) }
@@ -48,7 +45,38 @@ describe User do
     end
   end
 
+  describe "scopes" do
+    let!(:guardian){ create(:user) }
+    let!(:customer_service){ create(:user, :customer_service) }
+    let!(:clinical){ create(:user, :clinical) }
+
+    context "guaridans" do
+      it "should return all the guaridans" do
+        expect(User.guardians).to match_array([guardian])
+      end
+    end
+
+    context "staff" do
+      it "should return all the staff" do
+        expect(User.staff).to match_array([clinical, customer_service])
+      end
+    end
+
+    context "clinical_staff" do
+      it "should return all the clinical_staff" do
+        expect(User.clinical_staff).to match_array([clinical, customer_service])
+      end
+    end
+
+    context "provider" do
+      it "should return all the providers" do
+        expect(User.provider).to match_array([clinical])
+      end
+    end
+  end
+
   describe "before validations" do
+    let(:customer_service){ create(:user, :customer_service) }
     let!(:guardian){ create(:user, :guardian, phone: "+1(123)234-9848") }
     let(:customer_service_practice){ customer_service.practice }
 
@@ -109,6 +137,7 @@ describe User do
   end
 
   describe ".customer_service_user" do
+    let!(:customer_service){ create(:user, :customer_service) }
     let!(:customer_service_two){ create(:user, :customer_service) }
     let!(:guardian){ create(:user) }
 
@@ -117,15 +146,8 @@ describe User do
     end
   end
 
-  describe ".staff" do
-    let!(:guardian){ create(:user) }
-
-    it "should return all staff" do
-      expect(User.staff.count).to eq(2)
-    end
-  end
-
   describe "#primary_guardian?" do
+    let(:customer_service){ create(:user, :customer_service) }
     let(:primary_guardian){ create(:user) }
     let(:secondary_guardian){ create(:user, family: primary_guardian.family) }
 

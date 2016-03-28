@@ -72,8 +72,19 @@ RSpec.describe SyncServiceHelper, type: :helper do
     describe "process_scan_remote_appointments" do
       let!(:provider) { create(:user, :clinical) }
       let!(:booked_appt) {
-        Struct.new(:appointmentstatus, :appointmenttype, :providerid, :duration, :date, :starttime, :patientappointmenttypename, :appointmenttypeid, :departmentid, :appointmentid, :patientid)
-        .new('f', "appointmenttype", "1", "30", Date.tomorrow.strftime("%m/%d/%Y"), "08:00", "patientappointmenttypename", "1", provider.practice.athena_id, "1", "1")
+        AthenaHealthApiHelper::AthenaStruct.new({
+          "appointmentstatus": 'f', 
+          "appointmenttype": "appointmenttype",
+          "providerid": "1",
+          "duration": "30",
+          "date": Date.tomorrow.strftime("%m/%d/%Y"),
+          "starttime": "08:00", 
+          "patientappointmenttypename": "patientappointmenttypename", 
+          "appointmenttypeid": "1",
+          "departmentid": provider.practice.athena_id.to_s, 
+          "appointmentid": "1", 
+          "patientid": "1"
+        })
       }
       let(:family) { create(:family) }
       let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
@@ -99,18 +110,27 @@ RSpec.describe SyncServiceHelper, type: :helper do
     end
 
     describe "process_appointment" do
-      let(:patient) { build(:patient, athena_id: 1) }
-      let(:provider) { build(:user, :clinical) }
-      let(:appointment_type) { build(:appointment_type, :well_visit, athena_id: 1) }
-      let(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, athena_department_id: 1, provider: provider) }
-      let(:appointment){ create(:appointment, provider: provider, appointment_type: appointment_type, appointment_status: future_appointment_status, notes: "notes")}
-      let(:resched_appointment){ create(:appointment, start_datetime: DateTime.now, provider: provider, appointment_type: appointment_type, athena_id: 1001)}
+      let(:patient) { create(:patient, athena_id: 1) }
+      let(:provider) { create(:user, :clinical) }
+      let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, athena_department_id: 1, provider: provider) }
+      let(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
+      let(:appointment){ create(:appointment, provider: provider,
+                                              appointment_type: appointment_type,
+                                              appointment_status: future_appointment_status,
+                                              notes: "notes",
+                                              start_datetime: DateTime.now + 1.minutes)
+                       }
 
-      before do
-        appointment.patient.update_attributes(athena_id: 1)
-      end
+      let(:resched_appointment){ create(:appointment, start_datetime: DateTime.now + 10.minutes,
+                                                      provider: provider,
+                                                      appointment_type: appointment_type,
+                                                      athena_id: 1001)
+                               }
+
 
       it "creates athena appointment when missing" do
+        appointment.patient.update_attributes(athena_id: 1)
+
         expect(connector).to receive("create_appointment").and_return(1000)
         expect(connector).to receive("book_appointment")
         expect(connector).to receive("create_appointment_note")
@@ -126,16 +146,18 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "duration": "15",
           "appointmenttypeid": appointment_type.athena_id.to_s,
           "patientappointmenttypename": "Lab Work"
-          }))
+        }))
 
         syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
 
         expect(appointment.reload.athena_id).to eq(1000)
       end
 
+
       it "cancels athena appointment when cancelled" do
         appointment.update_attributes(athena_id: 1000, appointment_status: cancelled_appointment_status)
         appointment.patient.update_attributes(athena_id: 1)
+
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
           "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
@@ -159,6 +181,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "updates leo appointment" do
         appointment.update_attributes(athena_id: 1000)
         appointment.patient.update_attributes(athena_id: 1)
+
         expect(connector).to receive("get_appointment").and_return(AthenaHealthApiHelper::AthenaStruct.new({
           "date": Date.tomorrow.strftime("%m/%d/%Y"),
           "appointmentid": "1000",
@@ -180,7 +203,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
 
       it "updates leo appointment with rescheduled_id" do
-        appointment.update_attributes(start_datetime: 5.minutes.ago, athena_id: 1000)
+        appointment.update_attributes(athena_id: 1000)
         appointment.patient.update_attributes(athena_id: 1)
         resched_appointment.patient.update_attributes(athena_id: 1)
 
@@ -197,13 +220,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
           "duration": "60",
           "appointmenttypeid": appointment_type.athena_id.to_s,
           "patientappointmenttypename": "Lab Work"
-          }))
+        }))
 
         syncer.process_appointment(SyncTask.new(sync_id: appointment.id))
         appointment.reload
         expect(appointment.athena_id).to eq(1000)
         expect(appointment.duration).to eq(60)
-        expect(appointment.appointment_status).to eq(AppointmentStatus.find_by(status: 'x'))
+        expect(appointment.appointment_status_id).to eq(AppointmentStatus.find_by(status: 'x').id)
         expect(appointment.rescheduled_id).to eq(resched_appointment.id)
       end
     end
@@ -601,45 +624,65 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
     end
 
+
     describe "process_provider_leave" do
-      let(:first_open_appointment){ %q({ "date": "10\/30\/2015",
-                                         "appointmentid": "378717",
-                                         "departmentid": "1",
-                                         "appointmenttype": "Block",
-                                         "providerid": "1",
-                                         "starttime": "12:12",
-                                         "duration": "30",
-                                         "appointmenttypeid": "1",
-                                         "reasonid": ["-1"],
-                                         "patientappointmenttypename": "Block"})
-                                     }
-
-      let(:second_open_appointment){ %q({ "date": "12\/26\/2015",
-                                          "appointmentid": "389202",
-                                          "departmentid": "1",
-                                          "appointmenttype": "Block",
-                                          "providerid": "1",
-                                          "starttime": "10:30",
-                                          "duration": "10",
-                                          "appointmenttypeid": "2",
-                                          "reasonid": ["-1"],
-                                          "patientappointmenttypename": "Block"
-                                          })
-                                      }
-
       it "creates new provider leave entries" do
         provider_sync_profile = create(:provider_sync_profile, athena_id: 1)
-        create(:appointment_type, :block, athena_id: 1)
+        block_appointment_type = create(:appointment_type, :block, athena_id: 1)
 
-        expect(connector).to receive("get_open_appointments").and_return([
-            AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(first_open_appointment)),
-            AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(second_open_appointment))
-          ])
+        expect(connector).to receive("get_open_appointments").and_return(
+          [
+           AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(%q({
+            "date": "10\/30\/2015",
+            "appointmentid": "378717",
+            "departmentid": "1",
+            "appointmenttype": "Block",
+            "providerid": "1",
+            "starttime": "12:12",
+            "duration": "30",
+            "appointmenttypeid": "1",
+            "reasonid": ["-1"],
+            "patientappointmenttypename": "Block"
+            })))
+          ]
+        )
+
+        expect(connector).to receive("get_open_appointments").and_return(
+          [
+            AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(%q({
+              "date": "12\/26\/2015",
+              "appointmentid": "389202",
+              "departmentid": "1",
+              "appointmenttype": "Test",
+              "providerid": "1",
+              "starttime": "10:30",
+              "duration": "10",
+              "appointmenttypeid": "21",
+              "reasonid": ["-1"],
+              "patientappointmenttypename": "Test",
+              "frozen": "true"
+              }))),
+            AthenaHealthApiHelper::AthenaStruct.new(JSON.parse(%q({
+              "date": "12\/27\/2015",
+              "appointmentid": "389202",
+              "departmentid": "1",
+              "appointmenttype": "Test",
+              "providerid": "1",
+              "starttime": "10:30",
+              "duration": "10",
+              "appointmenttypeid": "21",
+              "reasonid": ["-1"],
+              "patientappointmenttypename": "Test"
+              })))
+          ]
+        )
 
         syncer.process_provider_leave(SyncTask.new(sync_id: provider_sync_profile.provider_id))
-        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).count).to be(1)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).count).to be(2)
         expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.start_datetime).to eq(Time.zone.parse("30/10/2015 12:12").to_datetime)
         expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first.end_datetime).to eq(Time.zone.parse("30/10/2015 12:42").to_datetime)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).second.start_datetime).to eq(Time.zone.parse("26/12/2015 10:30").to_datetime)
+        expect(ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).second.end_datetime).to eq(Time.zone.parse("26/12/2015 10:40").to_datetime)
       end
     end
   end
