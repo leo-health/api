@@ -18,20 +18,20 @@ module Leo
         get do
           start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
           end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
+
           open_slots = []
-          appointment = Appointment.find_by(id: params[:appointment_id])
+
+          appointment = Appointment.find_by_id(params[:appointment_id])
           if appointment.try(:provider_id) == params[:provider_id]
-            open_slots += [AppointmentSlotsHelper::OpenSlot.new(appointment.start_datetime, appointment.duration)]
+              open_slots += [AppointmentSlotsHelper::OpenSlot.new(appointment.start_datetime, appointment.duration)]
           end
 
           type = AppointmentType.find(params[:appointment_type_id])
           provider = User.find(params[:provider_id])
+
           osp = AppointmentSlotsHelper::OpenSlotsProcessor.new
           start_date.upto(end_date) do |date|
-            if provider.provider_sync_profile
-              open_slots += osp.get_open_slots(athena_provider_id: provider.provider_sync_profile.athena_id,
-                                               date: date, durations: [ type.duration ])
-            end
+            open_slots += osp.get_open_slots(athena_provider_id: provider.provider_sync_profile.athena_id, date: date, durations: [ type.duration ])
           end
 
           current_datetime = DateTime.now
