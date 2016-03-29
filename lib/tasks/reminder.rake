@@ -5,7 +5,7 @@ namespace :notification do
     Appointment.where.not(appointment_status: AppointmentStatus.cancelled).where(start_datetime: in_five_days)
         .includes(patient: { family: :guardians }).find_each do |appointment|
       appointment.patient.family.guardians.each do |guardian|
-        created_job = FiveDayAppointmentReminderJob.send(guardian, appointment.id)
+        created_job = FiveDayAppointmentReminderJob.send(guardian.id, appointment.id)
         if created_job.valid?
           print "*"
         else
@@ -21,7 +21,7 @@ namespace :notification do
     Appointment.where.not(appointment_status: AppointmentStatus.cancelled).where(start_datetime: in_one_day)
         .includes(patient: { family: :guardians }).find_each do |appointment|
       appointment.patient.family.guardians.each do |guardian|
-        created_job = SameDayAppointmentReminderJob.send(guardian, appointment.id)
+        created_job = SameDayAppointmentReminderJob.send(guardian.id, appointment.id)
         if created_job.valid?
           print "*"
         else
