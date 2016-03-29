@@ -25,7 +25,6 @@ module Leo
           if appointment.try(:provider_id) == params[:provider_id]
               open_slots += [AppointmentSlotsHelper::OpenSlot.new(appointment.start_datetime, appointment.duration)]
           end
-
           type = AppointmentType.find(params[:appointment_type_id])
           provider = User.find(params[:provider_id])
 

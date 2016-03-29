@@ -111,8 +111,8 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
     describe "process_appointment" do
       let(:patient) { create(:patient, athena_id: 1) }
-      let(:provider) { create(:user, :clinical) }
-      let!(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, athena_department_id: 1, provider: provider) }
+      let(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, athena_department_id: 1) }
+      let(:provider) { provider_sync_profile.provider }
       let(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
       let(:appointment){ create(:appointment, provider: provider,
                                               appointment_type: appointment_type,
