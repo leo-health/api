@@ -45,7 +45,7 @@ module Leo
                 bmi = weight_kg/(height_m * height_m)
                 bmi_vitals << {
                   taken_at: weight_vital.taken_at,
-                  value: bmi.round(2),
+                  value: bmi.round(1),
                   unit: "",
                   percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, (bmi.to_f).round(1))
                 }
@@ -140,7 +140,7 @@ module Leo
                   bmi = weight_kg/(height_m * height_m)
                   vitals << {
                     taken_at: weight_vital.taken_at,
-                    value: bmi.round(2),
+                    value: bmi.round(1),
                     unit: "",
                     percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, (bmi.to_f).round(1))
                   }
