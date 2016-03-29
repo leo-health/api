@@ -47,7 +47,7 @@ module Leo
                   taken_at: weight_vital.taken_at,
                   value: bmi.round(2),
                   unit: "",
-                  percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f)
+                  percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, (bmi.to_f).round(1))
                 }
               end
             end
@@ -142,7 +142,7 @@ module Leo
                     taken_at: weight_vital.taken_at,
                     value: bmi.round(2),
                     unit: "",
-                    percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f)
+                    percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, (bmi.to_f).round(1))
                   }
                 end
               end
