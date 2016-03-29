@@ -3,13 +3,13 @@ require "athena_health_api"
 module GrowthCurvesHelper
   def self.z_percentile
     [
-      { :z => 0, :p => 50 },
-      { :z => 0.674, :p => 50 },
-      { :z => 1.036, :p => 25 },
-      { :z => 1.282, :p => 15 },
-      { :z => 1.645, :p => 10 },
-      { :z => 1.881, :p => 5 },
-      { :z => Float::MAX, :p => 3 }
+      { z: 0, p: 50 },
+      { z: 0.674, p: 50 },
+      { z: 1.036, p: 25 },
+      { z: 1.282, p: 15 },
+      { z: 1.645, p: 10 },
+      { z: 1.881, p: 5 },
+      { z: Float::MAX, p: 3 }
     ]
   end
 
