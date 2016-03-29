@@ -1,6 +1,6 @@
 class Appointment < ActiveRecord::Base
   MIN_INTERVAL_TO_SCHEDULE = 15.minutes
-  
+
   acts_as_paranoid
 
   belongs_to :patient
@@ -15,7 +15,7 @@ class Appointment < ActiveRecord::Base
 
   validate :same_family?, on: :create
   validates_uniqueness_of :start_datetime, scope: :provider_id, if: :booked?,
-    conditions: -> { where(deleted_at: nil, appointment_status: AppointmentStatus.booked) }
+    conditions: -> { where(deleted_at: nil, athena_id: 0, appointment_status: AppointmentStatus.booked) }
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
