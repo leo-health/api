@@ -185,7 +185,6 @@ staff = [
       specialties: "",
       credentials: ["RN"]
     },
-
     avatar_attributes: {
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcey-Shoulder.png'))
     }
@@ -205,7 +204,6 @@ staff = [
       specialties: "",
       credentials: ["Office Manager"]
     },
-
     avatar_attributes: {
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Catherine-Shoulder.png'))
     }
@@ -225,11 +223,11 @@ staff = [
       specialties: "",
       credentials: ["RN"]
     },
-
     avatar_attributes: {
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Kristen-Shoulder.png'))
     }
   },
+
   {
     first_name: "Ben",
     last_name: "Siscovick",
@@ -293,7 +291,7 @@ staff = [
 
 staff.each do |attributes|
   if user = User.find_by(email: attributes[:email])
-    user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes))
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes))
   end
@@ -302,6 +300,10 @@ staff.each do |attributes|
     avatar.update_attributes!(attributes[:avatar_attributes])
   else
     Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:staff_profile_attributes] && user.staff_profile
+    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
   end
 end
 
