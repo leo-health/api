@@ -293,9 +293,9 @@ staff = [
 
 staff.each do |attributes|
   if user = User.find_by(email: attributes[:email])
-    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes))
   else
-    user = User.create!(attributes.except(:avatar_attributes, :staff_profile_attributes, :provider_sync_profile_attributes, :provider_schedule_attributes))
+    user = User.create!(attributes.except(:avatar_attributes))
   end
 
   if avatar = user.avatar
