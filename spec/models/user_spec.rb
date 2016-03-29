@@ -108,6 +108,16 @@ describe User do
     it { is_expected.to validate_presence_of(:email) }
     it { is_expected.to validate_presence_of(:phone) }
     it { is_expected.to validate_uniqueness_of(:email) }
+
+    context "if provider" do
+      before { allow(subject).to receive(:provider?).and_return(true)}
+      it { should validate_presence_of(:provider_sync_profile) }
+    end
+
+    context "if not provider" do
+      before { allow(subject).to receive(:provider?).and_return(false)}
+      it { should_not validate_presence_of(:provider_sync_profile) }
+    end
   end
 
   describe "callbacks" do

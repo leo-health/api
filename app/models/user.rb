@@ -41,6 +41,7 @@ class User < ActiveRecord::Base
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
+  validates :provider_sync_profile, presence: true, if: :provider?
   validates :family, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil) }
@@ -72,6 +73,10 @@ class User < ActiveRecord::Base
 
   def guardian?
     has_role? :guardian
+  end
+
+  def provider?
+    has_role? :clinical
   end
 
   def has_role? (name)
