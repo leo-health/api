@@ -19,7 +19,7 @@ RSpec.describe Role, type: :model do
       let!(:operational){ create(:role, :operational) }
 
       it "should return all staff" do
-        expect(Role.staff_roles).to eq([financial, clinical_support, customer_service, clinical, operational])
+        expect(Role.staff_roles).to match_array([financial, clinical_support, customer_service, clinical, operational])
       end
     end
 
@@ -29,7 +29,7 @@ RSpec.describe Role, type: :model do
       let!(:clinical){ create(:role, :clinical) }
 
       it "should return all clinical staff roles" do
-        expect(Role.clinical_staff_roles).to eq([clinical_support, customer_service, clinical])
+        expect(Role.clinical_staff_roles).to match_array([clinical_support, customer_service, clinical])
       end
     end
 
