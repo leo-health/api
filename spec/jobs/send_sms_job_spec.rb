@@ -1,9 +1,8 @@
 require 'rails_helper'
 
 describe SendSmsJob do
-  let!(:customer_service_user){ create(:user, :customer_service, phone: "+19199999282") }
-  let!(:sender){ create(:user) }
-  let(:body){ "what up bro!"}
+  let(:customer_service_user){ create(:user, :customer_service, phone: "19199999282") }
+  let(:sender){ create(:user) }
   let(:send_sms_job){ SendSmsJob.new(customer_service_user.id, sender.id, :single, Time.now.to_s)}
   let(:response){{ from: TWILIO_PHONE_NUMBER,
                    to: customer_service_user.phone,

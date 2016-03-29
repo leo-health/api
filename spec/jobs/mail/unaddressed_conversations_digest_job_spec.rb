@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'mandrill_mailer/offline'
 
 describe UnaddressedConversationDigestJob do
-  let!(:user){create(:user)}
+  let(:user){create(:user)}
   let!(:unaddressed_conversations_digest_job){UnaddressedConversationDigestJob.new(user.id, 1)}
 
   describe "#perform" do
