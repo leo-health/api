@@ -2,8 +2,8 @@ require 'rails_helper'
 require 'mandrill_mailer/offline'
 
 describe WelcomeToPracticeJob do
-  let!(:user){create(:user)}
-  let!(:welcome_to_practice_job){WelcomeToPracticeJob.new(user.id)}
+  let(:user){create(:user)}
+  let(:welcome_to_practice_job){WelcomeToPracticeJob.new(user.id)}
 
   describe "#perform" do
     it "should send the email via mandrill mailer" do

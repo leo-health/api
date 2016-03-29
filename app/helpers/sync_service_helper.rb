@@ -23,8 +23,11 @@ module SyncService
     #admin emails for failed sync job notifications
     attr_accessor :admin_emails
 
-    #Interval between successive runs of SyncTaskJobs when no tasks are present
-    attr_accessor :job_interval
+    #the longest interval at which the Sync Task job can run
+    attr_accessor :max_job_interval
+
+    #failed job interval.  This will be multiplied by the number of failures to get the desired job interval
+    attr_accessor :failed_job_interval
 
     #numer of SyncTaskJobs that will be maintained.  Needs to be at least the same as the number of worker threads
     #that process sync tasks
@@ -44,7 +47,8 @@ module SyncService
                   :scan_providers_interval, :logger
 
     def initialize
-      @job_interval = 1.minutes
+      @max_job_interval = 1.minutes
+      @failed_job_interval = 5.seconds
       @minimum_number_of_jobs = 4
       @auto_gen_scan_tasks = true
       @patient_data_interval = 15.minutes
@@ -104,6 +108,9 @@ module SyncServiceHelper
         task.num_failed += 1
         task.working = false
         task.save!
+
+        #pass the exception up the callstack
+        raise
       end
     end
 

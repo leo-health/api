@@ -3,15 +3,14 @@ require 'rails_helper'
 
 describe Leo::V1::Cards do
   describe "Get /api/v1/cards" do
-    let!(:customer_service){ create(:user, :customer_service) }
     let(:user){ create(:user, :guardian) }
-    let!(:session){ user.sessions.create }
+    let(:session){ user.sessions.create }
     let!(:upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 1.day)}
     let!(:updated_upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 2.day)}
     let!(:past_appointment){create(:appointment, :checked_in, booked_by: user, start_datetime: Time.now - 1.day)}
     let!(:cancelled_appointment){create(:appointment, :cancelled, booked_by: user, start_datetime: Time.now) }
     let(:serializer){ Leo::Entities::CardEntity }
-    let!(:response_data){[{conversation_card_data: user.family.conversation, priority: 0, type: 'conversation', type_id: 1},
+    let(:response_data){[{conversation_card_data: user.family.conversation, priority: 0, type: 'conversation', type_id: 1},
                           {appointment_card_data: upcoming_appointment.reload, priority: 1, type: 'appointment', type_id: 0},
                           {appointment_card_data: updated_upcoming_appointment.reload, priority: 2, type: 'appointment', type_id: 0}]}
 

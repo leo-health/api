@@ -25,12 +25,10 @@ class SyncTaskJob
     num_jobs = Delayed::Job.where("handler LIKE ? AND failed_at IS NULL", "%SyncTaskJob%").count
     return if num_jobs > min_jobs
 
-    num_tasks = SyncTask.where(working: false, num_failed: 0).where.not("sync_type LIKE ?", "scan_%").count
-
-    run_at = DateTime.now
-    if (num_tasks == 0)
-      run_at = SyncService.configuration.job_interval.from_now.utc
-    end
+    minimum_failed = SyncTask.minimum(:num_failed)
+    minimum_failed ||= 0
+    interval_to_use = [ (SyncService.configuration.failed_job_interval * minimum_failed).seconds, SyncService.configuration.max_job_interval].min
+    run_at = interval_to_use.from_now.utc
 
     for i in num_jobs..min_jobs
       Delayed::Job.enqueue SyncTaskJob.new, { run_at: run_at.utc }
