@@ -22,41 +22,43 @@ class AnalyticsController < ApplicationController
   end
 
   def practice_engagement
-    # of Families in Practice (BOM)
-    # of Patients in Practice (BOM)
-    # of Active Patients in Practice(vital taken_at timestamp)
-    # % of Active Patients in Practice
     active_patient_count = Vital.where("taken_at > ?", Time.now-18.months).joins(:patient).uniq.count
     active_patient_percent = active_patient_count.to_f / Patient.count.to_f * 100.00
-    [Family.count, Patient.count, active_patient_count, active_patient_percent]
+    [
+      [ '# of Families in Practice (BOM)', Family.count ],
+      [ '# of Patients in Practice (BOM)', Patient.count ],
+      [ '# of Active Patients in Practice', active_patient_count ],
+      [ '% of Active Patients in Practice', "#{active_patient_percent}%" ]
+    ]
   end
 
   def scheduling_engagement
-    # of visits scheduled from app(by checking booked by)
-    # of visits scheduled from app + practice (total)
-    # % of total visits scheduled from app
-    # % of App Active guardians that scheduled
     visits_from_app = Appointment.includes(:booked_by).where(booked_by: { role_id: Role.guardian.id }).count
     visits_from_app_percent = visits_from_app.to_f / Appointment.count.to_f * 100.00
-    [visits_from_app, Appointment.count, visits_from_app_percent, 'n/a']
+    [
+      ['# of visits scheduled from app', visits_from_app],
+      ['# of visits scheduled from app + practice (total)', Appointment.count],
+      ['% of total visits scheduled from app', "#{visits_from_app_percent}%"],
+      ['% of App Active guardians that scheduled', 'n/a']
+    ]
   end
 
   def messaging_engagement
-    # of guardians that sent a message
-    # % of App Active guardians that messaged
     guardians_sent_message = User.joins(:sent_messages).guardians.count
-    [guardians_sent_message, 'n/a']
+    [
+      ['# of guardians that sent a message', guardians_sent_message],
+      ['% of App Active guardians that messaged', 'n/a']
+    ]
   end
 
   def child_health_record_engagement
-    # of times guardian visited record
-    # % of app active guardians that visited hr
-    ['n/a', 'n/a']
+    [
+      ['# of times guardian visited record', 'n/a'],
+      ['% of app active guardians that visited hr', 'n/a']
+    ]
   end
 
   def response_time_metrics
-    #Avg. Time to Case Close - first message after last closed and last closed timestamp - postgres mapreduce
-    #Med. Time to Case Close - mark as suboptimal, temporary in memory store
     # Conversation.all.each do |conversation|
     #   previous_closure_note = false
     #   conversation.closure_notes.each do |note|
@@ -68,25 +70,30 @@ class AnalyticsController < ApplicationController
     #     end
     #   end
     # end
-    ['n/a', 'n/a']
+    [
+      ['#Avg. Time to Case Close', 'n/a'], #Avg. Time to Case Close - first message after last closed and last closed timestamp - postgres mapreduce
+      ['#Med. Time to Case Close', 'n/a'], #Med. Time to Case Close - mark as suboptimal, temporary in memory store
+    ]
   end
 
   def provider_app_engagement
-    #Cases Assigned
-    #Cases Closed
-    # # of Notes Created
-    #Time to Assigned - first message after last closed to assigned timestamp before closed
     escalation_notes_created = EscalationNote.where.not(note: nil).count
     closure_notes_created = ClosureNote.where.not(note: nil).count
     total_notes_created = escalation_notes_created + closure_notes_created
-    [EscalationNote.count, ClosureNote.count, total_notes_created, 'n/a']
+    [
+      ['# of Cases Assigned', EscalationNote.count],
+      ['# of Cases Closed', ClosureNote.count],
+      ['# of Notes Created', total_notes_created],
+      ['Time to Assigned', 'n/a'] #Time to Assigned - first message after last closed to assigned timestamp before closed
+    ]
   end
 
   def appointment_enagament
-    # of no show appointments
-    # of same day appointments
-    # of late to appointment appointments
     same_day_appointments = Appointment.select{ |app| app.created_at.to_date === app.start_datetime.to_date }.count
-    ['n/a', same_day_appointments, 'n/a']
+    [
+      ['# of no show appointments', 'n/a'],
+      ['# of same day appointments', same_day_appointments],
+      ['# of late to appointment appointments', 'n/a']
+    ]
   end
 end

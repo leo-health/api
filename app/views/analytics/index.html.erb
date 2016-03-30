@@ -1,6 +1,42 @@
 <h1>Here is my analytics</h1>
 <ul>
+  <h3>registration engagement</h3>
   <% @analytics[:registration_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>practice engagement</h3>
+  <% @analytics[:practice_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>schedule engagement</h3>
+  <% @analytics[:scheduling_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>message engagement</h3>
+  <% @analytics[:messaging_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>provider app engagement</h3>
+  <% @analytics[:provider_app_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>appointment engagement</h3>
+  <% @analytics[:appointment_enagament].each do |metric| %>
       <li>
         <%= metric.first %>:  <%= metric.last %>
       </li>
