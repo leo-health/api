@@ -73,16 +73,16 @@ RSpec.describe SyncServiceHelper, type: :helper do
       let!(:provider) { create(:user, :clinical) }
       let!(:booked_appt) {
         AthenaHealthApiHelper::AthenaStruct.new({
-          "appointmentstatus": 'f', 
+          "appointmentstatus": 'f',
           "appointmenttype": "appointmenttype",
           "providerid": "1",
           "duration": "30",
           "date": Date.tomorrow.strftime("%m/%d/%Y"),
-          "starttime": "08:00", 
-          "patientappointmenttypename": "patientappointmenttypename", 
+          "starttime": "08:00",
+          "patientappointmenttypename": "patientappointmenttypename",
           "appointmenttypeid": "1",
-          "departmentid": provider.practice.athena_id.to_s, 
-          "appointmentid": "1", 
+          "departmentid": provider.practice.athena_id.to_s,
+          "appointmentid": "1",
           "patientid": "1"
         })
       }
@@ -98,6 +98,37 @@ RSpec.describe SyncServiceHelper, type: :helper do
         appt = Appointment.find_by(athena_id: booked_appt.appointmentid.to_i)
         expect(appt).not_to be_nil
         expect(appt.patient_id).to eq(patient.id)
+      end
+
+      it "creates leo when double booked in athena" do
+        patient = create(:patient, athena_id: 1, family_id: family.id)
+
+        expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
+        syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
+        appt = Appointment.find_by(athena_id: booked_appt.appointmentid.to_i)
+        expect(appt).not_to be_nil
+        expect(appt.patient_id).to eq(patient.id)
+
+        second_booked_appt = AthenaHealthApiHelper::AthenaStruct.new({
+            "appointmentstatus": 'f',
+            "appointmenttype": "appointmenttype",
+            "providerid": "1",
+            "duration": "30",
+            "date": Date.tomorrow.strftime("%m/%d/%Y"),
+            "starttime": "08:00",
+            "patientappointmenttypename": "patientappointmenttypename",
+            "appointmenttypeid": "1",
+            "departmentid": provider.practice.athena_id.to_s,
+            "appointmentid": "2",
+            "patientid": "1"
+          })
+
+        expect(connector).to receive("get_booked_appointments").and_return([ second_booked_appt ])
+        syncer.process_scan_remote_appointments(SyncTask.new(sync_id: second_booked_appt.departmentid.to_i))
+        appt = Appointment.find_by(athena_id: second_booked_appt.appointmentid.to_i)
+        expect(appt).not_to be_nil
+        expect(appt.patient_id).to eq(patient.id)
+
       end
 
       it "creates leo appointment with unknown patient when missing" do
