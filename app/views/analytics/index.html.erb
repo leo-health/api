@@ -1,4 +1,6 @@
 <h1>Analytics</h1>
+<h3>App Active: used app in last 30 days, since <%=(Time.now-30.days).strftime('%Y/%m/%d')%></h3>
+<h3>Active Patients: visited practice in last 18 months, since <%=(Time.now-18.months).strftime('%Y/%m/%d')%></h3>
 <ul>
   <h3>registration engagement</h3>
   <% @analytics[:registration_engagement].each do |metric| %>
