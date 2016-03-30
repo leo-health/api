@@ -72,8 +72,8 @@ providers = [
       thursday_end_time: "13:00",
       friday_start_time: "09:00",
       friday_end_time: "18:00",
-      saturday_start_time: "10:00",
-      saturday_end_time: "14:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
       sunday_start_time: "00:00",
       sunday_end_time: "00:00"
     }
@@ -117,8 +117,8 @@ providers = [
       thursday_end_time: "18:00",
       friday_start_time: "09:00",
       friday_end_time: "17:00",
-      saturday_start_time: "10:00",
-      saturday_end_time: "14:00",
+      saturday_start_time: "00:00",
+      saturday_end_time: "00:00",
       sunday_start_time: "00:00",
       sunday_end_time: "00:00"
     }
