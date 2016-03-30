@@ -102,8 +102,8 @@ module SyncServiceHelper
         task.destroy
       rescue => e
         on_failure(
-          "Failed to process SyncTask.id=#{task.id}", 
-          "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")        
+          "Failed to process SyncTask.id=#{task.id}",
+          "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
 
         task.num_failed += 1
         task.working = false
@@ -144,7 +144,7 @@ module SyncServiceHelper
 
         rescue => e
           on_failure(
-            "Failed to create SyncTask for Appointment.id=#{appt.id}", 
+            "Failed to create SyncTask for Appointment.id=#{appt.id}",
             "#{appt.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
         end
       end
@@ -163,7 +163,7 @@ module SyncServiceHelper
 
         rescue => e
           on_failure(
-            "Failed to create SyncTask for ProviderSyncProfile.provider_id=#{provider_sync_profile.provider_id}", 
+            "Failed to create SyncTask for ProviderSyncProfile.provider_id=#{provider_sync_profile.provider_id}",
             "#{provider_sync_profile.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
         end
       end
@@ -195,7 +195,7 @@ module SyncServiceHelper
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
         practice = Practice.find_by!(athena_id: appt.departmentid)
-        
+
         new_appt = Appointment.create!(
           appointment_status: appointment_status,
           booked_by: provider_sync_profile.provider,
@@ -210,7 +210,7 @@ module SyncServiceHelper
         )
       rescue => e
           on_failure(
-            "Failed to create Appointment for Appointment.athena_id=#{appt.appointmentid}", 
+            "Failed to create Appointment for Appointment.athena_id=#{appt.appointmentid}",
             "#{appt.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
       end
 
@@ -251,7 +251,7 @@ module SyncServiceHelper
           end
         rescue => e
           on_failure(
-            "Failed to create SyncTask for patient.id=#{patient.id}", 
+            "Failed to create SyncTask for patient.id=#{patient.id}",
             "#{patient.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
         end
       end
@@ -369,8 +369,8 @@ module SyncServiceHelper
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
 
         ProviderLeave.create(
-          athena_id: appt.appointmentid.to_i, 
-          athena_provider_id: appt.providerid.to_i, 
+          athena_id: appt.appointmentid.to_i,
+          athena_provider_id: appt.providerid.to_i,
           description: "Synced from Athena block.id=#{appt.appointmentid}",
           start_datetime: start_datetime,
           end_datetime: start_datetime + appt.duration.to_i.minutes
@@ -381,8 +381,8 @@ module SyncServiceHelper
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
 
         ProviderLeave.create(
-          athena_id: appt.appointmentid.to_i, 
-          athena_provider_id: appt.providerid.to_i, 
+          athena_id: appt.appointmentid.to_i,
+          athena_provider_id: appt.providerid.to_i,
           description: "Synced from Athena block.id=#{appt.appointmentid}",
           start_datetime: start_datetime,
           end_datetime: start_datetime + appt.duration.to_i.minutes
@@ -437,8 +437,8 @@ module SyncServiceHelper
       begin
         #search by phone first
         athena_patient = @connector.get_best_match_patient(
-          firstname: leo_patient.first_name, 
-          lastname: leo_patient.last_name, 
+          firstname: leo_patient.first_name,
+          lastname: leo_patient.last_name,
           dob: patient_birth_date,
           anyphone: leo_parent.phone.gsub(/[^\d,\.]/, '')) if leo_parent.phone
       rescue => e
@@ -448,8 +448,8 @@ module SyncServiceHelper
       begin
         #search by email
         athena_patient = @connector.get_best_match_patient(
-          firstname: leo_patient.first_name, 
-          lastname: leo_patient.last_name, 
+          firstname: leo_patient.first_name,
+          lastname: leo_patient.last_name,
           dob: patient_birth_date,
           guarantoremail: leo_parent.email) unless athena_patient
       rescue => e
@@ -491,13 +491,13 @@ module SyncServiceHelper
 
         if athena_patient
           raise "patient.id #{leo_patient.id} has a best match in Athena (athena_id: #{athena_patient.patientid}), but that match is already connected to another patient" unless Patient.where(athena_id: athena_patient.patientid.to_i).empty?
-        
+
           SyncService.configuration.logger.info("Syncer: connecting patient.id=#{leo_patient.id} to athena patient.id=#{athena_patient.patientid}")
 
           #use existing patient
           leo_patient.athena_id = athena_patient.patientid.to_i
           leo_patient.save!
-        else          
+        else
           SyncService.configuration.logger.info("Syncer: creating new Athena patient for leo patient.id=#{leo_patient.id}")
 
           #create new patient
@@ -573,7 +573,9 @@ module SyncServiceHelper
     def process_patient_photo(task)
       leo_patient = Patient.find(task.sync_id)
 
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient(task)
+      end
 
       #get list of photos for this patients
       photos = leo_patient.photos.order("id desc")
@@ -592,7 +594,9 @@ module SyncServiceHelper
     def process_patient_allergies(task)
       leo_patient = Patient.find(task.sync_id)
 
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient(task)
+      end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -628,7 +632,9 @@ module SyncServiceHelper
     def process_patient_medications(task)
       leo_patient = Patient.find(task.sync_id)
 
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient(task)
+      end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -688,7 +694,9 @@ module SyncServiceHelper
     def process_patient_vitals(task)
       leo_patient = Patient.find(task.sync_id)
 
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient(task)
+      end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -723,7 +731,9 @@ module SyncServiceHelper
     def process_patient_vaccines(task)
       leo_patient = Patient.find(task.sync_id)
 
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient(task)
+      end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -755,7 +765,10 @@ module SyncServiceHelper
     def process_patient_insurances(task)
       leo_patient = Patient.find(task.sync_id)
 
-      raise "patient for user.id=#{task.sync_id} has not been synched with athena yet" if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+
+        process_patient(task)
+      end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
