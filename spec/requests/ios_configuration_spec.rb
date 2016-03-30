@@ -6,7 +6,7 @@ describe Leo::V1::IosConfiguration do
       get "/api/v1/ios_configuration"
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data].length).to eq(2)
+      expect(body[:data].length).to eq(3)
     end
   end
 end
