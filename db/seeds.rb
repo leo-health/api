@@ -41,7 +41,7 @@ providers = [
     email: "victoria@flatironpediatrics.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 5,
+    role: Role.find_by(name: :clinical),
     practice_id: 1,
     phone: '+19177976816',
     avatar_attributes: {
@@ -86,7 +86,7 @@ providers = [
     email: "erin@flatironpediatrics.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 5,
+    role: Role.find_by(name: :clinical),
     practice_id: 1,
     phone: '+16177912619',
     staff_profile_attributes: {
@@ -178,7 +178,7 @@ staff = [
     email: "marcey@flatironpediatrics.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 2,
+    role: Role.find_by(name: :clinical_support),
     practice_id: 1,
     phone: '+16302122713',
     staff_profile_attributes: {
@@ -197,7 +197,7 @@ staff = [
     email: "catherine@flatironpediatrics.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 3,
+    role: Role.find_by(name: :customer_service),
     practice_id: 1,
     phone: '+19176929777',
     staff_profile_attributes: {
@@ -216,7 +216,7 @@ staff = [
     email: "kristen@flatironpediatrics.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 1,
+    role: Role.find_by(name: :financial),
     practice_id: 1,
     phone: '+19736327321',
     staff_profile_attributes: {
@@ -235,7 +235,7 @@ staff = [
     email: "b@leohealth.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 3,
+    role: Role.find_by(name: :customer_service),
     practice_id: 1,
     phone: '+12068198549',
     avatar_attributes: {
@@ -250,7 +250,7 @@ staff = [
     email: "z@leohealth.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 3,
+    role: Role.find_by(name: :customer_service),
     practice_id: 1,
     phone: '+12672559107',
     avatar_attributes: {
@@ -265,7 +265,7 @@ staff = [
     email: "j@leohealth.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 3,
+    role: Role.find_by(name: :customer_service),
     practice_id: 1,
     phone: '+17819645918',
     avatar_attributes: {
@@ -280,7 +280,7 @@ staff = [
     email: "n@leohealth.com",
     password: "password",
     password_confirmation: "password",
-    role_id: 3,
+    role: Role.find_by(name: :customer_service),
     practice_id: 1,
     phone: '+12035223374',
     avatar_attributes: {
