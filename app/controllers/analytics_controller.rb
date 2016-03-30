@@ -13,8 +13,6 @@ class AnalyticsController < ApplicationController
   end
 
   def registration_engagement
-    #App Accounts Enrolled (login + password)
-    #App Accounts Completed (new families?)
     [
       ["#App Accounts Enrolled (login + password)", Enrollment.count],
       ["#App Accounts Completed (new families?)", Enrollment.count - User.guardians.count]
