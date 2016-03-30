@@ -3,13 +3,13 @@ require "athena_health_api"
 module GrowthCurvesHelper
   def self.z_percentile
     [
-      { :z => 0, :p => 50 },
-      { :z => 0.674, :p => 50 },
-      { :z => 1.036, :p => 25 },
-      { :z => 1.282, :p => 15 },
-      { :z => 1.645, :p => 10 },
-      { :z => 1.881, :p => 5 },
-      { :z => Float::MAX, :p => 3 }
+      { z: 0, p: 50 },
+      { z: 0.674, p: 50 },
+      { z: 1.036, p: 25 },
+      { z: 1.282, p: 15 },
+      { z: 1.645, p: 10 },
+      { z: 1.881, p: 5 },
+      { z: Float::MAX, p: 3 }
     ]
   end
 
@@ -63,7 +63,7 @@ module GrowthCurvesHelper
   end
 
   def self.weight_percentile(sex, dob, date, value)
-    days = (date - dob).to_i/1.day
+    days = (date.to_date - dob.to_date).to_i
     entry = WeightGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)
@@ -71,7 +71,7 @@ module GrowthCurvesHelper
   end
 
   def self.height_percentile(sex, dob, date, value)
-    days = (date - dob).to_i/1.day
+    days = (date.to_date - dob.to_date).to_i
     entry = HeightGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)
@@ -79,7 +79,7 @@ module GrowthCurvesHelper
   end
 
   def self.bmi_percentile(sex, dob, date, value)
-    days = (date - dob).to_i/1.day
+    days = (date.to_date - dob.to_date).to_i
     entry = BmiGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)
