@@ -15,8 +15,13 @@ module Leo
       expose :state
       expose :last_message
       expose :messages
+      expose :message_count
 
       private
+
+      def message_count
+        object.messages.count
+      end
 
       def primary_guardian
         object.family.guardians.order('created_at ASC').first
