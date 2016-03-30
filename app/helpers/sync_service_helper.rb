@@ -585,7 +585,8 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       if leo_patient.athena_id == 0
-        process_patient(task)
+          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+          process_one_task(patient_task)
       end
 
       #get list of photos for this patients
@@ -606,7 +607,8 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       if leo_patient.athena_id == 0
-        process_patient(task)
+          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+          process_one_task(patient_task)
       end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -644,7 +646,8 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       if leo_patient.athena_id == 0
-        process_patient(task)
+          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+          process_one_task(patient_task)
       end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -706,7 +709,8 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       if leo_patient.athena_id == 0
-        process_patient(task)
+          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+          process_one_task(patient_task)
       end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -743,7 +747,8 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       if leo_patient.athena_id == 0
-        process_patient(task)
+          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+          process_one_task(patient_task)
       end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -777,8 +782,8 @@ module SyncServiceHelper
       leo_patient = Patient.find(task.sync_id)
 
       if leo_patient.athena_id == 0
-
-        process_patient(task)
+          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+          process_one_task(patient_task)
       end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
