@@ -1,0 +1,9 @@
+<h1>Here is my analytics</h1>
+<ul>
+  <% @analytics[:registration_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+</ul>
+<br>
