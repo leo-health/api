@@ -32,22 +32,7 @@ roles_seed.each do |param|
   Role.update_or_create!(:name, param)
 end
 
-staff = [
-  {
-    first_name: "Leo",
-    last_name: "Bot",
-    sex: "F",
-    email: "leo_bot@leohealth.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :bot),
-    practice_id: 1,
-    phone: '1234567890',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-    }
-  },
-
+providers = [
   {
     title: "Dr.",
     first_name: "Victoria",
@@ -137,6 +122,53 @@ staff = [
       sunday_start_time: "00:00",
       sunday_end_time: "00:00"
     }
+  }
+]
+
+providers.each do |attributes|
+  if user = User.find_by(email: attributes[:email])
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
+  else
+    user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
+  end
+
+  if attributes[:staff_profile_attributes] && user.staff_profile
+    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
+  end
+
+  if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
+    user.provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
+  end
+
+  if avatar = user.avatar
+    avatar.update_attributes!(attributes[:avatar_attributes])
+  else
+    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:provider_schedule_attributes]
+    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.try(:athena_id))
+      provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
+    else
+      ProviderSchedule.create!(attributes[:provider_schedule_attributes])
+    end
+  end
+end
+
+staff = [
+  {
+    first_name: "Leo",
+    last_name: "Bot",
+    sex: "F",
+    email: "leo_bot@leohealth.com",
+    password: "password",
+    password_confirmation: "password",
+    role: Role.find_by(name: :bot),
+    practice_id: 1,
+    phone: '1234567890',
+    avatar_attributes: {
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+    }
   },
 
   {
@@ -153,7 +185,6 @@ staff = [
       specialties: "",
       credentials: ["RN"]
     },
-
     avatar_attributes: {
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcey-Shoulder.png'))
     }
@@ -173,7 +204,6 @@ staff = [
       specialties: "",
       credentials: ["Office Manager"]
     },
-
     avatar_attributes: {
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Catherine-Shoulder.png'))
     }
@@ -193,53 +223,11 @@ staff = [
       specialties: "",
       credentials: ["RN"]
     },
-
     avatar_attributes: {
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Kristen-Shoulder.png'))
     }
-  }
-]
+  },
 
-staff.each do |attributes|
-  if user = User.find_by(email: attributes[:email])
-    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
-  else
-    user = User.create!(attributes.except(:avatar_attributes, :staff_profile_attributes, :provider_sync_profile_attributes, :provider_schedule_attributes))
-  end
-
-  if avatar = user.avatar
-    avatar.update_attributes!(attributes[:avatar_attributes])
-  else
-    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-  end
-
-  if attributes[:staff_profile_attributes]
-    if staff_profile = user.staff_profile
-      staff_profile.update_attributes!(attributes[:staff_profile_attributes])
-    else
-      StaffProfile.create!(attributes[:staff_profile_attributes].merge(staff: user))
-    end
-  end
-
-  if attributes[:provider_sync_profile_attributes]
-    if provider_sync_profile = user.provider_sync_profile
-      provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
-    else
-      ProviderSyncProfile.create!(attributes[:provider_sync_profile_attributes].merge(provider: user))
-    end
-  end
-
-  if attributes[:provider_schedule_attributes]
-    if athena_id = user.provider_sync_profile.try(:athena_id)
-      provider_schedule = ProviderSchedule.find_by(athena_provider_id: athena_id)
-      provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
-    else
-      ProviderSchedule.create!(attributes[:provider_schedule_attributes])
-    end
-  end
-end
-
-team = [
   {
     first_name: "Ben",
     last_name: "Siscovick",
@@ -301,17 +289,21 @@ team = [
   }
 ]
 
-team.each do |attributes|
+staff.each do |attributes|
   if user = User.find_by(email: attributes[:email])
-    user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes))
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes))
   end
 
   if avatar = user.avatar
-    avatar.update_attributes!(attributes[:avatar_attributes].merge(owner: user))
+    avatar.update_attributes!(attributes[:avatar_attributes])
   else
     Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:staff_profile_attributes] && user.staff_profile
+    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
   end
 end
 

@@ -13,8 +13,8 @@ describe Leo::V1::AppointmentSlots do
     end
 
     let(:date) { Date.tomorrow }
-    let(:provider) { create(:user, :clinical) }
-    let(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1, provider: provider) }
+    let(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1) }
+    let(:provider) { provider_sync_profile.provider }
     let(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
     let!(:schedule) { create(:provider_schedule, athena_provider_id: provider_sync_profile.athena_id) }
     let!(:additional_availability) { create(:provider_additional_availability,

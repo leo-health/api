@@ -52,6 +52,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem "spring"
   gem 'rspec_api_documentation'
+  gem 'faker'
 end
 
 group :development, :develop do
