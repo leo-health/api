@@ -467,6 +467,11 @@ module SyncServiceHelper
       athena_patient
     end
 
+    def process_patient_task_immediately(patient)
+      patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+      process_one_task(patient_task)
+    end
+
     #sync patient
     #SyncTask.sync_id = User.id
     #creates an instance of HealthRecord model if one does not exist, and then updates the patient in Athena
@@ -584,10 +589,7 @@ module SyncServiceHelper
     def process_patient_photo(task)
       leo_patient = Patient.find(task.sync_id)
 
-      if leo_patient.athena_id == 0
-          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-          process_one_task(patient_task)
-      end
+      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
 
       #get list of photos for this patients
       photos = leo_patient.photos.order("id desc")
@@ -606,10 +608,8 @@ module SyncServiceHelper
     def process_patient_allergies(task)
       leo_patient = Patient.find(task.sync_id)
 
-      if leo_patient.athena_id == 0
-          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-          process_one_task(patient_task)
-      end
+      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -645,10 +645,8 @@ module SyncServiceHelper
     def process_patient_medications(task)
       leo_patient = Patient.find(task.sync_id)
 
-      if leo_patient.athena_id == 0
-          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-          process_one_task(patient_task)
-      end
+      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -708,10 +706,8 @@ module SyncServiceHelper
     def process_patient_vitals(task)
       leo_patient = Patient.find(task.sync_id)
 
-      if leo_patient.athena_id == 0
-          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-          process_one_task(patient_task)
-      end
+      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -746,10 +742,8 @@ module SyncServiceHelper
     def process_patient_vaccines(task)
       leo_patient = Patient.find(task.sync_id)
 
-      if leo_patient.athena_id == 0
-          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-          process_one_task(patient_task)
-      end
+      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -781,10 +775,8 @@ module SyncServiceHelper
     def process_patient_insurances(task)
       leo_patient = Patient.find(task.sync_id)
 
-      if leo_patient.athena_id == 0
-          patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-          process_one_task(patient_task)
-      end
+      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
