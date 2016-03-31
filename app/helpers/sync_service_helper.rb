@@ -225,9 +225,10 @@ module SyncServiceHelper
               SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
             end
 
-            if patient.photos_updated_at.nil? || (patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient_photo.to_s, sync_id: patient.id)
-            end
+            # turned off photo syncing for now
+            #if patient.photos_updated_at.nil? || (patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+            #  SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient_photo.to_s, sync_id: patient.id)
+            #end
 
             if patient.allergies_updated_at.nil? || (patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
               SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_allergies.to_s, sync_id: patient.id)
