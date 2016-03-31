@@ -32,7 +32,7 @@ class AnalyticsController < ApplicationController
 
   def scheduling_engagement
     visits_from_app = Appointment.includes(:booked_by).where(booked_by: { role_id: Role.guardian.id }).count
-    visits_from_app_percent = visits_from_app.to_f / Appointment.count.to_f * 100.00
+    visits_from_app_percent = Appointment.count == 0 ? 'n/a' : visits_from_app.to_f / Appointment.count.to_f * 100.00
     [
       ['# of visits scheduled from app', visits_from_app],
       ['# of visits scheduled from app + practice (total)', Appointment.count],
@@ -61,23 +61,20 @@ class AnalyticsController < ApplicationController
     @conversation_opened_at = Hash.new { |h,k| h[k] = [] }
     Conversation.includes(:closure_notes, :messages).each do |conversation|
       previous_closure_note = false
+      @conversation_opened_at[conversation.id] << conversation.created_at
       conversation.closure_notes.each do |closure_note|
         if previous_closure_note
           message = conversation.messages.where('created_at > ?', closure_note.created_at).order('created_at ASC').first
           @conversation_opened_at[conversation.id] << message.created_at
           time_to_case_close << closure_note.created_at - message.created_at
         else
-          @conversation_opened_at[conversation.id] << message.created_at
           time_to_case_close << closure_note.created_at - conversation.created_at
         end
         previous_closure_note = closure_note
       end
     end
-
-    average_close_time = time_to_case_close.inject{ |sum, el| sum + el }.to_f / time_to_case_close.size * 60
-    mid = time_to_case_close.length / 2
-    sorted = time_to_case_close.sort
-    median_close_time = time_to_case_close.length.odd? ? sorted[mid] / 60 : 0.5 / 60 * (sorted[mid] + sorted[mid - 1])
+    average_close_time = array_average(time_to_case_close)
+    median_close_time = array_median(time_to_case_close)
     [
       ['#Avg. Time to Case Close', "#{average_close_time} minutes"],
       ['#Med. Time to Case Close', "#{median_close_time} minutes"]
@@ -91,13 +88,17 @@ class AnalyticsController < ApplicationController
     time_to_assigned = []
     Conversation.includes(:escalation_notes, :messages).each do |conversation|
       conversation.escalation_notes.each do |escalation_note|
-        last_opened_at = @conversation_opened_at[conversation.id].reverse_each do |opened_at|
-          return opened_at if opened_at < escalation_note.created_at
+        last_open_at = false
+        @conversation_opened_at[conversation.id].reverse_each do |opened_at|
+          if opened_at < escalation_note.created_at
+            last_open_at = opened_at
+            next
+          end
         end
-        time_to_assigned << escalation_note.created_at - last_opened_at
+        time_to_assigned << escalation_note.created_at - last_open_at
       end
     end
-    average_assign_time = time_to_assigned.inject{ |sum, el| sum + el }.to_f / time_to_assigned.size * 60
+    average_assign_time = array_average(time_to_assigned)
     [
       ['# of Cases Assigned', EscalationNote.count],
       ['# of Cases Closed', ClosureNote.count],
@@ -113,5 +114,19 @@ class AnalyticsController < ApplicationController
       ['# of same day appointments', same_day_appointments],
       ['# of late to appointment appointments', 'n/a']
     ]
+  end
+
+  def array_average(arr)
+    return "n/a" if arr.size < 1
+    average_in_seconds = arr.inject{ |sum, el| sum + el }.to_f / arr.size
+    (average_in_seconds / 60).round(1)
+  end
+
+  def array_median(arr)
+    return 'n/a' if arr.size < 1
+    sorted = arr.sort
+    mid = arr.size / 2
+    median_in_seconds = arr.length.odd? ? sorted[mid] : 0.5 * (sorted[mid] + sorted[mid - 1])
+    (median_in_seconds / 60).round(1)
   end
 end

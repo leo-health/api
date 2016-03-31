@@ -30,6 +30,13 @@
       </li>
   <% end %>
 
+  <h3>response time metric</h3>
+  <% @analytics[:response_time_metrics].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
   <h3>provider app engagement</h3>
   <% @analytics[:provider_app_engagement].each do |metric| %>
       <li>
