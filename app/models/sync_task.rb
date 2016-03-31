@@ -1,6 +1,6 @@
 class SyncTask < ActiveRecord::Base
 
-  @@max_queue_position = SyncTask.maximum(:queue_position)
+  @@max_queue_position = SyncTask.maximum(:queue_position) || 0
   def self.max_queue_position
     @@max_queue_position
   end
