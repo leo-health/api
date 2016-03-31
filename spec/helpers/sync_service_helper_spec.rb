@@ -268,7 +268,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       context "for unsynced patient" do
         it "should creates sync tasks" do
-          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(7)
+          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(6)
         end
       end
 
@@ -278,7 +278,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         end
 
         it "creates sync tasks" do
-          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(7)
+          expect{ syncer.process_scan_patients(SyncTask.new) }.to change{ SyncTask.count }.from(0).to(6)
         end
       end
     end
