@@ -293,7 +293,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
           expect(SyncTask.count).to eq(6)
           task = SyncTask.new
           task.sync_type = "unknown_sync_type"
-          task.enqueue
+          task.save!
           expect(SyncTask.maximum(:queue_position)).to eq(SyncTask.max_queue_position)
           expect(task.queue_position).to eq(SyncTask.max_queue_position)
           begin
