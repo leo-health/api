@@ -58,26 +58,29 @@ class AnalyticsController < ApplicationController
 
   def response_time_metrics
     time_to_case_close = []
+    @conversation_opened_at = Hash.new { |h,k| h[k] = [] }
     Conversation.includes(:closure_notes, :messages).each do |conversation|
       previous_closure_note = false
       conversation.closure_notes.each do |closure_note|
         if previous_closure_note
           message = conversation.messages.where('created_at > ?', closure_note.created_at).order('created_at ASC').first
+          @conversation_opened_at[conversation.id] << message.created_at
           time_to_case_close << closure_note.created_at - message.created_at
         else
+          @conversation_opened_at[conversation.id] << message.created_at
           time_to_case_close << closure_note.created_at - conversation.created_at
         end
         previous_closure_note = closure_note
       end
     end
 
-    average_close_time = time_to_case_close.inject{ |sum, el| sum + el }.to_f / arr.size * 60
+    average_close_time = time_to_case_close.inject{ |sum, el| sum + el }.to_f / time_to_case_close.size * 60
     mid = time_to_case_close.length / 2
     sorted = time_to_case_close.sort
     median_close_time = time_to_case_close.length.odd? ? sorted[mid] / 60 : 0.5 / 60 * (sorted[mid] + sorted[mid - 1])
     [
-      ['#Avg. Time to Case Close', average_close_time],
-      ['#Med. Time to Case Close', median_close_time]
+      ['#Avg. Time to Case Close', "#{average_close_time} minutes"],
+      ['#Med. Time to Case Close', "#{median_close_time} minutes"]
     ]
   end
 
@@ -85,11 +88,21 @@ class AnalyticsController < ApplicationController
     escalation_notes_created = EscalationNote.where.not(note: nil).count
     closure_notes_created = ClosureNote.where.not(note: nil).count
     total_notes_created = escalation_notes_created + closure_notes_created
+    time_to_assigned = []
+    Conversation.includes(:escalation_notes, :messages).each do |conversation|
+      conversation.escalation_notes.each do |escalation_note|
+        last_opened_at = @conversation_opened_at[conversation.id].reverse_each do |opened_at|
+          return opened_at if opened_at < escalation_note.created_at
+        end
+        time_to_assigned << escalation_note.created_at - last_opened_at
+      end
+    end
+    average_assign_time = time_to_assigned.inject{ |sum, el| sum + el }.to_f / time_to_assigned.size * 60
     [
       ['# of Cases Assigned', EscalationNote.count],
       ['# of Cases Closed', ClosureNote.count],
       ['# of Notes Created', total_notes_created],
-      ['Time to Assigned', 'n/a'] #Time to Assigned - first message after last closed to assigned timestamp before closed
+      ['Time to Assigned', "#{average_assign_time} minitues"] #Time to Assigned - first message after last closed to assigned timestamp before closed
     ]
   end
 
