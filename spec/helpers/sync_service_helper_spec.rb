@@ -402,6 +402,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
     end
 
+=begin
     describe "process_patient_photo" do
       let!(:patient) { create(:patient, athena_id: 1) }
 
@@ -416,6 +417,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         syncer.process_patient_photo(SyncTask.new(sync_id: patient.id))
       end
     end
+=end
 
     describe "process_patient_allergies" do
       let(:parent) { create(:user, :guardian) }
