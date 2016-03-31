@@ -110,7 +110,7 @@ class AnalyticsController < ApplicationController
       @conversation_opened_at[conversation.id] << conversation.created_at
       conversation.closure_notes.each do |closure_note|
         if previous_closure_note
-          message = conversation.messages.where('created_at > ?', closure_note.created_at).order('created_at ASC').first
+          message = conversation.messages.where('created_at < ?', closure_note.created_at).order('created_at DESC').first
           @conversation_opened_at[conversation.id] << message.created_at
           time_to_case_close << closure_note.created_at - message.created_at
         else
