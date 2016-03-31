@@ -283,6 +283,27 @@ RSpec.describe SyncServiceHelper, type: :helper do
       end
     end
 
+    describe "failed_job_queue" do
+      let(:parent) { create(:user, :guardian) }
+      let!(:patient){ create(:patient, athena_id: 0, family: parent.family) }
+
+      context "for unsynced patient" do
+        it "should creates sync tasks and handle failures by pushing to bottom of queue" do
+          syncer.process_scan_patients(SyncTask.new)
+          expect(SyncTask.count).to eq(7)
+          task = SyncTask.new
+          task.sync_type = "unknown_sync_type"
+          task.enqueue.save!
+          expect(task.queue_position).to eq(8)
+          begin
+            syncer.process_one_task task
+          rescue
+            expect(task.queue_position).to eq(9)
+          end
+        end
+      end
+    end
+
     describe "process_patient" do
       let!(:insurance_plan) { create(:insurance_plan, athena_id: 100) }
       let(:parent) { create(:user, :guardian, insurance_plan: insurance_plan, practice: practice) }
