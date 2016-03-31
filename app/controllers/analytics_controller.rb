@@ -57,20 +57,27 @@ class AnalyticsController < ApplicationController
   end
 
   def response_time_metrics
-    # Conversation.all.each do |conversation|
-    #   previous_closure_note = false
-    #   conversation.closure_notes.each do |note|
-    #     if previous_closure_note
-    #       last_message = conversation.messages.where('created_at > ?', previous_closure_note.created_at).first
-    #       last_opened_
-    #     else
-    #       last_opened_at = conversation.created_at
-    #     end
-    #   end
-    # end
+    time_to_case_close = []
+    Conversation.includes(:closure_notes, :messages).each do |conversation|
+      previous_closure_note = false
+      conversation.closure_notes.each do |closure_note|
+        if previous_closure_note
+          message = conversation.messages.where('created_at > ?', closure_note.created_at).order('created_at ASC').first
+          time_to_case_close << closure_note.created_at - message.created_at
+        else
+          time_to_case_close << closure_note.created_at - conversation.created_at
+        end
+        previous_closure_note = closure_note
+      end
+    end
+
+    average_close_time = time_to_case_close.inject{ |sum, el| sum + el }.to_f / arr.size * 60
+    mid = time_to_case_close.length / 2
+    sorted = time_to_case_close.sort
+    median_close_time = time_to_case_close.length.odd? ? sorted[mid] / 60 : 0.5 / 60 * (sorted[mid] + sorted[mid - 1])
     [
-      ['#Avg. Time to Case Close', 'n/a'], #Avg. Time to Case Close - first message after last closed and last closed timestamp - postgres mapreduce
-      ['#Med. Time to Case Close', 'n/a'], #Med. Time to Case Close - mark as suboptimal, temporary in memory store
+      ['#Avg. Time to Case Close', average_close_time],
+      ['#Med. Time to Case Close', median_close_time]
     ]
   end
 
