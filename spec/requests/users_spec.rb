@@ -7,7 +7,8 @@ describe Leo::V1::Users do
                       email: "guardian@leohealth.com",
                       password: "password",
                       sex: "M",
-                      phone: "1234445555"
+                      phone: "1234445555",
+                      vendor_id: "id"
   }}
   let!(:default_practice) { create(:practice) }
   let(:serializer){ Leo::Entities::UserEntity }

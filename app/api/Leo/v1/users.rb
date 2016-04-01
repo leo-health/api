@@ -43,6 +43,7 @@ module Leo
         params do
           requires :first_name, type: String
           requires :last_name, type: String
+          requires :vendor_id, type: String
           requires :email, type: String
           requires :password, type: String
           requires :phone, type: String
@@ -105,7 +106,8 @@ module Leo
             family_id: enrollment.family_id,
             birth_date: enrollment.birth_date,
             sex: enrollment.sex,
-            insurance_plan_id: enrollment.insurance_plan_id
+            insurance_plan_id: enrollment.insurance_plan_id,
+            vendor_id: enrollment.vendor_id
           }
 
           user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type'))
