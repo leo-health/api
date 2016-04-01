@@ -16,6 +16,8 @@ resource "Appointments" do
   let(:practice){create(:practice)}
   let(:appointment){create(:appointment, booked_by: user)}
 
+  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_leo_appointment).and_return(true) }
+
   post "/api/v1/appointments" do
     parameter :authentication_token, required: true
     parameter :start_datetime, required: true
@@ -97,6 +99,8 @@ resource "Appointments" do
 
   get "/api/v1/appointments" do
     parameter :authentication_token, required: true
+
+    before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_athena_appointments_for_family).and_return(true) }
 
     example "get all appointments of current user" do
       do_request

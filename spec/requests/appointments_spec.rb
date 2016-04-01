@@ -12,6 +12,8 @@ describe Leo::V1::Appointments do
   let(:patient){create(:patient, family: user.family)}
   let(:practice){create(:practice)}
 
+  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_leo_appointment).and_return(true) }
+
   describe "Post /api/v1/appointments" do
     def do_request
       appointment_params = { start_datetime: Time.now + Appointment::MIN_INTERVAL_TO_SCHEDULE + 1.minute,
@@ -65,6 +67,8 @@ describe Leo::V1::Appointments do
   describe "Get /api/v1/appointments" do
     let!(:appointment){create(:appointment, booked_by: user)}
     let!(:other_appointment){create(:appointment, booked_by: user)}
+
+    before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_athena_appointments_for_family).and_return(true) }
 
     def do_request
       get "/api/v1/appointments", {authentication_token: session.authentication_token}

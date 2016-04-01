@@ -13,8 +13,8 @@ module SyncService
   def self.start
     #make sure that the sync jobs are scheduled
     SyncTaskJob.schedule_if_needed
-    SyncTaskScanAppointmentsJob.schedule_if_needed
-    SyncTaskScanPatientsJob.schedule_if_needed
+    # SyncTaskScanAppointmentsJob.schedule_if_needed
+    # SyncTaskScanPatientsJob.schedule_if_needed
     SyncTaskScanProvidersJob.schedule_if_needed
     SyncTaskScanRemoteAppointmentsJob.schedule_if_needed
   end
@@ -170,13 +170,36 @@ module SyncServiceHelper
     end
 
     def process_scan_remote_appointments(task)
-      booked_appts = @connector.get_booked_appointments(
-        departmentid: task.sync_id,
-        startdate: Date.today.strftime("%m/%d/%Y"),
-        enddate: 1.year.from_now.strftime("%m/%d/%Y"))
+      sync_athena_appointments_for_practice Practice.find_by(athena_id: task.sync_id)
+    end
 
+    def sync_athena_appointments_for_family(family)
+      family.patients.find_each {|patient| sync_athena_appointments_for_patient patient}
+    end
+
+    def sync_athena_appointments_for_practice(practice)
+      sync_athena_appointments({
+        departmentid: practice.athena_id,
+        startdate: Date.today.strftime("%m/%d/%Y"),
+        enddate: 1.year.from_now.strftime("%m/%d/%Y"),
+        })
+    end
+
+    def sync_athena_appointments_for_patient(patient)
+      sync_athena_appointments({
+        departmentid: patient.family.primary_guardian.practice.athena_id,
+        startdate: Date.today.strftime("%m/%d/%Y"),
+        enddate: 1.year.from_now.strftime("%m/%d/%Y"),
+        patientid: patient.athena_id
+        })
+    end
+
+    def sync_athena_appointments(athena_params)
+      booked_appts = @connector.get_booked_appointments(**athena_params)
       booked_appts.each { |appt|
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
+
+        # TODO: handle modified appointments
         impl_create_leo_appt_from_athena(appt: appt) unless (leo_appt || !appt.future?)
       }
     end
@@ -260,11 +283,18 @@ module SyncServiceHelper
 
     def process_appointment(task)
       leo_appt = Appointment.find(task.sync_id)
+      sync_leo_appointment leo_appt
+    end
+
+    def sync_leo_appointment(leo_appt)
 
       #create appointment
       if leo_appt.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
-        raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet" if leo_appt.patient.athena_id == 0
+        if leo_appt.patient.athena_id == 0
+          sync_leo_patient leo_appt.patient
+          # raise "Appointment appt.id=#{leo_appt.id} is booked by a user that has not been synched yet"
+        end
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_sync_profile" unless leo_appt.provider.provider_sync_profile
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_id" if leo_appt.provider.provider_sync_profile.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider.provider_sync_profile.athena_department_id == 0
@@ -347,6 +377,11 @@ module SyncServiceHelper
 
     def process_provider_leave(task)
       provider_sync_profile = ProviderSyncProfile.find_by!(provider_id: task.sync_id)
+      sync_provider_leave provider_sync_profile
+    end
+
+    def sync_provider_leave(provider_sync_profile)
+
       blocked_appointment_type = AppointmentType.find_by!(name: "Block")
 
       blocked_appts = @connector.get_open_appointments(
@@ -465,11 +500,15 @@ module SyncServiceHelper
       process_one_task(patient_task)
     end
 
+    def process_patient(task)
+      leo_patient = Patient.find(task.sync_id)
+      sync_leo_patient leo_patient
+    end
+
     #sync patient
     #SyncTask.sync_id = User.id
     #creates an instance of HealthRecord model if one does not exist, and then updates the patient in Athena
-    def process_patient(task)
-      leo_patient = Patient.find(task.sync_id)
+    def sync_leo_patient(leo_patient)
 
       raise "patient.id #{leo_patient.id} has no associated family" unless leo_patient.family
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
@@ -578,6 +617,10 @@ module SyncServiceHelper
     #SyncTask.sync_id = User.id
     def process_patient_photo(task)
       leo_patient = Patient.find(task.sync_id)
+      sync_photo leo_patient
+    end
+
+    def sync_photo(leo_patient)
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
@@ -599,6 +642,10 @@ module SyncServiceHelper
 
     def process_patient_allergies(task)
       leo_patient = Patient.find(task.sync_id)
+      sync_allergies leo_patient
+    end
+
+    def sync_allergies(leo_patient)
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
@@ -638,6 +685,10 @@ module SyncServiceHelper
 
     def process_patient_medications(task)
       leo_patient = Patient.find(task.sync_id)
+      sync_medications leo_patient
+    end
+
+    def sync_medications(leo_patient)
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
@@ -700,6 +751,10 @@ module SyncServiceHelper
 
     def process_patient_vitals(task)
       leo_patient = Patient.find(task.sync_id)
+      sync_vitals leo_patient
+    end
+
+    def sync_vitals(leo_patient)
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
@@ -738,6 +793,10 @@ module SyncServiceHelper
 
     def process_patient_vaccines(task)
       leo_patient = Patient.find(task.sync_id)
+      sync_vaccines leo_patient
+    end
+
+    def sync_vaccines(leo_patient)
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
@@ -773,6 +832,10 @@ module SyncServiceHelper
 
     def process_patient_insurances(task)
       leo_patient = Patient.find(task.sync_id)
+      sync_insurances leo_patient
+    end
+
+    def sync_insurances(leo_patient)
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
