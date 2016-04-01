@@ -5,6 +5,7 @@ module Leo
       resource :patients do
         before do
           authenticated
+          @syncer = SyncServiceHelper::Syncer.new
         end
 
         desc "#post create a patient for current guardian"
@@ -22,6 +23,7 @@ module Leo
         post do
           patient = current_user.family.patients.new(declared(params, including_missing: false))
           authorize! :create, patient
+          @syncer.sync_leo_patient patient
           create_success patient
         end
 
@@ -41,6 +43,7 @@ module Leo
         put ':id' do
           patient = Patient.find(params[:id])
           authorize! :update, patient
+          @syncer.sync_leo_patient patient
           update_success patient, declared(params, include_missing: false)
         end
 
@@ -48,6 +51,7 @@ module Leo
         get ':id' do
           patient = Patient.find(params[:id])
           authorize! :read, patient
+          @syncer.sync_leo_patient patient
           render_success patient
         end
 
@@ -55,6 +59,7 @@ module Leo
         get do
           patients = Family.find(current_user.family_id).patients
           authorize! :read, Patient
+          patients.find_each { |patient| @syncer.sync_leo_patient patient }
           present :patients, patients, with: Leo::Entities::PatientEntity
         end
 

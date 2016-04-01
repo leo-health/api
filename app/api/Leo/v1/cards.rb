@@ -5,10 +5,13 @@ module Leo
       namespace "cards" do
         before do
           authenticated
+          @syncer = SyncServiceHelper::Syncer.new
         end
 
         get do
           family = Family.includes(:guardians).find(current_user.family_id)
+
+          @syncer.sync_athena_appointments_for_family family
           appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id))
                            .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
