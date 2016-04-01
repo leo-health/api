@@ -578,8 +578,10 @@ module SyncServiceHelper
     #SyncTask.sync_id = User.id
     def process_patient_photo(task)
       leo_patient = Patient.find(task.sync_id)
-
-      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient_task_immediately(leo_patient)
+        leo_patient.reload
+      end
 
       #get list of photos for this patients
       photos = leo_patient.photos.order("id desc")
@@ -597,8 +599,10 @@ module SyncServiceHelper
 
     def process_patient_allergies(task)
       leo_patient = Patient.find(task.sync_id)
-
-      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient_task_immediately(leo_patient)
+        leo_patient.reload
+      end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -634,9 +638,10 @@ module SyncServiceHelper
 
     def process_patient_medications(task)
       leo_patient = Patient.find(task.sync_id)
-
-      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
-
+      if leo_patient.athena_id == 0
+        process_patient_task_immediately(leo_patient)
+        leo_patient.reload
+      end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
       leo_parent = leo_patient.family.primary_guardian
@@ -695,8 +700,10 @@ module SyncServiceHelper
 
     def process_patient_vitals(task)
       leo_patient = Patient.find(task.sync_id)
-
-      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient_task_immediately(leo_patient)
+        leo_patient.reload
+      end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -731,8 +738,10 @@ module SyncServiceHelper
 
     def process_patient_vaccines(task)
       leo_patient = Patient.find(task.sync_id)
-
-      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient_task_immediately(leo_patient)
+        leo_patient.reload
+      end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -764,8 +773,10 @@ module SyncServiceHelper
 
     def process_patient_insurances(task)
       leo_patient = Patient.find(task.sync_id)
-
-      process_patient_task_immediately(leo_patient) if leo_patient.athena_id == 0
+      if leo_patient.athena_id == 0
+        process_patient_task_immediately(leo_patient)
+        leo_patient.reload
+      end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
