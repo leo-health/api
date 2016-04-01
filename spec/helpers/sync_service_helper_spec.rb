@@ -290,16 +290,15 @@ RSpec.describe SyncServiceHelper, type: :helper do
       context "for unsynced patient" do
         it "should creates sync tasks and handle failures by pushing to bottom of queue" do
           syncer.process_scan_patients(SyncTask.new)
-          expect(SyncTask.count).to eq(6)
+          expect(SyncTask.count).to eq(7)
           task = SyncTask.new
           task.sync_type = "unknown_sync_type"
-          task.enqueue
-          expect(SyncTask.maximum(:queue_position)).to eq(SyncTask.max_queue_position)
-          expect(task.queue_position).to eq(SyncTask.max_queue_position)
+          task.enqueue.save!
+          expect(task.queue_position).to eq(8)
           begin
             syncer.process_one_task task
           rescue
-            expect(task.queue_position).to eq(SyncTask.max_queue_position)
+            expect(task.queue_position).to eq(9)
           end
         end
       end
