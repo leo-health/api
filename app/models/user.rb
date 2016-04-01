@@ -121,7 +121,10 @@ class User < ActiveRecord::Base
   end
 
   def set_user_type_on_secondary_user
-    update_columns(type: family.primary_guardian.type) unless primary_guardian?
+    unless primary_guardian?
+      update_columns(type: family.primary_guardian.type)
+      InternalInvitationEnrollmentNotificationJob.send(id)
+    end
   end
 
   def format_phone_number
