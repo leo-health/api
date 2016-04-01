@@ -624,6 +624,10 @@ module SyncServiceHelper
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
+        if leo_patient.athena_id == 0
+          SyncService.configuration.logger.info("Skipping sync for photo due to patient #{leo_patient.id} sync failure")
+          return
+        end
       end
 
       #get list of photos for this patients
@@ -649,6 +653,10 @@ module SyncServiceHelper
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
+        if leo_patient.athena_id == 0
+          SyncService.configuration.logger.info("Skipping sync for allergies due to patient #{leo_patient.id} sync failure")
+          return
+        end
       end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
@@ -692,6 +700,10 @@ module SyncServiceHelper
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
+        if leo_patient.athena_id == 0
+          SyncService.configuration.logger.info("Skipping sync for medications due to patient #{leo_patient.id} sync failure")
+          return
+        end
       end
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 
@@ -758,6 +770,10 @@ module SyncServiceHelper
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
+        if leo_patient.athena_id == 0
+          SyncService.configuration.logger.info("Skipping sync for vitals due to patient #{leo_patient.id} sync failure")
+          return
+        end
       end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
@@ -800,6 +816,10 @@ module SyncServiceHelper
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
+        if leo_patient.athena_id == 0
+          SyncService.configuration.logger.info("Skipping sync for vaccines due to patient #{leo_patient.id} sync failure")
+          return
+        end
       end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
@@ -839,6 +859,10 @@ module SyncServiceHelper
       if leo_patient.athena_id == 0
         process_patient_task_immediately(leo_patient)
         leo_patient.reload
+        if leo_patient.athena_id == 0
+          SyncService.configuration.logger.info("Skipping sync for insurances due to patient #{leo_patient.id} sync failure")
+          return
+        end
       end
 
       raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
