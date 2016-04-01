@@ -106,15 +106,12 @@ module SyncServiceHelper
           "#{task.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
 
         task.num_failed += 1
-        if task.num_failed > 10
-          task.destroy
-        else
-          task.enqueue
-          task.working = false
-          task.save!
-          #pass the exception up the callstack
-          raise
-        end
+        task.enqueue
+        task.working = false
+        task.save!
+
+        #pass the exception up the callstack
+        raise
       end
     end
 
@@ -139,10 +136,10 @@ module SyncServiceHelper
       Appointment.where("start_datetime > ?", DateTime.now).find_each do |appt|
         begin
           if appt.athena_id == 0
-            SyncTask.find_or_create_by!(sync_id: appt.id, sync_type: :appointment.to_s)
+            SyncTask.find_or_create_by!(sync_id: appt.id, sync_type: :appointment.to_s).enqueue
           else
             if appt.sync_updated_at.nil? || (appt.sync_updated_at.utc + SyncService.configuration.appointment_data_interval) < DateTime.now.utc
-              SyncTask.find_or_create_by!(sync_id: appt.id, sync_type: :appointment.to_s)
+              SyncTask.find_or_create_by!(sync_id: appt.id, sync_type: :appointment.to_s).enqueue
             end
           end
 
@@ -162,7 +159,7 @@ module SyncServiceHelper
       ProviderSyncProfile.find_each do |provider_sync_profile|
         begin
           if provider_sync_profile.leave_updated_at.nil? || (provider_sync_profile.leave_updated_at.utc + SyncService.configuration.appointment_data_interval) < DateTime.now.utc
-            SyncTask.find_or_create_by!(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
+            SyncTask.find_or_create_by!(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s).enqueue
           end
 
         rescue => e
@@ -226,7 +223,7 @@ module SyncServiceHelper
         begin
           unless @unknown_patient && patient.id == @unknown_patient.id
             if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+              SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id).enqueue
             end
 
             # turned off photo syncing for now
@@ -235,23 +232,23 @@ module SyncServiceHelper
             #end
 
             if patient.allergies_updated_at.nil? || (patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_allergies.to_s, sync_id: patient.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_allergies.to_s, sync_id: patient.id).enqueue
             end
 
             if patient.insurances_updated_at.nil? || (patient.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_insurances.to_s, sync_id: patient.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_insurances.to_s, sync_id: patient.id).enqueue
             end
 
             if patient.medications_updated_at.nil? || (patient.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_medications.to_s, sync_id: patient.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_medications.to_s, sync_id: patient.id).enqueue
             end
 
             if patient.vaccines_updated_at.nil? || (patient.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vaccines.to_s, sync_id: patient.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vaccines.to_s, sync_id: patient.id).enqueue
             end
 
             if patient.vitals_updated_at.nil? || (patient.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vitals.to_s, sync_id: patient.id)
+              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vitals.to_s, sync_id: patient.id).enqueue
             end
           end
         rescue => e
