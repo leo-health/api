@@ -23,6 +23,7 @@ module Leo
         post do
           patient = current_user.family.patients.new(declared(params, including_missing: false))
           authorize! :create, patient
+          patient.save!
           @syncer.delay(run_at: Time.now).sync_leo_patient patient
           create_success patient
         end
@@ -43,6 +44,7 @@ module Leo
         put ':id' do
           patient = Patient.find(params[:id])
           authorize! :update, patient
+          patient.save!
           @syncer.delay(run_at: Time.now).sync_leo_patient patient
           update_success patient, declared(params, include_missing: false)
         end

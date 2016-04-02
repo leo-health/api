@@ -78,6 +78,7 @@ module Leo
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
+          appointment.save!
           @syncer.delay(run_at: Time.now).sync_leo_appointment appointment
           create_success appointment
         end
