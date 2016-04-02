@@ -35,7 +35,7 @@ module Leo
         get ":id" do
           if appointment = Appointment.find(params[:id])
             authorize! :read, appointment
-            @syncer.sync_leo_appointment appointment
+            @syncer.delay(run_at: Time.now).sync_leo_appointment appointment
             render_success appointment
           end
         end
@@ -59,7 +59,7 @@ module Leo
 
         desc "return appointments of current user"
         get do
-          @syncer.sync_athena_appointments_for_family current_user.family
+          @syncer.delay(run_at: Time.now).sync_athena_appointments_for_family current_user.family
           if current_user.has_role? :guardian
             appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id))
           elsif current_user.has_role? :clinical
@@ -78,7 +78,7 @@ module Leo
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
-          @syncer.sync_leo_appointment appointment
+          @syncer.delay(run_at: Time.now).sync_leo_appointment appointment
           create_success appointment
         end
 
@@ -87,7 +87,7 @@ module Leo
           authorize! :destroy, appointment
           appointment.appointment_status = AppointmentStatus.cancelled
           appointment.save!
-          @syncer.sync_leo_appointment appointment
+          @syncer.delay(run_at: Time.now).sync_leo_appointment appointment
         end
       end
     end

@@ -16,7 +16,7 @@ module SyncService
     # SyncTaskScanAppointmentsJob.schedule_if_needed
     # SyncTaskScanPatientsJob.schedule_if_needed
     SyncTaskScanProvidersJob.schedule_if_needed
-    SyncTaskScanRemoteAppointmentsJob.schedule_if_needed
+    # SyncTaskScanRemoteAppointmentsJob.schedule_if_needed
   end
 
   class Configuration
