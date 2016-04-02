@@ -15,7 +15,7 @@ module Leo
 
           get 'phr' do
             #vitals: height weight, bmi
-            @syncer.sync_vitals @patient
+            @syncer.delay(run_at: Time.now).sync_vitals @patient
             height_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).order(:taken_at).collect() {
               |vital| {
                 measurement: vital.measurement,
@@ -55,15 +55,15 @@ module Leo
             end
 
             #allergies
-            @syncer.sync_allergies @patient
+            @syncer.delay(run_at: Time.now).sync_allergies @patient
             allergies = Allergy.where(patient: @patient).order(:onset_at)
 
             #immunizations
-            @syncer.sync_vaccines @patient
+            @syncer.delay(run_at: Time.now).sync_vaccines @patient
             immunizations = Vaccine.where(patient: @patient).order(:administered_at)
 
             #medications
-            @syncer.sync_medications @patient
+            @syncer.delay(run_at: Time.now).sync_medications @patient
             meds = Medication.where(patient: @patient, ended_at: nil).order(:started_at)
 
             #phr
@@ -88,7 +88,7 @@ module Leo
             end
 
             get 'height' do
-              @syncer.sync_vitals @patient
+              @syncer.delay(run_at: Time.now).sync_vitals @patient
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
@@ -112,7 +112,7 @@ module Leo
             end
 
             get :weight do
-              @syncer.sync_vitals @patient
+              @syncer.delay(run_at: Time.now).sync_vitals @patient
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
@@ -136,7 +136,7 @@ module Leo
             end
 
             get :bmis do
-              @syncer.sync_vitals @patient
+              @syncer.delay(run_at: Time.now).sync_vitals @patient
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = []
@@ -162,7 +162,7 @@ module Leo
           # get "patients/{patient_id}/allergies"
           desc "get allergies"
           get 'allergies' do
-            @syncer.sync_allergies @patient
+            @syncer.delay(run_at: Time.now).sync_allergies @patient
             allergies = Allergy.where(patient: @patient).order(:onset_at)
             present :allergies, allergies, with: Leo::Entities::AllergyEntity
           end
@@ -170,7 +170,7 @@ module Leo
           # get "patients/{patient_id}/immunizations"
           desc "get immunizations"
           get 'immunizations' do
-            @syncer.sync_vaccines @patient
+            @syncer.delay(run_at: Time.now).sync_vaccines @patient
             imunizations = Vaccine.where(patient: @patient).order(:administered_at)
             present :immunizations, imunizations, with: Leo::Entities::VaccineEntity
           end
@@ -178,7 +178,7 @@ module Leo
           # get "patients/{patient_id}/vitals/medications"
           desc "get medications"
           get 'medications' do
-            @syncer.sync_medications @patient
+            @syncer.delay(run_at: Time.now).sync_medications @patient
             meds = Medication.where(patient: @patient, ended_at: nil).order(:started_at)
             present :medications, meds, with: Leo::Entities::MedicationEntity
           end

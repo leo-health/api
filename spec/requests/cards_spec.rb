@@ -22,7 +22,7 @@ describe Leo::V1::Cards do
     end
 
     it "should return the cards of current user" do
-      do_request
+      expect{do_request}.to change{Delayed::Job.count}.by(1)
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data].as_json.to_json).to eq(serializer.represent(response_data).as_json.to_json)
