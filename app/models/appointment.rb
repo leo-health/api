@@ -8,9 +8,7 @@ class Appointment < ActiveRecord::Base
   belongs_to :appointment_type
   belongs_to :appointment_status
   belongs_to :practice
-  validates :duration, :athena_id, :start_datetime, :appointment_status, :appointment_type, :booked_by, :provider,
-            :practice, presence: true
-
+  validates :duration, :athena_id, :start_datetime, :appointment_status, :appointment_type, :booked_by, :provider, :practice, presence: true
   validates_presence_of :patient, unless: :booked_by_provider?
   validate :same_family?, on: :create
   validates_uniqueness_of :start_datetime, scope: :provider_id, if: :booked?,
@@ -24,7 +22,7 @@ class Appointment < ActiveRecord::Base
   end
 
   def booked_by_provider?
-    booked_by.provider?
+    booked_by.try(:provider?)
   end
 
   def pre_checked_in?

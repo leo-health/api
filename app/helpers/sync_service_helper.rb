@@ -65,15 +65,10 @@ end
 
 module SyncServiceHelper
   class Syncer
-    attr_reader :connector, :unknown_patient
+    attr_reader :connector
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
       @connector = connector
-
-      #patient to use for syncing appointments for patients that have not been synced with athena
-      #there will be only one patient in this family, and this family is seeded in seeds.rb
-      # unknown_user = User.unscoped.find_by(email: 'sync@leohealth.com')
-      # @unknown_patient = Patient.unscoped.find_by!(family: unknown_user.family) if unknown_user
     end
 
     def on_failure(subject, message)
@@ -212,7 +207,6 @@ module SyncServiceHelper
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
         practice = Practice.find_by!(athena_id: appt.departmentid)
-        byebug
         new_appt = Appointment.create!(
           appointment_status: appointment_status,
           booked_by: provider_sync_profile.provider,
@@ -225,9 +219,7 @@ module SyncServiceHelper
           sync_updated_at: DateTime.now,
           athena_id: appt.appointmentid.to_i
         )
-        byebug
       rescue => e
-        byebug
         on_failure(
           "Failed to create Appointment for Appointment.athena_id=#{appt.appointmentid}",
           "#{appt.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}"
@@ -333,28 +325,20 @@ module SyncServiceHelper
       else
         #update from athena
         patient = Patient.find_by(athena_id: athena_appt.patientid.to_i)
-        # patient ||= @unknown_patient
-        #
-        # raise "Could not find patient.athena_id=#{athena_appt.patientid}" unless patient
-
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: athena_appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: athena_appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by(status: athena_appt.appointmentstatus)
-
         #athena does not return booked_by_id.  we have to leave it as is
         leo_appt.appointment_status = appointment_status
         leo_appt.patient_id = patient.try(:id)
         leo_appt.provider_id = provider_sync_profile.provider_id
         leo_appt.appointment_type_id = appointment_type.id
         leo_appt.duration = athena_appt.duration.to_i
-
         leo_appt.start_datetime = AthenaHealthApiHelper.to_datetime(athena_appt.date, athena_appt.starttime)
         leo_appt.athena_id = athena_appt.appointmentid.to_i
-
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
         if (athena_appt.respond_to? :rescheduledappointmentid) && (athena_appt.rescheduledappointmentid.to_i != 0)
           rescheduled_appt = Appointment.find_by(athena_id: athena_appt.rescheduledappointmentid.to_i)
-
           unless rescheduled_appt
             #sync rescheduled appointment
             rescheduled_athena_appt = @connector.get_appointment(appointmentid: athena_appt.rescheduledappointmentid)
