@@ -1,4 +1,4 @@
-class InternalInvitationEnrollmentNotificationJob < Struct.new(:secondary_guardian_id,)
+class InternalInvitationEnrollmentNotificationJob < Struct.new(:secondary_guardian_id)
   def self.send(secondary_guardian_id)
     Delayed::Job.enqueue(new(secondary_guardian_id))
   end
