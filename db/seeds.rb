@@ -669,8 +669,24 @@ begin
   end
 
   #add a dummy patient that will be used for syncing appointments from Athena
-  syncServiceUser = User.create_with(first_name: 'Guardian', last_name: 'SyncService', password: 'SyncService-password', phone: '0000000000', role: Role.find_by(name: :guardian), practice: Practice.first)
-    .find_or_create_by!(email: 'sync@leohealth.com')
-  Patient.create_with(first_name: 'Patient', last_name: 'SyncService', birth_date: Date.today, sex: 'M')
-    .find_or_create_by!(family: syncServiceUser.family)
+  sync_service_user_params = {
+    first_name: 'Guardian',
+    last_name: 'SyncService',
+    password: 'SyncService-password',
+    phone: '0000000000',
+    role: Role.guardian,
+    practice: Practice.find_by(name: "Flatiron Pediatrics"),
+    deleted_at: Time.now
+  }
+
+  sync_service_patient_params = {
+    first_name: 'Patient',
+    last_name: 'SyncService',
+    birth_date: Date.today,
+    sex: 'M',
+    deleted_at: Time.now
+  }
+
+  sync_service_user = User.create_with(sync_service_user_params).find_or_create_by!(email: 'sync@leohealth.com')
+  Patient.create_with(sync_service_patient_params).find_or_create_by!(family: sync_service_user.family)
 end
