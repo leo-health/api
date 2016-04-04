@@ -168,7 +168,7 @@ describe UserMailer do
       UserMailer.internal_invitation_enrollment_notification(user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Internal Invitation Enrollment Notification' &&
-          mail.message['to'].any? { |to| to[:email] = "z@leohealth.com" }
+          mail.message['to'].any? { |to| to[:email] = "internal.notifications@leohealth.com" }
       end
       expect(email).to_not be_nil
     end
