@@ -30,7 +30,6 @@ resource "Users" do
     parameter :email, "Email", required: true
     parameter :password, "Password", required: true
     parameter :phone, "Phone", required: true
-    parameter :vendor_id, "Vendor Id for IOS analytics", required: true
     parameter :birth_date
     parameter :sex
     parameter :family_id
@@ -43,7 +42,6 @@ resource "Users" do
     let(:email){ "BigTree@yahoo.com" }
     let(:password){ "password" }
     let(:phone){ "1234567890" }
-    let(:vendor_id){ "id" }
     let(:raw_post) { params.to_json }
 
     example "create a user with provided params" do

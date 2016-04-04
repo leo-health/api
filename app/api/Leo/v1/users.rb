@@ -43,7 +43,6 @@ module Leo
         params do
           requires :first_name, type: String
           requires :last_name, type: String
-          requires :vendor_id, type: String
           requires :email, type: String
           requires :password, type: String
           requires :phone, type: String
@@ -96,7 +95,6 @@ module Leo
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
           enrollment_params = {
-            enrollment_id: enrollment.id,
             encrypted_password: enrollment.encrypted_password,
             email: enrollment.email,
             first_name: enrollment.first_name,
@@ -107,8 +105,7 @@ module Leo
             family_id: enrollment.family_id,
             birth_date: enrollment.birth_date,
             sex: enrollment.sex,
-            insurance_plan_id: enrollment.insurance_plan_id,
-            vendor_id: enrollment.vendor_id
+            insurance_plan_id: enrollment.insurance_plan_id
           }
 
           user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type'))

@@ -27,12 +27,7 @@ describe Leo::V1::Enrollments do
 
   describe "POST /api/v1/enrollments" do
     def do_request
-      enrollment_params = {
-        email: "wuang@leohealth.com",
-        password: "password",
-        vendor_id: "vendor_id"
-      }
-
+      enrollment_params = {email: "wuang@leohealth.com", password: "password"}
       post "/api/v1/enrollments", enrollment_params
     end
 

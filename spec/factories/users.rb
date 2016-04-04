@@ -3,7 +3,6 @@ FactoryGirl.define do
     first_name 	{ Faker::Name::first_name }
     last_name 	{ Faker::Name::first_name }
     birth_date  { 29.years.ago }
-    vendor_id   { SecureRandom.urlsafe_base64(nil, false) }
     sex					{ ['M', 'F'].sample }
     email       { Faker::Internet.email }
     phone '1234567890'

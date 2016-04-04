@@ -20,7 +20,6 @@ class User < ActiveRecord::Base
   belongs_to :practice
   belongs_to :onboarding_group
   belongs_to :insurance_plan
-  belongs_to :enrollment
   has_one :avatar, as: :owner
   has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff
   accepts_nested_attributes_for :staff_profile
@@ -43,9 +42,8 @@ class User < ActiveRecord::Base
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
   validates :provider_sync_profile, presence: true, if: :provider?
-  validates :family, :vendor_id, presence: true, if: :guardian?
+  validates :family, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
-  validates_uniqueness_of :vendor_id, allow_blank: true
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil) }
   after_update :welcome_onboarding_notifications, if: :guardian?
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
