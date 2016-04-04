@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Enrollment, type: :model do
   describe "relations" do
     it{ is_expected.to have_many(:patient_enrollments) }
+    it{ is_expected.to have_one(:user) }
 
     it{ is_expected.to belong_to(:onboarding_group) }
     it{ is_expected.to belong_to(:insurance_plan) }

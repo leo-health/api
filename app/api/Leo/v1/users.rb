@@ -96,6 +96,7 @@ module Leo
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
           enrollment_params = {
+            enrollment_id: enrollment.id,
             encrypted_password: enrollment.encrypted_password,
             email: enrollment.email,
             first_name: enrollment.first_name,

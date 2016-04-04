@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
   belongs_to :practice
   belongs_to :onboarding_group
   belongs_to :insurance_plan
+  belongs_to :enrollment
   has_one :avatar, as: :owner
   has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff
   accepts_nested_attributes_for :staff_profile

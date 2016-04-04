@@ -14,6 +14,7 @@ describe User do
     it{ is_expected.to belong_to(:practice) }
     it{ is_expected.to belong_to(:onboarding_group) }
     it{ is_expected.to belong_to(:insurance_plan) }
+    it{ is_expected.to belong_to(:enrollment) }
 
     it{ is_expected.to have_one(:avatar) }
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }

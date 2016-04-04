@@ -4,6 +4,7 @@ class Enrollment < ActiveRecord::Base
   acts_as_token_authenticatable
 
   has_many :patient_enrollments, foreign_key: "guardian_enrollment_id"
+  has_one :user
   belongs_to :insurance_plan
   belongs_to :role
   belongs_to :onboarding_group
