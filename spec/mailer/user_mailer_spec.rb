@@ -164,7 +164,7 @@ describe UserMailer do
   end
 
   describe "#internal_invitation_enrollment_notification" do
-    it "should notify leo staff when secondary user being confirmed" do
+    it "should notify leo staff when a secondary user of type guardian has been confirmed" do
       UserMailer.internal_invitation_enrollment_notification(user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Internal Invitation Enrollment Notification' &&
