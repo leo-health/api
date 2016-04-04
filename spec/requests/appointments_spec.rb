@@ -12,7 +12,7 @@ describe Leo::V1::Appointments do
   let(:patient){create(:patient, family: user.family)}
   let(:practice){create(:practice)}
 
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_leo_appointment).and_return(true) }
+  before { allow_any_instance_of(Appointment).to receive(:post_to_athena).and_return(true) }
 
   describe "Post /api/v1/appointments" do
     def do_request

@@ -11,11 +11,15 @@ module SyncService
   end
 
   def self.start
+    [ProviderSyncProfile, Practice, Patient].each { |model_class|
+      model_class.find_each &:subscribe_to_athena
+    }
+
     #make sure that the sync jobs are scheduled
-    SyncTaskJob.schedule_if_needed
+    # SyncTaskJob.schedule_if_needed
     # SyncTaskScanAppointmentsJob.schedule_if_needed
     # SyncTaskScanPatientsJob.schedule_if_needed
-    SyncTaskScanProvidersJob.schedule_if_needed
+    # SyncTaskScanProvidersJob.schedule_if_needed
     # SyncTaskScanRemoteAppointmentsJob.schedule_if_needed
   end
 
@@ -198,6 +202,10 @@ module SyncServiceHelper
       booked_appts = @connector.get_booked_appointments(**athena_params)
       booked_appts.each { |appt|
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
+
+        if appt.cancelled? && leo_appt
+          leo_appt.update appointment_status: AppointmentStatus.cancelled
+        end
 
         # TODO: handle modified appointments
         impl_create_leo_appt_from_athena(appt: appt) unless (leo_appt || !appt.future?)
@@ -503,6 +511,14 @@ module SyncServiceHelper
     def process_patient(task)
       leo_patient = Patient.find(task.sync_id)
       sync_leo_patient leo_patient
+    end
+
+    def sync_patient_and_health_record(patient)
+      sync_leo_patient patient
+      sync_vitals patient
+      sync_medications patient
+      sync_vaccines patient
+      sync_allergies patient
     end
 
     #sync patient
