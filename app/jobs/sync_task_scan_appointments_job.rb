@@ -3,7 +3,7 @@ require "athena_health_api_helper"
 
 class SyncTaskScanAppointmentsJob
   def perform(*args)
-    SyncServiceHelper::Syncer.new.process_scan_appointments(SyncTask.new) if (Rails.env.develop? || Rails.env.production?)
+    SyncServiceHelper::Syncer.new.process_scan_appointments if (Rails.env.develop? || Rails.env.production?)
   end
 
   #limit to one attempt.  We will reschedule the job manually if failed

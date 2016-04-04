@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160325194510) do
+ActiveRecord::Schema.define(version: 20160404213831) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -77,7 +77,7 @@ ActiveRecord::Schema.define(version: 20160325194510) do
     t.string   "notes"
     t.integer  "booked_by_id",                      null: false
     t.integer  "provider_id",                       null: false
-    t.integer  "patient_id",                        null: false
+    t.integer  "patient_id"
     t.integer  "rescheduled_id"
     t.datetime "deleted_at"
     t.integer  "appointment_status_id",             null: false
