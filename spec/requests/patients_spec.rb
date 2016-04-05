@@ -22,7 +22,7 @@ describe Leo::V1::Patients do
     end
 
     it "should add a patient to the family" do
-      do_request
+      expect{ do_request }.to change{ Delayed::Job.count }.by(6)
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       patient_id = body[:data][:patient][:id]
@@ -50,7 +50,7 @@ describe Leo::V1::Patients do
 
     it 'should update the individual patient record, guardian only' do
       original_email = patient.email
-      do_request
+      expect{ do_request }.to change{ Delayed::Job.count }.by(1)
       expect(response.status).to eq(200)
       expect{patient.reload}.to change{patient.email}.from(original_email).to(new_email)
     end

@@ -5,11 +5,6 @@ resource "HealthRecords" do
   header "Accept", "application/json"
   header "Content-Type", "application/json"
 
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_vitals).and_return(true) }
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_allergies).and_return(true) }
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_vaccines).and_return(true) }
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_medications).and_return(true) }
-
   let!(:customer_service){ create(:user, :customer_service) }
   let(:user){ create(:user, :guardian) }
   let!(:session){ user.sessions.create }
