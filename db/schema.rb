@@ -146,6 +146,7 @@ ActiveRecord::Schema.define(version: 20160405175501) do
     t.string   "queue"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "cron"
   end
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
@@ -344,17 +345,17 @@ ActiveRecord::Schema.define(version: 20160405175501) do
 
   create_table "patients", force: :cascade do |t|
     t.string   "title"
-    t.string   "first_name",                         null: false
+    t.string   "first_name",                          null: false
     t.string   "middle_initial"
-    t.string   "last_name",                          null: false
+    t.string   "last_name",                           null: false
     t.string   "suffix"
-    t.string   "sex",                                null: false
-    t.integer  "family_id",                          null: false
+    t.string   "sex",                                 null: false
+    t.integer  "family_id",                           null: false
     t.string   "email"
     t.string   "avatar_url"
     t.datetime "deleted_at"
-    t.date     "birth_date",                         null: false
-    t.integer  "athena_id",              default: 0, null: false
+    t.date     "birth_date",                          null: false
+    t.integer  "athena_id",               default: 0, null: false
     t.datetime "patient_updated_at"
     t.datetime "medications_updated_at"
     t.datetime "vaccines_updated_at"
@@ -362,12 +363,22 @@ ActiveRecord::Schema.define(version: 20160405175501) do
     t.datetime "vitals_updated_at"
     t.datetime "insurances_updated_at"
     t.datetime "photos_updated_at"
+    t.integer  "sync_job_id"
+    t.integer  "vitals_sync_job_id"
+    t.integer  "medications_sync_job_id"
+    t.integer  "vaccines_sync_job_id"
+    t.integer  "allergies_sync_job_id"
   end
 
+  add_index "patients", ["allergies_sync_job_id"], name: "index_patients_on_allergies_sync_job_id", using: :btree
   add_index "patients", ["athena_id"], name: "index_patients_on_athena_id", using: :btree
   add_index "patients", ["deleted_at"], name: "index_patients_on_deleted_at", using: :btree
   add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
   add_index "patients", ["first_name", "last_name"], name: "index_patients_on_first_name_and_last_name", using: :btree
+  add_index "patients", ["medications_sync_job_id"], name: "index_patients_on_medications_sync_job_id", using: :btree
+  add_index "patients", ["sync_job_id"], name: "index_patients_on_sync_job_id", using: :btree
+  add_index "patients", ["vaccines_sync_job_id"], name: "index_patients_on_vaccines_sync_job_id", using: :btree
+  add_index "patients", ["vitals_sync_job_id"], name: "index_patients_on_vitals_sync_job_id", using: :btree
 
   create_table "photos", force: :cascade do |t|
     t.integer  "patient_id"
@@ -404,7 +415,7 @@ ActiveRecord::Schema.define(version: 20160405175501) do
   add_index "practice_schedules", ["practice_id"], name: "index_practice_schedules_on_practice_id", using: :btree
 
   create_table "practices", force: :cascade do |t|
-    t.string   "name",                       null: false
+    t.string   "name",                                 null: false
     t.string   "address_line_1"
     t.string   "address_line_2"
     t.string   "city"
@@ -413,11 +424,14 @@ ActiveRecord::Schema.define(version: 20160405175501) do
     t.string   "fax"
     t.string   "phone"
     t.string   "email"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
     t.string   "time_zone"
-    t.integer  "athena_id",      default: 0, null: false
+    t.integer  "athena_id",                default: 0, null: false
+    t.integer  "appointments_sync_job_id"
   end
+
+  add_index "practices", ["appointments_sync_job_id"], name: "index_practices_on_appointments_sync_job_id", using: :btree
 
   create_table "provider_additional_availabilities", force: :cascade do |t|
     t.integer  "athena_provider_id", default: 0, null: false
@@ -471,7 +485,10 @@ ActiveRecord::Schema.define(version: 20160405175501) do
     t.integer  "athena_department_id", default: 0
     t.integer  "athena_id",            default: 0
     t.datetime "leave_updated_at"
+    t.integer  "sync_job_id"
   end
+
+  add_index "provider_sync_profiles", ["sync_job_id"], name: "index_provider_sync_profiles_on_sync_job_id", using: :btree
 
   create_table "read_receipts", force: :cascade do |t|
     t.integer  "message_id"
