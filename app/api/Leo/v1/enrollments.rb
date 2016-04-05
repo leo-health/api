@@ -17,9 +17,10 @@ module Leo
           post do
             error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
             onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_guardian)
-            enrollment = Enrollment.create(declared(params).merge( role_id: 4,
+            enrollment = Enrollment.create(declared(params).merge( role: Role.guardian,
                                                                    family_id: current_user.family_id,
                                                                    invited_user: true,
+                                                                   vendor_id: generate_vendor_id,
                                                                    onboarding_group: onboarding_group ))
 
             if enrollment.valid?
@@ -45,11 +46,12 @@ module Leo
         params do
           requires :email, type: String
           requires :password, type: String
+          requires :vendor_id, type: String
         end
 
         post do
           error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
-          enrollment = Enrollment.create(declared(params).merge({role_id: 4}))
+          enrollment = Enrollment.create(declared(params).merge({ role: Role.guardian }))
           if enrollment.valid?
             present_session(enrollment)
           else

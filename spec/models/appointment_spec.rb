@@ -11,7 +11,7 @@ RSpec.describe Appointment, type: :model do
   end
 
   describe 'validations' do
-    subject { FactoryGirl.create(:appointment, :future) }
+    subject { build(:appointment, :future) }
 
     it { is_expected.to validate_presence_of(:duration) }
     it { is_expected.to validate_presence_of(:athena_id) }
@@ -21,11 +21,35 @@ RSpec.describe Appointment, type: :model do
     it { is_expected.to validate_presence_of(:appointment_type) }
     it { is_expected.to validate_presence_of(:booked_by) }
     it { is_expected.to validate_presence_of(:provider) }
-    it { is_expected.to validate_presence_of(:patient) }
-    it { is_expected.to validate_uniqueness_of(:start_datetime).scoped_to(:provider_id) }
+
+    context "if booked by a provider" do
+      before { allow(subject).to receive(:booked_by_provider?).and_return(false)}
+      it { should validate_presence_of(:patient) }
+    end
+
+    context "if not booked by a provider" do
+      before { allow(subject).to receive(:booked_by_provider?).and_return(true)}
+      it { should_not validate_presence_of(:patient) }
+    end
   end
 
-  describe 'same_family?' do
+  describe 'validation' do
+    let(:appt) { create(:appointment, :future) }
+
+    it 'should raise error if start_datetime is duplicated' do
+      expect { appt.dup.save! }.to raise_error(ActiveRecord::RecordInvalid, 'Validation failed: Start datetime has already been taken')
+    end
+  end
+
+  describe '#booked_by_provider?' do
+    let(:appt) { build(:appointment, booked_by: build(:user, :clinical)) }
+
+    it "should return true if booked by is a provider" do
+      expect(appt.booked_by_provider?).to eq(true)
+    end
+  end
+
+  describe '#same_family?' do
     let(:first_family){create(:family)}
     let(:patient){create(:patient, family: first_family)}
 

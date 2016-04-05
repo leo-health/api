@@ -6,6 +6,7 @@ common: &default_settings
 
 development:
   <<: *default_settings
+  practice_id: 195900
 
 test:
   <<: *default_settings

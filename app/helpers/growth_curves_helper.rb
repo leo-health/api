@@ -3,26 +3,26 @@ require "athena_health_api"
 module GrowthCurvesHelper
   def self.z_percentile
     [
-      { :z => 0, :p => 50 },
-      { :z => 0.674, :p => 50 },
-      { :z => 1.036, :p => 25 },
-      { :z => 1.282, :p => 15 },
-      { :z => 1.645, :p => 10 },
-      { :z => 1.881, :p => 5 },
-      { :z => Float::MAX, :p => 3 }
+      { z: 0, p: 50 },
+      { z: 0.674, p: 50 },
+      { z: 1.036, p: 25 },
+      { z: 1.282, p: 15 },
+      { z: 1.645, p: 10 },
+      { z: 1.881, p: 5 },
+      { z: Float::MAX, p: 3 }
     ]
   end
 
   def self.lbs_to_kg(lbs)
-    0.45 * lbs
+     lbs / (0.00220462 * 1000.0)
   end
 
   def self.kg_to_lbs(kg)
-    kg / 0.45
+    self.g_to_lbs(kg / 1000.0)
   end
 
   def self.g_to_lbs(g)
-    (g / 1000.0) / 0.45
+    g * 0.00220462
   end
 
   def self.m_to_inches(m)
@@ -38,7 +38,7 @@ module GrowthCurvesHelper
   end
 
   def self.celsius_to_fahrenheit(c)
-    c * 1.8 + 32
+    c * 1.8 + 32.0
   end
 
   def self.fahrenheit_to_celsius(f)
@@ -63,7 +63,7 @@ module GrowthCurvesHelper
   end
 
   def self.weight_percentile(sex, dob, date, value)
-    days = (date - dob).to_i/1.day
+    days = (date.to_date - dob.to_date).to_i
     entry = WeightGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)
@@ -71,7 +71,7 @@ module GrowthCurvesHelper
   end
 
   def self.height_percentile(sex, dob, date, value)
-    days = (date - dob).to_i/1.day
+    days = (date.to_date - dob.to_date).to_i
     entry = HeightGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)
@@ -79,7 +79,7 @@ module GrowthCurvesHelper
   end
 
   def self.bmi_percentile(sex, dob, date, value)
-    days = (date - dob).to_i/1.day
+    days = (date.to_date - dob.to_date).to_i
     entry = BmiGrowthCurve.where(sex: sex, days: (days-min_days_window)..days).order(:days).last
     return nil unless entry
     z = calculate_z(value, entry.l, entry.m, entry.s)

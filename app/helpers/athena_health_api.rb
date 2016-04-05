@@ -19,22 +19,22 @@ require 'rubygems'
 require 'json'
 
 # This module contains utilities for communicating with the More Disruption Please API.
-# 
+#
 # Classes:
 # Connection -- Connects to the API and performs HTTP requests
 #
 module AthenaHealthAPI
   class Configuration
-    #Should ProcessSyncTasksJob reschedule itself on completion?
-    #Set to true unless doing some kind of testing
-    attr_accessor :min_request_interval
-
-    #logger
-    attr_accessor :logger
+    attr_accessor :min_request_interval, :num_workers, :logger
 
     def initialize
       @min_request_interval = (0.2).seconds
+      @num_workers = 4
       @logger = Rails.logger
+    end
+
+    def effective_min_request_interval
+      @min_request_interval * @num_workers
     end
   end
 
@@ -91,9 +91,9 @@ module AthenaHealthAPI
       uri = URI.parse('https://api.athenahealth.com/')
       @connection = Net::HTTP.new(uri.host, uri.port)
       @connection.use_ssl = true
-      
+
       # Monkey patch to make Net::HTTP do proper SSL verification.
-      # Background reading: 
+      # Background reading:
       # http://stackoverflow.com/a/9238221
       # http://blog.spiderlabs.com/2013/06/a-friday-afternoon-troubleshooting-ruby-openssl-its-a-trap.html
       def @connection.proper_ssl_context!
@@ -106,7 +106,7 @@ module AthenaHealthAPI
       end
       @connection.proper_ssl_context!
       # End monkey patch
-      
+
       @version = version
       @key = key
       @secret = secret
@@ -115,22 +115,23 @@ module AthenaHealthAPI
       #try using last token.  If refresh is required, it will be performed on second try
       @token = @@last_token
     end
-    
+
     # Authenticates to the API by following the steps of basic authentication.  The URL to use is
     # determined by the version specified during initialization.
     def authenticate            # :nodoc:
+
       auth_paths = {
         'v1' => 'oauth',
         'preview1' => 'oauthpreview',
         'openpreview1' => 'oauthopenpreview',
       }
-      
+
       @token = nil
 
       request = Net::HTTP::Post.new("/#{auth_paths[@version]}/token")
       request.basic_auth(@key, @secret)
       request.set_form_data({'grant_type' => 'client_credentials'})
-      
+
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}")
 
       response = @connection.request(request)
@@ -142,7 +143,7 @@ module AthenaHealthAPI
       authorization = JSON.parse(response.body)
       @@last_token = @token = authorization['access_token']
     end
-    
+
     # Joins together URI paths so we can use it in API calls.  Trims extra slashes from arguments,
     # and joins them with slashes (including an initial slash).
     def path_join(*args)        # :nodoc:
@@ -150,30 +151,30 @@ module AthenaHealthAPI
       tail = '/+$'
       # add a slash to each slash-trimmed string, grab the non-empty ones, and join them up
       return args.map { |arg| '/' + arg.to_s.gsub(/#{head}|#{tail}/, '') }.select { |x| !x.empty? }.join('')
-    end   
-    
+    end
+
     # Sets the request body, headers (including auth header) and JSON decodes the response.  If we
     # get a 401 Not Authorized, re-authenticate and try again.
     def call(request, body, headers, secondcall=false, ignore_throttle=false)
       authenticate unless @token
 
       request.set_form_data(body)
-      
+
       headers.each {
         |k, v|
         request[k] = v
       }
       request['authorization'] = "Bearer #{@token}"
-      
+
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
 
       #throttle API calls
       unless ignore_throttle
-        while (Time.now - @@last_request) < AthenaHealthAPI.configuration.min_request_interval
-          sleep(AthenaHealthAPI.configuration.min_request_interval * 0.5)
+        while (Time.now - @@last_request) < AthenaHealthAPI.configuration.effective_min_request_interval
+          sleep(AthenaHealthAPI.configuration.effective_min_request_interval * 0.5)
         end
       end
-      
+
       response = @connection.request(request)
 
       @@last_request = Time.now
@@ -188,12 +189,12 @@ module AthenaHealthAPI
 
       return response
     end
-    
+
     # Perform an HTTP GET request and return a hash of the API response.
     #
     # ==== Positional arguments
     # * +path+ - the path (URI) of the resource, as a string
-    # 
+    #
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
@@ -202,7 +203,7 @@ module AthenaHealthAPI
       if parameters
         # URI escape each key and value, join them with '=', and join those pairs with '&'.  Add
         # that to the URL with an prepended '?'.
-        url += '?' + parameters.map { 
+        url += '?' + parameters.map {
           |k, v|
           [k, v].map {
             |x|
@@ -210,18 +211,18 @@ module AthenaHealthAPI
           }.join('=')
         }.join('&')
       end
-      
+
       headers ||= {}
-      
+
       request = Net::HTTP::Get.new(path_join(@version, @practiceid, url))
       return call(request, {}, headers, false, ignore_throttle)
-    end 
-    
+    end
+
     # Perform an HTTP POST request and return a hash of the API response.
     #
     # ==== Positional arguments
     # * +path+ - the path (URI) of the resource, as a string
-    # 
+    #
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
@@ -229,16 +230,16 @@ module AthenaHealthAPI
       url = path
       parameters ||= {}
       headers ||= {}
-      
+
       request = Net::HTTP::Post.new(path_join(@version, @practiceid, url))
       return call(request, parameters, headers, false, ignore_throttle)
     end
-    
+
     # Perform an HTTP PUT request and return a hash of the API response.
     #
     # ==== Positional arguments
     # * +path+ - the path (URI) of the resource, as a string
-    # 
+    #
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
@@ -246,16 +247,16 @@ module AthenaHealthAPI
       url = path
       parameters ||= {}
       headers ||= {}
-      
+
       request = Net::HTTP::Put.new(path_join(@version, @practiceid, url))
-      return call(request, parameters, headers, false, ignore_throttle) 
+      return call(request, parameters, headers, false, ignore_throttle)
     end
-    
+
     # Perform an HTTP DELETE request and return a hash of the API response.
     #
     # ==== Positional arguments
     # * +path+ - the path (URI) of the resource, as a string
-    # 
+    #
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
@@ -264,7 +265,7 @@ module AthenaHealthAPI
       if parameters
         # URI escape each key and value, join them with '=', and join those pairs with '&'.  Add
         # that to the URL with an prepended '?'.
-        url += '?' + parameters.map { 
+        url += '?' + parameters.map {
           |k, v|
           [k, v].map {
             |x|
@@ -272,9 +273,9 @@ module AthenaHealthAPI
           }.join('=')
         }.join('&')
       end
-      
+
       headers ||= {}
-      
+
       request = Net::HTTP::Delete.new(path_join(@version, @practiceid, url))
       return call(request, {}, headers, false, ignore_throttle)
     end

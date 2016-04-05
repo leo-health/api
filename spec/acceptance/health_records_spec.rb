@@ -19,44 +19,44 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:weights) {
-      [ 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :weight, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
 
     let!(:heights) {
-      [ 
-        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :height, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
 
     let!(:allergies) {
-      [ 
-        create(:allergy, patient_id: patient.id), 
-        create(:allergy, patient_id: patient.id), 
+      [
+        create(:allergy, patient_id: patient.id),
+        create(:allergy, patient_id: patient.id),
         create(:allergy, patient_id: patient.id)
       ]
     }
 
     let!(:medications) {
-      [ 
-        create(:medication, patient_id: patient.id), 
-        create(:medication, patient_id: patient.id), 
+      [
         create(:medication, patient_id: patient.id),
-        create(:medication, patient_id: patient.id, ended_at: DateTime.now) 
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id, ended_at: DateTime.now)
       ]
     }
 
     let!(:immunizations) {
-      [ 
-        create(:vaccine, patient_id: patient.id), 
-        create(:vaccine, patient_id: patient.id), 
+      [
         create(:vaccine, patient_id: patient.id),
-        create(:vaccine, patient_id: patient.id) 
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id)
       ]
     }
 
@@ -79,9 +79,9 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:heights) {
-      [ 
-        create(:vital, :height, patient_id: patient.id), 
-        create(:vital, :height, patient_id: patient.id), 
+      [
+        create(:vital, :height, patient_id: patient.id),
+        create(:vital, :height, patient_id: patient.id),
         create(:vital, :height, patient_id: patient.id)
       ]
     }
@@ -105,9 +105,9 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:weights) {
-      [ 
-        create(:vital, :weight, patient_id: patient.id), 
-        create(:vital, :weight, patient_id: patient.id), 
+      [
+        create(:vital, :weight, patient_id: patient.id),
+        create(:vital, :weight, patient_id: patient.id),
         create(:vital, :weight, patient_id: patient.id)
       ]
     }
@@ -131,17 +131,17 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:weights) {
-      [ 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :weight, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :weight, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :weight, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
 
     let!(:heights) {
-      [ 
-        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago), 
-        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago), 
+      [
+        create(:vital, :height, patient_id: patient.id, taken_at: 0.days.ago),
+        create(:vital, :height, patient_id: patient.id, taken_at: 1.day.ago),
         create(:vital, :height, patient_id: patient.id, taken_at: 2.days.ago)
       ]
     }
@@ -161,9 +161,9 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:allergies) {
-      [ 
-        create(:allergy, patient_id: patient.id), 
-        create(:allergy, patient_id: patient.id), 
+      [
+        create(:allergy, patient_id: patient.id),
+        create(:allergy, patient_id: patient.id),
         create(:allergy, patient_id: patient.id)
       ]
     }
@@ -183,11 +183,11 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:medications) {
-      [ 
-        create(:medication, patient_id: patient.id), 
-        create(:medication, patient_id: patient.id), 
+      [
         create(:medication, patient_id: patient.id),
-        create(:medication, patient_id: patient.id, ended_at: DateTime.now) 
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id),
+        create(:medication, patient_id: patient.id, ended_at: DateTime.now)
       ]
     }
 
@@ -206,11 +206,11 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:immunizations) {
-      [ 
-        create(:vaccine, patient_id: patient.id), 
-        create(:vaccine, patient_id: patient.id), 
+      [
         create(:vaccine, patient_id: patient.id),
-        create(:vaccine, patient_id: patient.id) 
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id),
+        create(:vaccine, patient_id: patient.id)
       ]
     }
 
@@ -229,11 +229,11 @@ resource "HealthRecords" do
     let(:raw_post){ params.to_json }
 
     let!(:notes) {
-      [ 
-        create(:user_generated_health_record, patient: patient, user: user), 
-        create(:user_generated_health_record, patient: patient, user: user), 
+      [
         create(:user_generated_health_record, patient: patient, user: user),
-        create(:user_generated_health_record, patient: patient, user: user, deleted_at: DateTime.now) 
+        create(:user_generated_health_record, patient: patient, user: user),
+        create(:user_generated_health_record, patient: patient, user: user),
+        create(:user_generated_health_record, patient: patient, user: user, deleted_at: DateTime.now)
       ]
     }
 

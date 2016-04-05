@@ -25,7 +25,6 @@ module Leo
           if appointment.try(:provider_id) == params[:provider_id]
               open_slots += [AppointmentSlotsHelper::OpenSlot.new(appointment.start_datetime, appointment.duration)]
           end
-
           type = AppointmentType.find(params[:appointment_type_id])
           provider = User.find(params[:provider_id])
 
@@ -36,13 +35,7 @@ module Leo
 
           current_datetime = DateTime.now
           filtered_open_slots = open_slots.select { |x| x.start_datetime >  (current_datetime + Appointment::MIN_INTERVAL_TO_SCHEDULE)}
-
-            [
-              {
-                provider_id: params[:provider_id],
-                slots: filtered_open_slots
-              }
-            ]
+          [{ provider_id: params[:provider_id], slots: filtered_open_slots }]
         end
       end
     end

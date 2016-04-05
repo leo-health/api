@@ -1,15 +1,37 @@
 class Practice < ActiveRecord::Base
-  has_many :staff, ->{ where role_id: [2, 3, 5] }, class_name: "User"
-  has_many :guardians, ->{ where role_id: 4 }, class_name: "User"
+  belongs_to :appointments_sync_job, class_name: Delayed::Job
+  has_many :staff, ->{ clinical_staff }, class_name: "User"
+  has_many :guardians, ->{ guardians }, class_name: "User"
   has_many :appointments, -> { where appointment_status: AppointmentStatus.booked }
   has_many :practice_schedules
 
   validates :name, presence: true
 
+  after_commit :subscribe_to_athena, on: :create
+
+  def self.flatiron_pediatrics
+    self.find(1)
+  end
+
   def in_office_hour?
     start_time, end_time = convert_time
     (start_time..end_time).cover?(Time.current)
   end
+
+
+  def subscribe_to_athena
+
+    # TODO: this needs to be refactored to get open slots
+    # TODO: architecturally, Family should have responsibility for syncing its own appointments
+    #         but it may be more efficient to get all appts at once here
+    update(appointments_sync_job: delay(queue:"get_practice_appointments", cron: "*/5 * * * * *", priority: 10).get_appointments_from_athena) if !appointments_sync_job
+  end
+
+  def get_appointments_from_athena
+    SyncServiceHelper::Syncer.new.sync_leo_patient self
+  end
+
+
 
   private
 

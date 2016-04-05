@@ -35,9 +35,10 @@ namespace :load do
         sex: "M",
         password: "password",
         email: "#{male_first_name}@leo.com",
-        role_id: 4,
+        role: Role.find_by(name: :guardian),
         practice_id: 1,
-        phone: '1234567890'
+        phone: '1234567890',
+        vendor_id: "male_vendor_id#{index}"
       )
 
       if guardian_male.valid?
@@ -58,9 +59,10 @@ namespace :load do
         sex: "F",
         password: "password",
         email: "#{female_first_name}@leo.com",
-        role_id: 4,
+        role: Role.find_by(name: :guardian),
         practice_id: 1,
-        phone: '1234567890'
+        phone: '1234567890',
+        vendor_id: "female_vendor_id#{index}"
       )
 
       if guardian_female.valid?
@@ -79,8 +81,7 @@ namespace :load do
           middle_initial: "M.",
           last_name: last_name,
           sex: "F",
-          birth_date: i.years.ago,
-          role_id: 6
+          birth_date: i.years.ago
         )
           print "*"
         else

@@ -10,25 +10,28 @@ module Leo
           after_validation do
             @patient = Patient.find(params[:patient_id])
             authorize! :read, @patient
+            @syncer = SyncServiceHelper::Syncer.new
           end
 
           get 'phr' do
             #vitals: height weight, bmi
+            @syncer.delay(run_at: Time.now).sync_vitals @patient
             height_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).order(:taken_at).collect() {
-              |vital| { 
-                taken_at: vital.taken_at, 
-                value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2), 
-                unit: "inches", 
+              |vital| {
+                measurement: vital.measurement,
+                taken_at: vital.taken_at,
+                value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2),
+                unit: "inches",
                 percentile: GrowthCurvesHelper.height_percentile(
                   @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f)
               }
             }
 
             weight_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).order(:taken_at).collect() {
-              |vital| { 
-                taken_at: vital.taken_at, 
-                value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2), 
-                unit: "lbs", 
+              |vital| {
+                taken_at: vital.taken_at,
+                value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2),
+                unit: "lbs",
                 percentile: GrowthCurvesHelper.weight_percentile(
                   @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f/1000)
               }
@@ -42,22 +45,25 @@ module Leo
                 weight_kg = weight_vital.value.to_f/1000
                 height_m = height_vital.value.to_f/100
                 bmi = weight_kg/(height_m * height_m)
-                bmi_vitals << { 
-                  taken_at: weight_vital.taken_at, 
-                  value: bmi.round(2), 
-                  unit: "kg/m2", 
-                  percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f)
+                bmi_vitals << {
+                  taken_at: weight_vital.taken_at,
+                  value: bmi.round(1),
+                  unit: "",
+                  percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, (bmi.to_f).round(1))
                 }
               end
             end
 
             #allergies
+            @syncer.delay(run_at: Time.now).sync_allergies @patient
             allergies = Allergy.where(patient: @patient).order(:onset_at)
 
             #immunizations
+            @syncer.delay(run_at: Time.now).sync_vaccines @patient
             immunizations = Vaccine.where(patient: @patient).order(:administered_at)
 
             #medications
+            @syncer.delay(run_at: Time.now).sync_medications @patient
             meds = Medication.where(patient: @patient, ended_at: nil).order(:started_at)
 
             #phr
@@ -82,13 +88,15 @@ module Leo
             end
 
             get 'height' do
+              @syncer.delay(run_at: Time.now).sync_vitals @patient
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_HEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
-                |vital| { 
-                  taken_at: vital.taken_at, 
-                  value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2), 
-                  unit: "inches", 
+                |vital| {
+                  measurement: vital.measurement,
+                  taken_at: vital.taken_at,
+                  value: GrowthCurvesHelper.cm_to_inches(vital.value.to_f).round(2),
+                  unit: "inches",
                   percentile: GrowthCurvesHelper.height_percentile(
                     @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f)
                 }
@@ -104,13 +112,14 @@ module Leo
             end
 
             get :weight do
+              @syncer.delay(run_at: Time.now).sync_vitals @patient
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
-                |vital| { 
-                  taken_at: vital.taken_at, 
-                  value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2), 
-                  unit: "lbs", 
+                |vital| {
+                  taken_at: vital.taken_at,
+                  value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2),
+                  unit: "lbs",
                   percentile: GrowthCurvesHelper.weight_percentile(
                     @patient.sex, @patient.birth_date.to_datetime, vital.taken_at.to_datetime, vital.value.to_f/1000)
                 }
@@ -127,6 +136,7 @@ module Leo
             end
 
             get :bmis do
+              @syncer.delay(run_at: Time.now).sync_vitals @patient
               start_date = Date.strptime(params[:start_date], "%m/%d/%Y")
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = []
@@ -136,11 +146,11 @@ module Leo
                   weight_kg = weight_vital.value.to_f/1000
                   height_m = height_vital.value.to_f/100
                   bmi = weight_kg/(height_m * height_m)
-                  vitals << { 
-                    taken_at: weight_vital.taken_at, 
-                    value: bmi.round(2), 
-                    unit: "kg/m2", 
-                    percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, bmi.to_f)
+                  vitals << {
+                    taken_at: weight_vital.taken_at,
+                    value: bmi.round(1),
+                    unit: "",
+                    percentile: GrowthCurvesHelper.bmi_percentile(@patient.sex, @patient.birth_date.to_datetime, weight_vital.taken_at.to_datetime, (bmi.to_f).round(1))
                   }
                 end
               end
@@ -152,6 +162,7 @@ module Leo
           # get "patients/{patient_id}/allergies"
           desc "get allergies"
           get 'allergies' do
+            @syncer.delay(run_at: Time.now).sync_allergies @patient
             allergies = Allergy.where(patient: @patient).order(:onset_at)
             present :allergies, allergies, with: Leo::Entities::AllergyEntity
           end
@@ -159,6 +170,7 @@ module Leo
           # get "patients/{patient_id}/immunizations"
           desc "get immunizations"
           get 'immunizations' do
+            @syncer.delay(run_at: Time.now).sync_vaccines @patient
             imunizations = Vaccine.where(patient: @patient).order(:administered_at)
             present :immunizations, imunizations, with: Leo::Entities::VaccineEntity
           end
@@ -166,6 +178,7 @@ module Leo
           # get "patients/{patient_id}/vitals/medications"
           desc "get medications"
           get 'medications' do
+            @syncer.delay(run_at: Time.now).sync_medications @patient
             meds = Medication.where(patient: @patient, ended_at: nil).order(:started_at)
             present :medications, meds, with: Leo::Entities::MedicationEntity
           end

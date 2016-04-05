@@ -162,4 +162,15 @@ describe UserMailer do
       expect(email).to_not be_nil
     end
   end
+
+  describe "#internal_invitation_enrollment_notification" do
+    it "should notify leo staff when a secondary user of type guardian has been confirmed" do
+      UserMailer.internal_invitation_enrollment_notification(user).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - Internal Invitation Enrollment Notification' &&
+          mail.message['to'].any? { |to| to[:email] = "internal.notifications@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
 end

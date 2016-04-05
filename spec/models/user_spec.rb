@@ -1,9 +1,6 @@
 require 'rails_helper'
 
 describe User do
-  let!(:customer_service){ create(:user, :customer_service) }
-  let!(:bot){ create(:user, :bot)}
-
   describe "relations" do
     let(:guardian){ create(:user, :guardian) }
     let(:provider){ create(:user, :clinical) }
@@ -17,6 +14,7 @@ describe User do
     it{ is_expected.to belong_to(:practice) }
     it{ is_expected.to belong_to(:onboarding_group) }
     it{ is_expected.to belong_to(:insurance_plan) }
+    it{ is_expected.to belong_to(:enrollment) }
 
     it{ is_expected.to have_one(:avatar) }
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
@@ -48,7 +46,38 @@ describe User do
     end
   end
 
+  describe "scopes" do
+    let!(:guardian){ create(:user) }
+    let!(:customer_service){ create(:user, :customer_service) }
+    let!(:clinical){ create(:user, :clinical) }
+
+    context "guaridans" do
+      it "should return all the guaridans" do
+        expect(User.guardians).to match_array([guardian])
+      end
+    end
+
+    context "staff" do
+      it "should return all the staff" do
+        expect(User.staff).to match_array([clinical, customer_service])
+      end
+    end
+
+    context "clinical_staff" do
+      it "should return all the clinical_staff" do
+        expect(User.clinical_staff).to match_array([clinical, customer_service])
+      end
+    end
+
+    context "provider" do
+      it "should return all the providers" do
+        expect(User.provider).to match_array([clinical])
+      end
+    end
+  end
+
   describe "before validations" do
+    let(:customer_service){ create(:user, :customer_service) }
     let!(:guardian){ create(:user, :guardian, phone: "+1(123)234-9848") }
     let(:customer_service_practice){ customer_service.practice }
 
@@ -80,6 +109,29 @@ describe User do
     it { is_expected.to validate_presence_of(:email) }
     it { is_expected.to validate_presence_of(:phone) }
     it { is_expected.to validate_uniqueness_of(:email) }
+    it { is_expected.to validate_uniqueness_of(:vendor_id).allow_nil }
+
+    context "if provider" do
+      before { allow(subject).to receive(:provider?).and_return(true)}
+      it { should validate_presence_of(:provider_sync_profile) }
+    end
+
+    context "if not provider" do
+      before { allow(subject).to receive(:provider?).and_return(false)}
+      it { should_not validate_presence_of(:provider_sync_profile) }
+    end
+
+    context "if guardian" do
+      before { allow(subject).to receive(:guardian?).and_return(true)}
+
+      it { should validate_presence_of(:vendor_id) }
+    end
+
+    context "if not guardian" do
+      before { allow(subject).to receive(:guardian?).and_return(false)}
+
+      it { should_not validate_presence_of(:vendor_id) }
+    end
   end
 
   describe "callbacks" do
@@ -103,12 +155,14 @@ describe User do
       context "for secondary guardian" do
         it "should set the user type of secondary guardian to be intentical to the primary guadian" do
           expect( secondary_guardian.type ).to eq(user.type)
+          expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(1)
         end
       end
     end
   end
 
   describe ".customer_service_user" do
+    let!(:customer_service){ create(:user, :customer_service) }
     let!(:customer_service_two){ create(:user, :customer_service) }
     let!(:guardian){ create(:user) }
 
@@ -117,15 +171,8 @@ describe User do
     end
   end
 
-  describe ".staff" do
-    let!(:guardian){ create(:user) }
-
-    it "should return all staff" do
-      expect(User.staff.count).to eq(2)
-    end
-  end
-
   describe "#primary_guardian?" do
+    let(:customer_service){ create(:user, :customer_service) }
     let(:primary_guardian){ create(:user) }
     let(:secondary_guardian){ create(:user, family: primary_guardian.family) }
 

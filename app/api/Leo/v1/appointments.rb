@@ -62,6 +62,7 @@ module Leo
           elsif current_user.has_role? :clinical
             appointments = current_user.provider_appointments
           end
+          appointments.order(start_datetime: :asc)
           authorize! :read, Appointment
           present :appointments, appointments, with: Leo::Entities::AppointmentEntity
         end
@@ -75,6 +76,8 @@ module Leo
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
+          appointment.save!
+          appointment.delay(queue: "post_appointment").post_to_athena
           create_success appointment
         end
 
@@ -83,6 +86,7 @@ module Leo
           authorize! :destroy, appointment
           appointment.appointment_status = AppointmentStatus.cancelled
           appointment.save!
+          appointment.delay(queue: "post_appointment").post_to_athena
         end
       end
     end

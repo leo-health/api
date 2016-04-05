@@ -11,11 +11,16 @@ class User < ActiveRecord::Base
     }
   )
 
+  scope :guardians, -> { where(role: Role.guardian_roles) }
+  scope :staff, -> { where(role: Role.staff_roles) }
+  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles) }
+  scope :provider, -> { where(role: Role.provider_roles) }
   belongs_to :family
   belongs_to :role
   belongs_to :practice
   belongs_to :onboarding_group
   belongs_to :insurance_plan
+  belongs_to :enrollment
   has_one :avatar, as: :owner
   has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff
   accepts_nested_attributes_for :staff_profile
@@ -37,18 +42,16 @@ class User < ActiveRecord::Base
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
-  validates :family, presence: true, if: :guardian?
+  validates :provider_sync_profile, presence: true, if: :provider?
+  validates :family, :vendor_id, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
+  validates_uniqueness_of :vendor_id, allow_blank: true
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil) }
   after_update :welcome_onboarding_notifications, if: :guardian?
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
 
   def self.customer_service_user
     User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
-  end
-
-  def self.staff
-    User.includes(:role).where.not(roles: { name: :guardian })
   end
 
   def self.leo_bot
@@ -72,6 +75,10 @@ class User < ActiveRecord::Base
 
   def guardian?
     has_role? :guardian
+  end
+
+  def provider?
+    has_role? :clinical
   end
 
   def has_role? (name)
@@ -116,7 +123,10 @@ class User < ActiveRecord::Base
   end
 
   def set_user_type_on_secondary_user
-    update_columns(type: family.primary_guardian.type) unless primary_guardian?
+    unless primary_guardian?
+      update_columns(type: family.primary_guardian.type)
+      InternalInvitationEnrollmentNotificationJob.send(id)
+    end
   end
 
   def format_phone_number

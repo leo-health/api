@@ -7,10 +7,10 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.1.0'
 gem 'jquery-rails'
 gem 'turbolinks'
-gem 'jbuilder', '~> 2.0'
 gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
+gem 'delayed_cron_job'
 gem 'devise'                # Authentication
 gem 'cancancan', '~> 1.10'
 gem 'paranoia', '~> 2.0'
@@ -51,10 +51,9 @@ group :development, :test do
   gem 'quiet_assets'
   gem 'spork'
   gem 'rspec-rails'
-  gem 'spring'
-  gem 'spring-commands-rspec'
-  gem 'fuubar'
+  gem "spring"
   gem 'rspec_api_documentation'
+  gem 'faker'
 end
 
 group :development, :develop do
@@ -62,6 +61,8 @@ group :development, :develop do
 end
 
 group :test do
+  gem "parallel_tests"
+  gem 'zeus-parallel_tests'
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers'
   gem 'grape-entity-matchers'

@@ -1,14 +1,11 @@
 FactoryGirl.define do
-  sequence :email do |n|
-    "email#{n}@test.com"
-  end
-
   factory :user do
-    first_name 	{ ['Danish', 'Wuang', 'Zach', 'Ben', 'Nayan'].sample }
-    last_name 	{ ['Munir', 'Kale', 'Freeman', 'Singh'].sample }
+    first_name 	{ Faker::Name::first_name }
+    last_name 	{ Faker::Name::first_name }
     birth_date  { 29.years.ago }
+    vendor_id   { SecureRandom.urlsafe_base64(nil, false) }
     sex					{ ['M', 'F'].sample }
-    email
+    email       { Faker::Internet.email }
     phone '1234567890'
     password     'password'
     password_confirmation 'password'
@@ -38,6 +35,9 @@ FactoryGirl.define do
     trait :clinical do
       practice
       association :role, factory: [:role, :clinical]
+      after(:build) do |provider|
+        provider.provider_sync_profile ||= FactoryGirl.build(:provider_sync_profile, provider: provider)
+      end
     end
 
     trait :bot do

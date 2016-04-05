@@ -1,0 +1,53 @@
+<h1>Analytics</h1>
+<h3>App Active: used app in last 30 days, since <%=(Time.now-30.days).strftime('%Y/%m/%d')%></h3>
+<h3>Active Patients: visited practice in last 18 months, since <%=(Time.now-18.months).strftime('%Y/%m/%d')%></h3>
+<ul>
+  <h3>registration engagement</h3>
+  <% @analytics[:registration_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>practice engagement</h3>
+  <% @analytics[:practice_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>schedule engagement</h3>
+  <% @analytics[:scheduling_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>message engagement</h3>
+  <% @analytics[:messaging_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>response time metric</h3>
+  <% @analytics[:response_time_metrics].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>provider app engagement</h3>
+  <% @analytics[:provider_app_engagement].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+
+  <h3>appointment engagement</h3>
+  <% @analytics[:appointment_enagament].each do |metric| %>
+      <li>
+        <%= metric.first %>:  <%= metric.last %>
+      </li>
+  <% end %>
+</ul>

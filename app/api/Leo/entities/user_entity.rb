@@ -7,8 +7,9 @@ module Leo
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
       expose :type
-      expose :primary_guardian, if: Proc.new{ |g| g.has_role? :guardian }
-      expose :credentials, unless: Proc.new{ |g| g.has_role? :guardian }
+      expose :primary_guardian, if: Proc.new{ |u| u.guardian? }
+      expose :credentials, unless: Proc.new{ |u| u.guardian? }
+      expose :vendor_id, if: Proc.new{ |u| u.guardian? }
 
       private
 

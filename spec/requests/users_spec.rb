@@ -7,7 +7,8 @@ describe Leo::V1::Users do
                       email: "guardian@leohealth.com",
                       password: "password",
                       sex: "M",
-                      phone: "1234445555"
+                      phone: "1234445555",
+                      vendor_id: "id"
   }}
   let!(:default_practice) { create(:practice) }
   let(:serializer){ Leo::Entities::UserEntity }
@@ -31,7 +32,7 @@ describe Leo::V1::Users do
 
   describe "Get /api/v1/search_user" do
     let(:serializer){ Leo::Entities::ShortUserEntity }
-    let(:user){ create(:user, :guardian, first_name: "test", last_name: "user") }
+    let(:user){ create(:user, first_name: "test", last_name: "user") }
     let(:session){ user.sessions.create }
 
     def do_request

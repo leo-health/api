@@ -170,7 +170,19 @@ class UserMailer < MandrillMailer::TemplateMailer
         'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
         'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
         'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
+        'SECONDARY_GUARDIAN_EMAIL': "#{enrollment.email}",
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/acceptInvitation?token=#{enrollment.authentication_token}"
+      }
+    )
+  end
+
+  def internal_invitation_enrollment_notification(user)
+    mandrill_mail(
+      template: 'Leo - Internal Invitation Enrollment Notification',
+      subject: 'Zach - You got work to do!',
+      to: 'internal.notifications@leohealth.com',
+      vars: {
+        'SECONDARY_GUARDIAN_EMAIL': "#{user.email}"
       }
     )
   end
