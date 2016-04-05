@@ -545,6 +545,7 @@ module SyncServiceHelper
             guarantordob: parent_birth_date,
             guarantoremail: leo_parent.email,
             guarantorrelationshiptopatient: 3, #3==child
+            guarantorphone: leo_parent.phone,
             contactname: contactname,
             contactrelationship: contactrelationship,
             contactmobilephone: contactmobilephone
@@ -568,6 +569,7 @@ module SyncServiceHelper
           guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3, #3==child
+          guarantorphone: leo_parent.phone,
           contactname: contactname,
           contactrelationship: contactrelationship,
           contactmobilephone: contactmobilephone
