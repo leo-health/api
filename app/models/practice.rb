@@ -7,6 +7,8 @@ class Practice < ActiveRecord::Base
 
   validates :name, presence: true
 
+  after_commit :subscribe_to_athena, on: :create
+
   def self.flatiron_pediatrics
     self.find(1)
   end
