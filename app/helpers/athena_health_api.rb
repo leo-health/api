@@ -144,8 +144,6 @@ module AthenaHealthAPI
 
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
 
-
-      byebug
       raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
 
       authorization = JSON.parse(response.body)

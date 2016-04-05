@@ -59,7 +59,6 @@ module Leo
         get do
           patients = Family.find(current_user.family_id).patients
           authorize! :read, Patient
-          patients.find_each { |patient| @syncer.delay(run_at: Time.now).sync_leo_patient patient }
           present :patients, patients, with: Leo::Entities::PatientEntity
         end
 
