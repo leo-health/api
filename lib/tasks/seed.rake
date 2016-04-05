@@ -37,7 +37,8 @@ namespace :load do
         email: "#{male_first_name}@leo.com",
         role: Role.find_by(name: :guardian),
         practice_id: 1,
-        phone: '1234567890'
+        phone: '1234567890',
+        vendor_id: "male_vendor_id#{index}"
       )
 
       if guardian_male.valid?
@@ -60,7 +61,8 @@ namespace :load do
         email: "#{female_first_name}@leo.com",
         role: Role.find_by(name: :guardian),
         practice_id: 1,
-        phone: '1234567890'
+        phone: '1234567890',
+        vendor_id: "female_vendor_id#{index}"
       )
 
       if guardian_female.valid?
