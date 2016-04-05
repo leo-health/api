@@ -66,15 +66,9 @@ end
 module SyncServiceHelper
   class Syncer
     attr_reader :connector
-    attr_reader :unknown_patient
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
       @connector = connector
-
-      #patient to use for syncing appointments for patients that have not been synced with athena
-      #there will be only one patient in this family, and this family is seeded in seeds.rb
-      unknown_user = User.find_by(email: 'sync@leohealth.com')
-      @unknown_patient = Patient.find_by!(family: unknown_user.family) if unknown_user
     end
 
     def on_failure(subject, message)
@@ -131,7 +125,7 @@ module SyncServiceHelper
     #
     # ==== arguments
     # * +task+ - the sync task to process
-    def process_scan_appointments(task)
+    def process_scan_appointments
       Appointment.where("start_datetime > ?", DateTime.now).find_each do |appt|
         begin
           if appt.athena_id == 0
@@ -141,7 +135,6 @@ module SyncServiceHelper
               SyncTask.find_or_create_by!(sync_id: appt.id, sync_type: :appointment.to_s)
             end
           end
-
         rescue => e
           on_failure(
             "Failed to create SyncTask for Appointment.id=#{appt.id}",
@@ -154,13 +147,12 @@ module SyncServiceHelper
     #
     # ==== arguments
     # * +task+ - the sync task to process
-    def process_scan_providers(task)
+    def process_scan_providers
       ProviderSyncProfile.find_each do |provider_sync_profile|
         begin
           if provider_sync_profile.leave_updated_at.nil? || (provider_sync_profile.leave_updated_at.utc + SyncService.configuration.appointment_data_interval) < DateTime.now.utc
             SyncTask.find_or_create_by!(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
           end
-
         rescue => e
           on_failure(
             "Failed to create SyncTask for ProviderSyncProfile.provider_id=#{provider_sync_profile.provider_id}",
@@ -200,25 +192,21 @@ module SyncServiceHelper
         leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
 
         # TODO: handle modified appointments
-        impl_create_leo_appt_from_athena(appt: appt) unless (leo_appt || !appt.future?)
+        impl_create_leo_appt_from_athena(appt) unless (leo_appt || !appt.future?)
       }
     end
 
-    def impl_create_leo_appt_from_athena(appt: )
+    def impl_create_leo_appt_from_athena(appt)
       new_appt = nil
 
       begin
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
-        #early exit if appointment start time is in the past
         return if start_datetime < DateTime.now
         patient = Patient.find_by(athena_id: appt.patientid.to_i)
-        patient ||= @unknown_patient
-        raise "Could not find patient.athena_id=#{appt.patientid}" unless patient
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
         practice = Practice.find_by!(athena_id: appt.departmentid)
-
         new_appt = Appointment.create!(
           appointment_status: appointment_status,
           booked_by: provider_sync_profile.provider,
@@ -232,9 +220,10 @@ module SyncServiceHelper
           athena_id: appt.appointmentid.to_i
         )
       rescue => e
-          on_failure(
-            "Failed to create Appointment for Appointment.athena_id=#{appt.appointmentid}",
-            "#{appt.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}")
+        on_failure(
+          "Failed to create Appointment for Appointment.athena_id=#{appt.appointmentid}",
+          "#{appt.to_json}\n\n#{e.message}\n\n#{e.backtrace.join("\n")}"
+        )
       end
 
       new_appt
@@ -243,35 +232,33 @@ module SyncServiceHelper
     def process_scan_patients(task)
       Patient.find_each do |patient|
         begin
-          unless @unknown_patient && patient.id == @unknown_patient.id
-            if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-            end
+          if patient.patient_updated_at.nil? || (patient.patient_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+            SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
+          end
 
-            # turned off photo syncing for now
-            #if patient.photos_updated_at.nil? || (patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-            #  SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient_photo.to_s, sync_id: patient.id)
-            #end
+          # turned off photo syncing for now
+          #if patient.photos_updated_at.nil? || (patient.photos_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+          #  SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient_photo.to_s, sync_id: patient.id)
+          #end
 
-            if patient.allergies_updated_at.nil? || (patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_allergies.to_s, sync_id: patient.id)
-            end
+          if patient.allergies_updated_at.nil? || (patient.allergies_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+            SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_allergies.to_s, sync_id: patient.id)
+          end
 
-            if patient.insurances_updated_at.nil? || (patient.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_insurances.to_s, sync_id: patient.id)
-            end
+          if patient.insurances_updated_at.nil? || (patient.insurances_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+            SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_insurances.to_s, sync_id: patient.id)
+          end
 
-            if patient.medications_updated_at.nil? || (patient.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_medications.to_s, sync_id: patient.id)
-            end
+          if patient.medications_updated_at.nil? || (patient.medications_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+            SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_medications.to_s, sync_id: patient.id)
+          end
 
-            if patient.vaccines_updated_at.nil? || (patient.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vaccines.to_s, sync_id: patient.id)
-            end
+          if patient.vaccines_updated_at.nil? || (patient.vaccines_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+            SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vaccines.to_s, sync_id: patient.id)
+          end
 
-            if patient.vitals_updated_at.nil? || (patient.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
-              SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vitals.to_s, sync_id: patient.id)
-            end
+          if patient.vitals_updated_at.nil? || (patient.vitals_updated_at.utc + SyncService.configuration.patient_data_interval) < DateTime.now.utc
+            SyncTask.create_with(sync_source: :athena).find_or_create_by!(sync_type: :patient_vitals.to_s, sync_id: patient.id)
           end
         rescue => e
           on_failure(
@@ -287,7 +274,6 @@ module SyncServiceHelper
     end
 
     def sync_leo_appointment(leo_appt)
-
       #create appointment
       if leo_appt.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
@@ -339,28 +325,20 @@ module SyncServiceHelper
       else
         #update from athena
         patient = Patient.find_by(athena_id: athena_appt.patientid.to_i)
-        patient ||= @unknown_patient
-
-        raise "Could not find patient.athena_id=#{athena_appt.patientid}" unless patient
-
         provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: athena_appt.providerid.to_i)
         appointment_type = AppointmentType.find_by!(athena_id: athena_appt.appointmenttypeid.to_i)
         appointment_status = AppointmentStatus.find_by(status: athena_appt.appointmentstatus)
-
         #athena does not return booked_by_id.  we have to leave it as is
         leo_appt.appointment_status = appointment_status
-        leo_appt.patient_id = patient.id
+        leo_appt.patient_id = patient.try(:id)
         leo_appt.provider_id = provider_sync_profile.provider_id
         leo_appt.appointment_type_id = appointment_type.id
         leo_appt.duration = athena_appt.duration.to_i
-
         leo_appt.start_datetime = AthenaHealthApiHelper.to_datetime(athena_appt.date, athena_appt.starttime)
         leo_appt.athena_id = athena_appt.appointmentid.to_i
-
         #attempt to find rescheduled appt.  If not found, it will get updated on the next run.
         if (athena_appt.respond_to? :rescheduledappointmentid) && (athena_appt.rescheduledappointmentid.to_i != 0)
           rescheduled_appt = Appointment.find_by(athena_id: athena_appt.rescheduledappointmentid.to_i)
-
           unless rescheduled_appt
             #sync rescheduled appointment
             rescheduled_athena_appt = @connector.get_appointment(appointmentid: athena_appt.rescheduledappointmentid)
