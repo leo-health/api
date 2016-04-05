@@ -7,8 +7,8 @@ describe Leo::V1::Practices do
   let!(:session){ user.sessions.create }
 
   describe "create a practice" do
-    it "should create a delayed job" do
-      expect(Delayed::Job.count).to be(1)
+    it "should create a delayed job for registration and practice" do
+      expect(Delayed::Job.count).to be(2)
     end
   end
 
