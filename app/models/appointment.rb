@@ -2,17 +2,14 @@ class Appointment < ActiveRecord::Base
   MIN_INTERVAL_TO_SCHEDULE = 15.minutes
 
   acts_as_paranoid
-
   belongs_to :patient
   belongs_to :booked_by, class_name: "User"
   belongs_to :provider, class_name: "User"
   belongs_to :appointment_type
   belongs_to :appointment_status
   belongs_to :practice
-
-  validates :duration, :athena_id, :start_datetime, :appointment_status,
-            :appointment_type, :booked_by, :provider, :patient, :practice, presence: true
-
+  validates :duration, :athena_id, :start_datetime, :appointment_status, :appointment_type, :booked_by, :provider, :practice, presence: true
+  validates_presence_of :patient, unless: :booked_by_provider?
   validate :same_family?, on: :create
   validates_uniqueness_of :start_datetime, scope: :provider_id, if: :booked?,
     conditions: -> { where(deleted_at: nil, athena_id: 0, appointment_status: AppointmentStatus.booked) }
@@ -26,6 +23,10 @@ class Appointment < ActiveRecord::Base
   def same_family?
     return unless booked_by.try(:guardian?)
     errors.add(:patient_id, "patient and guardian should have same family") unless patient.try(:family_id) == booked_by.try(:family_id)
+  end
+
+  def booked_by_provider?
+    booked_by.try(:provider?)
   end
 
   def pre_checked_in?

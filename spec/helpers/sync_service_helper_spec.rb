@@ -33,8 +33,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
     let!(:future_appointment_status){ create(:appointment_status, :future) }
     let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
     let!(:connector) { double("connector") }
-    let!(:unknown_user) { create(:user, :guardian, email: 'sync@leohealth.com') }
-    let!(:unknown_patient) { create(:patient, family: unknown_user.family)}
     let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
     let!(:practice) { build(:practice, athena_id: 1) }
 
@@ -42,13 +40,13 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "creates sync task for unsynced appointment" do
         appt = create(:appointment, athena_id: 0, start_datetime: DateTime.now + 1.minutes)
         expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: appt.id, sync_type: :appointment.to_s)
-        syncer.process_scan_appointments(SyncTask.new())
+        syncer.process_scan_appointments
       end
 
       it "creates sync task for stale appointment" do
         appt = create(:appointment, athena_id: 1, sync_updated_at: 1.year.ago, start_datetime: DateTime.now + 1.minutes)
         expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: appt.id, sync_type: :appointment.to_s)
-        syncer.process_scan_appointments(SyncTask.new())
+        syncer.process_scan_appointments
       end
     end
 
@@ -57,7 +55,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       it "creates provider_leave sync task for new provider" do
         expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
-        syncer.process_scan_providers(SyncTask.new())
+        syncer.process_scan_providers
       end
 
       it "creates provider_leave sync task for stale provider" do
@@ -65,7 +63,7 @@ RSpec.describe SyncServiceHelper, type: :helper do
         provider_sync_profile.save!
 
         expect(SyncTask).to receive(:find_or_create_by!).with(sync_id: provider_sync_profile.provider_id, sync_type: :provider_leave.to_s)
-        syncer.process_scan_providers(SyncTask.new())
+        syncer.process_scan_providers
       end
     end
 
@@ -131,12 +129,14 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       end
 
-      it "creates leo appointment with unknown patient when missing" do
+      it "creates leo appointment without patient when missing" do
+        patient = create(:patient, athena_id: 99, family_id: family.id)
+
         expect(connector).to receive("get_booked_appointments").and_return([ booked_appt ])
         syncer.process_scan_remote_appointments(SyncTask.new(sync_id: booked_appt.departmentid.to_i))
         appt = Appointment.find_by(athena_id: booked_appt.appointmentid.to_i)
         expect(appt).not_to be_nil
-        expect(appt.patient_id).to eq(unknown_patient.id)
+        expect(appt.patient_id).to eq(nil)
       end
     end
 
