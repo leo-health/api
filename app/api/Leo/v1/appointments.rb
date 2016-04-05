@@ -19,7 +19,6 @@ module Leo
 
         before do
           authenticated
-          @syncer = SyncServiceHelper::Syncer.new
         end
 
         desc "create an appointment"
@@ -77,7 +76,7 @@ module Leo
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
           appointment.save!
-          appointment.post_to_athena
+          appointment.delay(queue: "post_appointment").post_to_athena
           create_success appointment
         end
 
@@ -86,7 +85,7 @@ module Leo
           authorize! :destroy, appointment
           appointment.appointment_status = AppointmentStatus.cancelled
           appointment.save!
-          appointment.post_to_athena
+          appointment.delay(queue: "post_appointment").post_to_athena
         end
       end
     end

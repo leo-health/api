@@ -23,7 +23,7 @@ module Leo
           patient = current_user.family.patients.new(declared(params, including_missing: false))
           authorize! :create, patient
           patient.save!
-          patient.post_to_athena
+          patient.delay(queue: "post_patient").post_to_athena
           create_success patient
         end
 
@@ -44,7 +44,7 @@ module Leo
           patient = Patient.find(params[:id])
           authorize! :update, patient
           patient.save!
-          patient.post_to_athena
+          patient.delay(queue: "post_patient").post_to_athena
           update_success patient, declared(params, include_missing: false)
         end
 

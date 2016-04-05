@@ -6,6 +6,12 @@ describe Leo::V1::Practices do
   let(:user){ create(:user, :guardian, practice: practice) }
   let!(:session){ user.sessions.create }
 
+  describe "create a practice" do
+    it "should create a delayed job" do
+      expect(Delayed::Job.count).to be(1)
+    end
+  end
+
   describe "GET /api/v1/practices" do
     def do_request
       get "/api/v1/practices", { authentication_token: session.authentication_token }

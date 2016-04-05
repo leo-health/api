@@ -22,7 +22,6 @@ class Appointment < ActiveRecord::Base
   def post_to_athena
     SyncServiceHelper::Syncer.new.sync_leo_appointment self
   end
-  handle_asynchronously :post_to_athena, queue: "post_appointment", run_at: Time.now
 
   def same_family?
     return unless booked_by.try(:guardian?)

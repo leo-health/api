@@ -62,7 +62,6 @@ class Patient < ActiveRecord::Base
     # TODO: refacor: what is the correct place for this api logic?
     SyncServiceHelper::Syncer.new.sync_leo_patient self
   end
-  handle_asynchronously :post_to_athena, queue: "post_patient", run_at: Time.now
 
   def put_to_athena
     # TODO: refactor: we may want to use different methods for post_to_athena vs put_to_athena, rather than if branching

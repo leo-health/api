@@ -120,12 +120,6 @@ module AthenaHealthAPI
     # determined by the version specified during initialization.
     def authenticate            # :nodoc:
 
-      # Use hard-coded sandbox environment on local
-      if Rails.env.development?
-        @token = "dusme8587xyxgz7nme4vh7up"
-        return
-      end
-
       auth_paths = {
         'v1' => 'oauth',
         'preview1' => 'oauthpreview',

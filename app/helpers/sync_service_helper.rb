@@ -513,14 +513,6 @@ module SyncServiceHelper
       sync_leo_patient leo_patient
     end
 
-    def sync_patient_and_health_record(patient)
-      sync_leo_patient patient
-      sync_vitals patient
-      sync_medications patient
-      sync_vaccines patient
-      sync_allergies patient
-    end
-
     #sync patient
     #SyncTask.sync_id = User.id
     #creates an instance of HealthRecord model if one does not exist, and then updates the patient in Athena
