@@ -539,12 +539,14 @@ module SyncServiceHelper
             lastname: leo_patient.last_name,
             sex: leo_patient.sex,
             dob: patient_birth_date,
+            mobilephone: leo_parent.phone,
             guarantorfirstname: leo_parent.first_name,
             guarantormiddlename: leo_parent.middle_initial.to_s,
             guarantorlastname: leo_parent.last_name,
             guarantordob: parent_birth_date,
             guarantoremail: leo_parent.email,
             guarantorrelationshiptopatient: 3, #3==child
+            guarantorphone: leo_parent.phone,
             contactname: contactname,
             contactrelationship: contactrelationship,
             contactmobilephone: contactmobilephone
@@ -562,12 +564,14 @@ module SyncServiceHelper
           lastname: leo_patient.last_name,
           sex: leo_patient.sex,
           dob: patient_birth_date,
+          mobilephone: leo_parent.phone,
           guarantorfirstname: leo_parent.first_name,
           guarantormiddlename: leo_parent.middle_initial.to_s,
           guarantorlastname: leo_parent.last_name,
           guarantordob: parent_birth_date,
           guarantoremail: leo_parent.email,
           guarantorrelationshiptopatient: 3, #3==child
+          guarantorphone: leo_parent.phone,
           contactname: contactname,
           contactrelationship: contactrelationship,
           contactmobilephone: contactmobilephone
