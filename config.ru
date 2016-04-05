@@ -22,4 +22,8 @@ if Rails.env.develop?
   end
 end
 
+AnalyticsController.use Rack::Auth::Basic do |username, password|
+  username == 'analytics' && password == 'leohealth'
+end
+
 run Rails.application

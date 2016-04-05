@@ -10,4 +10,6 @@ Rails.application.routes.draw do
   match "/delayed_job" => DelayedJobWeb, :anchor => false, via: [:get, :post]
 
   root 'home#index'
+
+  resources :analytics, only: [:index]
 end
