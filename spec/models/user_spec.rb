@@ -14,6 +14,7 @@ describe User do
     it{ is_expected.to belong_to(:practice) }
     it{ is_expected.to belong_to(:onboarding_group) }
     it{ is_expected.to belong_to(:insurance_plan) }
+    it{ is_expected.to belong_to(:enrollment) }
 
     it{ is_expected.to have_one(:avatar) }
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
@@ -108,6 +109,7 @@ describe User do
     it { is_expected.to validate_presence_of(:email) }
     it { is_expected.to validate_presence_of(:phone) }
     it { is_expected.to validate_uniqueness_of(:email) }
+    it { is_expected.to validate_uniqueness_of(:vendor_id).allow_nil }
 
     context "if provider" do
       before { allow(subject).to receive(:provider?).and_return(true)}
@@ -117,6 +119,18 @@ describe User do
     context "if not provider" do
       before { allow(subject).to receive(:provider?).and_return(false)}
       it { should_not validate_presence_of(:provider_sync_profile) }
+    end
+
+    context "if guardian" do
+      before { allow(subject).to receive(:guardian?).and_return(true)}
+
+      it { should validate_presence_of(:vendor_id) }
+    end
+
+    context "if not guardian" do
+      before { allow(subject).to receive(:guardian?).and_return(false)}
+
+      it { should_not validate_presence_of(:vendor_id) }
     end
   end
 
@@ -141,6 +155,7 @@ describe User do
       context "for secondary guardian" do
         it "should set the user type of secondary guardian to be intentical to the primary guadian" do
           expect( secondary_guardian.type ).to eq(user.type)
+          expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(1)
         end
       end
     end

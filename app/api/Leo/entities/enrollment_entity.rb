@@ -10,9 +10,7 @@ module Leo
       expose :birth_date
       expose :suffix
       expose :sex
-      #default practice id, patient can visit any Leo practice
       expose :practice_id
-      #expose :practice, with: Leo::Entities::PracticeEntity
       expose :email
       expose :phone
       expose :created_at
@@ -21,6 +19,7 @@ module Leo
       expose :invited_user
       expose :role_id
       expose :avatar_url
+      expose :vendor_id
     end
   end
 end

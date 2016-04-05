@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160404213831) do
+ActiveRecord::Schema.define(version: 20160405175501) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -174,9 +174,11 @@ ActiveRecord::Schema.define(version: 20160404213831) do
     t.boolean  "invited_user",         default: false
     t.integer  "insurance_plan_id"
     t.string   "phone"
+    t.string   "vendor_id",                            null: false
   end
 
   add_index "enrollments", ["authentication_token"], name: "index_enrollments_on_authentication_token", using: :btree
+  add_index "enrollments", ["vendor_id"], name: "index_enrollments_on_vendor_id", unique: true, using: :btree
 
   create_table "escalation_notes", force: :cascade do |t|
     t.integer  "escalated_by_id",             null: false
@@ -584,14 +586,18 @@ ActiveRecord::Schema.define(version: 20160404213831) do
     t.string   "type"
     t.integer  "onboarding_group_id"
     t.integer  "insurance_plan_id"
+    t.string   "vendor_id"
+    t.integer  "enrollment_id"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
   add_index "users", ["deleted_at"], name: "index_users_on_deleted_at", using: :btree
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["enrollment_id"], name: "index_users_on_enrollment_id", unique: true, using: :btree
   add_index "users", ["first_name", "last_name"], name: "index_users_on_first_name_and_last_name", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
+  add_index "users", ["vendor_id"], name: "index_users_on_vendor_id", unique: true, using: :btree
 
   create_table "vaccines", force: :cascade do |t|
     t.integer  "patient_id"

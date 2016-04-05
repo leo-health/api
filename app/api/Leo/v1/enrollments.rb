@@ -20,6 +20,7 @@ module Leo
             enrollment = Enrollment.create(declared(params).merge( role: Role.guardian,
                                                                    family_id: current_user.family_id,
                                                                    invited_user: true,
+                                                                   vendor_id: generate_vendor_id,
                                                                    onboarding_group: onboarding_group ))
 
             if enrollment.valid?
@@ -45,6 +46,7 @@ module Leo
         params do
           requires :email, type: String
           requires :password, type: String
+          requires :vendor_id, type: String
         end
 
         post do

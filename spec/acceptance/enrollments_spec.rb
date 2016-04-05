@@ -32,9 +32,11 @@ resource "Enrollments" do
   post "/api/v1/enrollments" do
     parameter :email, "Email", required: true
     parameter :password, "Password", required: true
+    parameter :vendor_id, "Password", required: true
 
     let(:email){ "BigTree@yahoo.com" }
     let(:password){ "password" }
+    let(:vendor_id){"id"}
     let!(:role){ create(:role) }
     let(:raw_post){ params.to_json }
 
