@@ -62,6 +62,7 @@ module Leo
           elsif current_user.has_role? :clinical
             appointments = current_user.provider_appointments
           end
+          appointments.order(start_datetime: :asc)
           authorize! :read, Appointment
           present :appointments, appointments, with: Leo::Entities::AppointmentEntity
         end
