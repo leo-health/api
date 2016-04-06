@@ -287,34 +287,8 @@ module AthenaHealthApiHelper
     #Create a patient: POST /preview1/:practiceid/patients
     #returns patient id
     #TODO: Doesn't seem to create a new patient when some of the records are the same.  Investigate.
-    def create_patient(
-      status: nil, #active, inactive, prospective, deleted
-      firstname: ,
-      lastname: ,
-      sex: nil,
-      dob: ,
-      homephone: '0000000000',
-      guarantormiddlename: nil,
-      guarantorlastname: nil,
-      guarantoraddress1: nil,
-      guarantoraddress2: nil,
-      guarantorstate: nil,
-      guarantorzip: nil,
-      guarantordob: nil,
-      guarantoremail: ,
-      guarantorphone: nil,
-      departmentid: ,
-      guarantorfirstname: nil,
-      guarantorcity: nil,
-      middlename: nil,
-      guarantorssn: nil,
-      guarantorrelationshiptopatient: nil,
-      contactname: nil,
-      contactrelationship: nil,
-      contactmobilephone: nil
-      )
+    def create_patient(**params)
 
-      params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       endpoint = "patients"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
@@ -349,36 +323,33 @@ module AthenaHealthApiHelper
       return AthenaStruct.new(result[0])
     end
 
-    #Update a patient: PUT /preview1/:practiceid/patients/:patientid
-    def update_patient(
-      patientid: ,
-      status: nil, #active, inactive, prospective, deleted
-      firstname: ,
-      lastname: ,
-      sex: ,
-      dob: ,
-      homephone: nil,
-      guarantormiddlename: nil,
-      guarantorlastname: nil,
-      guarantoraddress1: nil,
-      guarantoraddress2: nil,
-      guarantorstate: nil,
-      guarantorzip: nil,
-      guarantordob: nil,
-      guarantoremail: ,
-      guarantorphone: nil,
-      departmentid: ,
-      guarantorfirstname: nil,
-      guarantorcity: nil,
-      middlename: nil,
-      guarantorssn: nil,
-      guarantorrelationshiptopatient: nil,
-      contactname: nil,
-      contactrelationship: nil,
-      contactmobilephone: nil
-      )
+    def update_patient(**params)
+      # patientid: ,
+      # status: nil, #active, inactive, prospective, deleted
+      # firstname: ,
+      # lastname: ,
+      # sex: ,
+      # dob: ,
+      # homephone: nil,
+      # guarantormiddlename: nil,
+      # guarantorlastname: nil,
+      # guarantoraddress1: nil,
+      # guarantoraddress2: nil,
+      # guarantorstate: nil,
+      # guarantorzip: nil,
+      # guarantordob: nil,
+      # guarantoremail: ,
+      # guarantorphone: nil,
+      # departmentid: ,
+      # guarantorfirstname: nil,
+      # guarantorcity: nil,
+      # middlename: nil,
+      # guarantorssn: nil,
+      # guarantorrelationshiptopatient: nil,
+      # contactname: nil,
+      # contactrelationship: nil,
+      # contactmobilephone: nil
 
-      params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       endpoint = "patients/#{patientid}"
       response = @connection.PUT(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
