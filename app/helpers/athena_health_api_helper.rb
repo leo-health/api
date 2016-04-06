@@ -324,6 +324,32 @@ module AthenaHealthApiHelper
     end
 
     def update_patient(**params)
+      # patientid: ,
+      # status: nil, #active, inactive, prospective, deleted
+      # firstname: ,
+      # lastname: ,
+      # sex: ,
+      # dob: ,
+      # homephone: nil,
+      # guarantormiddlename: nil,
+      # guarantorlastname: nil,
+      # guarantoraddress1: nil,
+      # guarantoraddress2: nil,
+      # guarantorstate: nil,
+      # guarantorzip: nil,
+      # guarantordob: nil,
+      # guarantoremail: ,
+      # guarantorphone: nil,
+      # departmentid: ,
+      # guarantorfirstname: nil,
+      # guarantorcity: nil,
+      # middlename: nil,
+      # guarantorssn: nil,
+      # guarantorrelationshiptopatient: nil,
+      # contactname: nil,
+      # contactrelationship: nil,
+      # contactmobilephone: nil
+
       endpoint = "patients/#{patientid}"
       response = @connection.PUT(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
