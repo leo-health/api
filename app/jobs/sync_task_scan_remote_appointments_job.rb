@@ -4,7 +4,7 @@ require "athena_health_api_helper"
 class SyncTaskScanRemoteAppointmentsJob
   def perform(*args)
     Practice.find_each { |practice|
-      SyncServiceHelper::Syncer.new.process_scan_remote_appointments(SyncTask.new(sync_id: practice.athena_id)) if (Rails.env.develop? || Rails.env.production?)
+      SyncServiceHelper::Syncer.instance.process_scan_remote_appointments(SyncTask.new(sync_id: practice.athena_id)) if (Rails.env.develop? || Rails.env.production?)
     }
   end
 

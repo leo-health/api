@@ -3,7 +3,7 @@ require "athena_health_api_helper"
 
 class SyncTaskJob
   def perform(*args)
-    SyncServiceHelper::Syncer.new.process_one_task
+    SyncServiceHelper::Syncer.instance.process_one_task
   end
 
   #limit to one attempt.  We will reschedule the job manually if failed
