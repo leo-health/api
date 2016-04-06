@@ -11,7 +11,7 @@ class SyncJob
   end
 
   def subscribe(**args)
-    delayed_job = Delayed::Job.enqueue self, args.reverse_merge(run_at: interval.from_now)
+    @delayed_job = Delayed::Job.enqueue self, args.reverse_merge(run_at: interval.from_now)
   end
 
   def success(completed_job)
@@ -19,6 +19,6 @@ class SyncJob
   end
 
   def queue_name
-    self.class.try :queue_name
+    @class.try :queue_name
   end
 end
