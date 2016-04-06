@@ -7,7 +7,7 @@ MandrillMailer.configure do |config|
       params['to'].each do |receiver|
         unless receiver['email'].split("@").last.downcase == "leohealth.com"
           receiver['email'] = "mailer@leohealth.com"
-          params['subject'] += " From: #{params['from_email']}"
+          params['subject'] += "From: #{params['from_email']} in #{Rails.env} environment"
         end
       end
     }
