@@ -28,7 +28,7 @@ class Practice < ActiveRecord::Base
   end
 
   def get_appointments_from_athena
-    SyncServiceHelper::Syncer.new.sync_leo_patient self
+    SyncServiceHelper::Syncer.new.sync_athena_appointments_for_practice self
   end
 
 
