@@ -22,7 +22,7 @@ describe Leo::V1::Patients do
     end
 
     it "should add a patient to the family" do
-      expect{ do_request }.to change{ Delayed::Job.count }.by(6)
+      expect{ do_request }.to change{ Delayed::Job.count }.by(2)
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       patient_id = body[:data][:patient][:id]

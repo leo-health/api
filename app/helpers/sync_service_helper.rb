@@ -211,15 +211,16 @@ module SyncServiceHelper
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
         return if start_datetime < DateTime.now
         patient = Patient.find_by(athena_id: appt.patientid.to_i)
-        provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: appt.providerid.to_i)
-        appointment_type = AppointmentType.find_by!(athena_id: appt.appointmenttypeid.to_i)
-        appointment_status = AppointmentStatus.find_by!(status: appt.appointmentstatus)
-        practice = Practice.find_by!(athena_id: appt.departmentid)
+        provider_sync_profile = ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i)
+        appointment_type = AppointmentType.find_by(athena_id: appt.appointmenttypeid.to_i)
+        appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
+        practice = Practice.find_by(athena_id: appt.departmentid)
+        provider = provider_sync_profile.try(:provider)
         new_appt = Appointment.create!(
           appointment_status: appointment_status,
-          booked_by: provider_sync_profile.provider,
+          booked_by: provider,
           patient: patient,
-          provider: provider_sync_profile.provider,
+          provider: provider,
           practice: practice,
           appointment_type: appointment_type,
           duration: appt.duration,

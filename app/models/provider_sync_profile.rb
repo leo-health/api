@@ -8,6 +8,6 @@ class ProviderSyncProfile < ActiveRecord::Base
   end
 
   def subscribe_to_athena
-    update(sync_job: delay(queue: "get_provider_leave", cron: "*/5 * * * * *", priority: 10).get_from_athena) if !sync_job
+    SyncProviderJob.subscribe_if_needed self, run_at: Time.now
   end
 end
