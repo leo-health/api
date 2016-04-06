@@ -66,7 +66,7 @@ module SyncServiceHelper
 
     include Singleton
 
-    attr_reader :connector
+    attr_accessor :connector
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
       @connector = connector

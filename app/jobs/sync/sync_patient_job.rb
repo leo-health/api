@@ -1,7 +1,7 @@
 class SyncPatientJob < SyncJob
   attr_reader :patient
   def initialize(patient)
-    super 10.minutes
+    super 20.minutes
     @patient = patient
   end
 
