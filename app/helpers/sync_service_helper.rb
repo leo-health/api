@@ -482,11 +482,6 @@ module SyncServiceHelper
       athena_patient
     end
 
-    def process_patient_task_immediately(patient)
-      patient_task = SyncTask.create_with(sync_source: :leo).find_or_create_by!(sync_type: :patient.to_s, sync_id: patient.id)
-      process_one_task(patient_task)
-    end
-
     def process_patient(task)
       leo_patient = Patient.find(task.sync_id)
       sync_leo_patient leo_patient
@@ -613,8 +608,7 @@ module SyncServiceHelper
 
     def sync_photo(leo_patient)
       if leo_patient.athena_id == 0
-        process_patient_task_immediately(leo_patient)
-        leo_patient.reload
+        sync_leo_patient(leo_patient)
         if leo_patient.athena_id == 0
           SyncService.configuration.logger.info("Skipping sync for photo due to patient #{leo_patient.id} sync failure")
           return
@@ -642,8 +636,8 @@ module SyncServiceHelper
 
     def sync_allergies(leo_patient)
       if leo_patient.athena_id == 0
-        process_patient_task_immediately(leo_patient)
-        leo_patient.reload
+        sync_leo_patient(leo_patient)
+
         if leo_patient.athena_id == 0
           SyncService.configuration.logger.info("Skipping sync for allergies due to patient #{leo_patient.id} sync failure")
           return
@@ -689,8 +683,7 @@ module SyncServiceHelper
 
     def sync_medications(leo_patient)
       if leo_patient.athena_id == 0
-        process_patient_task_immediately(leo_patient)
-        leo_patient.reload
+        sync_leo_patient(leo_patient)
         if leo_patient.athena_id == 0
           SyncService.configuration.logger.info("Skipping sync for medications due to patient #{leo_patient.id} sync failure")
           return
@@ -759,8 +752,7 @@ module SyncServiceHelper
 
     def sync_vitals(leo_patient)
       if leo_patient.athena_id == 0
-        process_patient_task_immediately(leo_patient)
-        leo_patient.reload
+        sync_leo_patient(leo_patient)
         if leo_patient.athena_id == 0
           SyncService.configuration.logger.info("Skipping sync for vitals due to patient #{leo_patient.id} sync failure")
           return
@@ -805,8 +797,7 @@ module SyncServiceHelper
 
     def sync_vaccines(leo_patient)
       if leo_patient.athena_id == 0
-        process_patient_task_immediately(leo_patient)
-        leo_patient.reload
+        sync_leo_patient(leo_patient)
         if leo_patient.athena_id == 0
           SyncService.configuration.logger.info("Skipping sync for vaccines due to patient #{leo_patient.id} sync failure")
           return
@@ -848,8 +839,7 @@ module SyncServiceHelper
 
     def sync_insurances(leo_patient)
       if leo_patient.athena_id == 0
-        process_patient_task_immediately(leo_patient)
-        leo_patient.reload
+        sync_leo_patient(leo_patient)
         if leo_patient.athena_id == 0
           SyncService.configuration.logger.info("Skipping sync for insurances due to patient #{leo_patient.id} sync failure")
           return
