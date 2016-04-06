@@ -1,12 +1,9 @@
 class SyncJob
 
-  @@IMMEDIATE_PRIORITY = 0 # Delayed::Job default is 0
-  @@HIGH_PRIORITY = 5
-  @@MEDIUM_PRIORITY = 10
-  @@LOW_PRIORITY = 15
-  class << self
-    attr_reader :IMMEDIATE_PRIORITY, :HIGH_PRIORITY, :MEDIUM_PRIORITY, :LOW_PRIORITY
-  end
+  IMMEDIATE_PRIORITY = 0 # Delayed::Job default is 0
+  HIGH_PRIORITY = 5
+  MEDIUM_PRIORITY = 10
+  LOW_PRIORITY = 15
 
   attr_reader :interval
 

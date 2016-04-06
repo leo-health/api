@@ -9,7 +9,7 @@ class SyncProviderJob < SyncJob
 
   # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
   def subscribe(**args)
-    super **args.reverse_merge(priority: @class.LOW_PRIORITY, owner: provider_sync_profile)
+    super **args.reverse_merge(priority: self.class::LOW_PRIORITY, owner: provider_sync_profile)
   end
 
   def self.subscribe(provider_sync_profile, **args)

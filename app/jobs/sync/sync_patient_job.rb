@@ -7,7 +7,7 @@ class SyncPatientJob < SyncJob
 
   # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
   def subscribe(**args)
-    super **args.reverse_merge(priority: @class.MEDIUM_PRIORITY, owner: patient)
+    super **args.reverse_merge(priority: self.class::MEDIUM_PRIORITY, owner: patient)
   end
 
   def self.subscribe(patient, **args)
