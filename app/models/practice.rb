@@ -20,18 +20,12 @@ class Practice < ActiveRecord::Base
 
 
   def subscribe_to_athena
-
-    # TODO: this needs to be refactored to get open slots
-    # TODO: architecturally, Family should have responsibility for syncing its own appointments
-    #         but it may be more efficient to get all appts at once here
-    update(appointments_sync_job: delay(queue:"get_practice_appointments", cron: "*/5 * * * * *", priority: 10).get_appointments_from_athena) if !appointments_sync_job
+    SyncAppointmentsJob.subscribe_if_needed self, run_at: Time.now
   end
 
   def get_appointments_from_athena
-    SyncServiceHelper::Syncer.new.sync_leo_patient self
+    SyncServiceHelper::Syncer.new.sync_athena_appointments_for_practice self
   end
-
-
 
   private
 
