@@ -35,27 +35,8 @@ class Patient < ActiveRecord::Base
     avatars.order("created_at DESC").first
   end
 
-  # ????: can this code be a Patient monkey patch to avoid fat classes? what is the right architecture? protocol?
   def subscribe_to_athena
-
-    # model objects should handle fetching and syncing themselves
-    # need to find a way to abstract away common things like priority and cron
-
-    # props = [nil, :vitals, :medications, :vaccines, :allergies]
-    # props.each { |prop|
-    #   # ????: how to avoid copy and paste below?
-    # }
-
-    opts = { cron: "*/5 * * * * *", priority: 10 }
-    updates = {}
-    updates.merge!(sync_job_id: delay(queue: "get_patient", **opts).get_from_athena.id) if !sync_job
-    updates.merge!(vitals_sync_job_id: delay(queue: "get_patient_vitals", **opts).get_vitals_from_athena.id) if !vitals_sync_job
-    updates.merge!(medications_sync_job_id: delay(queue: "get_patient_medications", **opts).get_medications_from_athena.id) if !medications_sync_job
-    updates.merge!(vaccines_sync_job_id: delay(queue: "get_patient_vaccines", **opts).get_vaccines_from_athena.id) if !vaccines_sync_job
-    updates.merge!(allergies_sync_job_id: delay(queue: "get_patient_allergies", **opts).get_allergies_from_athena.id) if !allergies_sync_job
-    # Rails bug https://github.com/rails/rails/issues/14493
-    # cannot save or update the record in an on: :create callback. Apparently update_columns works though
-    update_columns(updates)
+    SyncPatientJob.subscribe_if_needed self, run_at: Time.now
   end
 
   def post_to_athena
