@@ -182,6 +182,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo Internal - A second parent has joined a family on Leo',
       to: 'internal.notifications@leohealth.com',
       vars: {
+        'SECONDARY_GUARDIAN_FIRST_NAME': "#{user.first_name}",
+        'SECONDARY_GUARDIAN_LAST_NAME': "#{user.last_name}",
         'SECONDARY_GUARDIAN_EMAIL': "#{user.email}"
       }
     )

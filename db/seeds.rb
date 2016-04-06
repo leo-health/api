@@ -286,6 +286,21 @@ staff = [
     avatar_attributes: {
       avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
     }
+  },
+
+  {
+    first_name: "Lydia",
+    last_name: "Zolman",
+    sex: "F",
+    email: "l@leohealth.com",
+    password: "password",
+    password_confirmation: "password",
+    role: Role.find_by(name: :customer_service),
+    practice_id: 1,
+    phone: '+17038879869',
+    avatar_attributes: {
+      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+    }
   }
 ]
 
