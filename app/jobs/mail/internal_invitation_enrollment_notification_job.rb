@@ -4,7 +4,7 @@ class InternalInvitationEnrollmentNotificationJob < Struct.new(:secondary_guardi
   end
 
   def perform
-    user = User.find_by(id: secondary_guardian_id)
+    user = User.find_by_id(secondary_guardian_id)
     UserMailer.internal_invitation_enrollment_notification(user).deliver if user
   end
 
