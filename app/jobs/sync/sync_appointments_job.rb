@@ -1,20 +1,23 @@
 class SyncAppointmentsJob < SyncJob
-  attr_accessor :practice
+
+  attr_reader :practice
+
   def initialize(practice)
     super 3.minutes
     @practice = practice
   end
 
-  def self.subscribe_if_needed(practice, **args)
-    new(practice).subscribe_if_needed practice, **args
+  # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
+  def subscribe(**args)
+    super **args.reverse_merge(priority: @class.HIGH_PRIORITY, owner: practice)
   end
 
   def self.subscribe(practice, **args)
     new(practice).subscribe **args
   end
 
-  def subscribe(**args)
-    super **args.reverse_merge(priority: 5, owner: practice)
+  def self.subscribe_if_needed(practice, **args)
+    new(practice).subscribe_if_needed practice, **args
   end
 
   def perform

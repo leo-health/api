@@ -1,20 +1,21 @@
 class SyncPatientJob < SyncJob
-  attr_accessor :patient
+  attr_reader :patient
   def initialize(patient)
     super 10.minutes
     @patient = patient
   end
 
-  def self.subscribe_if_needed(patient, **args)
-    new(patient).subscribe_if_needed patient, **args
+  # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
+  def subscribe(**args)
+    super **args.reverse_merge(priority: @class.MEDIUM_PRIORITY, owner: patient)
   end
 
   def self.subscribe(patient, **args)
     new(patient).subscribe **args
   end
 
-  def subscribe(**args)
-    super **args.reverse_merge(priority: 10, owner: patient)
+  def self.subscribe_if_needed(patient, **args)
+    new(patient).subscribe_if_needed patient, **args
   end
 
   def perform
