@@ -356,6 +356,8 @@ ActiveRecord::Schema.define(version: 20160406034243) do
     t.integer  "family_id",                           null: false
     t.string   "email"
     t.string   "avatar_url"
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
     t.datetime "deleted_at"
     t.date     "birth_date",                          null: false
     t.integer  "athena_id",               default: 0, null: false
