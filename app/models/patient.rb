@@ -36,12 +36,12 @@ class Patient < ActiveRecord::Base
   end
 
   def subscribe_to_athena
-    SyncPatientJob.subscribe_if_needed self, run_at: Time.now
+    SyncPatientJob.subscribe_if_needed self
   end
 
   def post_to_athena
     # TODO: refacor: what is the correct place for this api logic?
-    SyncServiceHelper::Syncer.new.sync_leo_patient self
+    SyncServiceHelper::Syncer.instance.sync_leo_patient self
   end
 
   def put_to_athena
@@ -54,19 +54,19 @@ class Patient < ActiveRecord::Base
   end
 
   def get_vitals_from_athena
-    SyncServiceHelper::Syncer.new.sync_vitals self
+    SyncServiceHelper::Syncer.instance.sync_vitals self
   end
 
   def get_medications_from_athena
-    SyncServiceHelper::Syncer.new.sync_medications self
+    SyncServiceHelper::Syncer.instance.sync_medications self
   end
 
   def get_vaccines_from_athena
-    SyncServiceHelper::Syncer.new.sync_vaccines self
+    SyncServiceHelper::Syncer.instance.sync_vaccines self
   end
 
   def get_allergies_from_athena
-    SyncServiceHelper::Syncer.new.sync_allergies self
+    SyncServiceHelper::Syncer.instance.sync_allergies self
   end
 
   private

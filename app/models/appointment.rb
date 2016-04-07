@@ -17,7 +17,7 @@ class Appointment < ActiveRecord::Base
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
   def post_to_athena
-    SyncServiceHelper::Syncer.new.sync_leo_appointment self
+    SyncServiceHelper::Syncer.instance.sync_leo_appointment self
   end
 
   def same_family?

@@ -33,7 +33,11 @@ RSpec.describe SyncServiceHelper, type: :helper do
     let!(:future_appointment_status){ create(:appointment_status, :future) }
     let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
     let!(:connector) { double("connector") }
-    let!(:syncer) { SyncServiceHelper::Syncer.new(connector) }
+    let!(:syncer) {
+      syncer = SyncServiceHelper::Syncer.instance
+      syncer.connector = connector
+      syncer
+    }
     let!(:practice) { build(:practice, athena_id: 1) }
 
     describe "process_scan_appointments" do
