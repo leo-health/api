@@ -1,4 +1,5 @@
 require "athena_health_api_helper"
+require 'singleton'
 
 module SyncService
   class << self
@@ -14,13 +15,6 @@ module SyncService
     [ProviderSyncProfile, Practice, Patient].each { |model_class|
       model_class.find_each &:subscribe_to_athena
     }
-
-    #make sure that the sync jobs are scheduled
-    # SyncTaskJob.schedule_if_needed
-    # SyncTaskScanAppointmentsJob.schedule_if_needed
-    # SyncTaskScanPatientsJob.schedule_if_needed
-    # SyncTaskScanProvidersJob.schedule_if_needed
-    # SyncTaskScanRemoteAppointmentsJob.schedule_if_needed
   end
 
   class Configuration
@@ -69,7 +63,10 @@ end
 
 module SyncServiceHelper
   class Syncer
-    attr_reader :connector
+
+    include Singleton
+
+    attr_accessor :connector
 
     def initialize(connector = AthenaHealthApiHelper::AthenaHealthApiConnector.new)
       @connector = connector
@@ -785,7 +782,6 @@ module SyncServiceHelper
           leo_vital.save!
         end
       end
-
       leo_patient.vitals_updated_at = DateTime.now.utc
       leo_patient.save!
     end

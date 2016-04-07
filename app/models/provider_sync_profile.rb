@@ -4,10 +4,10 @@ class ProviderSyncProfile < ActiveRecord::Base
   validates :provider, presence: true
 
   def get_from_athena
-    SyncServiceHelper::Syncer.new.sync_provider_leave self
+    SyncServiceHelper::Syncer.instance.sync_provider_leave self
   end
 
   def subscribe_to_athena
-    SyncProviderJob.subscribe_if_needed self, run_at: Time.now
+    SyncProviderJob.subscribe_if_needed self
   end
 end

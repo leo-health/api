@@ -27,6 +27,6 @@ class SyncJob
   end
 
   def queue_name
-    @class.try :queue_name
+    self.class.try :queue_name
   end
 end

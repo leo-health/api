@@ -3,7 +3,7 @@ class SyncAppointmentsJob < SyncJob
   attr_reader :practice
 
   def initialize(practice)
-    super 3.minutes
+    super 5.minutes
     @practice = practice
   end
 
