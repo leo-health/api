@@ -55,7 +55,16 @@ describe AthenaHealthAPI do
   end
 
   describe "RateLimiter" do
-    subject { AthenaHealthAPI::RateLimiter.new("athena_key") }
+    subject { AthenaHealthAPI::RateLimiter.new }
+
+    describe "sleep_time" do
+      before { allow(subject).to receive(:sleep_time_day_rate_limit).and_return(50)}
+      before { allow(subject).to receive(:sleep_time_second_rate_limit).and_return(1)}
+
+      it "should return the sleep time needed" do
+        expect(subject.sleep_time).to eq(50)
+      end
+    end
 
     describe "sleep_time_day_rate_limit" do
       context "under day rate limit" do
@@ -77,11 +86,11 @@ describe AthenaHealthAPI do
         end
 
         it "should return time left till the 24hour cycle end" do
-          expect(subject.sleep_time_day_rate_limit).to eq( 24*60*60 )
+          expect(subject.sleep_time_day_rate_limit).to eq(24*60*60)
         end
       end
 
-      context "over day rate limit, and pass time cycle" do
+      context "over day rate limit, but pass previous time cycle" do
         let(:key){ "day_rate_limit:#{subject.athena_api_key}:#{(Time.now + 1.day).to_i.to_s}" }
 
         before do
@@ -91,6 +100,11 @@ describe AthenaHealthAPI do
 
         after do
           Timecop.return
+        end
+
+        it "should return 0 sleep time" do
+          Timecop.travel(Time.now + 2.days)
+          expect(subject.sleep_time_day_rate_limit).to eq(0)
         end
       end
     end
@@ -115,7 +129,7 @@ describe AthenaHealthAPI do
         end
 
         it "should return 1 second of sleep time" do
-          expect(subject.sleep_time_second_rate_limit).to eq( 1 )
+          expect(subject.sleep_time_second_rate_limit).to eq(1)
         end
       end
     end

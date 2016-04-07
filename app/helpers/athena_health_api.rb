@@ -264,10 +264,10 @@ module AthenaHealthAPI
   class RateLimiter
     attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit
 
-    def initialize( per_second_rate_limit = 5, per_day_rate_limit = 50000, athena_api_key)
-      @per_day_rate_limit = per_day_rate_limit
-      @per_second_rate_limit = per_second_rate_limit
-      @athena_api_key = athena_api_key
+    def initialize
+      @per_day_rate_limit = ENV['ATHENA_SECOND_RATE'].to_i
+      @per_second_rate_limit = ENV['ATHENA_DAY_RATE'].to_i
+      @athena_api_key = ENV['ATHENA_KEY']
     end
 
     def sleep_time
@@ -307,5 +307,4 @@ module AthenaHealthAPI
       "second_rate_limit:#{athena_api_key}:#{time_pattern}"
     end
   end
-
 end
