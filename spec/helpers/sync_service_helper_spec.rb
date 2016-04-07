@@ -295,7 +295,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
       it "creates new patient" do
         expect(connector).to receive("create_patient").with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
         expect(connector).to receive("get_best_match_patient").and_return(nil)
-        expect(connector).to receive("get_best_match_patient").and_return(nil)
         expect(connector).to receive("get_patient_insurances").and_return(JSON.parse(response_body))
         syncer.process_patient(SyncTask.new(sync_id: patient.id))
         expect(patient.reload.athena_id).to eq(1000)
@@ -389,7 +388,6 @@ RSpec.describe SyncServiceHelper, type: :helper do
 
       it "creates new patient and insurance" do
         expect(connector).to receive("create_patient").with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
-        expect(connector).to receive("get_best_match_patient").and_return(nil)
         expect(connector).to receive("get_best_match_patient").and_return(nil)
         expect(connector).to receive("get_patient_insurances").and_return([])
         expect(connector).to receive("create_patient_insurance").with(hash_including(insurancepackageid: insurance_plan.athena_id))

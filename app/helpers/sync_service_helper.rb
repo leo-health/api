@@ -463,18 +463,19 @@ module SyncServiceHelper
           anyphone: leo_parent.phone.gsub(/[^\d,\.]/, '')) if leo_parent.phone
       rescue => e
         SyncService.configuration.logger.info "bestmatch lookup by phone failed"
+        begin
+          #search by email
+          athena_patient = @connector.get_best_match_patient(
+            firstname: leo_patient.first_name,
+            lastname: leo_patient.last_name,
+            dob: patient_birth_date,
+            guarantoremail: leo_parent.email) unless athena_patient
+        rescue => e
+          SyncService.configuration.logger.info "bestmatch lookup by email failed"
+        end
       end
 
-      begin
-        #search by email
-        athena_patient = @connector.get_best_match_patient(
-          firstname: leo_patient.first_name,
-          lastname: leo_patient.last_name,
-          dob: patient_birth_date,
-          guarantoremail: leo_parent.email) unless athena_patient
-      rescue => e
-        SyncService.configuration.logger.info "bestmatch lookup by email failed"
-      end
+
 
       athena_patient
     end
@@ -508,6 +509,9 @@ module SyncServiceHelper
         contactrelationship = "GUARDIAN"
         contactmobilephone = leo_guardians[1].phone
       end
+
+      # try to map the leo_patient to athena up to 2 times, then fail
+      raise "Leo patient #{leo_patient.id} failed to sync to athena more than twice" if leo_patient.athena_id < -1
 
       if leo_patient.athena_id == 0
         #look existing athena patient with same info
@@ -544,6 +548,10 @@ module SyncServiceHelper
             contactrelationship: contactrelationship,
             contactmobilephone: contactmobilephone
             ).to_i
+
+          if leo_patient.athena_id <= 0
+            leo_patient.athena_id -= 1
+          end
 
           leo_patient.save!
         end
