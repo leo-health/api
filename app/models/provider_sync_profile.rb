@@ -3,11 +3,13 @@ class ProviderSyncProfile < ActiveRecord::Base
   belongs_to :sync_job, class_name: Delayed::Job
   validates :provider, presence: true
 
+  after_commit :subscribe_to_athena, on: :create
+
   def get_from_athena
     SyncServiceHelper::Syncer.instance.sync_provider_leave self
   end
 
   def subscribe_to_athena
-    SyncProviderJob.subscribe_if_needed self
+    SyncProviderJob.subscribe_if_needed self, run_at: Time.now
   end
 end

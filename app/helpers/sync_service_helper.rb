@@ -196,6 +196,13 @@ module SyncServiceHelper
           leo_appt.update appointment_status: AppointmentStatus.cancelled
         end
 
+        if leo_appt && !leo_appt.patient
+          # TODO: find a way to optimize this so we don't have to make this db call all the time
+          # maybe we can add a patient_athena_id to Appointment, then on create patient we can associate all their existing appointments
+          leo_patient = Patient.find_by(athena_id: appt.patientid.to_i)
+          leo_appt.update(patient: leo_patient)
+        end
+
         # TODO: handle modified appointments
         impl_create_leo_appt_from_athena(appt) unless (leo_appt || !appt.future?)
       }
@@ -464,7 +471,7 @@ module SyncServiceHelper
       rescue => e
         SyncService.configuration.logger.info "bestmatch lookup by phone failed"
       end
-      
+
       begin
         #search by email
         athena_patient = @connector.get_best_match_patient(
