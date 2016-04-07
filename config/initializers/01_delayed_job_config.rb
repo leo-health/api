@@ -6,6 +6,5 @@ Delayed::Worker.sleep_delay = 30
 Delayed::Worker.max_attempts = 2
 # SOURCE: http://stackoverflow.com/questions/7326301/how-do-i-find-a-specific-delayed-job-not-by-id
 class Delayed::Job < ActiveRecord::Base
-  acts_as_paranoid
   belongs_to :owner, :polymorphic => true
 end

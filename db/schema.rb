@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160407171724) do
+ActiveRecord::Schema.define(version: 20160406034243) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -149,7 +149,6 @@ ActiveRecord::Schema.define(version: 20160407171724) do
     t.string   "cron"
     t.string   "owner_type"
     t.integer  "owner_id"
-    t.datetime "deleted_at"
   end
 
   add_index "delayed_jobs", ["owner_type", "owner_id"], name: "index_delayed_jobs_on_owner_type_and_owner_id", using: :btree
