@@ -36,7 +36,7 @@ class Patient < ActiveRecord::Base
   end
 
   def subscribe_to_athena
-    SyncPatientJob.subscribe_if_needed self
+    SyncPatientJob.subscribe_if_needed self, run_at: Time.now
   end
 
   def post_to_athena
