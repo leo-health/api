@@ -187,13 +187,15 @@ module AthenaHealthApiHelper
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: , headers: , field: , offset: 0, limit: 5000, structize: false)
-      raise "limit #{limit} is higher then max allowed 5000." if limit > 5000
+    def get_paged(url: , params: , headers: , field: , offset: 0, limit: 1000, structize: false)
+
+      raise "limit #{limit} is higher then max allowed 1000." if limit > 1000
       local_params = params.clone
       local_params['offset'] = offset
       local_params['limit'] = limit
       endpoint = url
       response = @connection.GET(endpoint, local_params, headers)
+
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
       entries = []
@@ -220,7 +222,7 @@ module AthenaHealthApiHelper
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     def get_appointment_types(hidegeneric: false,
-      hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 5000)
+      hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 1000)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
@@ -234,7 +236,7 @@ module AthenaHealthApiHelper
     # raises exceptions if anything goes wrong in the process
     # todo: do we need separate calls for existing vs new patients
     def get_appointment_reasons(departmentid: ,
-      providerid: , limit: 5000)
+      providerid: , limit: 1000)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
@@ -249,7 +251,7 @@ module AthenaHealthApiHelper
     def get_open_appointments(
       appointmenttypeid: nil, bypassscheduletimechecks: true, departmentid:, enddate: nil,
       ignoreschedulablepermission: true, providerid: nil, reasonid: nil, showfrozenslots: false,
-      startdate: nil, limit: 5000)
+      startdate: nil, limit: 1000)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
@@ -266,7 +268,7 @@ module AthenaHealthApiHelper
       ignorerestrictions: true, patientid: nil, providerid: nil, scheduledenddate: nil,
       scheduledstartdate: nil, showcancelled: true, showclaimdetail: false, showcopay: true,
       showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil,
-      limit: 5000)
+      limit: 1000)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
