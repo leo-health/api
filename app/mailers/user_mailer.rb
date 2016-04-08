@@ -28,7 +28,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def invite_secondary_parent(enrollment, current_user)
     mandrill_mail(
       template: 'Leo - Invite a Secondary Guardian',
-      subject: "You've been invited to join Leo @ Flatiron Pediatrics!",
+      subject: "You've been invited to join Leo + Flatiron Pediatrics!",
       to: enrollment.email,
       vars: {
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/registration?token=#{enrollment.authentication_token}",
@@ -63,7 +63,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def welcome_to_pratice(user)
     mandrill_mail(
       template: 'Leo - Welcome to Practice',
-      subject: 'Welcome to Leo @ Flatiron Pediatrics!',
+      subject: 'Welcome to Leo + Flatiron Pediatrics!',
       to: user.email,
       vars: {
         'GUARDIAN_FIRST_NAME': user.first_name
