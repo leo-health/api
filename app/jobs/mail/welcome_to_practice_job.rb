@@ -9,6 +9,6 @@ class WelcomeToPracticeJob < Struct.new(:user_id)
   end
 
   def queue_name
-    'registration_email'
+    'notification_email'
   end
 end
