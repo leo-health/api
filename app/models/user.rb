@@ -124,6 +124,7 @@ class User < ActiveRecord::Base
 
   def set_user_type_on_secondary_user
     unless primary_guardian?
+      skip_confirmation!
       update_columns(type: family.primary_guardian.type)
       InternalInvitationEnrollmentNotificationJob.send(id)
     end

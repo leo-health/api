@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'mandrill_mailer/offline'
 
 describe User do
   describe "relations" do
@@ -155,7 +156,6 @@ describe User do
       context "for secondary guardian" do
         it "should set the user type of secondary guardian to be intentical to the primary guadian" do
           expect( secondary_guardian.type ).to eq(user.type)
-          expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(1)
         end
       end
     end
