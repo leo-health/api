@@ -47,6 +47,7 @@ class User < ActiveRecord::Base
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
   validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil) }
+  before_create :skip_confirmation!, if: :invited_user?
   after_update :welcome_onboarding_notifications, if: :guardian?
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
 
@@ -102,6 +103,10 @@ class User < ActiveRecord::Base
     sessions.map{|session| session.device_token}.compact.uniq
   end
 
+  def invited_user?
+    onboarding_group.try(:invited_secondary_guardian?)
+  end
+
   private
 
   def password_required?
@@ -125,6 +130,7 @@ class User < ActiveRecord::Base
   def set_user_type_on_secondary_user
     unless primary_guardian?
       update_columns(type: family.primary_guardian.type)
+      WelcomeToPracticeJob.send(id)
       InternalInvitationEnrollmentNotificationJob.send(id)
     end
   end
