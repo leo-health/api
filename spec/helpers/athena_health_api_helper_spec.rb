@@ -208,7 +208,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
           }]
           }
           )))
-        
+
         appointments = connector.get_open_appointments(departmentid: 1, providerid: 1)
 
         expect(appointments).not_to be_nil

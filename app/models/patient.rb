@@ -41,7 +41,7 @@ class Patient < ActiveRecord::Base
 
   def post_to_athena
     # TODO: refacor: what is the correct place for this api logic?
-    SyncServiceHelper::Syncer.instance.sync_leo_patient self
+    SyncService.instance.sync_leo_patient self
   end
 
   def put_to_athena
@@ -54,19 +54,19 @@ class Patient < ActiveRecord::Base
   end
 
   def get_vitals_from_athena
-    SyncServiceHelper::Syncer.instance.sync_vitals self
+    SyncService.instance.sync_vitals self
   end
 
   def get_medications_from_athena
-    SyncServiceHelper::Syncer.instance.sync_medications self
+    SyncService.instance.sync_medications self
   end
 
   def get_vaccines_from_athena
-    SyncServiceHelper::Syncer.instance.sync_vaccines self
+    SyncService.instance.sync_vaccines self
   end
 
   def get_allergies_from_athena
-    SyncServiceHelper::Syncer.instance.sync_allergies self
+    SyncService.instance.sync_allergies self
   end
 
   private
