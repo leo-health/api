@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe Leo::V1::Cards do
 
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_athena_appointments_for_family).and_return(true) }
+  before { allow_any_instance_of(SyncService).to receive(:sync_athena_appointments_for_family).and_return(true) }
 
   describe "Get /api/v1/cards" do
     let(:user){ create(:user, :guardian) }

@@ -67,7 +67,7 @@ describe Leo::V1::Appointments do
     let!(:appointment){create(:appointment, booked_by: user)}
     let!(:other_appointment){create(:appointment, booked_by: user)}
 
-    before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_athena_appointments_for_family).and_return(true) }
+    before { allow_any_instance_of(SyncService).to receive(:sync_athena_appointments_for_family).and_return(true) }
 
     def do_request
       get "/api/v1/appointments", {authentication_token: session.authentication_token}

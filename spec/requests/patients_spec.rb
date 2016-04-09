@@ -7,7 +7,7 @@ describe Leo::V1::Patients do
   let!(:patient){create(:patient, family: guardian.family)}
   let(:serializer){ Leo::Entities::PatientEntity }
 
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_leo_patient).and_return(true) }
+  before { allow_any_instance_of(SyncService).to receive(:sync_leo_patient).and_return(true) }
 
   describe 'POST /api/v1/patients' do
     let(:patient_params){{first_name: "patient_first_name",
