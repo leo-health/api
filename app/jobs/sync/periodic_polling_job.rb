@@ -1,4 +1,6 @@
-class SyncJob
+
+# TODO: REFACTOR: Should be named PeriodicPollingJob
+class PeriodicPollingJob < LeoDelayedJob
 
   IMMEDIATE_PRIORITY = 0 # Delayed::Job default is 0
   HIGH_PRIORITY = 5
@@ -13,20 +15,16 @@ class SyncJob
 
   # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
   def subscribe(**args)
-    Delayed::Job.enqueue self, args.reverse_merge(run_at: interval.from_now)
+    self.start **args.reverse_merge(run_at: interval.from_now)
   end
 
   def subscribe_if_needed(owner, **args)
-    unless Delayed::Job.exists? owner: owner, queue: queue_name
-      subscribe args.reverse_merge(owner: owner)
+    unless Delayed::Job.exists? owner: owner, queue: self.queue_name
+      subscribe owner, **args
     end
   end
 
   def success(completed_job)
     subscribe
-  end
-
-  def queue_name
-    self.class.try :queue_name
   end
 end

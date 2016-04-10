@@ -29,44 +29,27 @@ class Patient < ActiveRecord::Base
 
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 
-  after_commit :upgrade_guardian!, :subscribe_to_athena, on: :create
+  after_commit :upgrade_guardian!, :post_to_athena, on: :create
 
-  def current_avatar
-    avatars.order("created_at DESC").first
+  # subscribe_to_athena only the first time after the patient has been posted to athena
+  after_commit :subscribe_to_athena, :if => Proc.new { |record|
+    byebug
+    attribute = :athena_id
+    record.previous_changes.key?(attribute) &&
+    record.previous_changes[attribute].first == 0 &&
+    record.previous_changes[attribute].last != 0
+  }
+
+  def post_to_athena
+    PostPatientJob.new(self).start
   end
 
   def subscribe_to_athena
-    SyncPatientJob.subscribe_if_needed self, run_at: Time.now
+    SyncPatientJob.new.subscribe_if_needed self, run_at: Time.now
   end
 
-  def post_to_athena
-    # TODO: refacor: what is the correct place for this api logic?
-    SyncService.instance.sync_leo_patient self
-  end
-
-  def put_to_athena
-    # TODO: refactor: we may want to use different methods for post_to_athena vs put_to_athena, rather than if branching
-    raise "method not yet implemented!"
-  end
-
-  def get_from_athena
-    # TODO: fill with get patient api call
-  end
-
-  def get_vitals_from_athena
-    SyncService.instance.sync_vitals self
-  end
-
-  def get_medications_from_athena
-    SyncService.instance.sync_medications self
-  end
-
-  def get_vaccines_from_athena
-    SyncService.instance.sync_vaccines self
-  end
-
-  def get_allergies_from_athena
-    SyncService.instance.sync_allergies self
+  def current_avatar
+    avatars.order("created_at DESC").first
   end
 
   private

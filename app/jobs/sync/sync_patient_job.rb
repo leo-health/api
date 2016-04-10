@@ -1,28 +1,20 @@
-class SyncPatientJob < SyncJob
+class SyncPatientJob < PeriodicPollingJob
+
   attr_reader :patient
-  def initialize(patient)
+
+  def initialize
     super 20.minutes
-    @patient = patient
+    @service = AthenaPatientSyncService.new
   end
 
-  # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
-  def subscribe(**args)
+  def subscribe(patient, **args)
+    @patient = patient
     super **args.reverse_merge(priority: self.class::MEDIUM_PRIORITY, owner: patient)
   end
 
-  def self.subscribe(patient, **args)
-    new(patient).subscribe **args
-  end
-
-  def self.subscribe_if_needed(patient, **args)
-    new(patient).subscribe_if_needed patient, **args
-  end
-
   def perform
-    patient.instance_eval do
-      [:vitals, :medications, :vaccines, :allergies].each do |s|
-        public_send "get_#{s.to_s}_from_athena".to_sym
-      end
+    [:vitals, :medications, :vaccines, :allergies].each do |s|
+      @service.send "sync_#{s.to_s}".to_sym, @patient
     end
   end
 

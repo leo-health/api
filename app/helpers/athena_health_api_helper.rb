@@ -56,9 +56,12 @@ module AthenaHealthApiHelper
   end
 
   class AthenaHealthApiConnector
+    include Singleton
+
     attr_reader :connection, :common_headers
 
-    def initialize(config: Rails.application.config_for(:athena_health_api_connector).symbolize_keys)
+    def initialize
+      config = Rails.application.config_for(:athena_health_api_connector).symbolize_keys
       @common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
       @connection = AthenaHealthAPI::Connection.new(config[:version], config[:key], config[:secret], config[:practice_id])
     end

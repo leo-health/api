@@ -4,7 +4,7 @@ require 'athena_health_api_helper'
 RSpec.describe AthenaHealthApiHelper, type: :helper do
   describe "Athena Health Api Connector - " do
     # let(:connection){double("connection")}
-    let!(:connector) {AthenaHealthApiHelper::AthenaHealthApiConnector.new}
+    let!(:connector) {AthenaHealthApiHelper::AthenaHealthApiConnector.instance}
 
     describe "get_appointment" do
       it "should return an appointment" do
