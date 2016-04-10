@@ -120,7 +120,6 @@ class AthenaAppointmentSyncService < AthenaSyncService
   end
 
   def create_leo_appointment_from_athena!(appt)
-
     # TODO: refactor to end early based on validations to minimize db calls
     patient = Patient.find_by(athena_id: appt.patientid.to_i)
     provider_sync_profile = ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i)
@@ -128,7 +127,6 @@ class AthenaAppointmentSyncService < AthenaSyncService
     appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
     practice = Practice.find_by(athena_id: appt.departmentid)
     provider = provider_sync_profile.try(:provider)
-
     Appointment.create!(
       appointment_status: appointment_status,
       booked_by: provider,
