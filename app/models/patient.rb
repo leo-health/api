@@ -33,7 +33,6 @@ class Patient < ActiveRecord::Base
 
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, :if => Proc.new { |record|
-    byebug
     attribute = :athena_id
     record.previous_changes.key?(attribute) &&
     record.previous_changes[attribute].first == 0 &&
