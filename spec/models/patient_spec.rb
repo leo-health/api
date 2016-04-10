@@ -77,7 +77,7 @@ RSpec.describe Patient, type: :model do
           expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
         end
       end
-      
+
       context "the job does not exist" do
         before do
           Delayed::Job.where(queue: PostPatientJob.queue_name).destroy_all
