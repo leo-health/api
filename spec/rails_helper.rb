@@ -19,6 +19,7 @@ RspecApiDocumentation.configure do |config|
 end
 
 RSpec.configure do |config|
+  config.fail_fast = true
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
   config.include FactoryGirl::Syntax::Methods
   config.use_transactional_fixtures = false

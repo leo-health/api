@@ -20,7 +20,7 @@ resource "Messages" do
     example "create an avatar for patient" do
       image = open(File.new(Rails.root.join('spec', 'support', 'Zen-Dog1.png'))){|io|io.read}
       encoded_image = Base64.encode64(image)
-      do_request(avatar: encoded_image, patient_id: patient.id)
+      do_request(authentication_token: session.authentication_token, avatar: encoded_image, patient_id: patient.id)
       expect(response_status).to eq(201)
     end
   end
