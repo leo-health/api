@@ -16,10 +16,6 @@ class Appointment < ActiveRecord::Base
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
-  def post_to_athena
-    SyncService.instance.sync_leo_appointment self
-  end
-
   def same_family?
     return unless booked_by.try(:guardian?)
     errors.add(:patient_id, "patient and guardian should have same family") unless patient.try(:family_id) == booked_by.try(:family_id)

@@ -1,27 +1,19 @@
-class SyncAppointmentsJob < SyncJob
+class SyncAppointmentsJob < PeriodicPollingJob
 
   attr_reader :practice
 
-  def initialize(practice)
+  def initialize
     super 5.minutes
+    @service = AthenaAppointmentSyncService.new
+  end
+
+  def subscribe(practice, **args)
     @practice = practice
-  end
-
-  # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
-  def subscribe(**args)
-    super **args.reverse_merge(priority: self.class::HIGH_PRIORITY, owner: practice)
-  end
-
-  def self.subscribe(practice, **args)
-    new(practice).subscribe **args
-  end
-
-  def self.subscribe_if_needed(practice, **args)
-    new(practice).subscribe_if_needed practice, **args
+    super **args.reverse_merge(priority: self.class::HIGH_PRIORITY, owner: @practice)
   end
 
   def perform
-    practice.get_appointments_from_athena
+    @service.sync_appointments_for_practice @practice
   end
 
   def self.queue_name

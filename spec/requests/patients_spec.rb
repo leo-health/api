@@ -4,10 +4,32 @@ require 'rails_helper'
 describe Leo::V1::Patients do
   let(:guardian){create(:user)}
   let(:session){guardian.sessions.create}
-  let!(:patient){create(:patient, family: guardian.family)}
   let(:serializer){ Leo::Entities::PatientEntity }
+  let(:patient){create(:patient, family: guardian.family)}
+  describe 'after creating a patient' do
+    context 'before syncing the patient' do
+      it "calls post_to_athena" do
+        expect(patient).to callback(:post_to_athena).after(:commit).on(:create)
+      end
 
-  before { allow_any_instance_of(SyncService).to receive(:sync_leo_patient).and_return(true) }
+      it "adds a PostPatientJob to the queue" do
+        expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
+        expect(Delayed::Job.where(queue: SyncPatientJob.queue_name).count).to be(0)
+      end
+    end
+
+    context 'after syncing the patient' do
+      it "calls subscribe_to_athena" do
+        patient.athena_id = 1
+        byebug
+        expect(patient).to callback(:subscribe_to_athena).after(:commit)
+      end
+
+      it "adds a PostPatientJob to the queue" do
+        expect(Delayed::Job.where(queue: SyncPatientJob.queue_name).count).to be(1)
+      end
+    end
+  end
 
   describe 'POST /api/v1/patients' do
     let(:patient_params){{first_name: "patient_first_name",
