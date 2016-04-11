@@ -79,17 +79,17 @@ class AthenaAppointmentSyncService < AthenaSyncService
   end
 
   def sync_appointments_for_family(family)
-    family.patients.reduce([]) { |appointments, patient| appointments += sync_athena_appointments_for_patient patient }
+    family.patients.reduce([]) { |appointments, patient| sync_appointments_for_patient(patient).each { |appt| appointments << appt } }
   end
 
   def sync_appointments_for_practice(practice)
-    sync_athena_appointments({
+    sync_appointments({
       departmentid: practice.athena_id,
     })
   end
 
   def sync_appointments_for_patient(patient)
-    sync_athena_appointments({
+    sync_appointments({
       departmentid: patient.family.primary_guardian.practice.athena_id,
       patientid: patient.athena_id
     })
@@ -118,7 +118,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
           leo_appt.update(patient: leo_patient)
         end
       elsif appt.future?
-        leo_appt = create_leo_appointment_from_athena appt
+        leo_appt = create_leo_appointment_from_athena! appt
       end
       leo_appt
     }
@@ -127,7 +127,6 @@ class AthenaAppointmentSyncService < AthenaSyncService
   def create_leo_appointment_from_athena!(appt)
 
     # TODO: refactor to end early based on validations to minimize db calls
-    new_appt = nil
     patient = Patient.find_by(athena_id: appt.patientid.to_i)
     provider_sync_profile = ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i)
     appointment_type = AppointmentType.find_by(athena_id: appt.appointmenttypeid.to_i)
@@ -135,7 +134,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
     practice = Practice.find_by(athena_id: appt.departmentid)
     provider = provider_sync_profile.try(:provider)
 
-    new_appt = Appointment.create!(
+    Appointment.create!(
       appointment_status: appointment_status,
       booked_by: provider,
       patient: patient,
@@ -143,7 +142,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
       practice: practice,
       appointment_type: appointment_type,
       duration: appt.duration,
-      start_datetime: start_datetime,
+      start_datetime: AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime),
       sync_updated_at: DateTime.now,
       athena_id: appt.appointmentid.to_i
     )
