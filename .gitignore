@@ -58,3 +58,7 @@ dump.rdb
 
 # Ignore application configuration
 /config/application.yml
+
+# Ignore zeus parallel test files
+custom_plan.rb
+zeus.json
