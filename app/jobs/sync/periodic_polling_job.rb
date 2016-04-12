@@ -7,20 +7,20 @@ class PeriodicPollingJob < LeoDelayedJob
   MEDIUM_PRIORITY = 10
   LOW_PRIORITY = 15
 
-  attr_reader :interval
-
-  def initialize(interval)
-    @interval = interval || 0
+  def initialize(interval: 0, owner: nil, priority: IMMEDIATE_PRIORITY)
+    @interval = interval
+    @owner = owner
+    @priority = priority
   end
 
   # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
   def subscribe(**args)
-    self.start(**args.reverse_merge(run_at: interval.from_now))
+    self.start(**args.reverse_merge(run_at: @interval.from_now, owner: @owner, priority: @priority))
   end
 
-  def subscribe_if_needed(owner, **args)
-    unless Delayed::Job.exists? owner: owner, queue: self.queue_name
-      subscribe owner, **args # subclass implementation. this should be a protocol
+  def subscribe_if_needed(**args)
+    unless Delayed::Job.exists? owner: @owner, queue: self.queue_name
+      subscribe(**args) # subclass implementation. this should be a protocol
     end
   end
 

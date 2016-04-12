@@ -6,6 +6,6 @@ class ProviderSyncProfile < ActiveRecord::Base
   after_commit :subscribe_to_athena, on: :create
 
   def subscribe_to_athena
-    SyncProviderJob.new.subscribe_if_needed self, run_at: Time.now
+    SyncProviderJob.new(self).subscribe_if_needed run_at: Time.now
   end
 end

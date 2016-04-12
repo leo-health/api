@@ -1,19 +1,10 @@
 class SyncAppointmentsJob < PeriodicPollingJob
-
-  attr_reader :practice
-
-  def initialize
-    super 5.minutes
-    @service = AthenaAppointmentSyncService.new
-  end
-
-  def subscribe(practice, **args)
-    @practice = practice
-    super(**args.reverse_merge(priority: self.class::HIGH_PRIORITY, owner: @practice))
+  def initialize(practice)
+    super interval: 5.minutes, owner: practice, priority: self.class::HIGH_PRIORITY
   end
 
   def perform
-    @service.sync_appointments_for_practice @practice
+    AthenaAppointmentSyncService.new.sync_appointments_for_practice @owner
   end
 
   def self.queue_name

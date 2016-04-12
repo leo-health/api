@@ -41,14 +41,14 @@ class Patient < ActiveRecord::Base
   }
 
   def post_to_athena
-    PostPatientJob.new(self).start unless Delayed::Job.find_by(owner: self, queue: PostPatientJob.queue_name).exists?
+    PostPatientJob.new(self).start unless Delayed::Job.find_by(owner: self, queue: PostPatientJob.queue_name)
   end
 
   def subscribe_to_athena
     if athena_id == 0
       post_to_athena
     else
-      SyncPatientJob.new.subscribe_if_needed self, run_at: Time.now
+      SyncPatientJob.new(self).subscribe_if_needed run_at: Time.now
     end
   end
 

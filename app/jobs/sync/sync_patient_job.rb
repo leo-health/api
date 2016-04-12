@@ -1,20 +1,12 @@
 class SyncPatientJob < PeriodicPollingJob
-
-  attr_reader :patient
-
-  def initialize
-    super 20.minutes
-    @service = AthenaPatientSyncService.new
-  end
-
-  def subscribe(patient, **args)
-    @patient = patient
-    super(**args.reverse_merge(priority: self.class::MEDIUM_PRIORITY, owner: patient))
+  def initialize(patient)
+    super interval: 20.minutes, owner: patient, priority: self.class::MEDIUM_PRIORITY
   end
 
   def perform
+    service = AthenaPatientSyncService.new
     [:vitals, :medications, :vaccines, :allergies].each do |s|
-      @service.send "sync_#{s.to_s}".to_sym, @patient
+      service.send "sync_#{s.to_s}".to_sym, @owner
     end
   end
 
