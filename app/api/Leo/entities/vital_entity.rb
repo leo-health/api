@@ -15,7 +15,7 @@ module Leo
         if object[:measurement] == Vital::MEASUREMENT_HEIGHT
           format_inches_to_feet_and_inches(object[:value])
         else
-          "#{object[:value]} #{object[:unit]}".chomp
+          "#{object[:value]} #{object[:unit]}".strip
         end
       end
 
