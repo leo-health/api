@@ -1,4 +1,40 @@
 class AthenaPatientSyncService < AthenaSyncService
+  def to_athena_json(patient)
+    parent = patient.family.primary_guardian
+    patient_birth_date = patient.birth_date.strftime("%m/%d/%Y") if patient.birth_date
+    parent_birth_date = parent.birth_date.strftime("%m/%d/%Y") if parent.birth_date
+
+    guardians = patient.family.guardians.order('created_at ASC')
+    contactname = nil
+    contactrelationship = nil
+    contactmobilephone = nil
+    if guardians.size >= 2
+      contactname = "#{leo_guardians[1].first_name} #{leo_guardians[1].last_name}"
+      contactrelationship = "GUARDIAN"
+      contactmobilephone = guardians[1].phone
+    end
+    params = patient.athena_id > 0 ? { patientid: patient.athena_id } : {}
+    params.merge({
+      departmentid: parent.practice.athena_id,
+      firstname: patient.first_name,
+      middlename: patient.middle_initial.to_s,
+      lastname: patient.last_name,
+      sex: patient.sex,
+      dob: patient_birth_date,
+      mobilephone: parent.phone,
+      guarantorfirstname: parent.first_name,
+      guarantormiddlename: parent.middle_initial.to_s,
+      guarantorlastname: parent.last_name,
+      guarantordob: parent_birth_date,
+      guarantoremail: parent.email,
+      guarantorrelationshiptopatient: 3, #3==child
+      guarantorphone: parent.phone,
+      contactname: contactname,
+      contactrelationship: contactrelationship,
+      contactmobilephone: contactmobilephone
+    })
+  end
+
   def sync_allergies(leo_patient)
     if leo_patient.athena_id == 0
       post_patient(leo_patient)
@@ -181,11 +217,6 @@ class AthenaPatientSyncService < AthenaSyncService
     leo_patient.save!
   end
 
-
-
-
-  # DOESN'T QUITE BELONG HERE - Make dependent jobs
-
   def get_best_match_patient(leo_patient)
     leo_parent = leo_patient.family.primary_guardian
     patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
@@ -217,112 +248,68 @@ class AthenaPatientSyncService < AthenaSyncService
     athena_patient
   end
 
-  def post_patient(leo_patient)
+  def put_patient(patient)
+    @connector.update_patient(to_athena_json patient)
+  end
 
-    raise "patient.id #{leo_patient.id} has no associated family" unless leo_patient.family
-    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
+  def post_patient(leo_patient)
 
     @logger.info("Syncer: synching patient=#{leo_patient.to_json}")
 
-    leo_parent = leo_patient.family.primary_guardian
-    raise "patient.id #{leo_patient.id} has a primary guardian that is not associated with a practice" unless leo_parent.practice
-    patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
-    parent_birth_date = leo_parent.birth_date.strftime("%m/%d/%Y") if leo_parent.birth_date
-    leo_guardians = leo_patient.family.guardians.order('created_at ASC')
-    contactname = nil
-    contactrelationship = nil
-    contactmobilephone = nil
-
-    if leo_guardians.size >= 2
-      contactname = "#{leo_guardians[1].first_name} #{leo_guardians[1].last_name}"
-      contactrelationship = "GUARDIAN"
-      contactmobilephone = leo_guardians[1].phone
-    end
+    raise "patient.id #{leo_patient.id} has no associated family" unless leo_patient.family
+    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
+    raise "patient.id #{leo_patient.id} has a primary guardian that is not associated with a practice" unless leo_patient.family.primary_guardian.practice
 
     # try to map the leo_patient to athena up to 2 times, then fail
     raise "Leo patient #{leo_patient.id} failed to sync to athena more than twice" if leo_patient.athena_id < -1
+    athena_patient_exists = leo_patient.athena_id > 0
+    should_try_again = leo_patient.athena_id > -2
+    should_update_athena_patient = true
 
-    if leo_patient.athena_id == 0
-      #look existing athena patient with same info
-      athena_patient = get_best_match_patient(leo_patient)
+    if !athena_patient_exists && should_try_again
+      athena_patient_exists = best_matched_patient = get_best_match_patient(leo_patient)
 
-      if athena_patient
-        raise "patient.id #{leo_patient.id} has a best match in Athena (athena_id: #{athena_patient.patientid}), but that match is already connected to another patient" unless Patient.where(athena_id: athena_patient.patientid.to_i).empty?
-
-        @logger.info("Syncer: connecting patient.id=#{leo_patient.id} to athena patient.id=#{athena_patient.patientid}")
-
-        #use existing patient
-        leo_patient.athena_id = athena_patient.patientid.to_i
-        leo_patient.save!
+      if athena_patient_exists
+        raise "patient.id #{leo_patient.id} has a best match in Athena (athena_id: #{best_matched_patient.patientid}), but that match is already connected to another patient" unless Patient.where(athena_id: best_matched_patient.patientid.to_i).empty?
+        @logger.info("Syncer: connecting patient.id=#{leo_patient.id} to athena patient.id=#{best_matched_patient.patientid}")
+        leo_patient.update(athena_id: best_matched_patient.patientid.to_i)
       else
         @logger.info("Syncer: creating new Athena patient for leo patient.id=#{leo_patient.id}")
+        should_update_athena_patient = false
+        athena_patient_exists = leo_patient.athena_id = @connector.create_patient(to_athena_json leo_patient).to_i
 
-        #create new patient
-        leo_patient.athena_id = @connector.create_patient(
-        departmentid: leo_parent.practice.athena_id,
-        firstname: leo_patient.first_name,
-        middlename: leo_patient.middle_initial.to_s,
-        lastname: leo_patient.last_name,
-        sex: leo_patient.sex,
-        dob: patient_birth_date,
-        mobilephone: leo_parent.phone,
-        guarantorfirstname: leo_parent.first_name,
-        guarantormiddlename: leo_parent.middle_initial.to_s,
-        guarantorlastname: leo_parent.last_name,
-        guarantordob: parent_birth_date,
-        guarantoremail: leo_parent.email,
-        guarantorrelationshiptopatient: 3, #3==child
-        guarantorphone: leo_parent.phone,
-        contactname: contactname,
-        contactrelationship: contactrelationship,
-        contactmobilephone: contactmobilephone
-        ).to_i
-
-        if leo_patient.athena_id <= 0
+        # TODO: handle this special failure condition through delayed job. Doesn't belong in the service layer
+        unless athena_patient_exists
           leo_patient.athena_id -= 1
         end
 
         leo_patient.save!
       end
-    else
-      #update patient
-      @connector.update_patient(
-      patientid: leo_patient.athena_id,
-      departmentid: leo_parent.practice.athena_id,
-      firstname: leo_patient.first_name,
-      middlename: leo_patient.middle_initial.to_s,
-      lastname: leo_patient.last_name,
-      sex: leo_patient.sex,
-      dob: patient_birth_date,
-      mobilephone: leo_parent.phone,
-      guarantorfirstname: leo_parent.first_name,
-      guarantormiddlename: leo_parent.middle_initial.to_s,
-      guarantorlastname: leo_parent.last_name,
-      guarantordob: parent_birth_date,
-      guarantoremail: leo_parent.email,
-      guarantorrelationshiptopatient: 3, #3==child
-      guarantorphone: leo_parent.phone,
-      contactname: contactname,
-      contactrelationship: contactrelationship,
-      contactmobilephone: contactmobilephone
-      )
     end
 
+    if should_update_athena_patient
+      put_patient(leo_patient)
+    end
+
+
+    # TODO: remove this if we can
     #create insurance if not entered yet
     insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
     primary_insurance = insurances.find { |ins| ins[:sequencenumber.to_s].to_i == 1 }
 
-    insurance_plan = leo_parent.insurance_plan unless primary_insurance
+    parent = leo_patient.family.primary_guardian
+    parent_birth_date = parent.birth_date.strftime("%m/%d/%Y") if parent.birth_date
+    insurance_plan = parent.insurance_plan unless primary_insurance
 
     #only sync if the insurance plan is registered in athena
     if insurance_plan && insurance_plan.athena_id != 0
       @connector.create_patient_insurance(
       patientid: leo_patient.athena_id,
       insurancepackageid: insurance_plan.athena_id.to_s,
-      insurancepolicyholderfirstname: leo_parent.first_name,
-      insurancepolicyholderlastname: leo_parent.last_name,
-      insurancepolicyholdermiddlename: leo_parent.middle_initial.to_s,
-      insurancepolicyholdersex: leo_parent.sex,
+      insurancepolicyholderfirstname: parent.first_name,
+      insurancepolicyholderlastname: parent.last_name,
+      insurancepolicyholdermiddlename: parent.middle_initial.to_s,
+      insurancepolicyholdersex: parent.sex,
       insurancepolicyholderdob: parent_birth_date,
       sequencenumber: 1.to_s
       )
@@ -332,84 +319,78 @@ class AthenaPatientSyncService < AthenaSyncService
     leo_patient.save!
   end
 
-
-
-
-
-
   # Currently unused methods
+  def sync_photo(leo_patient)
+    # TODO: figure out why this doesn't work
+    if leo_patient.athena_id == 0
+      post_patient(leo_patient)
+      if leo_patient.athena_id == 0
+        @logger.info("Skipping sync for photo due to patient #{leo_patient.id} sync failure")
+        return
+      end
+    end
 
-  # TODO: figure out why this doesn't work
-  # def sync_photo(leo_patient)
-  #   if leo_patient.athena_id == 0
-  #     post_patient(leo_patient)
-  #     if leo_patient.athena_id == 0
-  #       @logger.info("Skipping sync for photo due to patient #{leo_patient.id} sync failure")
-  #       return
-  #     end
-  #   end
-  #
-  #   #get list of photos for this patients
-  #   photos = leo_patient.photos.order("id desc")
-  #   @logger.info("Syncer: synching photos=#{photos.to_json}")
-  #
-  #   if photos.empty?
-  #     @connector.delete_patient_photo(patientid: leo_patient.athena_id)
-  #   else
-  #     @connector.set_patient_photo(patientid: leo_patient.athena_id, image: photos.first.image)
-  #   end
-  #
-  #   leo_patient.photos_updated_at = DateTime.now.utc
-  #   leo_patient.save!
-  # end
-  # def sync_insurances(leo_patient)
-  #   if leo_patient.athena_id == 0
-  #     post_patient(leo_patient)
-  #     if leo_patient.athena_id == 0
-  #       @logger.info("Skipping sync for insurances due to patient #{leo_patient.id} sync failure")
-  #       return
-  #     end
-  #   end
-  #
-  #   raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
-  #
-  #   leo_parent = leo_patient.family.primary_guardian
-  #
-  #   #get list of insurances for this patient
-  #   insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
-  #
-  #   #remove existing insurances for the user
-  #   Insurance.destroy_all(patient_id: leo_patient.id)
-  #
-  #   #create and/or update the vaccine records in Leo
-  #   insurances.each do | insurance |
-  #     leo_insurance = Insurance.create_with(irc_name: insurance[:ircname.to_s]).find_or_create_by!(athena_id: insurance[:insuranceid.to_s].to_i)
-  #
-  #     leo_insurance.patient_id = leo_patient.id
-  #     leo_insurance.athena_id = insurance[:insuranceid.to_s].to_i
-  #     leo_insurance.plan_name = insurance[:insuranceplanname.to_s]
-  #     leo_insurance.plan_phone = insurance[:insurancephone.to_s]
-  #     leo_insurance.plan_type = insurance[:insurancetype.to_s]
-  #     leo_insurance.policy_number = insurance[:policynumber.to_s]
-  #     leo_insurance.holder_ssn = insurance[:insurancepolicyholderssn.to_s]
-  #     leo_insurance.holder_birth_date = insurance[:insurancepolicyholderdob.to_s]
-  #     leo_insurance.holder_sex = insurance[:insurancepolicyholdersex.to_s]
-  #     leo_insurance.holder_last_name = insurance[:insurancepolicyholderlastname.to_s]
-  #     leo_insurance.holder_first_name = insurance[:insurancepolicyholderfirstname.to_s]
-  #     leo_insurance.holder_middle_name = insurance[:insurancepolicyholdermiddlename.to_s]
-  #     leo_insurance.holder_address_1 = insurance[:insurancepolicyholderaddress1.to_s]
-  #     leo_insurance.holder_address_2 = insurance[:insurancepolicyholderaddress2.to_s]
-  #     leo_insurance.holder_city = insurance[:insurancepolicyholdercity.to_s]
-  #     leo_insurance.holder_state = insurance[:insurancepolicyholderstate.to_s]
-  #     leo_insurance.holder_zip = insurance[:insurancepolicyholderzip.to_s]
-  #     leo_insurance.holder_country = insurance[:insurancepolicyholdercountrycode.to_s]
-  #     leo_insurance.primary = insurance[:sequencenumber.to_s]
-  #     leo_insurance.irc_name = insurance[:ircname.to_s]
-  #
-  #     leo_insurance.save!
-  #   end
-  #
-  #   leo_patient.insurances_updated_at = DateTime.now.utc
-  #   leo_patient.save!
-  # end
+    #get list of photos for this patients
+    photos = leo_patient.photos.order("id desc")
+    @logger.info("Syncer: synching photos=#{photos.to_json}")
+
+    if photos.empty?
+      @connector.delete_patient_photo(patientid: leo_patient.athena_id)
+    else
+      @connector.set_patient_photo(patientid: leo_patient.athena_id, image: photos.first.image)
+    end
+
+    leo_patient.photos_updated_at = DateTime.now.utc
+    leo_patient.save!
+  end
+  def sync_insurances(leo_patient)
+    if leo_patient.athena_id == 0
+      post_patient(leo_patient)
+      if leo_patient.athena_id == 0
+        @logger.info("Skipping sync for insurances due to patient #{leo_patient.id} sync failure")
+        return
+      end
+    end
+
+    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
+
+    # leo_parent = leo_patient.family.primary_guardian
+
+    #get list of insurances for this patient
+    insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
+
+    #remove existing insurances for the user
+    Insurance.destroy_all(patient_id: leo_patient.id)
+
+    #create and/or update the vaccine records in Leo
+    insurances.each do | insurance |
+      leo_insurance = Insurance.create_with(irc_name: insurance[:ircname.to_s]).find_or_create_by!(athena_id: insurance[:insuranceid.to_s].to_i)
+
+      leo_insurance.patient_id = leo_patient.id
+      leo_insurance.athena_id = insurance[:insuranceid.to_s].to_i
+      leo_insurance.plan_name = insurance[:insuranceplanname.to_s]
+      leo_insurance.plan_phone = insurance[:insurancephone.to_s]
+      leo_insurance.plan_type = insurance[:insurancetype.to_s]
+      leo_insurance.policy_number = insurance[:policynumber.to_s]
+      leo_insurance.holder_ssn = insurance[:insurancepolicyholderssn.to_s]
+      leo_insurance.holder_birth_date = insurance[:insurancepolicyholderdob.to_s]
+      leo_insurance.holder_sex = insurance[:insurancepolicyholdersex.to_s]
+      leo_insurance.holder_last_name = insurance[:insurancepolicyholderlastname.to_s]
+      leo_insurance.holder_first_name = insurance[:insurancepolicyholderfirstname.to_s]
+      leo_insurance.holder_middle_name = insurance[:insurancepolicyholdermiddlename.to_s]
+      leo_insurance.holder_address_1 = insurance[:insurancepolicyholderaddress1.to_s]
+      leo_insurance.holder_address_2 = insurance[:insurancepolicyholderaddress2.to_s]
+      leo_insurance.holder_city = insurance[:insurancepolicyholdercity.to_s]
+      leo_insurance.holder_state = insurance[:insurancepolicyholderstate.to_s]
+      leo_insurance.holder_zip = insurance[:insurancepolicyholderzip.to_s]
+      leo_insurance.holder_country = insurance[:insurancepolicyholdercountrycode.to_s]
+      leo_insurance.primary = insurance[:sequencenumber.to_s]
+      leo_insurance.irc_name = insurance[:ircname.to_s]
+
+      leo_insurance.save!
+    end
+
+    leo_patient.insurances_updated_at = DateTime.now.utc
+    leo_patient.save!
+  end
 end
