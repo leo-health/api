@@ -325,7 +325,7 @@ module AthenaHealthApiHelper
       return AthenaStruct.new(result[0])
     end
 
-    def update_patient(**params)
+    def update_patient(patientid: , **params)
       # patientid: ,
       # status: nil, #active, inactive, prospective, deleted
       # firstname: ,

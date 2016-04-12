@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'mandrill_mailer/offline'
 
 describe User do
   describe "relations" do
@@ -153,9 +154,16 @@ describe User do
       it { expect(user).to callback(:set_user_type_on_secondary_user).after(:commit) }
 
       context "for secondary guardian" do
+        it "should set confirmed_at for secondary user" do
+          expect( secondary_guardian.confirmed_at ).not_to eq(nil)
+        end
+
         it "should set the user type of secondary guardian to be intentical to the primary guadian" do
           expect( secondary_guardian.type ).to eq(user.type)
-          expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(1)
+        end
+
+        it "should send a welcome to practice email to secodonary user, and a internal notification email to ios" do
+          expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(2)
         end
       end
     end
@@ -202,6 +210,15 @@ describe User do
 
     it "should collect all the unique device tokens" do
       expect(user.collect_device_tokens).to eq(uniq_tokens)
+    end
+  end
+
+  describe "#invited_user?" do
+    let(:onboarding_group){ create(:onboarding_group) }
+    let(:invited_user){ create(:user, onboarding_group: onboarding_group) }
+
+    it "should return true if a user is being invited" do
+      expect(invited_user.invited_user?).to eq(true)
     end
   end
 end
