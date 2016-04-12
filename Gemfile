@@ -10,7 +10,6 @@ gem 'turbolinks'
 gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
-gem 'delayed_cron_job'
 gem 'devise'                # Authentication
 gem 'cancancan', '~> 1.10'
 gem 'paranoia', '~> 2.0'
