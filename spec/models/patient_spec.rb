@@ -66,15 +66,27 @@ RSpec.describe Patient, type: :model do
 
     context 'before syncing the patient' do
       it "calls post_to_athena" do
-        expect(@patient).to callback(:post_to_athena).after(:commit).on(:create)
+        expect(@patient).to callback(:post_to_athena).after(:commit)
       end
     end
 
     describe ".post_to_athena" do
-      it "adds a PostPatientJob to the queue" do
-        expect{ @patient.post_to_athena }.to change{
-          Delayed::Job.where(queue: PostPatientJob.queue_name).count
-        }.by(1)
+      context "the job already exists" do
+        it "does not add a PostPatientJob to the queue" do
+          @patient.post_to_athena
+          expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
+        end
+      end
+      
+      context "the job does not exist" do
+        before do
+          Delayed::Job.where(queue: PostPatientJob.queue_name).destroy_all
+        end
+
+        it "adds a PostPatientJob to the queue" do
+          @patient.post_to_athena
+          expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
+        end
       end
     end
 
@@ -87,9 +99,19 @@ RSpec.describe Patient, type: :model do
     end
 
     describe ".subscribe_to_athena" do
-      it "adds a PostPatientJob to the queue" do
-        @patient.subscribe_to_athena
-        expect(Delayed::Job.where(queue: SyncPatientJob.queue_name).count).to be(1)
+      context "patient has not been synced" do
+        it "adds a PostPatientJob to the queue" do
+          @patient.subscribe_to_athena
+          expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
+        end
+      end
+
+      context "patient has been synced" do
+        it "adds a SyncPatientJob to the queue" do
+          @patient.athena_id = 1
+          @patient.subscribe_to_athena
+          expect(Delayed::Job.where(queue: SyncPatientJob.queue_name).count).to be(1)
+        end
       end
     end
   end
