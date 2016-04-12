@@ -3,7 +3,6 @@ class PostAppointmentJob < LeoDelayedJob
 
   def initialize(appointment)
     @appointment = appointment
-    @service = AthenaAppointmentSyncService.new
   end
 
   def start
@@ -11,7 +10,7 @@ class PostAppointmentJob < LeoDelayedJob
   end
 
   def perform
-    @service.post_appointment @appointment
+    AthenaAppointmentSyncService.new.post_appointment @appointment
   end
 
   def self.queue_name

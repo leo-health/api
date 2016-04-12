@@ -20,7 +20,7 @@ class Practice < ActiveRecord::Base
 
 
   def subscribe_to_athena
-    SyncAppointmentsJob.new.subscribe_if_needed self, run_at: Time.now
+    SyncAppointmentsJob.new(self).subscribe_if_needed run_at: Time.now
   end
 
   private

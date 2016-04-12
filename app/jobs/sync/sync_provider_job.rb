@@ -1,19 +1,10 @@
 class SyncProviderJob < PeriodicPollingJob
-
-  attr_reader :provider_sync_profile
-
-  def initialize
-    super 20.minutes
-    @service = AthenaProviderSyncService.new
-  end
-
-  def subscribe(provider_sync_profile, **args)
-    @provider_sync_profile = provider_sync_profile
-    super(**args.reverse_merge(priority: self.class::LOW_PRIORITY, owner: @provider_sync_profile))
+  def initialize(provider_sync_profile)
+    super interval: 20.minutes, owner: provider_sync_profile, priority: LOW_PRIORITY
   end
 
   def perform
-    @service.sync_provider_leave @provider_sync_profile
+    AthenaProviderSyncService.new.sync_provider_leave @owner
   end
 
   def self.queue_name
