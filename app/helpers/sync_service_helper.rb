@@ -714,6 +714,9 @@ module SyncServiceHelper
 
       #create and/or update the medication records in Leo
       meds.each do | med |
+
+        raise "Medication has no medicationid #{meds}" unless med[:medicationid.to_s]
+
         leo_med = Medication.find_or_create_by!(athena_id: med[:medicationid.to_s])
 
         leo_med.patient_id = leo_patient.id
