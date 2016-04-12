@@ -320,29 +320,6 @@ class AthenaPatientSyncService < AthenaSyncService
   end
 
   # Currently unused methods
-  def sync_photo(leo_patient)
-    # TODO: figure out why this doesn't work
-    if leo_patient.athena_id == 0
-      post_patient(leo_patient)
-      if leo_patient.athena_id == 0
-        @logger.info("Skipping sync for photo due to patient #{leo_patient.id} sync failure")
-        return
-      end
-    end
-
-    #get list of photos for this patients
-    photos = leo_patient.photos.order("id desc")
-    @logger.info("Syncer: synching photos=#{photos.to_json}")
-
-    if photos.empty?
-      @connector.delete_patient_photo(patientid: leo_patient.athena_id)
-    else
-      @connector.set_patient_photo(patientid: leo_patient.athena_id, image: photos.first.image)
-    end
-
-    leo_patient.photos_updated_at = DateTime.now.utc
-    leo_patient.save!
-  end
   def sync_insurances(leo_patient)
     if leo_patient.athena_id == 0
       post_patient(leo_patient)
@@ -391,6 +368,29 @@ class AthenaPatientSyncService < AthenaSyncService
     end
 
     leo_patient.insurances_updated_at = DateTime.now.utc
+    leo_patient.save!
+  end
+  def sync_photo(leo_patient)
+    # TODO: figure out why this doesn't work
+    if leo_patient.athena_id == 0
+      post_patient(leo_patient)
+      if leo_patient.athena_id == 0
+        @logger.info("Skipping sync for photo due to patient #{leo_patient.id} sync failure")
+        return
+      end
+    end
+
+    #get list of photos for this patients
+    photos = leo_patient.photos.order("id desc")
+    @logger.info("Syncer: synching photos=#{photos.to_json}")
+
+    if photos.empty?
+      @connector.delete_patient_photo(patientid: leo_patient.athena_id)
+    else
+      @connector.set_patient_photo(patientid: leo_patient.athena_id, image: photos.first.image)
+    end
+
+    leo_patient.photos_updated_at = DateTime.now.utc
     leo_patient.save!
   end
 end
