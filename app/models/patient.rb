@@ -29,10 +29,11 @@ class Patient < ActiveRecord::Base
 
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 
-  after_commit :upgrade_guardian!, :post_to_athena, on: :create
+  after_commit :upgrade_guardian!, on: :create
+  after_commit :post_to_athena, if: -> { athena_id == 0 }
 
   # subscribe_to_athena only the first time after the patient has been posted to athena
-  after_commit :subscribe_to_athena, :if => Proc.new { |record|
+  after_commit :subscribe_to_athena, if: Proc.new { |record|
     attribute = :athena_id
     record.previous_changes.key?(attribute) &&
     record.previous_changes[attribute].first == 0 &&
@@ -40,11 +41,15 @@ class Patient < ActiveRecord::Base
   }
 
   def post_to_athena
-    PostPatientJob.new(self).start
+    PostPatientJob.new(self).start unless Delayed::Job.find_by(owner: self, queue: PostPatientJob.queue_name).exists?
   end
 
   def subscribe_to_athena
-    SyncPatientJob.new.subscribe_if_needed self, run_at: Time.now
+    if athena_id == 0
+      post_to_athena
+    else
+      SyncPatientJob.new.subscribe_if_needed self, run_at: Time.now
+    end
   end
 
   def current_avatar

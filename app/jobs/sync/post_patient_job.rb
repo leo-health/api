@@ -6,6 +6,10 @@ class PostPatientJob < LeoDelayedJob
     @service = AthenaPatientSyncService.new
   end
 
+  def start
+    super(owner: @patient)
+  end
+
   def perform
     @service.post_patient @patient
   end
