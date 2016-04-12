@@ -6,6 +6,10 @@ class PostAppointmentJob < LeoDelayedJob
     @service = AthenaAppointmentSyncService.new
   end
 
+  def start
+    super(owner: @appointment)
+  end
+
   def perform
     @service.post_appointment @appointment
   end

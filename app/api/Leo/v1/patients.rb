@@ -23,7 +23,6 @@ module Leo
           patient = current_user.family.patients.new(declared(params, including_missing: false))
           authorize! :create, patient
           patient.save!
-          PostPatientJob.new(patient).start
           create_success patient
         end
 

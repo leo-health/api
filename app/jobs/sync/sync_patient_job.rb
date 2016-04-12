@@ -9,7 +9,7 @@ class SyncPatientJob < PeriodicPollingJob
 
   def subscribe(patient, **args)
     @patient = patient
-    super **args.reverse_merge(priority: self.class::MEDIUM_PRIORITY, owner: patient)
+    super(**args.reverse_merge(priority: self.class::MEDIUM_PRIORITY, owner: patient))
   end
 
   def perform
