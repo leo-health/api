@@ -143,7 +143,7 @@ describe AthenaAppointmentSyncService do
         end
 
         it "sends a POST cancel appointment to Athena" do
-          @leo_booked_appt.update(appointment_status: @cancelled_appointment_status)
+          @leo_booked_appt.update(appointment_status: @cancelled_appointment_status, athena_id: 1)
           expect(@connector).to receive(:get_appointment).and_return(mock_appt)
           expect(@connector).to receive(:cancel_appointment)
           @service.post_appointment @leo_booked_appt
