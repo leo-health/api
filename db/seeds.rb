@@ -429,7 +429,7 @@ insurance_plan_seed = [
       {id: 11, plan_name: "Voluntary"},
       {id: 12, plan_name: "PPO"},
       {id: 13, plan_name: "POS"}
-           ]
+    ]
   },
 
   {
@@ -487,6 +487,26 @@ insurance_plan_seed = [
       {id: 41, plan_name: "PacifiCare"},
       {id: 42, plan_name: "PPO"},
       {id: 43, plan_name: "HMO"}
+    ]
+  },
+
+  {
+    insurer: {
+      insurer_name:"CareConnect"
+    },
+
+    plans: [
+      {id: 44, plan_name: "Plan"}
+    ]
+  },
+
+  {
+    insurer: {
+      insurer_name:"Other"
+    },
+
+    plans: [
+      {id: 45, plan_name: "Plan"}
     ]
   }
 ]
