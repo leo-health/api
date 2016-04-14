@@ -216,7 +216,11 @@ module SyncServiceHelper
         return if start_datetime < DateTime.now
         patient = Patient.find_by(athena_id: appt.patientid.to_i)
         provider_sync_profile = ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i)
-        appointment_type = AppointmentType.find_by(athena_id: appt.appointmenttypeid.to_i)
+
+        # TODO: Find a long term solution for the appointment type issue
+        mapped_appointmenttypeid = AppointmentType.mapped_appointment_type_id_for_athena_id(appt.appointmenttypeid.to_i)
+
+        appointment_type = AppointmentType.find_by(athena_id: mapped_appointmenttypeid)
         appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
         practice = Practice.find_by(athena_id: appt.departmentid)
         provider = provider_sync_profile.try(:provider)

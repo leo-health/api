@@ -9,7 +9,7 @@ module Leo
 
         get do
           family = Family.includes(:guardians).find(current_user.family_id)
-          appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id))
+          appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id)).where.not(appointment_type: AppointmentType.blocked)
                            .where("start_datetime > ?", Time.now).order("updated_at DESC")
           cards = sort_cards(appointments + [family.conversation])
           sorted_cards = cards.each_with_index.inject([]) do |cards, (card, index)|

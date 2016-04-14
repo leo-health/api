@@ -360,6 +360,15 @@ appointment_types_seed = [
   },
 
   {
+    athena_id: 22,
+    name: "Consult",
+    duration: 30,
+    short_description: "Consult",
+    long_description: "Consult",
+    hidden: true
+  },
+
+  {
     athena_id: 14,
     name: "Block",
     duration: 10,
