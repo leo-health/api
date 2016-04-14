@@ -1,0 +1,50 @@
+{
+  "providers": [
+    {
+      "firstname": "Erin",
+      "specialty": "Pediatric Medicine",
+      "schedulingname": "ERIN_GOLD",
+      "providertypeid": "NP",
+      "billable": "false",
+      "ansinamecode": "Physician Assistants & Advanced Practice Nursing Providers : Clinical Nurse Specialist : Pediatrics (364SP0200X)",
+      "lastname": "Gold, Cpnp",
+      "providerid": "3",
+      "providerusername": "egold2",
+      "ansispecialtycode": "364SP0200X",
+      "hideinportal": "false",
+      "entitytype": "Person",
+      "npi": "1578815486",
+      "providertype": "Nurse Practitioner (NP)"
+    },
+    {
+      "specialty": "Pediatric Medicine",
+      "schedulingname": "~NURSE",
+      "providertypeid": "RN",
+      "billable": "false",
+      "ansinamecode": "Nursing Service Providers : Registered Nurse (163W00000X)",
+      "lastname": "Nurse Schedule",
+      "providerid": "2",
+      "ansispecialtycode": "163W00000X",
+      "hideinportal": "false",
+      "entitytype": "Non-person entity",
+      "providertype": "Registered Nurse (RN)"
+    },
+    {
+      "firstname": "Victoria",
+      "specialty": "Pediatric Medicine",
+      "schedulingname": "RIESE_V",
+      "providertypeid": "MD",
+      "billable": "true",
+      "ansinamecode": "Allopathic & Osteopathic Physicians : Pediatrics (208000000X)",
+      "lastname": "Riese",
+      "providerid": "1",
+      "providerusername": "vriese1",
+      "ansispecialtycode": "208000000X",
+      "hideinportal": "false",
+      "entitytype": "Person",
+      "npi": "1912107681",
+      "providertype": "MD"
+    }
+  ],
+  "totalcount": 3
+}

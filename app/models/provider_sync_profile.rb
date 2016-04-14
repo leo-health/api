@@ -1,7 +1,7 @@
 class ProviderSyncProfile < ActiveRecord::Base
   belongs_to :provider, ->{ provider }, class_name: "User"
-  belongs_to :sync_job, class_name: Delayed::Job
-  validates :provider, presence: true
+
+  validates_uniqueness_of :athena_id, conditions: ->{ where.not(athena_id: 0) }
 
   after_commit :subscribe_to_athena, on: :create
 

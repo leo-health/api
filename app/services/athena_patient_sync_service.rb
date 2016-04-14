@@ -253,6 +253,7 @@ class AthenaPatientSyncService < AthenaSyncService
     raise "patient.id #{leo_patient.id} has a primary guardian that is not associated with a practice" unless leo_patient.family.primary_guardian.practice
 
     # try to map the leo_patient to athena up to 2 times, then fail
+    # TODO: handle this special failure condition through delayed job. Doesn't belong in the service layer
     raise "Leo patient #{leo_patient.id} failed to sync to athena more than twice" if leo_patient.athena_id < -1
     athena_patient_exists = leo_patient.athena_id > 0
     should_update_athena_patient = true
@@ -292,6 +293,11 @@ class AthenaPatientSyncService < AthenaSyncService
 
     #only sync if the insurance plan is registered in athena
     if insurance_plan && insurance_plan.athena_id != 0
+
+      byebug
+      # ????: is this ever called? how do the insurance_plans get synced?
+
+
       @connector.create_patient_insurance(
       patientid: leo_patient.athena_id,
       insurancepackageid: insurance_plan.athena_id.to_s,

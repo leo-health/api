@@ -1,5 +1,7 @@
 require "athena_health_api"
 
+# TODO: single responsibility - get paged should not parse json?
+
 module AthenaHealthApiHelper
   def self.to_datetime(athena_date, athena_time)
     date = Date.strptime(athena_date, '%m/%d/%Y')
@@ -317,6 +319,7 @@ module AthenaHealthApiHelper
       return AthenaStruct.new(result[0])
     end
 
+    # NOTE: need to be careful using **kwargs. patientid: is not included in params. Here it's ok since patientid is in the url, not in the query params
     def update_patient(patientid:, **params)
       # patientid: ,
       # status: nil, #active, inactive, prospective, deleted
@@ -462,6 +465,11 @@ module AthenaHealthApiHelper
       endpoint = "appointments/#{appointmentid}/notes"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
+    end
+
+    def get_providers(departmentid:, **params)
+      endpoint = "providers"
+      get_paged(url: endpoint, params: params, field: :providers, headers: @common_headers)
     end
   end
 end
