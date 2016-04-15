@@ -14,4 +14,8 @@ class PostPatientJob < LeoDelayedJob
   def self.queue_name
     'post_patient'
   end
+
+  def failure(job)
+    @patient.sync_status.update(should_attempt_sync: false)
+  end
 end

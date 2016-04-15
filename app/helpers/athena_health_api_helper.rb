@@ -293,7 +293,6 @@ module AthenaHealthApiHelper
     #returns patient id
     #TODO: Doesn't seem to create a new patient when some of the records are the same.  Investigate.
     def create_patient(**params)
-
       endpoint = "patients"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
