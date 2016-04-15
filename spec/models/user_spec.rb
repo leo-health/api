@@ -36,13 +36,13 @@ describe User do
 
     describe "has many provider appointments" do
       it "should return provider appointments" do
-        expect(provider.provider_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+        expect(provider.provider_appointments.sort).to eq([checked_in_appointment, charge_entered_appointment])
       end
     end
 
     describe "has many booked appointments" do
       it "should return booked appointments" do
-        expect(guardian.booked_appointments).to eq([checked_in_appointment, charge_entered_appointment])
+        expect(guardian.booked_appointments.sort).to eq([checked_in_appointment, charge_entered_appointment])
       end
     end
   end
