@@ -118,7 +118,11 @@ class AthenaAppointmentSyncService < AthenaSyncService
           leo_appt.update(patient: leo_patient)
         end
       elsif appt.future?
-        leo_appt = create_leo_appointment_from_athena! appt
+        begin
+          leo_appt = create_leo_appointment_from_athena! appt
+        rescue => e
+          @logger.error("SYNC: Failed to create appointment #{appt.inspect}, error: #{e}")
+        end
       end
       leo_appt
     }
