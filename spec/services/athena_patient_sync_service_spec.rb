@@ -44,7 +44,6 @@ describe AthenaPatientSyncService do
         it "creates a patient in athena" do
           expect(@connector).to receive(:create_patient).with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
           expect(@connector).to receive(:get_best_match_patient).and_return(nil)
-          expect(@connector).to receive(:get_best_match_patient).and_return(nil)
           expect(@connector).to receive(:get_patient_insurances).and_return(insurance_response)
           @service.post_patient patient
           expect(patient.athena_id).to eq(1000)
@@ -54,7 +53,6 @@ describe AthenaPatientSyncService do
       context "insurances do not exist" do
         it "creates a patient and insurance in athena" do
           expect(@connector).to receive(:create_patient).with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
-          expect(@connector).to receive(:get_best_match_patient).and_return(nil)
           expect(@connector).to receive(:get_best_match_patient).and_return(nil)
           expect(@connector).to receive(:get_patient_insurances).and_return([])
           expect(@connector).to receive(:create_patient_insurance).with(hash_including(insurancepackageid: insurance_plan.athena_id))

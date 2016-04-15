@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160412192726) do
+ActiveRecord::Schema.define(version: 20160415161023) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -367,6 +367,7 @@ ActiveRecord::Schema.define(version: 20160412192726) do
     t.datetime "vitals_updated_at"
     t.datetime "insurances_updated_at"
     t.datetime "photos_updated_at"
+    t.integer  "sync_status_id"
   end
 
   add_index "patients", ["athena_id"], name: "index_patients_on_athena_id", using: :btree
@@ -523,6 +524,14 @@ ActiveRecord::Schema.define(version: 20160412192726) do
   end
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
+
+  create_table "sync_statuses", force: :cascade do |t|
+    t.boolean "should_attempt_sync", default: true
+    t.integer "owner_id"
+    t.string  "owner_type"
+  end
+
+  add_index "sync_statuses", ["owner_type", "owner_id"], name: "index_sync_statuses_on_owner_type_and_owner_id", using: :btree
 
   create_table "user_conversations", force: :cascade do |t|
     t.integer  "user_id"

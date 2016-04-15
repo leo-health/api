@@ -220,20 +220,7 @@ class AthenaPatientSyncService < AthenaSyncService
   def get_best_match_patient(leo_patient)
     leo_parent = leo_patient.family.primary_guardian
     patient_birth_date = leo_patient.birth_date.strftime("%m/%d/%Y") if leo_patient.birth_date
-
     athena_patient = nil
-
-    begin
-      #search by phone first
-      athena_patient = @connector.get_best_match_patient(
-      firstname: leo_patient.first_name,
-      lastname: leo_patient.last_name,
-      dob: patient_birth_date,
-      anyphone: leo_parent.phone.gsub(/[^\d,\.]/, '')) if leo_parent.phone
-    rescue => e
-      @logger.info "bestmatch lookup by phone failed"
-    end
-
     begin
       #search by email
       athena_patient = @connector.get_best_match_patient(
@@ -242,9 +229,14 @@ class AthenaPatientSyncService < AthenaSyncService
       dob: patient_birth_date,
       guarantoremail: leo_parent.email) unless athena_patient
     rescue => e
-      @logger.info "bestmatch lookup by email failed"
+      @logger.error("SYNC: Best match by email failed #{e}. Trying by phone number")
+      # try again and throw exceptions
+      athena_patient = @connector.get_best_match_patient(
+      firstname: leo_patient.first_name,
+      lastname: leo_patient.last_name,
+      dob: patient_birth_date,
+      anyphone: leo_parent.phone.gsub(/[^\d,\.]/, '')) if leo_parent.phone
     end
-
     athena_patient
   end
 
@@ -263,10 +255,9 @@ class AthenaPatientSyncService < AthenaSyncService
     # try to map the leo_patient to athena up to 2 times, then fail
     raise "Leo patient #{leo_patient.id} failed to sync to athena more than twice" if leo_patient.athena_id < -1
     athena_patient_exists = leo_patient.athena_id > 0
-    should_try_again = leo_patient.athena_id > -2
     should_update_athena_patient = true
 
-    if !athena_patient_exists && should_try_again
+    unless athena_patient_exists
       athena_patient_exists = best_matched_patient = get_best_match_patient(leo_patient)
 
       if athena_patient_exists
@@ -278,10 +269,7 @@ class AthenaPatientSyncService < AthenaSyncService
         should_update_athena_patient = false
         athena_patient_exists = leo_patient.athena_id = @connector.create_patient(to_athena_json leo_patient).to_i
 
-        # TODO: handle this special failure condition through delayed job. Doesn't belong in the service layer
-        unless athena_patient_exists
-          leo_patient.athena_id -= 1
-        end
+        raise "Patient #{patient.id} failed to sync" unless athena_patient_exists
 
         leo_patient.save!
       end

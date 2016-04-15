@@ -1,5 +1,6 @@
 class Patient < ActiveRecord::Base
   acts_as_paranoid
+  include Syncable
   include PgSearch
   pg_search_scope(
     :search,
@@ -11,11 +12,6 @@ class Patient < ActiveRecord::Base
   )
 
   belongs_to :family
-  belongs_to :sync_job, class_name: Delayed::Job
-  belongs_to :vitals_sync_job, class_name: Delayed::Job
-  belongs_to :medications_sync_job, class_name: Delayed::Job
-  belongs_to :vaccines_sync_job, class_name: Delayed::Job
-  belongs_to :allergies_sync_job, class_name: Delayed::Job
   has_many :appointments, -> { Appointment.booked }
   has_many :medications
   has_many :allergies
@@ -30,7 +26,7 @@ class Patient < ActiveRecord::Base
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 
   after_commit :upgrade_guardian!, on: :create
-  after_commit :post_to_athena, if: -> { athena_id == 0 }
+  after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
 
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, if: Proc.new { |record|
@@ -57,6 +53,12 @@ class Patient < ActiveRecord::Base
   end
 
   private
+
+  def sync_status_with_auto_create
+    update(sync_status: SyncStatus.create!(owner: self)) unless sync_status_without_auto_create
+    sync_status_without_auto_create
+  end
+  alias_method_chain :sync_status, :auto_create
 
   def upgrade_guardian!
     family.primary_guardian.try(:upgrade!)
