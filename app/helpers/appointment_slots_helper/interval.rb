@@ -54,14 +54,14 @@ module AppointmentSlotsHelper
         if other.end_val <= end_val
           res_int1 = Interval.new(start_val, other.start_val)
           res_int2 = Interval.new(other.end_val, end_val)
-          return res_int1 + res_int2
+          res += [res_int1, res_int2]
         else
           res_int = Interval.new(start_val, other.start_val)
           res << res_int unless res_int.empty?
         end
       end
 
-      DiscreteIntervals.new(res)
+      DiscreteIntervals.new(res.reject { |res_interval| res_interval.empty? })
     end
 
     def intersect(other)
