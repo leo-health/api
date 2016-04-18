@@ -473,10 +473,14 @@ ActiveRecord::Schema.define(version: 20160420032516) do
   add_index "provider_schedules", ["athena_provider_id"], name: "index_provider_schedules_on_athena_provider_id", using: :btree
 
   create_table "provider_sync_profiles", force: :cascade do |t|
-    t.integer  "provider_id",                      null: false
+    t.integer  "provider_id"
     t.integer  "athena_department_id", default: 0
     t.integer  "athena_id",            default: 0
     t.datetime "leave_updated_at"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "credentials",                      array: true
+    t.integer  "practice_id"
   end
 
   create_table "read_receipts", force: :cascade do |t|

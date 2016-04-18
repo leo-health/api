@@ -29,11 +29,14 @@ class AthenaPracticeSyncService < AthenaSyncService
   end
 
   def parse_athena_provider_json(athena_provider)
+    practice = Practice.find_by(athena_id: athena_provider["departmentid"])
     {
       athena_id: get_athena_id(athena_provider),
       first_name: athena_provider["firstname"],
       last_name: athena_provider["lastname"],
-      credentials: athena_provider["providertype"]
+      credentials: athena_provider["providertype"],
+      practice: practice,
+      athena_department_id: athena_provider["departmentid"]
     }
   end
 
