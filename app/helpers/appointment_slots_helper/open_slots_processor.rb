@@ -45,6 +45,10 @@ module AppointmentSlotsHelper
           |appt| availability -= Interval.new(appt.start_datetime, appt.duration.minutes.since(appt.start_datetime))
       }
 
+      lunch_start = Date.today.in_time_zone + 13.hours
+      lunch_end = lunch_start + 1.hour
+      availability -= Interval.new(lunch_start, lunch_end)
+
       availability
     end
 
