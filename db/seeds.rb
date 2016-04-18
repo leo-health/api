@@ -363,8 +363,8 @@ appointment_types_seed = [
     athena_id: 22,
     name: "Consult",
     duration: 30,
-    short_description: "Consult",
-    long_description: "Consult",
+    short_description: "First visit to the practice",
+    long_description: "A first visit with the provider and the staff to learn more about the practice",
     hidden: true
   },
 
