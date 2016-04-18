@@ -46,7 +46,7 @@ module AppointmentSlotsHelper
       }
 
       # HACK: refactor to pull this information from Athena and avoid hard-coding it
-      lunch_start = Date.today.in_time_zone + 13.hours
+      lunch_start = date + 13.hours
       lunch_end = lunch_start + 1.hour
       availability -= Interval.new(lunch_start, lunch_end)
 
