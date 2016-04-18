@@ -5,7 +5,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     mandrill_mail(
       template: 'Leo - Sign Up Confirmation',
       subject: 'Leo - Please confirm your account!',
-      to: user.email,
+      to: user.unconfirmed_email || user.email,
       vars: {
         'GUARDIAN_FIRST_NAME': user.first_name,
         'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{token}"
@@ -17,7 +17,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     mandrill_mail(
       template: 'Leo - Password Reset',
       subject: 'Leo - Password reset request.',
-      to: user.email,
+      to: user.unconfirmed_email || user.email,
       vars: {
         'FIRST_NAME': user.first_name,
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/changePassword?token=#{token}"
