@@ -85,20 +85,21 @@ class AthenaPracticeSyncService < AthenaSyncService
       @logger.error "Could not create leo_provider for nil athena_provider"
       return
     end
-    provider = ProviderSyncProfile.create!(parse_athena_provider_json(athena_provider).merge({practice: practice}))
+    attributes = parse_athena_provider_json(athena_provider).merge({
+      practice: practice,
+      athena_department_id: practice.athena_id
+    })
+    provider = ProviderSyncProfile.create!(attributes)
     create_default_provider_schedule(provider)
     provider
   end
 
   def parse_athena_provider_json(athena_provider)
-    practice = Practice.find_by(athena_id: athena_provider["departmentid"])
     {
       athena_id: get_athena_id(athena_provider),
       first_name: athena_provider["firstname"],
       last_name: athena_provider["lastname"],
-      credentials: athena_provider["providertype"],
-      practice: practice,
-      athena_department_id: athena_provider["departmentid"]
+      credentials: athena_provider["providertype"]
     }
   end
 
