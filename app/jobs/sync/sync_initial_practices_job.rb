@@ -1,5 +1,5 @@
 class SyncInitialPracticesJob < LeoDelayedJob
-  def initialize(athena_practice_id)
+  def initialize(athena_practice_id: AthenaHealthApiHelper::AthenaHealthApiConnector.instance.connection.practiceid)
     @athena_practice_id = athena_practice_id
   end
 
@@ -7,8 +7,8 @@ class SyncInitialPracticesJob < LeoDelayedJob
     AthenaPracticeSyncService.new.sync_practices @athena_practice_id
   end
 
-  def success
-    SyncService.start
+  def success(job)
+    # SyncService.start
   end
 
   def self.queue_name

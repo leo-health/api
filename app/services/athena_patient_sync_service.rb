@@ -294,7 +294,6 @@ class AthenaPatientSyncService < AthenaSyncService
     #only sync if the insurance plan is registered in athena
     if insurance_plan && insurance_plan.athena_id != 0
 
-      byebug
       # ????: is this ever called? how do the insurance_plans get synced?
 
 

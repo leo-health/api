@@ -10,7 +10,6 @@ module Leo
         end
 
         get do
-          byebug
           users = User.staff
           authorize! :read, User
           present :staff, users, with: Leo::Entities::UserEntity

@@ -1,6 +1,6 @@
 class SyncService
   def self.seed
-    SyncInitialPracticesJob.new(AthenaHealthApiHelper::AthenaHealthApiConnector.instance.connection.practiceid).start
+    SyncInitialPracticesJob.new.start
   end
 
   def self.start

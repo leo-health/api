@@ -7,6 +7,11 @@ class SyncPracticeJob < PeriodicPollingJob
     AthenaPracticeSyncService.new.sync_providers @owner
   end
 
+  def success(job)
+    super(job)
+    # SyncAppointmentsJob.new(@owner).subscribe_if_needed run_at: Time.now
+  end
+
   def self.queue_name
     'get_providers'
   end
