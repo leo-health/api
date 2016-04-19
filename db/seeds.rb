@@ -40,7 +40,7 @@ default_provider_schedule = {
   monday_start_time: "08:00",
   monday_end_time: "19:20",
   tuesday_start_time: "08:00",
-  tuesday_end_time: "18:20",
+  tuesday_end_time: "17:20",
   wednesday_start_time: "10:00",
   wednesday_end_time: "19:20",
   thursday_start_time: "08:00",
