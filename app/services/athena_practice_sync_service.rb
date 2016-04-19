@@ -1,7 +1,7 @@
 class AthenaPracticeSyncService < AthenaSyncService
 
   def sync_practices(athena_practice_id)
-    departments = @connector.get_departments(practiceid: athena_practice_id)
+    departments = @connector.get_departments # TODO: refactor so practiceid is available as a parameter (practiceid: athena_practice_id)
     existing_practices = Practice.where(athena_id: departments.map {|dep| dep["departmentid"]})
     departments.map { |department|
       practice = existing_practices.find_by(athena_id: department["departmentid"])
@@ -17,7 +17,6 @@ class AthenaPracticeSyncService < AthenaSyncService
     athena_providers.map { |athena_provider|
       leo_provider = nil
 
-      # get the next existing provider if needed
       begin
         existing_provider ||= existing_providers.next
       rescue StopIteration
@@ -29,6 +28,19 @@ class AthenaPracticeSyncService < AthenaSyncService
       end
 
       update_or_create_leo_provider(leo_provider, athena_provider, practice)
+    }
+  end
+
+  def sync_appointment_types(practice)
+    athena_appointment_types = @connector.get_appointment_types
+    athena_appointment_types.map { |athena_appointment_type|
+      AppointmentType.create_with({
+        duration: athena_appointment_type["duration"].try(:to_i),
+        short_description: athena_appointment_type["name"],
+        long_description: athena_appointment_type["name"],
+        name: athena_appointment_type["name"],
+        hidden: false
+      }).find_or_create_by(athena_id: athena_appointment_type["appointmenttypeid"])
     }
   end
 

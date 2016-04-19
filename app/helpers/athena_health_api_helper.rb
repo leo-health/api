@@ -472,7 +472,7 @@ module AthenaHealthApiHelper
       get_paged(url: endpoint, params: params, field: :providers, headers: @common_headers)
     end
 
-    def get_departments(practiceid:, **params)
+    def get_departments(**params)
       endpoint = "departments"
       get_paged(url: endpoint, params: params, limit: 3, field: :departments, headers: @common_headers)
     end

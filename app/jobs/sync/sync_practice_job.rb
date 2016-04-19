@@ -4,12 +4,13 @@ class SyncPracticeJob < PeriodicPollingJob
   end
 
   def perform
+    AthenaPracticeSyncService.new.sync_appointment_types @owner
     AthenaPracticeSyncService.new.sync_providers @owner
   end
 
   def success(job)
     super(job)
-    # SyncAppointmentsJob.new(@owner).subscribe_if_needed run_at: Time.now
+    SyncAppointmentsJob.new(@owner).subscribe_if_needed run_at: Time.now
   end
 
   def self.queue_name
