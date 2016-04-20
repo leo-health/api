@@ -605,69 +605,42 @@ begin
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
+  default_practice_schedule = {
+    practice_id: 1,
+    monday_start_time: "08:00",
+    monday_end_time: "19:20",
+    tuesday_start_time: "08:00",
+    tuesday_end_time: "17:20",
+    wednesday_start_time: "10:00",
+    wednesday_end_time: "19:20",
+    thursday_start_time: "08:00",
+    thursday_end_time: "17:20",
+    friday_start_time: "09:00",
+    friday_end_time: "16:20",
+    saturday_start_time: "00:00",
+    saturday_end_time: "00:00",
+    sunday_start_time: "00:00",
+    sunday_end_time: "00:00"
+  }
+
   practice_schedules = [
     {
       id: 1,
-      practice_id: 1,
-      active: true,
       schedule_type: :default,
-      monday_start_time: "08:00",
-      monday_end_time: "20:00",
-      tuesday_start_time: "08:00",
-      tuesday_end_time: "18:00",
-      wednesday_start_time: "10:00",
-      wednesday_end_time: "20:00",
-      thursday_start_time: "08:00",
-      thursday_end_time: "18:00",
-      friday_start_time: "09:00",
-      friday_end_time: "17:00",
-      saturday_start_time: "00:00",
-      saturday_end_time: "00:00",
-      sunday_start_time: "00:00",
-      sunday_end_time: "00:00"
-    },
+      active: true
+    }.reverse_merge(default_practice_schedule),
 
     {
       id: 2,
-      practice_id: 1,
-      active: false,
       schedule_type: :emergency,
-      monday_start_time: "08:00",
-      monday_end_time: "20:00",
-      tuesday_start_time: "08:00",
-      tuesday_end_time: "18:00",
-      wednesday_start_time: "10:00",
-      wednesday_end_time: "20:00",
-      thursday_start_time: "08:00",
-      thursday_end_time: "18:00",
-      friday_start_time: "09:00",
-      friday_end_time: "17:00",
-      saturday_start_time: "00:00",
-      saturday_end_time: "00:00",
-      sunday_start_time: "00:00",
-      sunday_end_time: "00:00"
-    },
+      active: false
+    }.reverse_merge(default_practice_schedule),
 
     {
       id: 3,
-      practice_id: 1,
-      active: false,
       schedule_type: :holiday,
-      monday_start_time: "08:00",
-      monday_end_time: "20:00",
-      tuesday_start_time: "08:00",
-      tuesday_end_time: "18:00",
-      wednesday_start_time: "10:00",
-      wednesday_end_time: "20:00",
-      thursday_start_time: "08:00",
-      thursday_end_time: "18:00",
-      friday_start_time: "09:00",
-      friday_end_time: "17:00",
-      saturday_start_time: "00:00",
-      saturday_end_time: "00:00",
-      sunday_start_time: "00:00",
-      sunday_end_time: "00:00"
-    },
+      active: false
+    }.reverse_merge(default_practice_schedule)
   ]
 
   practice_schedules.each do |params|
