@@ -216,7 +216,11 @@ module SyncServiceHelper
         return if start_datetime < DateTime.now
         patient = Patient.find_by(athena_id: appt.patientid.to_i)
         provider_sync_profile = ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i)
-        appointment_type = AppointmentType.find_by(athena_id: appt.appointmenttypeid.to_i)
+
+        # TODO: Find a long term solution for the appointment type issue
+        mapped_appointmenttypeid = AppointmentType.mapped_appointment_type_id_for_athena_id(appt.appointmenttypeid.to_i)
+
+        appointment_type = AppointmentType.find_by(athena_id: mapped_appointmenttypeid)
         appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
         practice = Practice.find_by(athena_id: appt.departmentid)
         provider = provider_sync_profile.try(:provider)
@@ -298,6 +302,16 @@ module SyncServiceHelper
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_id" if leo_appt.provider.provider_sync_profile.athena_id == 0
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider.provider_sync_profile.athena_department_id == 0
         raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
+
+        # TODO:
+        # SLOTSCHANGE - update to GET open appointment instead of CREATE
+
+        # Problem: by creating an open slot then booking it, we are leaving an open slot for that time, therefore the practice will not get a warning about double booking
+        # Book an appointment only if the slot already exists? GET or CREATE?
+
+        # will need to GET all open slots for that day, then search for the correct time.
+        # should verify that the entire interval is available, else fail (with user message)
+        # book the first slot in the interval (seems to book all slots in the interval automatically)
 
         #create appointment
         leo_appt.athena_id = @connector.create_appointment(
@@ -714,6 +728,9 @@ module SyncServiceHelper
 
       #create and/or update the medication records in Leo
       meds.each do | med |
+
+        raise "Medication has no medicationid #{meds}" unless med[:medicationid.to_s]
+
         leo_med = Medication.find_or_create_by!(athena_id: med[:medicationid.to_s])
 
         leo_med.patient_id = leo_patient.id

@@ -39,7 +39,7 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
 
     describe "get_provider_availability" do
       let(:provider_availability){AppointmentSlotsHelper::DiscreteIntervals.new(
-          [AppointmentSlotsHelper::Interval.new(osp.to_datetime_str(date, "12:00"), osp.to_datetime_str(date, "14:00")),
+          [AppointmentSlotsHelper::Interval.new(osp.to_datetime_str(date, "12:00"), osp.to_datetime_str(date, "13:00")),
            AppointmentSlotsHelper::Interval.new(osp.to_datetime_str(date, "14:20"), osp.to_datetime_str(date, "20:00"))])}
 
       it "computes availability" do
@@ -51,8 +51,6 @@ RSpec.describe AppointmentSlotsHelper, type: :helper do
       let(:open_slots){[
           AppointmentSlotsHelper::OpenSlot.new(
               Time.zone.parse(date.inspect + " " + "12:00").to_datetime, 60),
-          AppointmentSlotsHelper::OpenSlot.new(
-              Time.zone.parse(date.inspect + " " + "13:00").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(
               Time.zone.parse(date.inspect + " " + "14:20").to_datetime, 60),
           AppointmentSlotsHelper::OpenSlot.new(

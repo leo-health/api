@@ -9,7 +9,7 @@ FactoryGirl.define do
     hidden false
 
     trait :well_visit do
-      athena_id 0
+      athena_id 11
       name "well visit"
       duration 30
       short_description "Regular check-up"
@@ -18,7 +18,7 @@ FactoryGirl.define do
     end
 
     trait :sick_visit do
-      athena_id 0
+      athena_id 10
       name "sick visit"
       duration 20
       short_description "New symptom"
@@ -27,7 +27,7 @@ FactoryGirl.define do
     end
 
     trait :follow_up_visit do
-      athena_id 0
+      athena_id 12
       name "follow_up visit"
       duration 20
       short_description "Unresolved illness or chronic condition"
@@ -36,7 +36,7 @@ FactoryGirl.define do
     end
 
     trait :immunization_visit do
-      athena_id 0
+      athena_id 8
       name "immunization visit"
       duration 20
       short_description "Flu shot or scheduled vaccine"
@@ -44,8 +44,17 @@ FactoryGirl.define do
       hidden false
     end
 
+    trait :consult do
+      athena_id 22
+      name "Consult"
+      duration 30
+      short_description "Consult"
+      long_description "Consult"
+      hidden true
+    end
+
     trait :block do
-      athena_id 0
+      athena_id 14
       name "Block"
       duration 10
       short_description "Block"
