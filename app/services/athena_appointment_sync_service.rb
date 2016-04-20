@@ -11,30 +11,36 @@ class AthenaAppointmentSyncService < AthenaSyncService
       raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider.provider_sync_profile.athena_department_id == 0
       raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
+
+      # find Slot
+      slots = Slot.free.where(provider_sync_profile: leo_appt.provider_sync_profile).between(leo_appt.start_datetime, leo_appt.end_datetime)
+      raise "No slot available for appointment #{leo_appt}" unless slots.first
+      leo_appt.update(athena_id: slots.first.athena_id)
+
       #create appointment
-      leo_appt.athena_id = @connector.create_appointment(
-      appointmentdate: leo_appt.start_datetime.strftime("%m/%d/%Y"),
-      appointmenttime: leo_appt.start_datetime.strftime("%H:%M"),
-      appointmenttypeid: leo_appt.appointment_type.athena_id,
-      departmentid: leo_appt.provider.provider_sync_profile.athena_department_id,
-      providerid: leo_appt.provider.provider_sync_profile.athena_id
-      )
+      # leo_appt.athena_id = @connector.create_appointment(
+      # appointmentdate: leo_appt.start_datetime.strftime("%m/%d/%Y"),
+      # appointmenttime: leo_appt.start_datetime.strftime("%H:%M"),
+      # appointmenttypeid: leo_appt.appointment_type.athena_id,
+      # departmentid: leo_appt.provider.provider_sync_profile.athena_department_id,
+      # providerid: leo_appt.provider.provider_sync_profile.athena_id
+      # )
 
       #book appointment
       @connector.book_appointment(
-      appointmentid: leo_appt.athena_id,
-      patientid: leo_appt.patient.athena_id,
-      reasonid: nil,
-      appointmenttypeid: leo_appt.appointment_type.athena_id,
-      departmentid: leo_appt.provider.provider_sync_profile.athena_department_id
+        appointmentid: leo_appt.athena_id,
+        patientid: leo_appt.patient.athena_id,
+        reasonid: nil,
+        appointmenttypeid: leo_appt.appointment_type.athena_id,
+        departmentid: leo_appt.provider.provider_sync_profile.athena_department_id
       )
+
+      slots.update_all(free_busy_type: :busy, appointment: leo_appt)
 
       #add appointment notes
       if leo_appt.notes
         @connector.create_appointment_note(appointmentid: leo_appt.athena_id, notetext: leo_appt.notes)
       end
-
-      leo_appt.save!
     end
 
     #early exit if the appointment date is older then current time
@@ -44,11 +50,10 @@ class AthenaAppointmentSyncService < AthenaSyncService
     raise "Could not find athena appointment with id=#{leo_appt.athena_id}" unless athena_appt
 
     if athena_appt.future? && leo_appt.cancelled?
-      #cancel
-      @connector.cancel_appointment(appointmentid: leo_appt.athena_id,
-      patientid: athena_appt.patientid) if athena_appt.booked?
+      @connector.cancel_appointment(appointmentid: leo_appt.athena_id, patientid: athena_appt.patientid) if athena_appt.booked?
+      Slot.where(athena_id: leo_appt.athena_id).destroy_all
     else
-      #update from athena
+      # ????: (adam) I don't think we need this. If anything, modifying a leo appointment should be handled in the sync appointments
       patient = Patient.find_by(athena_id: athena_appt.patientid.to_i)
       provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: athena_appt.providerid.to_i)
       appointment_type = AppointmentType.find_by!(athena_id: athena_appt.appointmenttypeid.to_i)
@@ -107,6 +112,9 @@ class AthenaAppointmentSyncService < AthenaSyncService
       leo_appt = Appointment.find_by(athena_id: appt.appointmentid.to_i)
 
       if leo_appt
+
+        Slot.between(leo_appt.start_datetime, leo_appt.end_datetime).destroy_all
+
         if appt.cancelled?
           leo_appt.update appointment_status: AppointmentStatus.cancelled
         end

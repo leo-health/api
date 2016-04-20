@@ -1,5 +1,30 @@
 require "rails_helper"
 describe AthenaProviderSyncService do
+  describe ".sync_open_slots" do
+    before do
+      @service = AthenaProviderSyncService.new
+      @connector = AthenaHealthApiHelper::AthenaHealthApiConnector.instance
+    end
+
+    def do_request
+
+    end
+
+    context "no slots exist" do
+      it "creates slots" do
+
+      end
+    end
+
+    context "slots already exist" do
+
+      it "updates slots" do
+
+      end
+    end
+  end
+
+
   describe ".sync_provider_leave" do
     before do
       @service = AthenaProviderSyncService.new

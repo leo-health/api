@@ -1,4 +1,5 @@
 class PracticeSchedule < ActiveRecord::Base
+  include Schedule
   belongs_to :practice
   before_save :ensure_single_active_schedule
 

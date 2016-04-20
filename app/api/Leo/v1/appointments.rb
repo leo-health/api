@@ -49,9 +49,18 @@ module Leo
         end
 
         put ":id" do
-          Appointment.transaction do
-            cancel_appointment
-            generate_appointment
+          appointment = Appointment.find(params[:id])
+          appointment_rescheduled = appointment.start_datetime != params[:start_datetime] || appointment.provider_id != params[:provider_id]
+          if appointment_rescheduled
+            Appointment.transaction do
+              cancel_appointment
+              generate_appointment
+            end
+          else
+            duration = AppointmentType.find(params[:appointment_type_id]).duration
+            appointment_params = declared(params, include_missing: false).merge(duration: duration)
+            appointment.update(appointment_params)
+            render_success appointment
           end
         end
 
@@ -86,6 +95,7 @@ module Leo
           authorize! :destroy, appointment
           appointment.appointment_status = AppointmentStatus.cancelled
           appointment.save!
+          Slot.find_by(appointment: appointment).destroy if appointment.athena_id > 0
           PostAppointmentJob.new(appointment).start
         end
       end

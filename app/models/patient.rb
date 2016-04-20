@@ -54,12 +54,6 @@ class Patient < ActiveRecord::Base
 
   private
 
-  def sync_status_with_auto_create
-    update(sync_status: SyncStatus.create!(owner: self)) unless sync_status_without_auto_create
-    sync_status_without_auto_create
-  end
-  alias_method_chain :sync_status, :auto_create
-
   def upgrade_guardian!
     family.primary_guardian.try(:upgrade!)
   end
