@@ -32,6 +32,28 @@ roles_seed.each do |param|
   Role.update_or_create!(:name, param)
 end
 
+
+default_provider_schedule = {
+  athena_provider_id: nil,
+  description: "Default Schedule",
+  active: true,
+  monday_start_time: "08:00",
+  monday_end_time: "19:20",
+  tuesday_start_time: "08:00",
+  tuesday_end_time: "17:20",
+  wednesday_start_time: "10:00",
+  wednesday_end_time: "19:20",
+  thursday_start_time: "08:00",
+  thursday_end_time: "17:20",
+  friday_start_time: "09:00",
+  friday_end_time: "16:20",
+  saturday_start_time: "00:00",
+  saturday_end_time: "00:00",
+  sunday_start_time: "00:00",
+  sunday_end_time: "00:00"
+}
+
+
 providers = [
   {
     title: "Dr.",
@@ -58,25 +80,7 @@ providers = [
       athena_department_id: 1
     },
 
-    provider_schedule_attributes: {
-      athena_provider_id: 1,
-      description: "Default Schedule",
-      active: true,
-      monday_start_time: "08:00",
-      monday_end_time: "11:00",
-      tuesday_start_time: "08:00",
-      tuesday_end_time: "18:00",
-      wednesday_start_time: "10:00",
-      wednesday_end_time: "19:20",
-      thursday_start_time: "08:00",
-      thursday_end_time: "13:00",
-      friday_start_time: "09:00",
-      friday_end_time: "18:00",
-      saturday_start_time: "00:00",
-      saturday_end_time: "00:00",
-      sunday_start_time: "00:00",
-      sunday_end_time: "00:00"
-    }
+    provider_schedule_attributes: { athena_provider_id: 1 }.reverse_merge(default_provider_schedule)
   },
 
   {
@@ -103,25 +107,7 @@ providers = [
       athena_department_id: 1
     },
 
-    provider_schedule_attributes: {
-      athena_provider_id: 3,
-      description: "Default Schedule",
-      active: true,
-      monday_start_time: "11:00",
-      monday_end_time: "19:20",
-      tuesday_start_time: "08:00",
-      tuesday_end_time: "18:00",
-      wednesday_start_time: "00:00",
-      wednesday_end_time: "00:00",
-      thursday_start_time: "14:00",
-      thursday_end_time: "18:00",
-      friday_start_time: "09:00",
-      friday_end_time: "17:00",
-      saturday_start_time: "00:00",
-      saturday_end_time: "00:00",
-      sunday_start_time: "00:00",
-      sunday_end_time: "00:00"
-    }
+    provider_schedule_attributes: { athena_provider_id: 3 }.reverse_merge(default_provider_schedule)
   }
 ]
 

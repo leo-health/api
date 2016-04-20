@@ -303,6 +303,16 @@ module SyncServiceHelper
         raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider.provider_sync_profile.athena_department_id == 0
         raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
+        # TODO:
+        # SLOTSCHANGE - update to GET open appointment instead of CREATE
+
+        # Problem: by creating an open slot then booking it, we are leaving an open slot for that time, therefore the practice will not get a warning about double booking
+        # Book an appointment only if the slot already exists? GET or CREATE?
+
+        # will need to GET all open slots for that day, then search for the correct time.
+        # should verify that the entire interval is available, else fail (with user message)
+        # book the first slot in the interval (seems to book all slots in the interval automatically)
+
         #create appointment
         leo_appt.athena_id = @connector.create_appointment(
           appointmentdate: leo_appt.start_datetime.strftime("%m/%d/%Y"),
