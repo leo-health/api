@@ -4,7 +4,8 @@ RSpec.describe Appointment, type: :model do
   describe 'relations' do
     it{ is_expected.to belong_to(:patient) }
     it{ is_expected.to belong_to(:practice) }
-    it{ is_expected.to belong_to(:booked_by).class_name('User') }
+    it{ is_expected.to belong_to(:booked_by) }
+    it{ is_expected.to belong_to(:provider_sync_profile) }
     it{ is_expected.to belong_to(:provider).class_name('User') }
     it{ is_expected.to belong_to(:appointment_type) }
     it{ is_expected.to belong_to(:appointment_status) }

@@ -7,11 +7,15 @@ class Role < ActiveRecord::Base
   validates :name, presence: true
   validates_uniqueness_of :name
 
-  def self.clinical
-    Role.find_by(name: :clinical)
-  end
+  class << self
+    private
+    def role_by_name
+      Role.find_by(name: __callee__)
+    end
 
-  def self.guardian
-    Role.find_by(name: :guardian)
+    Role.find_each do |role|
+      alias_method role.name, :role_by_name
+      public role.name
+    end
   end
 end

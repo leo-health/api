@@ -40,6 +40,12 @@ default_provider_schedule = {
   sunday_end_time: "00:00"
 }
 
+AppointmentType.update_or_create!(:name, {
+  name: "Other",
+  duration: 0, 
+  hidden: true
+})
+
 appointment_statuses_seed = [
   {
     description: "Checked In",

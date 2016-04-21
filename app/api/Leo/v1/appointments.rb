@@ -80,8 +80,8 @@ module Leo
         def generate_appointment
           error!({error_code: 422, error_message: "Appointment start time must be at least 15 minutes in the future" }, 422) if params[:start_datetime] < (DateTime.now + Appointment::MIN_INTERVAL_TO_SCHEDULE)
           duration = AppointmentType.find(params[:appointment_type_id]).duration
-          appointment_params = declared(params, include_missing: false).merge(duration: duration)
-          appointment = current_user.booked_appointments.new(appointment_params)
+          appointment_params = declared(params, include_missing: false).merge(duration: duration, booked_by: current_user)
+          appointment = Appointment.new(appointment_params)
           authorize! :create, appointment
           appointment.save!
           PostAppointmentJob.new(appointment).start
