@@ -1,22 +1,9 @@
 require 'csv'
 
-practices_seed = [
-  {
-    athena_id: 1,
-    name: "Flatiron Pediatrics",
-    address_line_1: "27 E 22nd St",
-    city: "New York",
-    state: "NY",
-    zip: "10011",
-    phone: "212-460-5600",
-    email: "info@leohealth.com",
-    time_zone: "Eastern Time (US & Canada)"
-  }
-]
 
-practices_seed.each do |param|
-  Practice.update_or_create!(:name, param)
-end
+should_seed_flatiron = ENV['SHOULD_SEED_FLATIRON']
+
+# First seed necessary data for all practices
 
 roles_seed = [
   { name: :financial },
@@ -52,321 +39,6 @@ default_provider_schedule = {
   sunday_start_time: "00:00",
   sunday_end_time: "00:00"
 }
-
-
-providers = [
-  {
-    title: "Dr.",
-    first_name: "Victoria",
-    last_name: "Riese",
-    sex: "F",
-    email: "victoria@flatironpediatrics.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :clinical),
-    practice_id: 1,
-    phone: '+19177976816',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Victoria-Shoulder.png'))
-    },
-
-    staff_profile_attributes: {
-      specialties: "",
-      credentials: ["MD"]
-    },
-
-    provider_sync_profile_attributes: {
-      athena_id: 1,
-      athena_department_id: 1
-    },
-
-    provider_schedule_attributes: { athena_provider_id: 1 }.reverse_merge(default_provider_schedule)
-  },
-
-  {
-    first_name: "Erin",
-    last_name: "Gold",
-    sex: "F",
-    email: "erin@flatironpediatrics.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :clinical),
-    practice_id: 1,
-    phone: '+16177912619',
-    staff_profile_attributes: {
-      specialties: "",
-      credentials: ["NP"]
-    },
-
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Erin-Shoulder.png'))
-    },
-
-    provider_sync_profile_attributes: {
-      athena_id: 3,
-      athena_department_id: 1
-    },
-
-    provider_schedule_attributes: { athena_provider_id: 3 }.reverse_merge(default_provider_schedule)
-  }
-]
-
-providers.each do |attributes|
-  if user = User.find_by(email: attributes[:email])
-    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
-  else
-    user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
-  end
-
-  if attributes[:staff_profile_attributes] && user.staff_profile
-    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
-  end
-
-  if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
-    user.provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
-  end
-
-  if avatar = user.avatar
-    avatar.update_attributes!(attributes[:avatar_attributes])
-  else
-    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-  end
-
-  if attributes[:provider_schedule_attributes]
-    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.try(:athena_id))
-      provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
-    else
-      ProviderSchedule.create!(attributes[:provider_schedule_attributes])
-    end
-  end
-end
-
-staff = [
-  {
-    first_name: "Leo",
-    last_name: "Bot",
-    sex: "F",
-    email: "leo_bot@leohealth.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :bot),
-    practice_id: 1,
-    phone: '1234567890',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-    }
-  },
-
-  {
-    first_name: "Marcey",
-    last_name: "Brody",
-    sex: "F",
-    email: "marcey@flatironpediatrics.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :clinical_support),
-    practice_id: 1,
-    phone: '+16302122713',
-    staff_profile_attributes: {
-      specialties: "",
-      credentials: ["RN"]
-    },
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcey-Shoulder.png'))
-    }
-  },
-
-  {
-    first_name: "Catherine",
-    last_name: "Franco",
-    sex: "F",
-    email: "catherine@flatironpediatrics.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :customer_service),
-    practice_id: 1,
-    phone: '+19176929777',
-    staff_profile_attributes: {
-      specialties: "",
-      credentials: ["Office Manager"]
-    },
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Catherine-Shoulder.png'))
-    }
-  },
-
-  {
-    first_name: "Kristen",
-    last_name: "Castellano",
-    sex: "F",
-    email: "kristen@flatironpediatrics.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :financial),
-    practice_id: 1,
-    phone: '+19736327321',
-    staff_profile_attributes: {
-      specialties: "",
-      credentials: ["RN"]
-    },
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Kristen-Shoulder.png'))
-    }
-  },
-
-  {
-    first_name: "Ben",
-    last_name: "Siscovick",
-    sex: "M",
-    email: "b@leohealth.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :customer_service),
-    practice_id: 1,
-    phone: '+12068198549',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-    }
-  },
-
-  {
-    first_name: "Zach",
-    last_name: "Drossman",
-    sex: "M",
-    email: "z@leohealth.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :customer_service),
-    practice_id: 1,
-    phone: '+12672559107',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-    }
-  },
-
-  {
-    first_name: "Jackie",
-    last_name: "McNamara",
-    sex: "F",
-    email: "j@leohealth.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :customer_service),
-    practice_id: 1,
-    phone: '+17819645918',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-    }
-  },
-
-  {
-    first_name: "Nayan",
-    last_name: "Jain",
-    sex: "M",
-    email: "n@leohealth.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :customer_service),
-    practice_id: 1,
-    phone: '+12035223374',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-    }
-  },
-
-  {
-    first_name: "Lydia",
-    last_name: "Zolman",
-    sex: "F",
-    email: "l@leohealth.com",
-    password: "password",
-    password_confirmation: "password",
-    role: Role.find_by(name: :customer_service),
-    practice_id: 1,
-    phone: '+17038879869',
-    avatar_attributes: {
-      avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-    }
-  }
-]
-
-staff.each do |attributes|
-  if user = User.find_by(email: attributes[:email])
-    user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
-  else
-    user = User.create!(attributes.except(:avatar_attributes))
-  end
-
-  if avatar = user.avatar
-    avatar.update_attributes!(attributes[:avatar_attributes])
-  else
-    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-  end
-
-  if attributes[:staff_profile_attributes] && user.staff_profile
-    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
-  end
-end
-
-appointment_types_seed = [
-  {
-    athena_id: 10,
-    name: "Sick Visit",
-    duration: 10,
-    short_description: "New symptom",
-    long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash.",
-    hidden: false
-  },
-
-  {
-    athena_id: 12,
-    name: "Follow Up Visit",
-    duration: 10,
-    short_description: "Unresolved illness or chronic condition",
-    long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema.",
-    hidden: false
-  },
-
-  {
-    athena_id: 8,
-    name: "Immunization / Lab Visit",
-    duration: 10,
-    short_description: "Flu shot or scheduled vaccine",
-    long_description: "A visit with a nurse to get one or more immunizations.",
-    hidden: false
-  },
-
-  {
-    athena_id: 11,
-    name: "Well Visit",
-    duration: 20,
-    short_description: "Regular check-up",
-    long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter.",
-    hidden: false
-  },
-
-  {
-    athena_id: 22,
-    name: "Consult",
-    duration: 30,
-    short_description: "First visit to the practice",
-    long_description: "A first visit with the provider and the staff to learn more about the practice",
-    hidden: true
-  },
-
-  {
-    athena_id: 14,
-    name: "Block",
-    duration: 10,
-    short_description: "Block",
-    long_description: "Block",
-    hidden: true
-  }
-]
-
-appointment_types_seed.each do |param|
-  AppointmentType.update_or_create!(:name, param)
-end
 
 appointment_statuses_seed = [
   {
@@ -604,6 +276,354 @@ begin
       s: row["S"]})
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
+end
+
+
+
+
+
+
+
+
+
+
+
+# Then seed Flatiron specific data if needed
+if should_seed_flatiron
+  practices_seed = [
+    {
+      athena_id: 1,
+      name: "Flatiron Pediatrics",
+      address_line_1: "27 E 22nd St",
+      city: "New York",
+      state: "NY",
+      zip: "10011",
+      phone: "212-460-5600",
+      email: "info@leohealth.com",
+      time_zone: "Eastern Time (US & Canada)"
+    }
+  ]
+
+  practices_seed.each do |param|
+    Practice.update_or_create!(:name, param)
+  end
+
+
+
+  providers = [
+    {
+      title: "Dr.",
+      first_name: "Victoria",
+      last_name: "Riese",
+      sex: "F",
+      email: "victoria@flatironpediatrics.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :clinical),
+      practice_id: 1,
+      phone: '+19177976816',
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Victoria-Shoulder.png'))
+      },
+
+      staff_profile_attributes: {
+        specialties: "",
+        credentials: ["MD"]
+      },
+
+      provider_sync_profile_attributes: {
+        athena_id: 1,
+        athena_department_id: 1
+      },
+
+      provider_schedule_attributes: { athena_provider_id: 1 }.reverse_merge(default_provider_schedule)
+    },
+
+    {
+      first_name: "Erin",
+      last_name: "Gold",
+      sex: "F",
+      email: "erin@flatironpediatrics.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :clinical),
+      practice_id: 1,
+      phone: '+16177912619',
+      staff_profile_attributes: {
+        specialties: "",
+        credentials: ["NP"]
+      },
+
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Erin-Shoulder.png'))
+      },
+
+      provider_sync_profile_attributes: {
+        athena_id: 3,
+        athena_department_id: 1
+      },
+
+      provider_schedule_attributes: { athena_provider_id: 3 }.reverse_merge(default_provider_schedule)
+    }
+  ]
+
+  providers.each do |attributes|
+    if user = User.find_by(email: attributes[:email])
+      user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
+    else
+      user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
+    end
+
+    if attributes[:staff_profile_attributes] && user.staff_profile
+      user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
+    end
+
+    if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
+      user.provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
+    end
+
+    if avatar = user.avatar
+      avatar.update_attributes!(attributes[:avatar_attributes])
+    else
+      Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+    end
+
+    if attributes[:provider_schedule_attributes]
+      if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.try(:athena_id))
+        provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
+      else
+        ProviderSchedule.create!(attributes[:provider_schedule_attributes])
+      end
+    end
+  end
+
+  staff = [
+    {
+      first_name: "Leo",
+      last_name: "Bot",
+      sex: "F",
+      email: "leo_bot@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :bot),
+      practice_id: 1,
+      phone: '1234567890',
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+      }
+    },
+
+    {
+      first_name: "Marcey",
+      last_name: "Brody",
+      sex: "F",
+      email: "marcey@flatironpediatrics.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :clinical_support),
+      practice_id: 1,
+      phone: '+16302122713',
+      staff_profile_attributes: {
+        specialties: "",
+        credentials: ["RN"]
+      },
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Marcey-Shoulder.png'))
+      }
+    },
+
+    {
+      first_name: "Catherine",
+      last_name: "Franco",
+      sex: "F",
+      email: "catherine@flatironpediatrics.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :customer_service),
+      practice_id: 1,
+      phone: '+19176929777',
+      staff_profile_attributes: {
+        specialties: "",
+        credentials: ["Office Manager"]
+      },
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Catherine-Shoulder.png'))
+      }
+    },
+
+    {
+      first_name: "Kristen",
+      last_name: "Castellano",
+      sex: "F",
+      email: "kristen@flatironpediatrics.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :financial),
+      practice_id: 1,
+      phone: '+19736327321',
+      staff_profile_attributes: {
+        specialties: "",
+        credentials: ["RN"]
+      },
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Kristen-Shoulder.png'))
+      }
+    },
+
+    {
+      first_name: "Ben",
+      last_name: "Siscovick",
+      sex: "M",
+      email: "b@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :customer_service),
+      practice_id: 1,
+      phone: '+12068198549',
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+      }
+    },
+
+    {
+      first_name: "Zach",
+      last_name: "Drossman",
+      sex: "M",
+      email: "z@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :customer_service),
+      practice_id: 1,
+      phone: '+12672559107',
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+      }
+    },
+
+    {
+      first_name: "Jackie",
+      last_name: "McNamara",
+      sex: "F",
+      email: "j@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :customer_service),
+      practice_id: 1,
+      phone: '+17819645918',
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+      }
+    },
+
+    {
+      first_name: "Nayan",
+      last_name: "Jain",
+      sex: "M",
+      email: "n@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :customer_service),
+      practice_id: 1,
+      phone: '+12035223374',
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+      }
+    },
+
+    {
+      first_name: "Lydia",
+      last_name: "Zolman",
+      sex: "F",
+      email: "l@leohealth.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :customer_service),
+      practice_id: 1,
+      phone: '+17038879869',
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+      }
+    }
+  ]
+
+  staff.each do |attributes|
+    if user = User.find_by(email: attributes[:email])
+      user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
+    else
+      user = User.create!(attributes.except(:avatar_attributes))
+    end
+
+    if avatar = user.avatar
+      avatar.update_attributes!(attributes[:avatar_attributes])
+    else
+      Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+    end
+
+    if attributes[:staff_profile_attributes] && user.staff_profile
+      user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
+    end
+  end
+
+  appointment_types_seed = [
+    {
+      athena_id: 10,
+      name: "Sick Visit",
+      duration: 10,
+      short_description: "New symptom",
+      long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash.",
+      hidden: false
+    },
+
+    {
+      athena_id: 12,
+      name: "Follow Up Visit",
+      duration: 10,
+      short_description: "Unresolved illness or chronic condition",
+      long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema.",
+      hidden: false
+    },
+
+    {
+      athena_id: 8,
+      name: "Immunization / Lab Visit",
+      duration: 10,
+      short_description: "Flu shot or scheduled vaccine",
+      long_description: "A visit with a nurse to get one or more immunizations.",
+      hidden: false
+    },
+
+    {
+      athena_id: 11,
+      name: "Well Visit",
+      duration: 20,
+      short_description: "Regular check-up",
+      long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter.",
+      hidden: false
+    },
+
+    {
+      athena_id: 22,
+      name: "Consult",
+      duration: 30,
+      short_description: "First visit to the practice",
+      long_description: "A first visit with the provider and the staff to learn more about the practice",
+      hidden: true
+    },
+
+    {
+      athena_id: 14,
+      name: "Block",
+      duration: 10,
+      short_description: "Block",
+      long_description: "Block",
+      hidden: true
+    }
+  ]
+
+  appointment_types_seed.each do |param|
+    AppointmentType.update_or_create!(:name, param)
+  end
+
 
   default_practice_schedule = {
     practice_id: 1,

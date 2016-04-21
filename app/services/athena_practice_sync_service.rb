@@ -1,5 +1,4 @@
 class AthenaPracticeSyncService < AthenaSyncService
-
   def sync_practices(athena_practice_id)
     departments = @connector.get_departments # TODO: refactor so practiceid is available as a parameter (practiceid: athena_practice_id)
     existing_practices = Practice.where(athena_id: departments.map {|dep| dep["departmentid"]})
@@ -40,7 +39,7 @@ class AthenaPracticeSyncService < AthenaSyncService
         long_description: athena_appointment_type["name"],
         name: athena_appointment_type["name"],
         hidden: false
-      }).find_or_create_by(athena_id: athena_appointment_type["appointmenttypeid"])
+      }).find_or_create_by(athena_id: athena_appointment_type["appointmenttypeid"].try(:to_i))
     }
   end
 
