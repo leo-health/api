@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  include RoleCheckable
   devise :database_authenticatable, :registerable, :confirmable, :recoverable, :validatable
   acts_as_paranoid
   include PgSearch
@@ -66,23 +67,6 @@ class User < ActiveRecord::Base
   def unread_conversations
     return if guardian?
     Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
-  end
-
-  def add_role(name)
-    new_role = Role.find_by_name(name)
-    update_attributes(role: new_role) if new_role
-  end
-
-  def guardian?
-    has_role? :guardian
-  end
-
-  def provider?
-    has_role? :clinical
-  end
-
-  def has_role? (name)
-    role && role.name == name.to_s
   end
 
   def upgrade!
