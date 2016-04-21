@@ -19,9 +19,7 @@ class PeriodicPollingJob < LeoDelayedJob
   end
 
   def subscribe_if_needed(**args)
-    unless Delayed::Job.exists? owner: @owner, queue: self.queue_name
-      subscribe(**args) # subclass implementation. this should be a protocol
-    end
+    Delayed::Job.find_by(owner: @owner, queue: self.queue_name) || subscribe(**args) # subclass implementation
   end
 
   def success(completed_job)

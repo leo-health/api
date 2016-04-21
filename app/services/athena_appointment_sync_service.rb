@@ -124,14 +124,15 @@ class AthenaAppointmentSyncService < AthenaSyncService
     # TODO: refactor to end early based on validations to minimize db calls
     patient = Patient.find_by(athena_id: appt.patientid.to_i)
     provider_sync_profile = ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i)
-    appointment_type = AppointmentType.find_by(athena_id: appt.appointmenttypeid.to_i)
+    appointment_type = AppointmentType.find_by_athena_id_with_mapping_if_needed(appt.appointmenttypeid.try(:to_i))
     appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
     practice = Practice.find_by(athena_id: appt.departmentid)
     provider = provider_sync_profile.try(:provider)
-    Appointment.create!(
+    appointment_params = {
       appointment_status: appointment_status,
-      booked_by: provider,
+      booked_by: provider || provider_sync_profile,
       patient: patient,
+      provider_sync_profile: provider_sync_profile,
       provider: provider,
       practice: practice,
       appointment_type: appointment_type,
@@ -139,6 +140,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
       start_datetime: AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime),
       sync_updated_at: DateTime.now,
       athena_id: appt.appointmentid.to_i
-    )
+    }
+    Appointment.create!(appointment_params)
   end
 end

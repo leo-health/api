@@ -14,6 +14,6 @@ class SyncPracticeJob < PeriodicPollingJob
   end
 
   def self.queue_name
-    'get_providers'
+    'get_practice'
   end
 end
