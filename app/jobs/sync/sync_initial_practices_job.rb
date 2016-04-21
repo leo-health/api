@@ -7,10 +7,6 @@ class SyncInitialPracticesJob < LeoDelayedJob
     AthenaPracticeSyncService.new.sync_practices @athena_practice_id
   end
 
-  def success(job)
-    # SyncService.start
-  end
-
   def self.queue_name
     'get_practices'
   end
