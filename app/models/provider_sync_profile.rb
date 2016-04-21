@@ -1,6 +1,5 @@
 class ProviderSyncProfile < ActiveRecord::Base
   include RoleCheckable
-
   belongs_to :provider, ->{ provider }, class_name: "User"
   belongs_to :practice
   validates_uniqueness_of :athena_id, conditions: ->{ where.not(athena_id: 0) }
