@@ -390,7 +390,7 @@ module SyncServiceHelper
       blocked_appointment_type = AppointmentType.find_by!(name: "Block")
 
       startdate = Date.today.strftime("%m/%d/%Y")
-      enddate = (Date.today + 1.year).strftime("%m/%d/%Y")
+      enddate = (Date.today + 6.months).strftime("%m/%d/%Y")
 
       blocked_appts = @connector.get_open_appointments(
         departmentid: provider_sync_profile.athena_department_id,

@@ -3,7 +3,7 @@ class SyncProviderJob < SyncJob
   attr_reader :provider_sync_profile
 
   def initialize(provider_sync_profile)
-    super 20.minutes
+    super 1.hour
     @provider_sync_profile = provider_sync_profile
   end
 
