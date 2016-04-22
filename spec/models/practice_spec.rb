@@ -72,7 +72,7 @@ RSpec.describe Practice, type: :model do
       context "no SyncAppointmentsJob job exists for this practice" do
         it "adds a SyncAppointmentsJob to the queue" do
           @practice.subscribe_to_athena
-          expect(Delayed::Job.where(queue: SyncAppointmentsJob.queue_name, owner:@practice).count).to be(1)
+          expect(Delayed::Job.where(queue: SyncPracticeJob.queue_name, owner:@practice).count).to be(1)
         end
       end
     end
