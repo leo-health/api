@@ -5,10 +5,6 @@ RSpec.describe ProviderSyncProfile, type: :model do
     it{ is_expected.to belong_to(:provider).class_name('User') }
   end
 
-  describe "validations" do
-    it { is_expected.to validate_presence_of(:provider) }
-  end
-
   describe "sync jobs" do
     let!(:provider){ create(:provider_sync_profile) }
 
