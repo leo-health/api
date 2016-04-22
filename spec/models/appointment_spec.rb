@@ -20,7 +20,6 @@ RSpec.describe Appointment, type: :model do
     it { is_expected.to validate_presence_of(:start_datetime) }
     it { is_expected.to validate_presence_of(:appointment_status) }
     it { is_expected.to validate_presence_of(:appointment_type) }
-    it { is_expected.to validate_presence_of(:provider_sync_profile) }
 
     context "if booked by a provider" do
       before { allow(subject).to receive(:booked_by_provider?).and_return(false)}
