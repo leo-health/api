@@ -1,10 +1,5 @@
 class StaffProfile < ActiveRecord::Base
   belongs_to :staff, ->{ staff }, class_name: "User"
+  belongs_to :provider_sync_profile
   belongs_to :practice
-  validates_presence_of :staff
-  after_commit :subscribe_to_athena, on: :create
-
-  def subscribe_to_athena
-    SyncProviderJob.new(self).subscribe_if_needed run_at: Time.now
-  end
 end

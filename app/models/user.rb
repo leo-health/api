@@ -51,6 +51,10 @@ class User < ActiveRecord::Base
   after_update :welcome_onboarding_notifications, if: :guardian?
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
 
+  def athena_id
+    provider_sync_profile.try(:athena_id)
+  end
+
   def self.customer_service_user
     User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
   end

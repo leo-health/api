@@ -538,11 +538,12 @@ ActiveRecord::Schema.define(version: 20160420032516) do
   add_index "slots", ["start_datetime"], name: "index_slots_on_start_datetime", using: :btree
 
   create_table "staff_profiles", force: :cascade do |t|
-    t.integer  "staff_id",    null: false
-    t.string   "specialties",              array: true
-    t.string   "credentials",              array: true
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.integer  "staff_id"
+    t.string   "specialties",                           array: true
+    t.string   "credentials",                           array: true
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.integer  "provider_sync_profile_id"
   end
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
@@ -554,6 +555,21 @@ ActiveRecord::Schema.define(version: 20160420032516) do
   end
 
   add_index "sync_statuses", ["owner_type", "owner_id"], name: "index_sync_statuses_on_owner_type_and_owner_id", using: :btree
+
+  create_table "sync_tasks", force: :cascade do |t|
+    t.integer  "sync_id",     default: 0,     null: false
+    t.string   "sync_type",   default: "",    null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "sync_params", default: "",    null: false
+    t.integer  "num_failed",  default: 0,     null: false
+    t.boolean  "working",     default: false, null: false
+  end
+
+  add_index "sync_tasks", ["num_failed"], name: "index_sync_tasks_on_num_failed", using: :btree
+  add_index "sync_tasks", ["sync_id"], name: "index_sync_tasks_on_sync_id", using: :btree
+  add_index "sync_tasks", ["sync_type"], name: "index_sync_tasks_on_sync_type", using: :btree
+  add_index "sync_tasks", ["working"], name: "index_sync_tasks_on_working", using: :btree
 
   create_table "user_conversations", force: :cascade do |t|
     t.integer  "user_id"

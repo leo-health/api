@@ -75,7 +75,7 @@ class AthenaPracticeSyncService < AthenaSyncService
       zip: department["zip"],
       phone: department["phone"],
       email: nil,
-      time_zone: "Eastern Time (US & Canada)" # deal with time zones later. assume eastern
+      time_zone: "Eastern Time (US & Canada)" # TODO: deal with time zones later. assume eastern
     }
   end
 
@@ -102,6 +102,7 @@ class AthenaPracticeSyncService < AthenaSyncService
       athena_department_id: practice.athena_id
     })
     provider = ProviderSyncProfile.create!(attributes)
+    staff = StaffProfile.create!()
     create_default_provider_schedule(provider)
     provider
   end
