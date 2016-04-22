@@ -13,9 +13,10 @@ class Role < ActiveRecord::Base
       Role.find_by(name: __callee__)
     end
 
-    Role.find_each do |role|
-      alias_method role.name, :role_by_name
-      public role.name
+    roles = Role.all.map(&:name) | [:financial, :clinical_support, :customer_service, :guardian, :clinical, :bot, :operational]
+    roles.each do |role|
+      alias_method role, :role_by_name
+      public role
     end
   end
 end
