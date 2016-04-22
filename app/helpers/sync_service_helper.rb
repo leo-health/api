@@ -409,32 +409,30 @@ module SyncServiceHelper
         showfrozenslots: true
       ).select {|appt| appt.try(:frozen) == "true" && appt.providerid.to_i == provider_sync_profile.athena_id }
 
-      ActiveRecord::Base.transaction do
-        ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).destroy_all
-        blocked_appts.each { |appt|
-          start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
-          ProviderLeave.create(
-            athena_id: appt.appointmentid.to_i,
-            athena_provider_id: appt.providerid.to_i,
-            description: "Synced from Athena block.id=#{appt.appointmentid}",
-            start_datetime: start_datetime,
-            end_datetime: start_datetime + appt.duration.to_i.minutes
-          )
-        }
+      ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).destroy_all
+      blocked_appts.each { |appt|
+        start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
+        ProviderLeave.create(
+        athena_id: appt.appointmentid.to_i,
+        athena_provider_id: appt.providerid.to_i,
+        description: "Synced from Athena block.id=#{appt.appointmentid}",
+        start_datetime: start_datetime,
+        end_datetime: start_datetime + appt.duration.to_i.minutes
+        )
+      }
 
-        frozen_appts.each { |appt|
-          start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
-          ProviderLeave.create(
-            athena_id: appt.appointmentid.to_i,
-            athena_provider_id: appt.providerid.to_i,
-            description: "Synced from Athena block.id=#{appt.appointmentid}",
-            start_datetime: start_datetime,
-            end_datetime: start_datetime + appt.duration.to_i.minutes
-          )
-        }
-        provider_sync_profile.leave_updated_at = DateTime.now.utc
-        provider_sync_profile.save!
-      end
+      frozen_appts.each { |appt|
+        start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
+        ProviderLeave.create(
+        athena_id: appt.appointmentid.to_i,
+        athena_provider_id: appt.providerid.to_i,
+        description: "Synced from Athena block.id=#{appt.appointmentid}",
+        start_datetime: start_datetime,
+        end_datetime: start_datetime + appt.duration.to_i.minutes
+        )
+      }
+      provider_sync_profile.leave_updated_at = DateTime.now.utc
+      provider_sync_profile.save!
     end
 
     def find_preexisting_athena_patients()
