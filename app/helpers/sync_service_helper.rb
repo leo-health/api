@@ -413,22 +413,22 @@ module SyncServiceHelper
       blocked_appts.each { |appt|
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
         ProviderLeave.create(
-        athena_id: appt.appointmentid.to_i,
-        athena_provider_id: appt.providerid.to_i,
-        description: "Synced from Athena block.id=#{appt.appointmentid}",
-        start_datetime: start_datetime,
-        end_datetime: start_datetime + appt.duration.to_i.minutes
+          athena_id: appt.appointmentid.to_i,
+          athena_provider_id: appt.providerid.to_i,
+          description: "Synced from Athena block.id=#{appt.appointmentid}",
+          start_datetime: start_datetime,
+          end_datetime: start_datetime + appt.duration.to_i.minutes
         )
       }
 
       frozen_appts.each { |appt|
         start_datetime = AthenaHealthApiHelper.to_datetime(appt.date, appt.starttime)
         ProviderLeave.create(
-        athena_id: appt.appointmentid.to_i,
-        athena_provider_id: appt.providerid.to_i,
-        description: "Synced from Athena block.id=#{appt.appointmentid}",
-        start_datetime: start_datetime,
-        end_datetime: start_datetime + appt.duration.to_i.minutes
+          athena_id: appt.appointmentid.to_i,
+          athena_provider_id: appt.providerid.to_i,
+          description: "Synced from Athena block.id=#{appt.appointmentid}",
+          start_datetime: start_datetime,
+          end_datetime: start_datetime + appt.duration.to_i.minutes
         )
       }
       provider_sync_profile.leave_updated_at = DateTime.now.utc
