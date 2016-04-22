@@ -1,7 +1,7 @@
 class StaffProfile < ActiveRecord::Base
   belongs_to :staff, ->{ staff }, class_name: "User"
   belongs_to :practice
-  validate_presence_of :staff
+  validates_presence_of :staff
   after_commit :subscribe_to_athena, on: :create
 
   def subscribe_to_athena
