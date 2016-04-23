@@ -1,10 +1,13 @@
 class SyncInitialPracticesJob < LeoDelayedJob
-  def initialize(athena_practice_id: AthenaHealthApiHelper::AthenaHealthApiConnector.instance.connection.practiceid)
+  def initialize(athena_practice_id: AthenaHealthApiHelper::AthenaHealthApiConnector.instance.connection.practiceid, limit: nil)
     @athena_practice_id = athena_practice_id
+    @limit = limit
   end
 
   def perform
-    AthenaPracticeSyncService.new.sync_practices @athena_practice_id
+    service = AthenaPracticeSyncService.new
+    service.sync_practices @athena_practice_id, limit: @limit
+    service.sync_providers
   end
 
   def self.queue_name

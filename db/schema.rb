@@ -377,6 +377,22 @@ ActiveRecord::Schema.define(version: 20160420032516) do
   add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
   add_index "patients", ["first_name", "last_name"], name: "index_patients_on_first_name_and_last_name", using: :btree
 
+  create_table "people", force: :cascade do |t|
+    t.string   "title",          default: ""
+    t.string   "first_name",     default: "", null: false
+    t.string   "middle_initial", default: ""
+    t.string   "last_name",      default: "", null: false
+    t.datetime "dob"
+    t.string   "sex"
+    t.integer  "role",                        null: false
+    t.integer  "practice_id"
+    t.string   "email"
+    t.string   "type"
+    t.integer  "avatar_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "photos", force: :cascade do |t|
     t.integer  "patient_id"
     t.text     "image"
@@ -544,6 +560,17 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
     t.integer  "provider_sync_profile_id"
+    t.integer  "practice_id"
+    t.integer  "athena_id"
+    t.string   "title"
+    t.string   "first_name"
+    t.string   "middle_initial"
+    t.string   "last_name"
+    t.string   "suffix"
+    t.string   "sex"
+    t.string   "email"
+    t.string   "type"
+    t.integer  "avatar_id"
   end
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree

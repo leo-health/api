@@ -5,7 +5,6 @@ class SyncPracticeJob < PeriodicPollingJob
 
   def perform
     AthenaPracticeSyncService.new.sync_appointment_types @owner
-    AthenaPracticeSyncService.new.sync_providers @owner
   end
 
   def success(job)

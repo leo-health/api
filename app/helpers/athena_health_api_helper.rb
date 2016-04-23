@@ -467,7 +467,7 @@ module AthenaHealthApiHelper
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
     end
 
-    def get_providers(departmentid:, **params)
+    def get_providers(**params)
       endpoint = "providers"
       get_paged(url: endpoint, params: params, field: :providers, headers: @common_headers)
     end

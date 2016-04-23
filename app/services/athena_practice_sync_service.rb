@@ -1,6 +1,7 @@
 class AthenaPracticeSyncService < AthenaSyncService
-  def sync_practices(athena_practice_id)
+  def sync_practices(athena_practice_id, limit: nil)
     departments = @connector.get_departments # TODO: refactor so practiceid is available as a parameter (practiceid: athena_practice_id)
+    departments = departments[0...limit] if limit
     existing_practices = Practice.where(athena_id: departments.map {|dep| dep["departmentid"]})
     departments.map { |department|
       practice = existing_practices.find_by(athena_id: department["departmentid"])
@@ -8,8 +9,14 @@ class AthenaPracticeSyncService < AthenaSyncService
     }
   end
 
-  def sync_providers(practice)
-    athena_providers = @connector.get_providers(departmentid: practice.athena_id).sort_by(&method(:get_athena_id))
+  def sync_providers(practice: nil) # NOTE: Providers are not associated with a Department!
+
+
+    # !!!!: For now, associate all providers with the first Practice
+    practice ||= Practice.first
+
+
+    athena_providers = @connector.get_providers.sort_by(&method(:get_athena_id))
     existing_providers = ProviderSyncProfile.where(athena_id: athena_providers.map(&method(:get_athena_id))).order(:athena_id).to_enum
 
     existing_provider = nil
@@ -97,13 +104,14 @@ class AthenaPracticeSyncService < AthenaSyncService
       @logger.error "Could not create leo_provider for nil athena_provider"
       return
     end
-    attributes = parse_athena_provider_json(athena_provider).merge({
-      practice: practice,
-      athena_department_id: practice.athena_id
-    })
-    provider = ProviderSyncProfile.create!(attributes)
-    staff = StaffProfile.create!()
-    create_default_provider_schedule(provider)
+
+    attributes = parse_athena_provider_json(athena_provider).merge(practice: practice)
+    provider = nil
+    ActiveRecord::Base.transaction do
+      provider = ProviderSyncProfile.create!(attributes.merge(athena_department_id: practice.athena_id))
+      StaffProfile.create_with_provider!(provider)
+      ProviderSchedule.create_default_with_provider!(provider)
+    end
     provider
   end
 
@@ -116,38 +124,8 @@ class AthenaPracticeSyncService < AthenaSyncService
     }
   end
 
-
   # HELPERS
-
   def get_athena_id(athena_provider)
     athena_provider["providerid"].try(:to_i)
-  end
-
-  def create_default_provider_schedule(provider)
-    provider_schedule_attributes = {
-      athena_provider_id: provider.athena_id,
-      description: "Default Schedule",
-      active: true,
-      monday_start_time: "08:00",
-      monday_end_time: "11:00",
-      tuesday_start_time: "08:00",
-      tuesday_end_time: "18:00",
-      wednesday_start_time: "10:00",
-      wednesday_end_time: "19:20",
-      thursday_start_time: "08:00",
-      thursday_end_time: "13:00",
-      friday_start_time: "09:00",
-      friday_end_time: "18:00",
-      saturday_start_time: "00:00",
-      saturday_end_time: "00:00",
-      sunday_start_time: "00:00",
-      sunday_end_time: "00:00"
-    }
-    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: provider.athena_id)
-      provider_schedule.update_attributes!(provider_schedule_attributes)
-    else
-      provider_schedule = ProviderSchedule.create!(provider_schedule_attributes)
-    end
-    provider_schedule
   end
 end
