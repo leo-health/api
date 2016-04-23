@@ -77,7 +77,7 @@ module Leo
           appointment = current_user.booked_appointments.new(appointment_params)
           authorize! :create, appointment
           appointment.save!
-          appointment.delay(queue: "post_appointment").post_to_athena
+          PostAppointmentJob.new(appointment).start
           create_success appointment
         end
 
@@ -86,7 +86,7 @@ module Leo
           authorize! :destroy, appointment
           appointment.appointment_status = AppointmentStatus.cancelled
           appointment.save!
-          appointment.delay(queue: "post_appointment").post_to_athena
+          PostAppointmentJob.new(appointment).start
         end
       end
     end

@@ -5,11 +5,7 @@ class ProviderSyncProfile < ActiveRecord::Base
 
   after_commit :subscribe_to_athena, on: :create
 
-  def get_from_athena
-    SyncServiceHelper::Syncer.instance.sync_provider_leave self
-  end
-
   def subscribe_to_athena
-    SyncProviderJob.subscribe_if_needed self, run_at: Time.now
+    SyncProviderJob.new(self).subscribe_if_needed run_at: Time.now
   end
 end
