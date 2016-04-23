@@ -36,10 +36,10 @@ describe AthenaProviderSyncService do
         })))
       ])
       @service.sync_provider_leave provider_sync_profile
-      provider_leave = ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).order(:start_datetime)
+      provider_leave = ProviderLeave.where(athena_provider_id: provider_sync_profile.athena_id).where.not(athena_id: 0).first
       expect(provider_leave).to_not be_nil
-      expect(provider_leave.start_datetime).to eq(Time.zone.parse("30/10/2015 12:12").to_datetime)
-      expect(provider_leave.end_datetime).to eq(Time.zone.parse("30/10/2015 12:42").to_datetime)
+      expect(provider_leave.start_datetime).to eq(Time.zone.parse("26/12/2015 10:30").to_datetime)
+      expect(provider_leave.end_datetime).to eq(Time.zone.parse("26/12/2015 10:40").to_datetime)
     end
   end
 end
