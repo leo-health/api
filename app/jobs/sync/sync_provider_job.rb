@@ -8,6 +8,6 @@ class SyncProviderJob < PeriodicPollingJob
   end
 
   def self.queue_name
-    'get_provider_sync_profile'
+    'get_provider_leave'
   end
 end
