@@ -9,7 +9,7 @@ class AthenaPracticeSyncService < AthenaSyncService
     }
   end
 
-  def sync_providers(practice: nil) # NOTE: Providers are not associated with a Department!
+  def sync_providers(practice = nil) # NOTE: Providers are not associated with a Department!
 
 
     # !!!!: For now, associate all providers with the first Practice
