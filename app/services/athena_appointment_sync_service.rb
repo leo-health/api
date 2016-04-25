@@ -2,8 +2,8 @@ class AthenaAppointmentSyncService < AthenaSyncService
   def post_appointment(leo_appt)
     if leo_appt.athena_id == 0
       raise "Appointment appt.id=#{leo_appt.id} is in a state that cannot be reproduced in Athena" if leo_appt.open? || leo_appt.post_checked_in?
-      if leo_appt.patient.athena_id == 0
-        sync_leo_patient leo_appt.patient
+      if !leo_appt.patient.has_synced? && leo_appt.patient.should_attempt_sync?
+        AthenaPatientSyncService.new.post_patient leo_appt.patient
       end
       raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_sync_profile" unless leo_appt.provider_sync_profile
       raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_id" if leo_appt.provider_sync_profile.athena_id == 0

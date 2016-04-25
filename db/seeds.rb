@@ -1,7 +1,7 @@
 require 'csv'
 
 
-should_seed_flatiron = ENV['SHOULD_SEED_FLATIRON']
+should_seed_flatiron = ENV['SHOULD_SEED_FLATIRON'] && ENV['SHOULD_SEED_FLATIRON'] != "false"
 
 # First seed necessary data for all practices
 
@@ -42,7 +42,7 @@ default_provider_schedule = {
 
 AppointmentType.update_or_create!(:name, {
   name: "Other",
-  duration: 0, 
+  duration: 0,
   hidden: true
 })
 
@@ -294,29 +294,55 @@ end
 
 
 
+if should_seed_flatiron
+  Practice.update_or_create!(:athena_id, {
+    athena_id: 1,
+    name: "Flatiron Pediatrics",
+    address_line_1: "27 E 22nd St",
+    city: "New York",
+    state: "NY",
+    zip: "10011",
+    phone: "212-460-5600",
+    email: "info@leohealth.com",
+    time_zone: "Eastern Time (US & Canada)"
+  })
+else
+  Practice.update_or_create!(:athena_id, {
+    athena_id: 145,
+    name: "Downtown Health Group",
+    address_line_1: "8762 Stoneridge Ct",
+    city: "North Yarmouth",
+    state: "ME",
+    zip: "04097",
+    phone: "555-482-2453",
+    email: "info@leohealth.com",
+    time_zone: "Eastern Time (US & Canada)"
+  })
+end
+
+
+
+
+providers = [{
+  first_name: "Leo",
+  last_name: "Bot",
+  sex: "F",
+  email: "leo_bot@leohealth.com",
+  password: "password",
+  password_confirmation: "password",
+  role: Role.find_by(name: :bot),
+  practice_id: 1,
+  phone: '1234567890',
+  avatar_attributes: {
+    avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
+  }
+}]
+staff = []
+appointment_types_seed = []
+
 # Then seed Flatiron specific data if needed
 if should_seed_flatiron
-  practices_seed = [
-    {
-      athena_id: 1,
-      name: "Flatiron Pediatrics",
-      address_line_1: "27 E 22nd St",
-      city: "New York",
-      state: "NY",
-      zip: "10011",
-      phone: "212-460-5600",
-      email: "info@leohealth.com",
-      time_zone: "Eastern Time (US & Canada)"
-    }
-  ]
-
-  practices_seed.each do |param|
-    Practice.update_or_create!(:name, param)
-  end
-
-
-
-  providers = [
+  providers += [
     {
       title: "Dr.",
       first_name: "Victoria",
@@ -373,52 +399,7 @@ if should_seed_flatiron
     }
   ]
 
-  providers.each do |attributes|
-    if user = User.find_by(email: attributes[:email])
-      user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
-    else
-      user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
-    end
-
-    if attributes[:staff_profile_attributes] && user.staff_profile
-      user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
-    end
-
-    if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
-      user.provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
-    end
-
-    if avatar = user.avatar
-      avatar.update_attributes!(attributes[:avatar_attributes])
-    else
-      Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-    end
-
-    if attributes[:provider_schedule_attributes]
-      if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.try(:athena_id))
-        provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
-      else
-        ProviderSchedule.create!(attributes[:provider_schedule_attributes])
-      end
-    end
-  end
-
-  staff = [
-    {
-      first_name: "Leo",
-      last_name: "Bot",
-      sex: "F",
-      email: "leo_bot@leohealth.com",
-      password: "password",
-      password_confirmation: "password",
-      role: Role.find_by(name: :bot),
-      practice_id: 1,
-      phone: '1234567890',
-      avatar_attributes: {
-        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
-      }
-    },
-
+  staff += [
     {
       first_name: "Marcey",
       last_name: "Brody",
@@ -552,25 +533,7 @@ if should_seed_flatiron
     }
   ]
 
-  staff.each do |attributes|
-    if user = User.find_by(email: attributes[:email])
-      user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
-    else
-      user = User.create!(attributes.except(:avatar_attributes))
-    end
-
-    if avatar = user.avatar
-      avatar.update_attributes!(attributes[:avatar_attributes])
-    else
-      Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-    end
-
-    if attributes[:staff_profile_attributes] && user.staff_profile
-      user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
-    end
-  end
-
-  appointment_types_seed = [
+  appointment_types_seed += [
     {
       athena_id: 10,
       name: "Sick Visit",
@@ -626,12 +589,69 @@ if should_seed_flatiron
     }
   ]
 
-  appointment_types_seed.each do |param|
-    AppointmentType.update_or_create!(:name, param)
+end
+
+
+
+
+
+
+
+
+
+providers.each do |attributes|
+  if user = User.find_by(email: attributes[:email])
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
+  else
+    user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
   end
 
+  if attributes[:staff_profile_attributes] && user.staff_profile
+    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
+  end
 
-  default_practice_schedule = {
+  if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
+    user.provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
+  end
+
+  if avatar = user.avatar
+    avatar.update_attributes!(attributes[:avatar_attributes])
+  else
+    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:provider_schedule_attributes]
+    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.try(:athena_id))
+      provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
+    else
+      ProviderSchedule.create!(attributes[:provider_schedule_attributes])
+    end
+  end
+end
+
+staff.each do |attributes|
+  if user = User.find_by(email: attributes[:email])
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
+  else
+    user = User.create!(attributes.except(:avatar_attributes))
+  end
+
+  if avatar = user.avatar
+    avatar.update_attributes!(attributes[:avatar_attributes])
+  else
+    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:staff_profile_attributes] && user.staff_profile
+    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
+  end
+end
+
+appointment_types_seed.each do |param|
+  AppointmentType.update_or_create!(:name, param)
+end
+
+default_practice_schedule = {
     practice_id: 1,
     monday_start_time: "08:00",
     monday_end_time: "19:30",
@@ -649,51 +669,50 @@ if should_seed_flatiron
     sunday_end_time: "00:00"
   }
 
-  practice_schedules = [
-    {
-      id: 1,
-      schedule_type: :default,
-      active: true
-    }.reverse_merge(default_practice_schedule),
+practice_schedules = [
+  {
+    id: 1,
+    schedule_type: :default,
+    active: true
+  }.reverse_merge(default_practice_schedule),
 
-    {
-      id: 2,
-      schedule_type: :emergency,
-      active: false
-    }.reverse_merge(default_practice_schedule),
+  {
+    id: 2,
+    schedule_type: :emergency,
+    active: false
+  }.reverse_merge(default_practice_schedule),
 
-    {
-      id: 3,
-      schedule_type: :holiday,
-      active: false
-    }.reverse_merge(default_practice_schedule)
-  ]
+  {
+    id: 3,
+    schedule_type: :holiday,
+    active: false
+  }.reverse_merge(default_practice_schedule)
+]
 
-  practice_schedules.each do |params|
-    PracticeSchedule.update_or_create!(:id, params)
-  end
+practice_schedules.each do |params|
+  PracticeSchedule.update_or_create!(:id, params)
+end
 
 
-  practice_holidays = [
-    "01/01/2016", #New Year's Day
-    "05/30/2016", #Memorial Day
-    "07/04/2016", #Independence Day
-    "09/05/2016", #Labor Day
-    "11/24/2016", #Thanksgiving
-    "12/25/2016"  #Christmas
-  ]
+practice_holidays = [
+  "01/01/2016", #New Year's Day
+  "05/30/2016", #Memorial Day
+  "07/04/2016", #Independence Day
+  "09/05/2016", #Labor Day
+  "11/24/2016", #Thanksgiving
+  "12/25/2016"  #Christmas
+]
 
-  ProviderLeave.where(athena_id: 0).delete_all
+ProviderLeave.where(athena_id: 0).delete_all
 
-  ProviderSyncProfile.all.each do |provider_sync_profile|
-    practice_holidays.each do | holiday |
-      ProviderLeave.create(
-        athena_id: 0,
-        athena_provider_id: provider_sync_profile.athena_id,
-        description: "Seeded holiday",
-        start_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00"),
-        end_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00") + 24.hours
-      )
-    end
+ProviderSyncProfile.all.each do |provider_sync_profile|
+  practice_holidays.each do | holiday |
+    ProviderLeave.create(
+      athena_id: 0,
+      athena_provider_id: provider_sync_profile.athena_id,
+      description: "Seeded holiday",
+      start_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00"),
+      end_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00") + 24.hours
+    )
   end
 end

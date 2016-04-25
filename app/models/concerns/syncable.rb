@@ -8,4 +8,8 @@ module Syncable
   def has_synced?
     athena_id > 0
   end
+
+  def should_attempt_sync?
+    sync_status.should_attempt_sync
+  end
 end
