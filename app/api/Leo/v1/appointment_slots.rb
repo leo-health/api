@@ -26,7 +26,7 @@ module Leo
           provider = user.provider_sync_profile
           slots = Slot.free.where(provider_sync_profile: provider).between(start_date, end_date.end_of_day)
           existing_appointment = Appointment.find_by_id(params[:appointment_id])
-          if existing_appointment.try(:provider_id) == params[:provider_id]
+          if existing_appointment && existing_appointment.patient.family_id == current_user.family_id && existing_appointment.provider_sync_profile_id == params[:provider_id]
               slots += [existing_appointment]
           end
           schedule =  ProviderSchedule.find_by(athena_provider_id: provider.athena_id)
