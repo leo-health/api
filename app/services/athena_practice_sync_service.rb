@@ -2,7 +2,7 @@ class AthenaPracticeSyncService < AthenaSyncService
 
   # TODO: To allow multiple Athena instances to sync with the same Leo instance
   # TODO: must scope athena_ids within a single practice
-  # TODO: decide how to handle departments within a practice
+  # TODO: decide how to handle multiple departments within a practice
   # NOTE: sync_departments currently not used
   def sync_departments(limit: nil)
     departments = @connector.get_departments # TODO: refactor so practiceid is available as a parameter (practiceid: athena_practice_id)
@@ -19,7 +19,7 @@ class AthenaPracticeSyncService < AthenaSyncService
 
 
 
-    # For the sake of example and quick testing, only sync the first 3 providers
+    # For the sake of simple and quick testing, only sync the first 3 providers
     athena_providers = athena_providers[0...3]
 
 
