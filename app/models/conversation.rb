@@ -70,7 +70,7 @@ class Conversation < ActiveRecord::Base
   def load_initial_message
     sender = User.find_by_email('catherine@flatironpediatrics.com')
     sender ||= User.leo_bot
-    messages.create(body: MESSAGE_BODY, sender: sender, type_name: :text)
+    messages.create(body: MESSAGE_BODY, sender: sender, type_name: :text) if sender
   end
 
   def broadcast_conversation_by_state
