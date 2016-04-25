@@ -5,9 +5,9 @@ class AthenaAppointmentSyncService < AthenaSyncService
       if leo_appt.patient.athena_id == 0
         sync_leo_patient leo_appt.patient
       end
-      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_sync_profile" unless leo_appt.provider.provider_sync_profile
-      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_id" if leo_appt.provider.provider_sync_profile.athena_id == 0
-      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider.provider_sync_profile.athena_department_id == 0
+      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_sync_profile" unless leo_appt.provider_sync_profile
+      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_id" if leo_appt.provider_sync_profile.athena_id == 0
+      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider_sync_profile.athena_department_id == 0
       raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
       slots = Slot.free.where(provider_sync_profile: leo_appt.provider.provider_sync_profile).between(leo_appt.start_datetime, leo_appt.end_datetime)
@@ -20,7 +20,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
         patientid: leo_appt.patient.athena_id,
         reasonid: nil,
         appointmenttypeid: leo_appt.appointment_type.athena_id,
-        departmentid: leo_appt.provider.provider_sync_profile.athena_department_id
+        departmentid: leo_appt.provider_sync_profile.athena_department_id
       )
 
       slots.update_all(free_busy_type: :busy, appointment_id: leo_appt.id)
