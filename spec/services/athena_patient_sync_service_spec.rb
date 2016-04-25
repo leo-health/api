@@ -261,15 +261,4 @@ describe AthenaPatientSyncService do
       expect(Vaccine.where(patient: patient).count).to be(1)
     end
   end
-
-  describe "process_patient_insurances" do
-    let(:parent) { create(:user, :guardian) }
-    let!(:patient) { create(:patient, athena_id: 1, family: parent.family) }
-
-    it "creates insurance" do
-      expect(@connector).to receive(:get_patient_insurances).and_return(insurance_response)
-      @service.sync_insurances patient
-      expect(Insurance.where(patient: patient).count).to be(1)
-    end
-  end
 end
