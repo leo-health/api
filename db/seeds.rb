@@ -1,7 +1,6 @@
 require 'csv'
 
-
-should_seed_flatiron = ENV['SHOULD_SEED_FLATIRON'] && ENV['SHOULD_SEED_FLATIRON'] != "false"
+should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
 # First seed necessary data for all practices
 
