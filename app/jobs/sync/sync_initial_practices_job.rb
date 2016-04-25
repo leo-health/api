@@ -5,12 +5,10 @@ class SyncInitialPracticesJob < LeoDelayedJob
   end
 
   def perform
-    service = AthenaPracticeSyncService.new
-    service.sync_practices @athena_practice_id, limit: @limit
-    service.sync_providers
+    AthenaPracticeSyncService.new.sync_departments @athena_practice_id, limit: @limit
   end
 
   def self.queue_name
-    'get_practices'
+    'get_departments'
   end
 end

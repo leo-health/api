@@ -1,5 +1,10 @@
 class AthenaPracticeSyncService < AthenaSyncService
-  def sync_practices(athena_practice_id, limit: nil)
+
+  # TODO: To allow multiple Athena instances to sync with the same Leo instance
+  # TODO: must scope athena_ids within a single practice
+  # TODO: decide how to handle departments within a practice
+  # NOTE: sync_departments currently not used
+  def sync_departments(limit: nil)
     departments = @connector.get_departments # TODO: refactor so practiceid is available as a parameter (practiceid: athena_practice_id)
     departments = departments[0...limit] if limit
     existing_practices = Practice.where(athena_id: departments.map {|dep| dep["departmentid"]})
@@ -9,14 +14,17 @@ class AthenaPracticeSyncService < AthenaSyncService
     }
   end
 
-  def sync_providers(practice = nil) # NOTE: Providers are not associated with a Department!
-
-
-    # !!!!: For now, associate all providers with the first Practice
-    practice ||= Practice.first
-
-
+  def sync_providers(practice) # NOTE: Providers are not associated with a Department!
     athena_providers = @connector.get_providers.sort_by(&method(:get_athena_id))
+
+
+
+    # For the sake of example and quick testing, only sync the first 3 providers
+    athena_providers = athena_providers[0...3]
+
+
+
+
     existing_providers = ProviderSyncProfile.where(athena_id: athena_providers.map(&method(:get_athena_id))).order(:athena_id).to_enum
 
     existing_provider = nil
@@ -33,7 +41,10 @@ class AthenaPracticeSyncService < AthenaSyncService
         existing_provider = nil
       end
 
-      update_or_create_leo_provider(leo_provider, athena_provider, practice)
+      # For the time being, don't update the practice if it already exists.
+      # The purpose of this is to not override the seed data for Flatiron Pediatrics.
+      # To refactor this will be part of a larger solution involving multiple real practices
+      leo_provider ||= create_leo_provider(athena_provider, practice)
     }
   end
 
