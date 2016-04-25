@@ -1,6 +1,6 @@
 namespace :backfill do
   desc 'back fill provider_sync_profile on Appointment'
-  task provider_sync_profile: :environment do
+  task staff: :environment do
     StaffProfile.find_each do |staff|
 
       user = staff.staff
@@ -28,5 +28,7 @@ namespace :backfill do
         puts "Failed to save StaffProfile #{e}"
       end
     end
+    puts
+    puts "Finished filling Person attributes on StaffProfile"
   end
 end
