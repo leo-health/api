@@ -10,6 +10,7 @@ class ProviderSyncProfile < ActiveRecord::Base
     SyncProviderJob.new(self).subscribe_if_needed run_at: Time.now
   end
 
+  belongs_to :avatar
   def role
     Role.clinical
   end

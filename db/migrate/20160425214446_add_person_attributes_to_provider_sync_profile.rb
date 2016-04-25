@@ -5,5 +5,6 @@ class AddPersonAttributesToProviderSyncProfile < ActiveRecord::Migration
     add_column :provider_sync_profiles, :suffix, :string
     add_column :provider_sync_profiles, :sex, :string
     add_column :provider_sync_profiles, :email, :string
+    add_reference :provider_sync_profiles, :avatar
   end
 end
