@@ -6,7 +6,8 @@ namespace :backfill do
         provider_sync_profile.update({
           first_name: provider_sync_profile.provider.first_name,
           last_name: provider_sync_profile.provider.last_name,
-          credentials: provider_sync_profile.provider.staff_profile.credentials
+          credentials: provider_sync_profile.provider.staff_profile.credentials,
+          practice_id: provider_sync_profile.provider.practice_id
         })
         print "*"
       rescue e => Exception
@@ -14,5 +15,7 @@ namespace :backfill do
         puts "ProviderSyncProfile update failed"
       end
     end
+    puts
+    puts "Finished filling Person attributes on ProviderSyncProfile"
   end
 end

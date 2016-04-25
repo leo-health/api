@@ -51,13 +51,13 @@ class AthenaPracticeSyncService < AthenaSyncService
   def sync_appointment_types(practice)
     athena_appointment_types = @connector.get_appointment_types
     athena_appointment_types.map { |athena_appointment_type|
-      AppointmentType.update_or_create!(:athena_id, {
+      AppointmentType.update_or_create!([:athena_id, :hidden], {
         athena_id: athena_appointment_type["appointmenttypeid"].try(:to_i),
         duration: athena_appointment_type["duration"].try(:to_i),
         short_description: athena_appointment_type["name"],
         long_description: athena_appointment_type["name"],
         name: athena_appointment_type["name"],
-        hidden: false
+        hidden: true
       })
     }
   end

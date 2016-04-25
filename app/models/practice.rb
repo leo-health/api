@@ -10,7 +10,7 @@ class Practice < ActiveRecord::Base
   after_commit :subscribe_to_athena, on: :create
 
   def self.flatiron_pediatrics
-    self.find(1)
+    self.find_by(athena_id: 1)
   end
 
   def in_office_hour?

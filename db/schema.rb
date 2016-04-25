@@ -499,6 +499,11 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.string   "last_name"
     t.string   "credentials",                      array: true
     t.integer  "practice_id"
+    t.string   "title"
+    t.string   "middle_initial"
+    t.string   "suffix"
+    t.string   "sex"
+    t.string   "email"
   end
 
   create_table "read_receipts", force: :cascade do |t|

@@ -593,10 +593,9 @@ end
 
 
 
-
-
-
-
+def person_attributes(person)
+  Person.writable_column_names.reduce({}) { |memo, col| memo[col] = person.send(col); memo }
+end
 
 providers.each do |attributes|
   if user = User.find_by(email: attributes[:email])
@@ -605,18 +604,18 @@ providers.each do |attributes|
     user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
   end
 
-  if attributes[:staff_profile_attributes] && user.staff_profile
-    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
-  end
-
-  if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
-    user.provider_sync_profile.update_attributes!(attributes[:provider_sync_profile_attributes])
-  end
-
   if avatar = user.avatar
     avatar.update_attributes!(attributes[:avatar_attributes])
   else
     Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+  end
+
+  if attributes[:staff_profile_attributes] && user.staff_profile
+    user.staff_profile.update_attributes!(person_attributes(user).merge(attributes[:staff_profile_attributes]))
+  end
+
+  if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
+    user.provider_sync_profile.update_attributes!(person_attributes(user).merge(attributes[:provider_sync_profile_attributes]))
   end
 
   if attributes[:provider_schedule_attributes]
@@ -642,7 +641,7 @@ staff.each do |attributes|
   end
 
   if attributes[:staff_profile_attributes] && user.staff_profile
-    user.staff_profile.update_attributes!(attributes[:staff_profile_attributes])
+    user.staff_profile.update_attributes!(person_attributes(user).merge(attributes[:staff_profile_attributes]))
   end
 end
 
