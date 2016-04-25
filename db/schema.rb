@@ -504,6 +504,7 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.string   "suffix"
     t.string   "sex"
     t.string   "email"
+    t.integer  "avatar_id"
   end
 
   create_table "read_receipts", force: :cascade do |t|
