@@ -322,7 +322,7 @@ end
 
 
 
-providers = [{
+staff = [{
   first_name: "Leo",
   last_name: "Bot",
   sex: "F",
@@ -336,7 +336,7 @@ providers = [{
     avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Avatar_Bot.png'))
   }
 }]
-staff = []
+providers = []
 appointment_types_seed = []
 
 # Then seed Flatiron specific data if needed
