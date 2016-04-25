@@ -36,7 +36,7 @@ describe Leo::V1::Messages do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
+      expect( (body[:data][:messages].sort_by {|m| m["id"]}).as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
     end
   end
 
