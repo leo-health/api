@@ -9,7 +9,7 @@ class AthenaPatientSyncService < AthenaSyncService
     contactrelationship = nil
     contactmobilephone = nil
     if guardians.size >= 2
-      contactname = "#{leo_guardians[1].first_name} #{leo_guardians[1].last_name}"
+      contactname = "#{guardians[1].first_name} #{guardians[1].last_name}"
       contactrelationship = "GUARDIAN"
       contactmobilephone = guardians[1].phone
     end
