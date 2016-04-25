@@ -21,6 +21,12 @@ class Appointment < ActiveRecord::Base
     start_datetime + duration.minutes
   end
 
+  # TODO: remove once provider column is removed
+  def provider=(provider)
+    super provider
+    self.provider_sync_profile = provider.provider_sync_profile
+  end
+
   def same_family?
     return unless booked_by.try(:guardian?)
     errors.add(:patient_id, "patient and guardian should have same family") unless patient.try(:family_id) == booked_by.try(:family_id)
