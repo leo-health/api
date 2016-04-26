@@ -1,11 +1,9 @@
 class AthenaPracticeSyncService < AthenaSyncService
 
-  # TODO: To allow multiple Athena instances to sync with the same Leo instance
-  # TODO: must scope athena_ids within a single practice
-  # TODO: decide how to handle multiple departments within a practice
+  # TODO: To allow multiple Athena instances to sync with the same Leo instance, must scope athena_ids within a single practice, decide how to handle multiple departments within a practice
   # NOTE: sync_departments currently not used
   def sync_departments(limit: nil)
-    departments = @connector.get_departments # TODO: refactor so practiceid is available as a parameter (practiceid: athena_practice_id)
+    departments = @connector.get_departments
     departments = departments[0...limit] if limit
     existing_practices = Practice.where(athena_id: departments.map {|dep| dep["departmentid"]})
     departments.map { |department|
@@ -40,10 +38,6 @@ class AthenaPracticeSyncService < AthenaSyncService
         leo_provider = existing_provider
         existing_provider = nil
       end
-
-      # For the time being, don't update the practice if it already exists.
-      # The purpose of this is to not override the seed data for Flatiron Pediatrics.
-      # To refactor this will be part of a larger solution involving multiple real practices
       leo_provider ||= create_leo_provider(athena_provider, practice)
     }
   end
@@ -63,9 +57,6 @@ class AthenaPracticeSyncService < AthenaSyncService
   end
 
   private
-
-
-  # PRACTICES
 
   def update_or_create_leo_practice(leo_practice, athena_department)
     # For the time being, don't update the practice if it already exists.
@@ -96,9 +87,6 @@ class AthenaPracticeSyncService < AthenaSyncService
       time_zone: "Eastern Time (US & Canada)" # TODO: deal with time zones later. assume eastern
     }
   end
-
-
-  # PROVIDERS
 
   def update_or_create_leo_provider(leo_provider, athena_provider, practice)
     return create_leo_provider(athena_provider, practice) if !leo_provider
@@ -135,7 +123,6 @@ class AthenaPracticeSyncService < AthenaSyncService
     }
   end
 
-  # HELPERS
   def get_athena_id(athena_provider)
     athena_provider["providerid"].try(:to_i)
   end

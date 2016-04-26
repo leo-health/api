@@ -10,15 +10,7 @@ namespace :backfill do
         staff.athena_id = staff.provider_sync_profile.athena_id
       end
 
-      staff.title = user.title
-      staff.first_name = user.first_name
-      staff.middle_initial = user.middle_initial
-      staff.last_name = user.last_name
-      staff.suffix = user.suffix
-      staff.sex = user.sex
-      staff.email = user.email
-      staff.type = user.type
-      staff.avatar = user.avatar
+      Person.writable_column_names.map { |col| staff.send("#{col}=", user.send(col)) }
 
       begin
         staff.save!
