@@ -20,11 +20,7 @@ class Practice < ActiveRecord::Base
 
 
   def subscribe_to_athena
-    SyncAppointmentsJob.subscribe_if_needed self, run_at: Time.now
-  end
-
-  def get_appointments_from_athena
-    SyncServiceHelper::Syncer.instance.sync_athena_appointments_for_practice self
+    SyncAppointmentsJob.new(self).subscribe_if_needed run_at: Time.now
   end
 
   private

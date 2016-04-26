@@ -10,7 +10,6 @@ gem 'turbolinks'
 gem 'chronic'               # Clever parsing of dates (also NLP date formats)
 gem 'daemons'
 gem 'delayed_job_active_record'
-gem 'delayed_cron_job'
 gem 'devise'                # Authentication
 gem 'cancancan', '~> 1.10'
 gem 'paranoia', '~> 2.0'
@@ -56,6 +55,7 @@ group :development, :test do
   gem "spring"
   gem 'rspec_api_documentation'
   gem 'faker'
+  gem "parallel_tests"
 end
 
 group :development, :develop do

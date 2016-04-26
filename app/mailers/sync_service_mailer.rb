@@ -5,11 +5,11 @@ class SyncServiceMailer < MandrillMailer::TemplateMailer
     mandrill_mail(
       template: 'Leo - Failed Sync Notification',
       subject: subject,
-      to: SyncService.configuration.admin_emails,
-      vars: { 
-        'BODY': message,
-        'RAILS_ENV': ENV['RAILS_ENV']
-      }
+      to: [ "sync@leohealth.com" ],
+      vars: {
+          'BODY': message,
+          'RAILS_ENV': ENV['RAILS_ENV']
+        }
       )
   end
 end

@@ -56,9 +56,12 @@ module AthenaHealthApiHelper
   end
 
   class AthenaHealthApiConnector
+    include Singleton
+
     attr_reader :connection, :common_headers
 
-    def initialize(config: Rails.application.config_for(:athena_health_api_connector).symbolize_keys)
+    def initialize
+      config = Rails.application.config_for(:athena_health_api_connector).symbolize_keys
       @common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
       @connection = AthenaHealthAPI::Connection.new(config[:version], config[:key], config[:secret], config[:practice_id])
     end
@@ -290,7 +293,6 @@ module AthenaHealthApiHelper
     #returns patient id
     #TODO: Doesn't seem to create a new patient when some of the records are the same.  Investigate.
     def create_patient(**params)
-
       endpoint = "patients"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
@@ -325,7 +327,7 @@ module AthenaHealthApiHelper
       return AthenaStruct.new(result[0])
     end
 
-    def update_patient(patientid: , **params)
+    def update_patient(patientid:, **params)
       # patientid: ,
       # status: nil, #active, inactive, prospective, deleted
       # firstname: ,

@@ -4,10 +4,8 @@ require 'rails_helper'
 describe Leo::V1::Patients do
   let(:guardian){create(:user)}
   let(:session){guardian.sessions.create}
-  let!(:patient){create(:patient, family: guardian.family)}
   let(:serializer){ Leo::Entities::PatientEntity }
-
-  before { allow_any_instance_of(SyncServiceHelper::Syncer).to receive(:sync_leo_patient).and_return(true) }
+  let!(:patient){create(:patient, family: guardian.family)}
 
   describe 'POST /api/v1/patients' do
     let(:patient_params){{first_name: "patient_first_name",
@@ -22,7 +20,7 @@ describe Leo::V1::Patients do
     end
 
     it "should add a patient to the family" do
-      expect{ do_request }.to change{ Delayed::Job.count }.by(2)
+      do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       patient_id = body[:data][:patient][:id]
@@ -49,8 +47,8 @@ describe Leo::V1::Patients do
     end
 
     it 'should update the individual patient record, guardian only' do
+      do_request
       original_email = patient.email
-      expect{ do_request }.to change{ Delayed::Job.count }.by(1)
       expect(response.status).to eq(200)
       expect{patient.reload}.to change{patient.email}.from(original_email).to(new_email)
     end
