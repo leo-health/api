@@ -252,9 +252,6 @@ class AthenaPatientSyncService < AthenaSyncService
     raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
     raise "patient.id #{leo_patient.id} has a primary guardian that is not associated with a practice" unless leo_patient.family.primary_guardian.practice
 
-    # try to map the leo_patient to athena up to 2 times, then fail
-    # TODO: handle this special failure condition through delayed job. Doesn't belong in the service layer
-    raise "Leo patient #{leo_patient.id} failed to sync to athena more than twice" if leo_patient.athena_id < -1
     athena_patient_exists = leo_patient.athena_id > 0
     should_update_athena_patient = true
 
@@ -293,10 +290,6 @@ class AthenaPatientSyncService < AthenaSyncService
 
     #only sync if the insurance plan is registered in athena
     if insurance_plan && insurance_plan.athena_id != 0
-
-      # ????: is this ever called? how do the insurance_plans get synced?
-
-
       @connector.create_patient_insurance(
       patientid: leo_patient.athena_id,
       insurancepackageid: insurance_plan.athena_id.to_s,
@@ -312,80 +305,4 @@ class AthenaPatientSyncService < AthenaSyncService
     leo_patient.patient_updated_at = DateTime.now.utc
     leo_patient.save!
   end
-
-  # Currently unused methods
-
-  # TODO: figure out why this doesn't work
-  # def sync_photo(leo_patient)
-  #   if leo_patient.athena_id == 0
-  #     post_patient(leo_patient)
-  #     if leo_patient.athena_id == 0
-  #       @logger.info("Skipping sync for photo due to patient #{leo_patient.id} sync failure")
-  #       return
-  #     end
-  #   end
-  #
-  #   #get list of photos for this patients
-  #   photos = leo_patient.photos.order("id desc")
-  #   @logger.info("Syncer: synching photos=#{photos.to_json}")
-  #
-  #   if photos.empty?
-  #     @connector.delete_patient_photo(patientid: leo_patient.athena_id)
-  #   else
-  #     @connector.set_patient_photo(patientid: leo_patient.athena_id, image: photos.first.image)
-  #   end
-  #
-  #   leo_patient.photos_updated_at = DateTime.now.utc
-  #   leo_patient.save!
-  # end
-  # def sync_insurances(leo_patient)
-  #   if leo_patient.athena_id == 0
-  #     post_patient(leo_patient)
-  #     if leo_patient.athena_id == 0
-  #       @logger.info("Skipping sync for insurances due to patient #{leo_patient.id} sync failure")
-  #       return
-  #     end
-  #   end
-  #
-  #   raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
-  #
-  #   leo_parent = leo_patient.family.primary_guardian
-  #
-  #   #get list of insurances for this patient
-  #   insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
-  #
-  #   #remove existing insurances for the user
-  #   Insurance.destroy_all(patient_id: leo_patient.id)
-  #
-  #   #create and/or update the vaccine records in Leo
-  #   insurances.each do | insurance |
-  #     leo_insurance = Insurance.create_with(irc_name: insurance[:ircname.to_s]).find_or_create_by!(athena_id: insurance[:insuranceid.to_s].to_i)
-  #
-  #     leo_insurance.patient_id = leo_patient.id
-  #     leo_insurance.athena_id = insurance[:insuranceid.to_s].to_i
-  #     leo_insurance.plan_name = insurance[:insuranceplanname.to_s]
-  #     leo_insurance.plan_phone = insurance[:insurancephone.to_s]
-  #     leo_insurance.plan_type = insurance[:insurancetype.to_s]
-  #     leo_insurance.policy_number = insurance[:policynumber.to_s]
-  #     leo_insurance.holder_ssn = insurance[:insurancepolicyholderssn.to_s]
-  #     leo_insurance.holder_birth_date = insurance[:insurancepolicyholderdob.to_s]
-  #     leo_insurance.holder_sex = insurance[:insurancepolicyholdersex.to_s]
-  #     leo_insurance.holder_last_name = insurance[:insurancepolicyholderlastname.to_s]
-  #     leo_insurance.holder_first_name = insurance[:insurancepolicyholderfirstname.to_s]
-  #     leo_insurance.holder_middle_name = insurance[:insurancepolicyholdermiddlename.to_s]
-  #     leo_insurance.holder_address_1 = insurance[:insurancepolicyholderaddress1.to_s]
-  #     leo_insurance.holder_address_2 = insurance[:insurancepolicyholderaddress2.to_s]
-  #     leo_insurance.holder_city = insurance[:insurancepolicyholdercity.to_s]
-  #     leo_insurance.holder_state = insurance[:insurancepolicyholderstate.to_s]
-  #     leo_insurance.holder_zip = insurance[:insurancepolicyholderzip.to_s]
-  #     leo_insurance.holder_country = insurance[:insurancepolicyholdercountrycode.to_s]
-  #     leo_insurance.primary = insurance[:sequencenumber.to_s]
-  #     leo_insurance.irc_name = insurance[:ircname.to_s]
-  #
-  #     leo_insurance.save!
-  #   end
-  #
-  #   leo_patient.insurances_updated_at = DateTime.now.utc
-  #   leo_patient.save!
-  # end
 end

@@ -1,5 +1,3 @@
-
-# TODO: REFACTOR: Should be named PeriodicPollingJob
 class PeriodicPollingJob < LeoDelayedJob
 
   IMMEDIATE_PRIORITY = 0 # Delayed::Job default is 0
@@ -13,7 +11,6 @@ class PeriodicPollingJob < LeoDelayedJob
     @priority = priority
   end
 
-  # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
   def subscribe(**args)
     self.start(**args.reverse_merge(run_at: @interval.from_now, owner: @owner, priority: @priority))
   end
