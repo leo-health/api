@@ -1,5 +1,5 @@
 module TimeZoneHelper
-	RAILS_TIMEZONES_TO_IOS = {
+  RAILS_TIMEZONES_TO_IOS = {
 		"Abu Dhabi"                    => "Asia/Muscat",
 		"Adelaide"                     => "Australia/Adelaide",
 		"Alaska"                       => "America/Juneau",
