@@ -1,5 +1,3 @@
-require 'time_zone_helper'
-
 module Leo
   module Entities
     class PracticeEntity < Grape::Entity
@@ -22,7 +20,7 @@ module Leo
 
       def time_zone
         #This request should be based on the device requesting the data
-        TimeZoneHelper::RAILS_TIMEZONES_TO_IOS[object.time_zone]
+        ActiveSupport::TimeZone.find_tzinfo(object.time_zone).name
       end
 
       def active_schedules
