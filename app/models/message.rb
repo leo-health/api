@@ -50,7 +50,7 @@ class Message < ActiveRecord::Base
     update_conversation_after_message_sent
     send_new_message_notification
     unread_message_reminder_email
-    send_auto_reply_if_needed
+    # send_auto_reply_if_needed
   end
 
   def send_auto_reply_if_needed

@@ -1,3 +1,5 @@
+require 'time_zone_helper'
+
 module Leo
   module Entities
     class PracticeEntity < Grape::Entity
@@ -13,6 +15,23 @@ module Leo
       expose :email
       expose :time_zone
       expose :staff, with: Leo::Entities::UserEntity
+      expose :active_schedules, with: Leo::Entities::PracticeScheduleEntity
+      expose :schedule_exceptions, with: Leo::Entities::ProviderLeaveEntity
+
+      private
+
+      def time_zone
+        #This request should be based on the device requesting the data
+        TimeZoneHelper::RAILS_TIMEZONES_TO_IOS[object.time_zone]
+      end
+
+      def active_schedules
+        object.practice_schedules.where(active: true).first
+      end
+
+      def schedule_exceptions
+        ProviderLeave.where(description: "Seeded holiday").select("start_datetime, end_datetime").uniq(:start_datetime)
+      end
     end
   end
 end

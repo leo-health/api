@@ -10,7 +10,7 @@ practices_seed = [
     zip: "10011",
     phone: "212-460-5600",
     email: "info@leohealth.com",
-    time_zone: "Eastern Time (US & Canada)"
+    time_zone: "America/New_York"
   }
 ]
 
