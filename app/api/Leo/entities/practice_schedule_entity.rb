@@ -5,6 +5,7 @@ module Leo
       expose :daily_hours
 
       private
+
       def daily_hours
         [
           { id: 1, start_time: object.monday_start_time, end_time: object.monday_end_time, day_of_the_week: "monday" },
