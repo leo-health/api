@@ -2,10 +2,13 @@ class AthenaProviderSyncService < AthenaSyncService
   def sync_open_slots(provider_sync_profile, start_date = nil, end_date = nil)
 
     query_start = start_date || Date.today
-    query_end = end_date || (query_start + 1.year)
+    query_end = end_date || (query_start + 1.week)
     format_date = Proc.new { |d| d.strftime("%m/%d/%Y") }
 
     # TODO: Make Generic to handle any Syncable type
+
+    # Clean any unusable slots
+    Slot.between(nil, Time.now).destroy_all
 
     # Get athena resources and leo resources
     athena_res = @connector.get_open_appointments(
@@ -44,7 +47,7 @@ class AthenaProviderSyncService < AthenaSyncService
     {
       start_datetime: start_datetime,
       end_datetime: start_datetime + slot.duration.to_i.minutes,
-      free_busy_type: slot.frozen == "true" ? :busy : :free,
+      free_busy_type: slot.try(:frozen) == "true" ? :busy : :free,
       athena_id: slot.appointmentid.to_i,
     }
   end

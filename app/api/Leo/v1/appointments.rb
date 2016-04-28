@@ -79,8 +79,7 @@ module Leo
 
       helpers do
         def generate_appointment
-          error! 'Appointment start time is before or within 15 minutes of this request' if params[:start_datetime] < (DateTime.now + Appointment::MIN_INTERVAL_TO_SCHEDULE)
-
+          error!({error_code: 422, error_message: "Appointment start time must be at least 15 minutes in the future" }, 422) if params[:start_datetime] < (DateTime.now + Appointment::MIN_INTERVAL_TO_SCHEDULE)
           duration = AppointmentType.find(params[:appointment_type_id]).duration
           appointment_params = declared(params, include_missing: false).merge(duration: duration)
           appointment = current_user.booked_appointments.new(appointment_params)
@@ -97,6 +96,7 @@ module Leo
           appointment.save!
           Slot.where(appointment: appointment).destroy_all if appointment.athena_id > 0
           PostAppointmentJob.new(appointment).start
+          render_success appointment
         end
       end
     end

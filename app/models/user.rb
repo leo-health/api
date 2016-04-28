@@ -46,10 +46,6 @@ class User < ActiveRecord::Base
   validates :family, :vendor_id, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
-
-  # ????: (adam) I think line doesn't do anything. Devise already handles email uniqueness
-  # NOTE: It appears that validates_uniqueness_of is using an unscoped query to check uniqueness
-  validates_uniqueness_of :email, conditions: -> { where(deleted_at: nil) }
   before_create :skip_confirmation!, if: :invited_user?
   after_update :welcome_onboarding_notifications, if: :guardian?
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?

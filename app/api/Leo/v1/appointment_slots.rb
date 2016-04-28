@@ -20,7 +20,10 @@ module Leo
           start_date = [Date.strptime(params[:start_date], "%m/%d/%Y"), Time.now + Appointment::MIN_INTERVAL_TO_SCHEDULE].max
           end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
 
-          provider = User.find(params[:provider_id]).provider_sync_profile
+          user = User.find_by(role: Role.clinical, id: params[:provider_id])
+          error!({error_code: 422, error_message: "Provider with id #{params[:provider_id]} does not exist" }, 422) unless user
+
+          provider = user.provider_sync_profile
           slots = Slot.free.where(provider_sync_profile: provider).between(start_date, end_date.end_of_day)
           existing_appointment = Appointment.find_by_id(params[:appointment_id])
           if existing_appointment.try(:provider_id) == params[:provider_id]

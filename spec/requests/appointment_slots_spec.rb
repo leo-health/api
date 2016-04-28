@@ -6,6 +6,14 @@ describe Leo::V1::AppointmentSlots do
     before do
       current_time = Time.new(2016, 3, 2, 12, 0, 0, "-05:00")
       Timecop.freeze(current_time)
+
+      first_start_datetime = Date.tomorrow + 12.hours
+      duration = 10
+      10.times do |i|
+        start_datetime = first_start_datetime + (i*duration).minutes
+        end_datetime = start_datetime + duration.minutes
+        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider_sync_profile: provider_sync_profile)
+      end
     end
 
     after do
@@ -17,16 +25,6 @@ describe Leo::V1::AppointmentSlots do
     let(:provider) { provider_sync_profile.provider }
     let(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
     let!(:schedule) { create(:provider_schedule, athena_provider_id: provider_sync_profile.athena_id) }
-
-    let!(:slots) {
-      first_start_datetime = Date.tomorrow + 12.hours
-      duration = 10
-      10.times do |i|
-        start_datetime = first_start_datetime + (i*duration).minutes
-        end_datetime = start_datetime + duration.minutes
-        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider_sync_profile: provider_sync_profile)
-      end
-    }
 
     let(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
