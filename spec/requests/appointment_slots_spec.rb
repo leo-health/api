@@ -17,18 +17,16 @@ describe Leo::V1::AppointmentSlots do
     let(:provider) { provider_sync_profile.provider }
     let(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
     let!(:schedule) { create(:provider_schedule, athena_provider_id: provider_sync_profile.athena_id) }
-    let!(:additional_availability) { create(:provider_additional_availability,
-                                            athena_provider_id: provider_sync_profile.athena_id,
-                                            start_datetime: Time.zone.parse(date.inspect + " " + "17:00").to_datetime,
-                                            end_datetime: Time.zone.parse(date.inspect + " " + "20:00").to_datetime) }
 
-    let!(:leaves) { create(:provider_leave, athena_provider_id: provider_sync_profile.athena_id,
-                           start_datetime: Time.zone.parse(date.inspect + " " + "09:00").to_datetime,
-                           end_datetime: Time.zone.parse(date.inspect + " " + "12:00").to_datetime) }
-
-    let!(:appointment) { create(:appointment, :future, provider: provider,
-                                start_datetime: Time.zone.parse(date.inspect + " " + "14:00").to_datetime,
-                                duration: 20) }
+    let!(:slots) {
+      first_start_datetime = Date.tomorrow + 12.hours
+      duration = 10
+      10.times do |i|
+        start_datetime = first_start_datetime + (i*duration).minutes
+        end_datetime = start_datetime + duration.minutes
+        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider_sync_profile: provider_sync_profile)
+      end
+    }
 
     let(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
@@ -46,7 +44,7 @@ describe Leo::V1::AppointmentSlots do
       expect(response.status).to eq(200)
       resp = JSON.parse(response.body)
       expect(resp["data"][0]["provider_id"]).to eq(provider.id)
-      expect(resp["data"][0]["slots"].size).to eq(13)
+      expect(resp["data"][0]["slots"].size).to eq(10)
     end
   end
 end

@@ -8,7 +8,6 @@ class CreateSlots < ActiveRecord::Migration
       t.belongs_to :provider_sync_profile
       t.belongs_to :appointment_type
       t.belongs_to :sync_status
-      t.belongs_to :appointment
     end
   end
 end

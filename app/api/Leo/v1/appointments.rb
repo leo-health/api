@@ -95,7 +95,7 @@ module Leo
           authorize! :destroy, appointment
           appointment.appointment_status = AppointmentStatus.cancelled
           appointment.save!
-          Slot.find_by(appointment: appointment).destroy if appointment.athena_id > 0
+          Slot.where(appointment: appointment).destroy_all if appointment.athena_id > 0
           PostAppointmentJob.new(appointment).start
         end
       end
