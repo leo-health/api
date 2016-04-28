@@ -13,7 +13,7 @@ module Leo
       expose :email
       expose :time_zone
       expose :staff, with: Leo::Entities::UserEntity
-      expose :active_schedules, with: Leo::Entities::PracticeScheduleEntity
+      expose :active_schedule, with: Leo::Entities::PracticeScheduleEntity
       expose :schedule_exceptions, with: Leo::Entities::ProviderLeaveEntity
 
       private
@@ -23,7 +23,7 @@ module Leo
         ActiveSupport::TimeZone.find_tzinfo(object.time_zone).name
       end
 
-      def active_schedules
+      def active_schedule
         object.practice_schedules.where(active: true).first
       end
 
