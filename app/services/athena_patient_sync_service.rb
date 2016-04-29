@@ -8,7 +8,7 @@ class AthenaPatientSyncService < AthenaSyncService
     contactname = nil
     contactrelationship = nil
     contactmobilephone = nil
-    if guardians.size >= 2
+    if guardians.size > 1
       contactname = "#{guardians[1].first_name} #{guardians[1].last_name}"
       contactrelationship = "GUARDIAN"
       contactmobilephone = guardians[1].phone
@@ -279,7 +279,6 @@ class AthenaPatientSyncService < AthenaSyncService
 
 
     # TODO: remove this if we can
-
     #create insurance if not entered yet
     insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
     primary_insurance = insurances.find { |ins| ins[:sequencenumber.to_s].to_i == 1 }
