@@ -122,18 +122,18 @@ class AthenaAppointmentSyncService < AthenaSyncService
 
   def create_leo_appointment_from_athena!(appt)
     # TODO: refactor to end early based on validations to minimize db calls
-    patient = Patient.find_by(athena_id: appt.patientid.to_i)
-    provider_sync_profile = ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i)
+    patient = appt.patientid ? Patient.find_by(athena_id: appt.patientid.to_i) : nil
+    provider_sync_profile = appt.providerid ? ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i) : nil
     appointment_type = AppointmentType.find_by_athena_id_with_mapping_if_needed(appt.appointmenttypeid.try(:to_i))
     appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
-    practice = Practice.find_by(athena_id: appt.departmentid)
+    practice = appt.departmentid ? Practice.find_by(athena_id: appt.departmentid) : nil
     provider = provider_sync_profile.try(:provider)
     appointment_params = {
       appointment_status: appointment_status,
-      booked_by: provider || provider_sync_profile,
+      booked_by: provider_sync_profile,
       patient: patient,
       provider_sync_profile: provider_sync_profile,
-      provider: provider,
+      provider: provider, # TODO: eventually remove this
       practice: practice,
       appointment_type: appointment_type,
       duration: appt.duration,

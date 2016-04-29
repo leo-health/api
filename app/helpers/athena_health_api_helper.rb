@@ -189,6 +189,7 @@ module AthenaHealthApiHelper
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
     end
 
+
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
@@ -196,7 +197,6 @@ module AthenaHealthApiHelper
       params = params.symbolize_keys
       limit ||= params[:limit] || 1000
       response = @connection.GET(url, params, headers, append_version_and_practice)
-
       raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
       entries = parsed[field.to_s] || []
