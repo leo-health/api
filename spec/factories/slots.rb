@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :slot, :class => 'Slot' do
+  factory :slot do
     athena_id 1
     start_datetime Time.new(2015,1,1,17)
     end_datetime Time.new(2015,1,1,17,10)

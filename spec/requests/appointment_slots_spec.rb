@@ -9,7 +9,8 @@ describe Leo::V1::AppointmentSlots do
 
       first_start_datetime = Date.tomorrow + 12.hours
       duration = 10
-      10.times do |i|
+      @num_slots = 10
+      @num_slots.times do |i|
         start_datetime = first_start_datetime + (i*duration).minutes
         end_datetime = start_datetime + duration.minutes
         create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider_sync_profile: provider_sync_profile)
@@ -42,7 +43,7 @@ describe Leo::V1::AppointmentSlots do
       expect(response.status).to eq(200)
       resp = JSON.parse(response.body)
       expect(resp["data"][0]["provider_id"]).to eq(provider.id)
-      expect(resp["data"][0]["slots"].size).to eq(10)
+      expect(resp["data"][0]["slots"].size).to eq(@num_slots)
     end
   end
 end

@@ -1,6 +1,6 @@
 class Patient < ActiveRecord::Base
   acts_as_paranoid
-  include Syncable
+  include Concerns::Syncable
   include PgSearch
   pg_search_scope(
     :search,
@@ -29,9 +29,9 @@ class Patient < ActiveRecord::Base
   after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
 
   # subscribe_to_athena only the first time after the patient has been posted to athena
-  after_commit :subscribe_to_athena, if: :did_successfully_sync
+  after_commit :subscribe_to_athena, if: :did_successfully_sync?
 
-  def did_successfully_sync
+  def did_successfully_sync?
     attribute = :athena_id
     self.previous_changes.key?(attribute) &&
     self.previous_changes[attribute].first == 0 &&

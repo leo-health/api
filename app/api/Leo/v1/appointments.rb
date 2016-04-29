@@ -59,8 +59,7 @@ module Leo
           else
             duration = AppointmentType.find(params[:appointment_type_id]).duration
             appointment_params = declared(params, include_missing: false).merge(duration: duration)
-            appointment.update(appointment_params)
-            render_success appointment
+            update_success appointment, appointment_params
           end
         end
 
@@ -96,7 +95,7 @@ module Leo
           appointment.save!
           Slot.where(appointment: appointment).destroy_all if appointment.athena_id > 0
           PostAppointmentJob.new(appointment).start
-          render_success appointment
+          create_success appointment
         end
       end
     end
