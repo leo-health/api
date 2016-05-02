@@ -149,6 +149,110 @@ describe AthenaPatientSyncService do
     end
   end
 
+  describe ".sync_all_patients" do
+    before do
+      create(:practice, athena_id: 1)
+      create(:role, :guardian)
+    end
+    let!(:athena_patient_1) {{
+      "racename" => "Patient Declined",
+      "occupationcode" => nil,
+      "departmentid" => "1",
+      "homephone" => "1234567890",
+      "guarantorstate" => "MA",
+      "driverslicense" => "false",
+      "homebound" => "false",
+      "ethnicitycode" => "declined",
+      "contactpreference" => "HOMEPHONE",
+      "industrycode" => nil,
+      "contacthomephone" => nil,
+      "guarantorssn" => nil,
+      "guarantordob" => "12/12/2015",
+      "zip" => "02474",
+      "guarantoraddresssameaspatient" => "true",
+      "employerphone" => nil,
+      "contactmobilephone" => nil,
+      "nextkinphone" => nil,
+      "portaltermsonfile" => "false",
+      "status" => "active",
+      "lastname" => "Test",
+      "guarantorfirstname" => "Zachary",
+      "city" => "ARLINGTON",
+      "ssn" => nil,
+      "lastappointment" => "02/29/2016 12:30",
+      "guarantoremail" => "z@a.com",
+      "guarantorcity" => "ARLINGTON",
+      "guarantorzip" => "02474",
+      "sex" => "F",
+      "privacyinformationverified" => "true",
+      "primarydepartmentid" => "1",
+      "balances" => [{
+        "balance" => 0,
+        "departmentlist" => "1",
+        "cleanbalance" => "true"
+      }],
+      "emailexists" => "true",
+      "race" => [
+        "declined"
+      ],
+      "firstappointment" => "02/16/2016 14:00",
+      "language6392code" => "declined",
+      "primaryproviderid" => "1",
+      "patientphoto" => "false",
+      "consenttocall" => "true",
+      "hasmobile" => "true",
+      "caresummarydeliverypreference" => "PORTAL",
+      "guarantorlastname" => "Scott",
+      "firstname" => "Praneetha",
+      "guarantorcountrycode" => "USA",
+      "state" => "MA",
+      "patientid" => "2",
+      "dob" => "12/12/2015",
+      "guarantorrelationshiptopatient" => "3",
+      "address1" => "300 Arsenal St",
+      "guarantorphone" => "1234567890",
+      "maritalstatus" => "U",
+      "countrycode" => "USA",
+      "guarantoraddress1" => "300 Arsenal St",
+      "maritalstatusname" => "UNKNOWN",
+      "consenttotext" => "false",
+      "countrycode3166" => "US",
+      "guarantorcountrycode3166" => "US"
+      }}
+    context "patient does not exist" do
+      it "creates a patient enrollment" do
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        @service.sync_all_patients
+        expect(PatientEnrollment.count).to be(1)
+        expect(Enrollment.count).to be(1)
+      end
+    end
+
+    context "patient already exists" do
+      before do
+        create(:patient, athena_id: 2)
+      end
+      it "creates a patient enrollment" do
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        @service.sync_all_patients
+        expect(PatientEnrollment.count).to be(0)
+        expect(Enrollment.count).to be(0)
+      end
+    end
+
+    context "enrollment already exists" do
+      before do
+        create(:patient_enrollment, athena_id: 2)
+      end
+      it "creates a patient enrollment" do
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        @service.sync_all_patients
+        expect(PatientEnrollment.count).to be(1)
+        expect(Enrollment.count).to be(1)
+      end
+    end
+  end
+
   describe ".sync_allergies" do
     let(:parent) { create(:user, :guardian) }
     let!(:patient) { create(:patient, athena_id: 1, family: parent.family) }
