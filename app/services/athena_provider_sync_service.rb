@@ -2,7 +2,7 @@ class AthenaProviderSyncService < AthenaSyncService
   def sync_open_slots(provider_sync_profile, start_date = nil, end_date = nil)
 
     query_start = start_date || Date.today
-    query_end = end_date || (query_start + 1.week)
+    query_end = end_date || (query_start + 6.months)
     format_date = Proc.new { |d| d.strftime("%m/%d/%Y") }
 
     # TODO: Make Generic to handle any Syncable type
