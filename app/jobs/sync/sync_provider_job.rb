@@ -4,7 +4,7 @@ class SyncProviderJob < PeriodicPollingJob
   end
 
   def perform
-    AthenaProviderSyncService.new.sync_provider_leave @owner
+    AthenaProviderSyncService.new.sync_open_slots @owner
   end
 
   def self.queue_name

@@ -7,6 +7,10 @@ class Role < ActiveRecord::Base
   validates :name, presence: true
   validates_uniqueness_of :name
 
+  def self.clinical
+    Role.find_by(name: :clinical)
+  end
+
   def self.guardian
     Role.find_by(name: :guardian)
   end
