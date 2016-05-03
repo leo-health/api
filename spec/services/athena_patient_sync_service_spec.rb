@@ -246,11 +246,24 @@ describe AthenaPatientSyncService do
       end
     end
 
-    context "enrollment already exists" do
+    context "patient enrollment already exists" do
       before do
         create(:patient_enrollment, athena_id: 2)
       end
       it "creates a patient enrollment" do
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        do_request
+        expect(PatientEnrollment.count).to be(1)
+        expect(Enrollment.count).to be(1)
+      end
+    end
+
+    context "enrollment already exists" do
+      before do
+        create(:enrollment, email: "z@a.com")
+      end
+      it "creates a patient and uses the matching enrollment" do
+        expect(Enrollment.count).to be(1)
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
         do_request
         expect(PatientEnrollment.count).to be(1)

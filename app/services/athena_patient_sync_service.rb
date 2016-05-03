@@ -16,8 +16,8 @@ class AthenaPatientSyncService < AthenaSyncService
 
       if get_athena_id(athena_patient) == next_existing_athena_id
         next_existing_athena_id = nil
-      else
-        created_patients << create_patient_enrollment(athena_patient)
+      elsif created_patient = create_patient_enrollment(athena_patient)
+        created_patients << created_patient
       end
       created_patients
     }
@@ -29,8 +29,9 @@ class AthenaPatientSyncService < AthenaSyncService
 
   def create_patient_enrollment(athena_patient)
     # TODO: handle guardians with no email
-    guardian_enrollment = Enrollment.new(parse_athena_patient_json_to_guardian_enrollment(athena_patient))
-    PatientEnrollment.create({guardian_enrollment: guardian_enrollment}.merge(parse_athena_patient_json_to_patient_enrollment(athena_patient))) if guardian_enrollment.save
+    enrollment_params = parse_athena_patient_json_to_guardian_enrollment(athena_patient)
+    guardian_enrollment = Enrollment.create_with(enrollment_params).find_or_create_by(email: enrollment_params[:email])
+    PatientEnrollment.create({guardian_enrollment: guardian_enrollment}.merge(parse_athena_patient_json_to_patient_enrollment(athena_patient))) if guardian_enrollment.id
   end
 
   def parse_athena_patient_json_to_guardian_enrollment(athena_patient)
