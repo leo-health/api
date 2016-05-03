@@ -99,7 +99,7 @@ module Leo
         end
 
         def email_taken?(email)
-          !!User.find_by_email(email)
+          !!(User.find_by_email(email) || Enrollment.find_by(email: email, onboarding_group: OnboardingGroup.find_by(group_name: :generated_from_athena)))
         end
 
         def present_session(enrollment)

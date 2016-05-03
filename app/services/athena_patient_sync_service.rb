@@ -388,7 +388,8 @@ class AthenaPatientSyncService < AthenaSyncService
               athena_patient["employerphone"] ||
               athena_patient["nextkinphone"],
       role: Role.guardian,
-      vendor_id: GenericHelper.generate_vendor_id
+      vendor_id: GenericHelper.generate_vendor_id,
+      onboarding_group: OnboardingGroup.find_by(group_name: :generated_from_athena)
     }
   end
 

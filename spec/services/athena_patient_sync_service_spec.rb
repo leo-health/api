@@ -158,6 +158,7 @@ describe AthenaPatientSyncService do
 
     before do
       create(:role, :guardian)
+      create(:onboarding_group, group_name: :generated_from_athena)
     end
 
     let!(:athena_patient_1) {{
