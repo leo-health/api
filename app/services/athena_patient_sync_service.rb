@@ -1,8 +1,6 @@
 class AthenaPatientSyncService < AthenaSyncService
-  def sync_all_patients
-
-    athena_patients = @connector.get_patients(departmentid: Practice.first.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
-
+  def sync_all_patients(practice)
+    athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
     athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
 
     existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id)
@@ -10,21 +8,19 @@ class AthenaPatientSyncService < AthenaSyncService
     all_existing_ids = GenericHelper.merge_sorted(existing_athena_ids, enrollment_athena_ids).to_enum
 
     next_existing_athena_id = nil
-
-    athena_patients.map { |athena_patient|
+    athena_patients.reduce([]) { |created_patients, athena_patient|
       begin
         next_existing_athena_id ||= all_existing_ids.next
       rescue StopIteration
       end
 
-      created_patient = nil
       if get_athena_id(athena_patient) == next_existing_athena_id
         next_existing_athena_id = nil
       else
-        created_patient = create_patient_enrollment athena_patient
+        created_patients << create_patient_enrollment(athena_patient)
       end
-      created_patient
-    }.select(&:itself)
+      created_patients
+    }
   end
 
   def get_athena_id(athena_patient)
@@ -32,8 +28,9 @@ class AthenaPatientSyncService < AthenaSyncService
   end
 
   def create_patient_enrollment(athena_patient)
-    g = Enrollment.create!(parse_athena_patient_json_to_guardian_enrollment(athena_patient))
-    PatientEnrollment.create!({guardian_enrollment: g}.merge(parse_athena_patient_json_to_patient_enrollment(athena_patient))) if g.id
+    # TODO: handle guardians with no email
+    guardian_enrollment = Enrollment.new(parse_athena_patient_json_to_guardian_enrollment(athena_patient))
+    PatientEnrollment.create({guardian_enrollment: guardian_enrollment}.merge(parse_athena_patient_json_to_patient_enrollment(athena_patient))) if guardian_enrollment.save
   end
 
   def parse_athena_patient_json_to_guardian_enrollment(athena_patient)

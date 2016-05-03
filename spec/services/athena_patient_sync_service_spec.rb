@@ -150,10 +150,16 @@ describe AthenaPatientSyncService do
   end
 
   describe ".sync_all_patients" do
+    let!(:practice){ create(:practice, athena_id: 1) }
+
+    def do_request
+      @service.sync_all_patients practice
+    end
+
     before do
-      create(:practice, athena_id: 1)
       create(:role, :guardian)
     end
+
     let!(:athena_patient_1) {{
       "racename" => "Patient Declined",
       "occupationcode" => nil,
@@ -222,7 +228,7 @@ describe AthenaPatientSyncService do
     context "patient does not exist" do
       it "creates a patient enrollment" do
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
-        @service.sync_all_patients
+        do_request
         expect(PatientEnrollment.count).to be(1)
         expect(Enrollment.count).to be(1)
       end
@@ -234,7 +240,7 @@ describe AthenaPatientSyncService do
       end
       it "creates a patient enrollment" do
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
-        @service.sync_all_patients
+        do_request
         expect(PatientEnrollment.count).to be(0)
         expect(Enrollment.count).to be(0)
       end
@@ -246,7 +252,7 @@ describe AthenaPatientSyncService do
       end
       it "creates a patient enrollment" do
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
-        @service.sync_all_patients
+        do_request
         expect(PatientEnrollment.count).to be(1)
         expect(Enrollment.count).to be(1)
       end

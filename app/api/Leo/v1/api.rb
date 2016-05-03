@@ -72,13 +72,6 @@ module Leo
         def session_device_type
           @session.device_type.gsub(/\s+/, "").to_sym if @session.device_type
         end
-
-        def generate_vendor_id
-          loop do
-            random_token = SecureRandom.urlsafe_base64(nil, false)
-            break random_token unless Enrollment.exists?(vendor_id: random_token)
-          end
-        end
       end
 
       ENDPOINTS = %w(appointments appointment_slots conversations sessions users

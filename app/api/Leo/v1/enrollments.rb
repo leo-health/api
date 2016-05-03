@@ -20,7 +20,7 @@ module Leo
             enrollment = Enrollment.create(declared(params).merge( role: Role.guardian,
                                                                    family_id: current_user.family_id,
                                                                    invited_user: true,
-                                                                   vendor_id: generate_vendor_id,
+                                                                   vendor_id: GenericHelper.generate_vendor_id,
                                                                    onboarding_group: onboarding_group ))
 
             if enrollment.valid?
