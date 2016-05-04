@@ -80,6 +80,8 @@ module Leo
       resource :users do
         desc '#create user from enrollment'
         params do
+          requires :stripe_token, type: String
+          requires :plan, type: String
           optional :first_name, type: String
           optional :last_name, type: String
           optional :phone, type: String
@@ -111,15 +113,30 @@ module Leo
             vendor_id: enrollment.vendor_id
           }
 
-          user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type'))
-          create_success user
-          session_params = {
-            device_type: params[:device_type],
-            device_token: params[:device_token]
-          }
+          begin
+            stripe_customer = Stripe::Customer.create(
+                email: enrollment_params[:email],
+                plan: params[:plan],
+                source: params[:stripe_token]
+            )
+          rescue #errotype1
 
-          session = user.sessions.create(session_params)
-          present :session, session
+          end
+
+          if stripe_customer[:stripe_customer_id]
+            user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type', 'stripe_token', 'plan'))
+
+            create_success user
+            session_params = {
+                device_type: params[:device_type],
+                device_token: params[:device_token]
+            }
+
+            session = user.sessions.create(session_params)
+            present :session, session
+          else
+            error!({message: ""}, 422)
+          end
         end
 
         route_param :id do

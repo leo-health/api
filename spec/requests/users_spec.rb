@@ -1,5 +1,6 @@
 require 'airborne'
 require 'rails_helper'
+require 'stripe_mock'
 
 describe Leo::V1::Users do
   let(:user_params){{ first_name: "first_name",
@@ -61,13 +62,26 @@ describe Leo::V1::Users do
   end
 
   describe "POST /api/v1/users - create user from enrollment" do
+    let(:stripe_helper) { StripeMock.create_test_helper }
+    let(:card_token){ stripe_helper.generate_card_token }
     let!(:guardian_role){create(:role, :guardian)}
     let(:enrollment){create(:enrollment, email: "bigtree@gmail.com", password: "password")}
     let(:serializer){ Leo::Entities::UserEntity }
     let(:user_params){{ first_name: "first_name",
                         last_name: "last_name",
-                        phone: "1234445555"
+                        phone: "1234445555",
+                        stripe_token: card_token,
+                        plan: "my_plan"
     }}
+
+    before do
+      StripeMock.start
+      stripe_helper.create_plan(id: 'my_plan', amount: 1500)
+    end
+
+    after do
+      StripeMock.stop
+    end
 
     def do_request
       post "/api/v1/users", user_params.merge!(authentication_token: enrollment.authentication_token), format: :json

@@ -42,6 +42,7 @@ gem 'unicorn'
 gem 'newrelic_rpm'
 gem 'useragent'
 gem "delayed_job_web"
+gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 
 group :development, :test do
   gem 'parallel_tests'
@@ -63,6 +64,7 @@ group :development, :develop do
 end
 
 group :test do
+  gem 'stripe-ruby-mock'
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers'
   gem 'grape-entity-matchers'
