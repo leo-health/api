@@ -196,12 +196,13 @@ module AthenaHealthApiHelper
 
       raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
-      entries = parsed[field.to_s]
+      entries = parsed[field.to_s] || []
       entries = entries.map { |val| AthenaStruct.new val } if structize
 
       #add following pages of results
       num_entries_still_needed = limit - entries.size
       next_page_url = parsed["next"]
+
       if next_page_url && num_entries_still_needed > 0
         next_page_url = next_page_url.split("/").from(3).join("/") # GET will append v1/{practiceid}, so we need to remove it to avoid duplicates. Should refactor GET to not do this
         entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize)

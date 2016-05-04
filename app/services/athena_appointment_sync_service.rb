@@ -89,7 +89,8 @@ class AthenaAppointmentSyncService < AthenaSyncService
   def sync_appointments(athena_params)
     params = {
       startdate: Date.today.strftime("%m/%d/%Y"),
-      enddate: 1.year.from_now.strftime("%m/%d/%Y")
+      enddate: 1.year.from_now.strftime("%m/%d/%Y"),
+      limit: 5000
     }.reverse_merge(athena_params)
     booked_appts = @connector.get_booked_appointments(**params)
     booked_appts.map { |appt|
