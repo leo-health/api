@@ -185,17 +185,8 @@ module AthenaHealthAPI
     def GET(path, parameters=nil, headers=nil, ignore_throttle=false)
       url = path
       if parameters
-        # URI escape each key and value, join them with '=', and join those pairs with '&'.  Add
-        # that to the URL with an prepended '?'.
-        url += '?' + parameters.map {
-          |k, v|
-          [k, v].map {
-            |x|
-            CGI.escape(x.to_s)
-          }.join('=')
-        }.join('&')
+        url += '?' + parameters.to_query
       end
-
       headers ||= {}
       request = Net::HTTP::Get.new(path_join(@version, @practiceid, url))
       call(request, {}, headers, false, ignore_throttle)
