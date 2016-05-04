@@ -190,9 +190,10 @@ module AthenaHealthApiHelper
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: nil, headers: , field: , limit: nil, structize: false)
-      limit ||= params[:limit] || params["limit"] || 1000
-      response = @connection.GET(url, params, headers)
+    def get_paged(url: , params: {}, headers: , field: , limit: nil, structize: false, append_version_and_practice: true)
+      params = params.symbolize_keys
+      limit ||= params[:limit] || 1000
+      response = @connection.GET(url, params, headers, append_version_and_practice)
 
       raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
@@ -204,8 +205,7 @@ module AthenaHealthApiHelper
       next_page_url = parsed["next"]
 
       if next_page_url && num_entries_still_needed > 0
-        next_page_url = next_page_url.split("/").from(3).join("/") # GET will append v1/{practiceid}, so we need to remove it to avoid duplicates. Should refactor GET to not do this
-        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize)
+        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, append_version_and_practice: false)
       end
 
       entries[0...limit]
