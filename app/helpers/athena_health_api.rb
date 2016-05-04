@@ -265,8 +265,8 @@ module AthenaHealthAPI
     attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit
 
     def initialize
-      @per_day_rate_limit = ENV['ATHENA_SECOND_RATE'].to_i
-      @per_second_rate_limit = ENV['ATHENA_DAY_RATE'].to_i
+      @per_day_rate_limit = ENV['ATHENA_DAY_RATE'].to_i
+      @per_second_rate_limit = ENV['ATHENA_SECOND_RATE'].to_i
       @athena_api_key = ENV['ATHENA_KEY']
     end
 
