@@ -382,7 +382,7 @@ class AthenaPatientSyncService < AthenaSyncService
       first_name: athena_patient["guarantorfirstname"],
       last_name: athena_patient["guarantorlastname"],
       email: athena_patient["guarantoremail"],
-      password: "temporary_password!",
+      password: SecureRandom.urlsafe_base64(nil, false),
       phone: athena_patient["contactmobilephone"] ||
               athena_patient["homephone"] ||
               athena_patient["employerphone"] ||

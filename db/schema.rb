@@ -67,13 +67,13 @@ ActiveRecord::Schema.define(version: 20160510050153) do
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
 
   create_table "appointments", force: :cascade do |t|
-    t.integer  "duration",                          null: false
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
-    t.integer  "athena_id",             default: 0, null: false
+    t.integer  "duration",                             null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.integer  "athena_id",                default: 0, null: false
     t.datetime "sync_updated_at"
-    t.datetime "start_datetime",                    null: false
-    t.integer  "appointment_type_id",               null: false
+    t.datetime "start_datetime",                       null: false
+    t.integer  "appointment_type_id",                  null: false
     t.string   "notes"
     t.integer  "booked_by_id"
     t.integer  "provider_id"
