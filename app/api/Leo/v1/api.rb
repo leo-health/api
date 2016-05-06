@@ -53,9 +53,12 @@ module Leo
           present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
         end
 
-        def update_success object, update_params, device_type=session_device_type
+        def update_success object, update_params, entity_name=nil, device_type=session_device_type
           if object.update_attributes(update_params)
-            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+            entity_name = entity_name ? entity_name : object.class.name
+            present entity_name.downcase.to_sym || object.class.name.downcase.to_sym, object,
+                    with: "Leo::Entities::#{entity_name}Entity".constantize,
+                    device_type: device_type
           else
             error!({error_code: 422, error_message: object.errors.full_messages }, 422)
           end

@@ -12,7 +12,8 @@ describe Leo::V1::Subscriptions do
     before do
       Stripe.api_key="test_key"
       StripeMock.start
-      stripe_helper.create_plan(id: "test_plan")
+      stripe_helper.create_plan(id: "com.leohealth.standard-1_child")
+      create(:patient, family: user.family)
     end
 
     after do
@@ -21,8 +22,7 @@ describe Leo::V1::Subscriptions do
 
     def do_request
       post "/api/v1/subscriptions", { authentication_token: session.authentication_token,
-                                      credit_card_token: credit_card_token,
-                                      plan_id: "test_plan"
+                                      credit_card_token: credit_card_token
                                      }
     end
 

@@ -8,14 +8,13 @@ module Leo
 
         params do
           requires :credit_card_token, type: String
-          requires :plan_id, type: String
         end
 
         post do
           begin
             stripe_customer = Stripe::Customer.create(
               email: current_user.email,
-              plan: params[:plan_id],
+              plan: StripePlan[current_user.family.patients.count - 1],
               source: params[:credit_card_token]
             )
           rescue Stripe::AuthenticationError => e
@@ -27,10 +26,10 @@ module Leo
                  Stripe::APIConnectionError => e
             error!({error_code: 422, error_message: e.json_body[:error][:message] }, 422)
           rescue Stripe::StripeError => e
+            error!({error_code: 422, error_message: e.json_body[:error][:message] }, 422)
             #suggest sending a email for stripe general errors
           end
-
-          update_success current_user, { stripe_customer_id: stripe_customer.id }
+          update_success current_user, { stripe_customer_id: stripe_customer.id }, "User"
         end
       end
     end
