@@ -18,17 +18,19 @@ module Leo
               source: params[:credit_card_token]
             )
           rescue Stripe::AuthenticationError => e
-            error!({error_code: 401, error_message: e.json_body[:error][:message] }, 401)
+            error!({error_code: 401, error_message: e.json_body[:error][:code] }, 401)
           rescue Stripe::CardError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:message] }, 422)
+            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
             logger.error("#{current_user.email}: #{e.json_body[:error][:message]}")
           rescue Stripe::RateLimitError,
                  Stripe::APIConnectionError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:message] }, 422)
+            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
           rescue Stripe::StripeError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:message] }, 422)
+            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
+            logger.error("#{current_user.email}: #{e.json_body[:error][:message]}")
             #suggest sending a email for stripe general errors
           end
+
           update_success current_user, { stripe_customer_id: stripe_customer.id }, "User"
         end
       end
