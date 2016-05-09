@@ -42,7 +42,7 @@ gem 'unicorn'
 gem 'newrelic_rpm'
 gem 'useragent'
 gem "delayed_job_web"
-gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
+gem 'stripe'
 
 group :development, :test do
   gem 'parallel_tests'
