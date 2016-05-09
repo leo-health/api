@@ -1,6 +1,9 @@
 module Syncable
   extend ActiveSupport::Concern
 
+  # Required methods
+  # athena_id
+
   included do
     belongs_to :sync_status, dependent: :destroy
     alias_method_chain :sync_status, :auto_create

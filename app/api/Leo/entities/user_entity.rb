@@ -8,8 +8,9 @@ module Leo
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
       expose :type
-      expose :primary_guardian, :credentials, :vendor_id, :family_id, if: Proc.new{ |u| u.guardian? }
-      
+      expose :primary_guardian, :vendor_id, :family_id, if: Proc.new{ |u| u.guardian? }
+      expose :credentials, unless: Proc.new{ |u| u.guardian? }
+
       private
 
       def device_type

@@ -43,17 +43,13 @@ class User < ActiveRecord::Base
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
-  validates :provider_sync_profile, presence: true, if: :provider?
+  validates :provider_sync_profile, presence: true, if: :clinical?
   validates :family, :vendor_id, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
   before_create :skip_confirmation!, if: :invited_user?
   after_update :welcome_onboarding_notifications, if: :guardian?
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
-
-  def athena_id
-    provider_sync_profile.try(:athena_id)
-  end
 
   def self.customer_service_user
     User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
