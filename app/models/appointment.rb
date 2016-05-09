@@ -33,7 +33,7 @@ class Appointment < ActiveRecord::Base
   end
 
   def booked_by_provider?
-    booked_by.try(:provider?)
+    booked_by.try(:clinical?)
   end
 
   def pre_checked_in?

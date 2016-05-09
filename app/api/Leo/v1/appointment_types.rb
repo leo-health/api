@@ -14,7 +14,7 @@ module Leo
           if appointment_types.count == 0
             appointment_types = AppointmentType.all
           end
-          present appointment_types.order("lower(name) DESC").all, with: Leo::Entities::AppointmentTypeEntity
+          present appointment_types.order("lower(name) DESC"), with: Leo::Entities::AppointmentTypeEntity
         end
       end
     end

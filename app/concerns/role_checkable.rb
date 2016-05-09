@@ -1,13 +1,11 @@
 module RoleCheckable
   extend ActiveSupport::Concern
 
+  # Required methods
+  # role
+
   def has_role?(name)
     role.try(:name) == name.to_s
-  end
-
-  # TODO: refactor provider? to use clinical?
-  def provider?
-    clinical?
   end
 
   private
