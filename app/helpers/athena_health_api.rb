@@ -91,7 +91,6 @@ module AthenaHealthAPI
       uri = URI.parse('https://api.athenahealth.com/')
       @connection = Net::HTTP.new(uri.host, uri.port)
       @connection.use_ssl = true
-
       # Monkey patch to make Net::HTTP do proper SSL verification.
       # Background reading:
       # http://stackoverflow.com/a/9238221
@@ -104,14 +103,13 @@ module AthenaHealthAPI
         ssl_context.cert_store = cert_store
         @ssl_context = ssl_context
       end
+
       @connection.proper_ssl_context!
       # End monkey patch
-
       @version = version
       @key = key
       @secret = secret
       @practiceid = practiceid
-
       #try using last token.  If refresh is required, it will be performed on second try
       @token = @@last_token
     end
@@ -119,7 +117,6 @@ module AthenaHealthAPI
     # Authenticates to the API by following the steps of basic authentication.  The URL to use is
     # determined by the version specified during initialization.
     def authenticate            # :nodoc:
-
       auth_paths = {
         'v1' => 'oauth',
         'preview1' => 'oauthpreview',
@@ -127,19 +124,13 @@ module AthenaHealthAPI
       }
 
       @token = nil
-
       request = Net::HTTP::Post.new("/#{auth_paths[@version]}/token")
       request.basic_auth(@key, @secret)
       request.set_form_data({'grant_type' => 'client_credentials'})
-
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}")
-
       response = @connection.request(request)
-
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
-
       raise "Athena authentication failed: code #{response.code}" unless response.code == "200"
-
       authorization = JSON.parse(response.body)
       @@last_token = @token = authorization['access_token']
     end
@@ -157,18 +148,14 @@ module AthenaHealthAPI
     # get a 401 Not Authorized, re-authenticate and try again.
     def call(request, body, headers, secondcall=false, ignore_throttle=false)
       authenticate unless @token
-
       request.set_form_data(body)
-
       headers.each {
         |k, v|
         request[k] = v
       }
+
       request['authorization'] = "Bearer #{@token}"
-
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
-
-      #throttle API calls
       unless ignore_throttle
         while (Time.now - @@last_request) < AthenaHealthAPI.configuration.effective_min_request_interval
           sleep(AthenaHealthAPI.configuration.effective_min_request_interval * 0.5)
@@ -176,18 +163,15 @@ module AthenaHealthAPI
       end
 
       response = @connection.request(request)
-
       @@last_request = Time.now
-
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
-
       if response.code == '401' && !secondcall
         #force re-authentication by nulling out @token
         @token = nil
         return call(request, body, headers, secondcall=true)
       end
 
-      return response
+      response
     end
 
     # Perform an HTTP GET request and return a hash of the API response.
@@ -213,9 +197,8 @@ module AthenaHealthAPI
       end
 
       headers ||= {}
-
       request = Net::HTTP::Get.new(path_join(@version, @practiceid, url))
-      return call(request, {}, headers, false, ignore_throttle)
+      call(request, {}, headers, false, ignore_throttle)
     end
 
     # Perform an HTTP POST request and return a hash of the API response.
@@ -230,9 +213,8 @@ module AthenaHealthAPI
       url = path
       parameters ||= {}
       headers ||= {}
-
       request = Net::HTTP::Post.new(path_join(@version, @practiceid, url))
-      return call(request, parameters, headers, false, ignore_throttle)
+      call(request, parameters, headers, false, ignore_throttle)
     end
 
     # Perform an HTTP PUT request and return a hash of the API response.
@@ -247,9 +229,8 @@ module AthenaHealthAPI
       url = path
       parameters ||= {}
       headers ||= {}
-
       request = Net::HTTP::Put.new(path_join(@version, @practiceid, url))
-      return call(request, parameters, headers, false, ignore_throttle)
+      call(request, parameters, headers, false, ignore_throttle)
     end
 
     # Perform an HTTP DELETE request and return a hash of the API response.
@@ -275,9 +256,55 @@ module AthenaHealthAPI
       end
 
       headers ||= {}
-
       request = Net::HTTP::Delete.new(path_join(@version, @practiceid, url))
-      return call(request, {}, headers, false, ignore_throttle)
+      call(request, {}, headers, false, ignore_throttle)
+    end
+  end
+
+  class RateLimiter
+    attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit
+
+    def initialize
+      @per_day_rate_limit = ENV['ATHENA_DAY_RATE'].to_i
+      @per_second_rate_limit = ENV['ATHENA_SECOND_RATE'].to_i
+      @athena_api_key = ENV['ATHENA_KEY']
+    end
+
+    def sleep_time
+      [sleep_time_day_rate_limit, sleep_time_second_rate_limit].max
+    end
+
+    def sleep_time_day_rate_limit
+      key = day_key
+      count, _ = $redis.multi do
+        $redis.incr(key)
+        $redis.expireat(key, @next_day)
+      end
+      count < per_day_rate_limit ? 0 : @next_day - Time.now.to_i
+    end
+
+    def sleep_time_second_rate_limit
+      count, _ = $redis.multi do
+        $redis.incr(second_key)
+        $redis.expire(second_key, 1)
+      end
+      count < per_second_rate_limit ? 0 : 1
+    end
+
+    private
+
+    def day_key
+      if Time.now.to_i <=  $redis.get('expire_at').to_i
+        "day_rate_limit:#{athena_api_key}:#{$redis.get('expire_at')}"
+      else
+        @next_day = (Time.now + 1.day).to_i
+        "day_rate_limit:#{athena_api_key}:#{@next_day.to_s}"
+      end
+    end
+
+    def second_key
+      time_pattern = Time.now.strftime("%Y-%m-%d-%H-%M-%S")
+      "second_rate_limit:#{athena_api_key}:#{time_pattern}"
     end
   end
 end
