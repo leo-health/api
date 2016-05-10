@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160425214446) do
+ActiveRecord::Schema.define(version: 20160502192727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -76,7 +76,6 @@ ActiveRecord::Schema.define(version: 20160425214446) do
     t.integer  "appointment_type_id",                  null: false
     t.string   "notes"
     t.integer  "booked_by_id"
-    t.integer  "provider_id"
     t.integer  "patient_id"
     t.integer  "rescheduled_id"
     t.datetime "deleted_at"
@@ -84,6 +83,7 @@ ActiveRecord::Schema.define(version: 20160425214446) do
     t.integer  "practice_id",                          null: false
     t.integer  "provider_sync_profile_id"
     t.string   "booked_by_type"
+    t.integer  "provider_id"
   end
 
   add_index "appointments", ["appointment_status_id"], name: "index_appointments_on_appointment_status_id", using: :btree
@@ -93,7 +93,6 @@ ActiveRecord::Schema.define(version: 20160425214446) do
   add_index "appointments", ["deleted_at"], name: "index_appointments_on_deleted_at", using: :btree
   add_index "appointments", ["patient_id"], name: "index_appointments_on_patient_id", using: :btree
   add_index "appointments", ["practice_id"], name: "index_appointments_on_practice_id", using: :btree
-  add_index "appointments", ["provider_id"], name: "index_appointments_on_provider_id", using: :btree
   add_index "appointments", ["start_datetime"], name: "index_appointments_on_start_datetime", using: :btree
 
   create_table "avatars", force: :cascade do |t|
@@ -343,6 +342,7 @@ ActiveRecord::Schema.define(version: 20160425214446) do
     t.string   "sex",                    null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.integer  "athena_id"
   end
 
   add_index "patient_enrollments", ["guardian_enrollment_id"], name: "index_patient_enrollments_on_guardian_enrollment_id", using: :btree
