@@ -18,8 +18,8 @@ describe AthenaAppointmentSyncService do
       "departmentid": @provider.practice.athena_id.to_s,
       "appointmentid": "1",
       "patientid": "1"
-      })
-    }
+    })
+  }
 
   describe "sync_appointments" do
     before do
@@ -132,12 +132,12 @@ describe AthenaAppointmentSyncService do
         @leo_booked_appt = create(:appointment, :future)
         @leo_booked_appt.appointment_type.update(athena_id: 1)
         @leo_booked_appt.update(patient: @patient, provider: @provider, start_datetime: Time.now + 1.day)
+        create(:slot, start_datetime: @leo_booked_appt.start_datetime, end_datetime: @leo_booked_appt.start_datetime + @leo_booked_appt.duration.minutes, provider_sync_profile: @leo_booked_appt.provider.provider_sync_profile)
       end
 
       context "booked appointment"
         it "sends a POST /appointment to Athena" do
           expect(@connector).to receive(:get_appointment).and_return(mock_appt)
-          expect(@connector).to receive(:create_appointment).and_return(1)
           expect(@connector).to receive(:book_appointment)
           @service.post_appointment @leo_booked_appt
         end

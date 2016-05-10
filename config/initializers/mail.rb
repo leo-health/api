@@ -5,9 +5,9 @@ MandrillMailer.configure do |config|
   unless Rails.env.production?
     config.interceptor = Proc.new {|params|
       params['to'].each do |receiver|
+        params['subject'] += "From: #{params['from_email']} in #{Rails.env} environment"
         unless receiver['email'].split("@").last.downcase == "leohealth.com"
           receiver['email'] = "mailer@leohealth.com"
-          params['subject'] += "From: #{params['from_email']} in #{Rails.env} environment"
         end
       end
     }

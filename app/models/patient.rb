@@ -1,6 +1,6 @@
 class Patient < ActiveRecord::Base
   acts_as_paranoid
-  include Syncable
+  include Concerns::Syncable
   include PgSearch
   pg_search_scope(
     :search,
@@ -29,12 +29,14 @@ class Patient < ActiveRecord::Base
   after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
 
   # subscribe_to_athena only the first time after the patient has been posted to athena
-  after_commit :subscribe_to_athena, if: Proc.new { |record|
+  after_commit :subscribe_to_athena, if: :did_successfully_sync?
+
+  def did_successfully_sync?
     attribute = :athena_id
-    record.previous_changes.key?(attribute) &&
-    record.previous_changes[attribute].first == 0 &&
-    record.previous_changes[attribute].last != 0
-  }
+    self.previous_changes.key?(attribute) &&
+    self.previous_changes[attribute].first == 0 &&
+    self.previous_changes[attribute].last != 0
+  end
 
   def post_to_athena
     PostPatientJob.new(self).start unless Delayed::Job.find_by(owner: self, queue: PostPatientJob.queue_name)
@@ -53,12 +55,6 @@ class Patient < ActiveRecord::Base
   end
 
   private
-
-  def sync_status_with_auto_create
-    update(sync_status: SyncStatus.create!(owner: self)) unless sync_status_without_auto_create
-    sync_status_without_auto_create
-  end
-  alias_method_chain :sync_status, :auto_create
 
   def upgrade_guardian!
     family.primary_guardian.try(:upgrade!)

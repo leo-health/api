@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160415161023) do
+ActiveRecord::Schema.define(version: 20160420032516) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -514,6 +514,22 @@ ActiveRecord::Schema.define(version: 20160415161023) do
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree
   add_index "sessions", ["deleted_at"], name: "index_sessions_on_deleted_at", using: :btree
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", where: "(deleted_at IS NULL)", using: :btree
+
+  create_table "slots", force: :cascade do |t|
+    t.datetime "start_datetime"
+    t.datetime "end_datetime"
+    t.string   "free_busy_type"
+    t.integer  "athena_id"
+    t.integer  "provider_sync_profile_id"
+    t.integer  "appointment_type_id"
+    t.integer  "sync_status_id"
+    t.integer  "appointment_id"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
+
+  add_index "slots", ["end_datetime"], name: "index_slots_on_end_datetime", using: :btree
+  add_index "slots", ["start_datetime"], name: "index_slots_on_start_datetime", using: :btree
 
   create_table "staff_profiles", force: :cascade do |t|
     t.integer  "staff_id",    null: false

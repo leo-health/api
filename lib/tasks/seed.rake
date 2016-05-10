@@ -9,6 +9,39 @@ namespace :load do
     end
   end
 
+  desc "Seed Jonathan Bush family"
+  task bush: :environment do
+    family = Family.create!
+    family.guardians.create!(
+      first_name: "Jonathan",
+      last_name: "Bush",
+      email: "adam+1997@leohealth.com",
+      password: "password",
+      role: Role.guardian,
+      practice_id: 1,
+      phone: "9735172669",
+      vendor_id: "bush_vendor_id"
+    )
+    family.patients.create!(
+      first_name: "Jeb",
+      last_name: "Bush",
+      sex: "M",
+      birth_date: Date.new(2016,4,1)
+    )
+    family.patients.create!(
+      first_name: "George",
+      last_name: "Bush",
+      sex: "M",
+      birth_date: Date.new(2016,3,1)
+    )
+    family.patients.create!(
+      first_name: "Athena",
+      last_name: "Health",
+      sex: "F",
+      birth_date: Date.new(1997,3,31)
+    )
+  end
+
   desc "Seed sample guardian users with conversations."
   task seed_guardians: :environment do
     last_names = ['Einstein', 'Turing', 'Lovelace', 'Tesla', 'Curie', 'Planck', 'Faraday', 'Brown', 'Hopper', 'Galilei', 'Wright', 'Pasteur', 'Euler', 'Braun', 'Darwin']
