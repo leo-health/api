@@ -5,12 +5,12 @@ class AthenaAppointmentSyncService < AthenaSyncService
       if !leo_appt.patient.has_synced? && leo_appt.patient.should_attempt_sync?
         AthenaPatientSyncService.new.post_patient leo_appt.patient
       end
-      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider_sync_profile" unless leo_appt.provider_sync_profile
-      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_id" if leo_appt.provider_sync_profile.athena_id == 0
-      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider_sync_profile that does not have an athena_department_id" if leo_appt.provider_sync_profile.athena_department_id == 0
+      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have a provider" unless leo_appt.provider
+      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have an athena_id" if leo_appt.provider.athena_id == 0
+      raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have an athena_department_id" if leo_appt.provider.athena_department_id == 0
       raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
-      slots = Slot.free.where(provider_sync_profile: leo_appt.provider.provider_sync_profile).between(leo_appt.start_datetime, leo_appt.end_datetime)
+      slots = Slot.free.where(provider: leo_appt.provider).between(leo_appt.start_datetime, leo_appt.end_datetime)
       raise "No slot available for appointment #{leo_appt}" unless slots.first
 
       leo_appt.update(athena_id: slots.first.athena_id)
@@ -20,7 +20,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
         patientid: leo_appt.patient.athena_id,
         reasonid: nil,
         appointmenttypeid: leo_appt.appointment_type.athena_id,
-        departmentid: leo_appt.provider_sync_profile.athena_department_id
+        departmentid: leo_appt.provider.athena_department_id
       )
 
       slots.update_all(free_busy_type: :busy, appointment_id: leo_appt.id)
@@ -43,14 +43,14 @@ class AthenaAppointmentSyncService < AthenaSyncService
     else
       # ????: (adam) I don't think we need this. If anything, modifying a leo appointment should be handled in the sync appointments
       patient = Patient.find_by(athena_id: athena_appt.patientid.to_i)
-      provider_sync_profile = ProviderSyncProfile.find_by!(athena_id: athena_appt.providerid.to_i)
+      provider = Provider.find_by!(athena_id: athena_appt.providerid.to_i)
       appointment_type = AppointmentType.find_by!(athena_id: athena_appt.appointmenttypeid.to_i)
       appointment_status = AppointmentStatus.find_by(status: athena_appt.appointmentstatus)
       #athena does not return booked_by_id.  we have to leave it as is
       leo_appt.appointment_status = appointment_status
-      leo_appt.patient_id = patient.try(:id)
-      leo_appt.provider_id = provider_sync_profile.provider_id
-      leo_appt.appointment_type_id = appointment_type.id
+      leo_appt.patient = patient
+      leo_appt.provider = provider
+      leo_appt.appointment_type = appointment_type
       leo_appt.duration = athena_appt.duration.to_i
       leo_appt.start_datetime = AthenaHealthApiHelper.to_datetime(athena_appt.date, athena_appt.starttime)
       leo_appt.athena_id = athena_appt.appointmentid.to_i
@@ -123,17 +123,15 @@ class AthenaAppointmentSyncService < AthenaSyncService
   def create_leo_appointment_from_athena!(appt)
     # TODO: refactor to end early based on validations to minimize db calls
     patient = appt.patientid ? Patient.find_by(athena_id: appt.patientid.to_i) : nil
-    provider_sync_profile = appt.providerid ? ProviderSyncProfile.find_by(athena_id: appt.providerid.to_i) : nil
+    provider = appt.providerid ? Provider.find_by(athena_id: appt.providerid.to_i) : nil
     appointment_type = AppointmentType.find_by_athena_id_with_mapping_if_needed(appt.appointmenttypeid.try(:to_i))
     appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
     practice = appt.departmentid ? Practice.find_by(athena_id: appt.departmentid) : nil
-    provider = provider_sync_profile.try(:provider)
     appointment_params = {
       appointment_status: appointment_status,
-      booked_by: provider_sync_profile,
+      booked_by: provider,
       patient: patient,
-      provider_sync_profile: provider_sync_profile,
-      provider: provider, # TODO: eventually remove this
+      provider: provider,
       practice: practice,
       appointment_type: appointment_type,
       duration: appt.duration,

@@ -5,8 +5,7 @@ RSpec.describe Appointment, type: :model do
     it{ is_expected.to belong_to(:patient) }
     it{ is_expected.to belong_to(:practice) }
     it{ is_expected.to belong_to(:booked_by) }
-    it{ is_expected.to belong_to(:provider_sync_profile) }
-    it{ is_expected.to belong_to(:provider).class_name('User') }
+    it{ is_expected.to belong_to(:provider) }
     it{ is_expected.to belong_to(:appointment_type) }
     it{ is_expected.to belong_to(:appointment_status) }
   end
@@ -64,7 +63,7 @@ RSpec.describe Appointment, type: :model do
     end
 
     context "booked by a provider" do
-      let(:provider){ create(:user, :clinical) }
+      let(:provider){ create(:provider) }
 
       it 'should allow booking by provider' do
         appointment = Appointment.new(patient: patient, booked_by: provider)

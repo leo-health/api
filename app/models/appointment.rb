@@ -4,8 +4,7 @@ class Appointment < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :patient
   belongs_to :booked_by, polymorphic: true
-  belongs_to :provider, class_name: "User"
-  belongs_to :provider_sync_profile
+  belongs_to :provider
   belongs_to :appointment_type
   belongs_to :appointment_status
   belongs_to :practice
@@ -19,12 +18,6 @@ class Appointment < ActiveRecord::Base
 
   def end_datetime
     start_datetime + duration.minutes
-  end
-
-  # TODO: remove once provider column is removed
-  def provider=(provider)
-    super provider
-    self.provider_sync_profile = provider.provider_sync_profile
   end
 
   def same_family?

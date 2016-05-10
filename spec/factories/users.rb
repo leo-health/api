@@ -35,8 +35,8 @@ FactoryGirl.define do
     trait :clinical do
       practice
       association :role, factory: [:role, :clinical]
-      after(:build) do |provider|
-        provider.provider_sync_profile ||= FactoryGirl.build(:provider_sync_profile, provider: provider)
+      after(:build) do |user|
+        user.provider ||= FactoryGirl.build(:provider, user: user)
       end
     end
 

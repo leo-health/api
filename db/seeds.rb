@@ -362,7 +362,7 @@ if should_seed_flatiron
         credentials: ["MD"]
       },
 
-      provider_sync_profile_attributes: {
+      provider_attributes: {
         athena_id: 1,
         athena_department_id: 1
       },
@@ -389,7 +389,7 @@ if should_seed_flatiron
         avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Erin-Shoulder.png'))
       },
 
-      provider_sync_profile_attributes: {
+      provider_attributes: {
         athena_id: 3,
         athena_department_id: 1
       },
@@ -599,7 +599,7 @@ end
 
 providers.each do |attributes|
   if user = User.find_by(email: attributes[:email])
-    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_sync_profile_attributes, :staff_profile_attributes, :avatar_attributes))
+    user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_attributes, :staff_profile_attributes, :avatar_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
   end
@@ -614,12 +614,12 @@ providers.each do |attributes|
     user.staff_profile.update_attributes!(person_attributes(user).merge(attributes[:staff_profile_attributes]))
   end
 
-  if attributes[:provider_sync_profile_attributes] && user.provider_sync_profile
-    user.provider_sync_profile.update_attributes!(person_attributes(user).merge(attributes[:provider_sync_profile_attributes]))
+  if attributes[:provider_attributes] && user.provider
+    user.provider.update_attributes!(person_attributes(user).merge(attributes[:provider_attributes]))
   end
 
   if attributes[:provider_schedule_attributes]
-    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider_sync_profile.try(:athena_id))
+    if provider_schedule = ProviderSchedule.find_by(athena_provider_id: user.provider.try(:athena_id))
       provider_schedule.update_attributes!(attributes[:provider_schedule_attributes])
     else
       ProviderSchedule.create!(attributes[:provider_schedule_attributes])
@@ -703,11 +703,11 @@ practice_holidays = [
 
 ProviderLeave.where(athena_id: 0).delete_all
 
-ProviderSyncProfile.all.each do |provider_sync_profile|
+Provider.all.each do |provider|
   practice_holidays.each do | holiday |
     ProviderLeave.create(
       athena_id: 0,
-      athena_provider_id: provider_sync_profile.athena_id,
+      athena_provider_id: provider.athena_id,
       description: "Seeded holiday",
       start_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00"),
       end_datetime: AthenaHealthApiHelper.to_datetime(holiday, "00:00") + 24.hours

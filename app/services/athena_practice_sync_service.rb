@@ -23,7 +23,7 @@ class AthenaPracticeSyncService < AthenaSyncService
 
 
 
-    existing_providers = ProviderSyncProfile.where(athena_id: athena_providers.map(&method(:get_athena_id))).order(:athena_id).to_enum
+    existing_providers = Provider.where(athena_id: athena_providers.map(&method(:get_athena_id))).order(:athena_id).to_enum
 
     existing_provider = nil
     athena_providers.map { |athena_provider|
@@ -77,7 +77,7 @@ class AthenaPracticeSyncService < AthenaSyncService
     attributes = parse_athena_provider_json(athena_provider).merge(practice: practice)
     provider = nil
     ActiveRecord::Base.transaction do
-      provider = ProviderSyncProfile.create!(attributes.merge(athena_department_id: practice.athena_id))
+      provider = Provider.create!(attributes.merge(athena_department_id: practice.athena_id))
       StaffProfile.create_with_provider!(provider)
       ProviderSchedule.create_default_with_provider!(provider)
     end

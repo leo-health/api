@@ -68,7 +68,7 @@ module Leo
           if current_user.has_role? :guardian
             appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id))
           elsif current_user.has_role? :clinical
-            appointments = current_user.provider_appointments
+            appointments = Appointment.booked.where(provider: current_user.provider)
           end
           appointments.order(start_datetime: :asc)
           authorize! :read, Appointment
