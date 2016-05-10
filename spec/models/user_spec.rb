@@ -10,6 +10,7 @@ describe User do
     let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
     let!(:open_appointmet){ create(:appointment, :open, booked_by: guardian, provider: provider) }
 
+    it{ is_expected.to belong_to(:member_type) }
     it{ is_expected.to belong_to(:family) }
     it{ is_expected.to belong_to(:role) }
     it{ is_expected.to belong_to(:practice) }
@@ -159,7 +160,7 @@ describe User do
         end
 
         it "should set the user type of secondary guardian to be intentical to the primary guadian" do
-          expect( secondary_guardian.type ).to eq(user.type)
+          expect( secondary_guardian.member_type ).to eq(user.member_type)
         end
 
         it "should send a welcome to practice email to secodonary user, and a internal notification email to ios" do
@@ -209,7 +210,7 @@ describe User do
     end
 
     it "should collect all the unique device tokens" do
-      expect(user.collect_device_tokens).to eq(uniq_tokens)
+      expect(user.collect_device_tokens.sort).to eq(uniq_tokens.sort)
     end
   end
 

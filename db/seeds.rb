@@ -32,6 +32,11 @@ roles_seed.each do |param|
   Role.update_or_create!(:name, param)
 end
 
+[:incomplete, :delinquent, :member, :exempted].each do |member_type|
+  MemberType.update_or_create! :name, { name: member_type }
+end
+
+
 
 default_provider_schedule = {
   athena_provider_id: nil,
