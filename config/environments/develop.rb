@@ -10,7 +10,8 @@ Rails.application.configure do
   config.cache_classes = true
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
+  config.eager_load_paths += %W( #{config.root}/app/concerns )
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local       = true
