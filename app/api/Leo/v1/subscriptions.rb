@@ -23,8 +23,7 @@ module Leo
           rescue Stripe::CardError => e
             error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
             logger.error("#{current_user.email}: #{e.json_body[:error][:message]}")
-          rescue Stripe::RateLimitError,
-                 Stripe::APIConnectionError => e
+          rescue Stripe::RateLimitError, Stripe::APIConnectionError => e
             error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
           rescue Stripe::StripeError => e
             error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)

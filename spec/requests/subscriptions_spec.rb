@@ -30,7 +30,7 @@ describe Leo::V1::Subscriptions do
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:user].as_json.to_json).to eq(serializer.represent(user.reload).as_json.to_json)
+      expect(body[:data][:user].as_json.to_json).to eq(serializer.represent(user.reload).to_json)
     end
   end
 end
