@@ -11,10 +11,11 @@ module Leo
         end
 
         post do
+          patient_count = current_user.family.patients.count > 5 ? 5 : current_user.family.patients.count
           begin
             stripe_customer = Stripe::Customer.create(
               email: current_user.email,
-              plan: StripePlan[current_user.family.patients.count - 1],
+              plan: StripePlanMap[patient_count],
               source: params[:credit_card_token]
             )
           rescue Stripe::AuthenticationError => e
