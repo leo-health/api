@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160510050153) do
+ActiveRecord::Schema.define(version: 20160511162948) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -199,8 +199,9 @@ ActiveRecord::Schema.define(version: 20160510050153) do
   add_index "escalation_notes", ["escalated_to_id"], name: "index_escalation_notes_on_escalated_to_id", using: :btree
 
   create_table "families", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.string   "membership_type"
   end
 
   create_table "forms", force: :cascade do |t|
@@ -301,6 +302,10 @@ ActiveRecord::Schema.define(version: 20160510050153) do
 
   add_index "medications", ["athena_id"], name: "index_medications_on_athena_id", using: :btree
   add_index "medications", ["patient_id"], name: "index_medications_on_patient_id", using: :btree
+
+  create_table "member_types", force: :cascade do |t|
+    t.string "name"
+  end
 
   create_table "message_photos", force: :cascade do |t|
     t.integer  "message_id", null: false
@@ -637,11 +642,12 @@ ActiveRecord::Schema.define(version: 20160510050153) do
     t.date     "birth_date"
     t.string   "avatar_url"
     t.string   "phone"
-    t.string   "type"
     t.integer  "onboarding_group_id"
     t.integer  "insurance_plan_id"
     t.string   "vendor_id"
     t.integer  "enrollment_id"
+    t.integer  "member_type_id"
+    t.string   "type"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

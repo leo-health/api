@@ -1,9 +1,30 @@
 class Family < ActiveRecord::Base
+  include AASM
+
   has_many :guardians, class_name: 'User'
   has_many :patients
   has_one :conversation
 
   after_commit :set_up_conversation, on: :create
+
+  aasm whiny_transitions: false, column: :membership_type do
+    state :incomplete, initial: true
+    state :delinquent
+    state :member
+    state :exempted
+
+    event :renew_membership do
+      transitions from: [:incomplete, :delinquent], to: :member
+    end
+
+    event :expire_membership do
+      transitions from: :member, to: :delinquent
+    end
+
+    event :exempt_membership do
+      transitions to: :exempted
+    end
+  end
 
   def members
    guardians + patients

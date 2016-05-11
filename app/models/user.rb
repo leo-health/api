@@ -50,6 +50,10 @@ class User < ActiveRecord::Base
   after_update :welcome_onboarding_notifications, if: :guardian?
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
 
+  def membership_type
+    family.try(:membership_type)
+  end
+
   def self.customer_service_user
     User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
   end
