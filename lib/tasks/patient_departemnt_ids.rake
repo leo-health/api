@@ -3,11 +3,13 @@ namespace :backfill do
   task patient_department_ids: :environment do
     #TODO: load from source
     patient_ids = File.readlines('lib/assets/patient_ids.txt').map(&:to_i)
-    byebug
     departmentid = Practice.flatiron_pediatrics.athena_id
+    departmentid = 1 if departmentid == 0
     @connector = AthenaHealthApiHelper::AthenaHealthApiConnector.instance
 
-    patient_ids -= @connector.get_patients(departmentid: departmentid).map { |patient| patient["patientid"].try(:to_i) }
+    patients = @connector.get_patients(departmentid: departmentid)
+    byebug
+    patient_ids -= patients.map { |patient| patient["patientid"].try(:to_i) }
 
     byebug
     patient_ids.map do |patient_id|
