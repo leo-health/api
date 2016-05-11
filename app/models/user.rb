@@ -54,6 +54,10 @@ class User < ActiveRecord::Base
     family.try(:stripe_customer_id)
   end
 
+  def membership_type
+    family.try(:membership_type)
+  end
+
   def self.customer_service_user
     User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
   end

@@ -201,11 +201,9 @@ ActiveRecord::Schema.define(version: 20160517130215) do
   create_table "families", force: :cascade do |t|
     t.datetime "created_at",         null: false
     t.datetime "updated_at",         null: false
-    t.string   "stripe_customer_id"
     t.string   "membership_type"
+    t.string   "stripe_customer_id"
   end
-
-  add_index "families", ["membership_type"], name: "index_families_on_membership_type", using: :btree
 
   create_table "forms", force: :cascade do |t|
     t.integer  "patient_id",      null: false

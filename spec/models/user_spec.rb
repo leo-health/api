@@ -159,6 +159,7 @@ describe User do
 
         it "should set the user type of secondary guardian to be intentical to the primary guadian" do
           expect( secondary_guardian.type ).to eq(user.type)
+          expect( secondary_guardian.membership_type ).to eq(user.membership_type)
         end
 
         it "should send a welcome to practice email to secodonary user, and a internal notification email to ios" do
@@ -208,7 +209,7 @@ describe User do
     end
 
     it "should collect all the unique device tokens" do
-      expect(user.collect_device_tokens).to eq(uniq_tokens)
+      expect(user.collect_device_tokens.sort).to eq(uniq_tokens.sort)
     end
   end
 
