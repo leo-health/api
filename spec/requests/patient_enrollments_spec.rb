@@ -2,6 +2,8 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Enrollments do
+  let(:patient_enrollment){ create(:patient_enrollment) }
+
   describe "POST /api/v1/patient_enrollments" do
     let(:guardian_enrollment){ create(:enrollment) }
 
@@ -22,8 +24,6 @@ describe Leo::V1::Enrollments do
   end
 
   describe "PUT /api/v1/patient_enrollments/:id" do
-    let(:patient_enrollment){ create(:patient_enrollment) }
-
     def do_request
       enrollment_params = { authentication_token: patient_enrollment.guardian_enrollment.authentication_token,
                             first_name: 'Jack',
@@ -33,6 +33,21 @@ describe Leo::V1::Enrollments do
 
     it "should update an patient enrollment" do
       do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect( body[:data][:patient_enrollment])
+    end
+  end
+
+  describe "Delete /api/v1/patient_enrollments/:id" do
+    def do_request
+      enrollment_params = { authentication_token: patient_enrollment.guardian_enrollment.authentication_token }
+      delete "/api/v1/patient_enrollments/6", enrollment_params
+    end
+
+    it "should update an patient enrollment" do
+      do_request
+      byebug
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
       expect( body[:data][:patient_enrollment])

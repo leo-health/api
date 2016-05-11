@@ -46,6 +46,12 @@ module Leo
             error!({error_code: 422, error_message: patient_enrollment.errors.full_messages }, 422)
           end
         end
+
+        desc "remove a patient enrollment record"
+        delete ':id' do
+          patient_enrollment = PatientEnrollment.find(params[:id])
+          patient_enrollment.destroy and return
+        end
       end
     end
   end
