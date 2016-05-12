@@ -1,5 +1,5 @@
 namespace :backfill do
-  desc 'back fill provider_sync_profile on Appointment'
+  desc 'back fill provider on Appointment'
   task appointments: :environment do
     Appointment.find_each do |appointment|
       provider_user = User.find_by_id(appointment.provider_id)

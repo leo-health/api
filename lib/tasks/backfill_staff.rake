@@ -1,13 +1,13 @@
 namespace :backfill do
-  desc 'back fill provider_sync_profile on Appointment'
+  desc 'back fill person and provider on staff'
   task staff: :environment do
     StaffProfile.find_each do |staff|
 
       user = staff.staff
       staff.practice = user.practice
-      if user.provider_sync_profile
-        staff.provider_sync_profile = user.provider_sync_profile
-        staff.athena_id = staff.provider_sync_profile.athena_id
+      if user.provider
+        staff.provider = user.provider
+        staff.athena_id = staff.provider.athena_id
       end
 
       Person.writable_column_names.map { |col| staff.send("#{col}=", user.send(col)) }
