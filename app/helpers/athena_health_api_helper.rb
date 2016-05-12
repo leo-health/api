@@ -190,35 +190,25 @@ module AthenaHealthApiHelper
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: , headers: , field: , offset: 0, limit: 1000, structize: false)
+    def get_paged(url: , params: {}, headers: , field: , limit: nil, structize: false, append_version_and_practice: true)
+      params = params.symbolize_keys
+      limit ||= params[:limit] || 1000
+      response = @connection.GET(url, params, headers, append_version_and_practice)
 
-      raise "limit #{limit} is higher then max allowed 1000." if limit > 1000
-      local_params = params.clone
-      local_params['offset'] = offset
-      local_params['limit'] = limit
-      endpoint = url
-      response = @connection.GET(endpoint, local_params, headers)
-
-      raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
+      raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
-      entries = []
-      parsed[field.to_s].each do | val |
-        if structize
-          entries.push AthenaStruct.new val
-        else
-          entries.push val
-        end
-      end
+      entries = parsed[field.to_s] || []
+      entries = entries.map { |val| AthenaStruct.new val } if structize
 
       #add following pages of results
-      if parsed[:next.to_s]
-        entries.concat(
-          get_paged(url: url,
-            params: params, headers: headers, field: field, offset: offset + limit,
-            limit: limit, structize: structize))
+      num_entries_still_needed = limit - entries.size
+      next_page_url = parsed["next"]
+
+      if next_page_url && num_entries_still_needed > 0
+        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, append_version_and_practice: false)
       end
 
-      return entries
+      entries[0...limit]
     end
 
     # get a list of available appointment types
@@ -231,7 +221,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointmenttypes", params: params,
-        headers: common_headers, field: :appointmenttypes, limit: limit)
+        headers: common_headers, field: :appointmenttypes)
     end
 
     # get a list of available appointment reasons
@@ -245,7 +235,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/patientappointmentreasons", params: params,
-        headers: common_headers, field: :patientappointmentreasons, limit: limit)
+        headers: common_headers, field: :patientappointmentreasons)
     end
 
     # get a list of open appointments
@@ -260,7 +250,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/open", params: params,
-        headers: common_headers, field: :appointments, limit: limit, structize: true)
+        headers: common_headers, field: :appointments, structize: true)
     end
 
     # get a list of booked appointments
@@ -277,7 +267,7 @@ module AthenaHealthApiHelper
 
       return get_paged(
         url: "/appointments/booked", params: params,
-        headers: common_headers, field: :appointments, limit: limit, structize: true)
+        headers: common_headers, field: :appointments, structize: true)
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients

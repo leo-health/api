@@ -1,6 +1,6 @@
 class Patient < ActiveRecord::Base
   acts_as_paranoid
-  include Concerns::Syncable
+  include Syncable
   include PgSearch
   pg_search_scope(
     :search,
