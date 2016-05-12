@@ -13,7 +13,7 @@ describe Leo::V1::AppointmentSlots do
       @num_slots.times do |i|
         start_datetime = first_start_datetime + (i*duration).minutes
         end_datetime = start_datetime + duration.minutes
-        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider_sync_profile: provider_sync_profile)
+        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider: provider)
       end
     end
 
@@ -22,10 +22,9 @@ describe Leo::V1::AppointmentSlots do
     end
 
     let(:date) { Date.tomorrow }
-    let(:provider_sync_profile) { create(:provider_sync_profile, athena_id: 1) }
-    let(:provider) { provider_sync_profile.provider }
+    let(:provider) { create(:provider, athena_id: 1) }
     let(:appointment_type) { create(:appointment_type, :well_visit, athena_id: 1) }
-    let!(:schedule) { create(:provider_schedule, athena_provider_id: provider_sync_profile.athena_id) }
+    let!(:schedule) { create(:provider_schedule, athena_provider_id: provider.athena_id) }
 
     let(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }

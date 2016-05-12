@@ -25,8 +25,8 @@ class User < ActiveRecord::Base
   has_one :avatar, as: :owner
   has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff
   accepts_nested_attributes_for :staff_profile
-  has_one :provider_sync_profile, foreign_key: "provider_id", inverse_of: :provider
-  accepts_nested_attributes_for :provider_sync_profile
+  has_one :provider, inverse_of: :user
+  accepts_nested_attributes_for :provider
   has_many :forms, foreign_key: "submitted_by_id"
   has_many :user_conversations
   has_many :conversations, through: :user_conversations
@@ -37,13 +37,12 @@ class User < ActiveRecord::Base
   has_many :read_messages, class_name: 'Message', through: :read_receipts
   has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
-  has_many :provider_appointments, -> { Appointment.booked }, foreign_key: "provider_id", class_name: "Appointment"
   has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
-  validates :provider_sync_profile, presence: true, if: :clinical?
+  validates :provider, presence: true, if: :clinical?
   validates :family, :vendor_id, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true

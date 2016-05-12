@@ -4,7 +4,7 @@ require 'mandrill_mailer/offline'
 describe User do
   describe "relations" do
     let(:guardian){ create(:user, :guardian) }
-    let(:provider){ create(:user, :clinical) }
+    let(:provider){ create(:provider) }
     let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
     let!(:checked_in_appointment){ create(:appointment, :checked_in, booked_by: guardian, provider: provider, start_datetime: 2.minutes.ago) }
     let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
@@ -19,7 +19,7 @@ describe User do
 
     it{ is_expected.to have_one(:avatar) }
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
-    it{ is_expected.to have_one(:provider_sync_profile).with_foreign_key('provider_id') }
+    it{ is_expected.to have_one(:provider) }
 
     it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:forms) }
@@ -30,13 +30,12 @@ describe User do
     it{ is_expected.to have_many(:read_messages).class_name('Message').with_foreign_key('read_receipts') }
     it{ is_expected.to have_many(:sessions) }
     it{ is_expected.to have_many(:sent_messages).class_name('Message').with_foreign_key('sender_id') }
-    it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id') }
     it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id') }
     it{ is_expected.to have_many(:user_generated_health_records) }
 
     describe "has many provider appointments" do
       it "should return provider appointments" do
-        expect(provider.provider_appointments.sort).to eq([checked_in_appointment, charge_entered_appointment].sort)
+        expect(Appointment.booked.where(provider: provider).sort).to eq([checked_in_appointment, charge_entered_appointment].sort)
       end
     end
 
@@ -114,12 +113,12 @@ describe User do
 
     context "if provider" do
       before { allow(subject).to receive(:clinical?).and_return(true)}
-      it { should validate_presence_of(:provider_sync_profile) }
+      it { should validate_presence_of(:provider) }
     end
 
     context "if not provider" do
       before { allow(subject).to receive(:clinical?).and_return(false)}
-      it { should_not validate_presence_of(:provider_sync_profile) }
+      it { should_not validate_presence_of(:provider) }
     end
 
     context "if guardian" do

@@ -1,17 +1,15 @@
 namespace :backfill do
-  desc 'back fill provider_sync_profile on Appointment'
-  task provider_sync_profile: :environment do
-    ProviderSyncProfile.find_each do |provider_sync_profile|
-      Person.writable_column_names.map { |col| provider_sync_profile.send("#{col}=", provider_sync_profile.provider.send(col)) }
-      provider_sync_profile.credentials = provider_sync_profile.provider.staff_profile.credentials
-      if provider_sync_profile.save
+  desc 'back fill provider person attributes'
+  task provider: :environment do
+    Provider.find_each do |provider|
+      Person.writable_column_names.map { |col| provider.send("#{col}=", provider.user.send(col)) }
+      provider.credentials = provider.user.staff_profile.credentials
+      if provider.save
         print "*"
       else
-        puts
-        puts "Failed to save ProviderSyncProfile"
+        puts "\nFailed to save Provider"
       end
     end
-    puts
-    puts "Finished filling Person attributes on ProviderSyncProfile"
+    puts "\nFinished filling Person attributes on Provider"
   end
 end

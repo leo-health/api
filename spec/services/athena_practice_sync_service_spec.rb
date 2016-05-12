@@ -12,7 +12,7 @@ describe AthenaPracticeSyncService do
     it "creates users with clinical role" do
       allow(@connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200,IO.read("spec/mock_json/mock_providers.json")))
       @service.sync_providers @practice
-      expect(ProviderSyncProfile.count).to be(3)
+      expect(Provider.count).to be(3)
     end
   end
 end

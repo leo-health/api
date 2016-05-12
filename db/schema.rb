@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160425214446) do
+ActiveRecord::Schema.define(version: 20160510050153) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -490,8 +490,8 @@ ActiveRecord::Schema.define(version: 20160425214446) do
 
   add_index "provider_schedules", ["athena_provider_id"], name: "index_provider_schedules_on_athena_provider_id", using: :btree
 
-  create_table "provider_sync_profiles", force: :cascade do |t|
-    t.integer  "provider_id"
+  create_table "providers", force: :cascade do |t|
+    t.integer  "user_id"
     t.integer  "athena_department_id", default: 0
     t.integer  "athena_id",            default: 0
     t.datetime "leave_updated_at"
@@ -548,12 +548,12 @@ ActiveRecord::Schema.define(version: 20160425214446) do
     t.datetime "end_datetime"
     t.string   "free_busy_type"
     t.integer  "athena_id"
-    t.integer  "provider_sync_profile_id"
+    t.integer  "provider_id"
     t.integer  "appointment_type_id"
     t.integer  "sync_status_id"
     t.integer  "appointment_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
   end
 
   add_index "slots", ["end_datetime"], name: "index_slots_on_end_datetime", using: :btree
@@ -561,11 +561,11 @@ ActiveRecord::Schema.define(version: 20160425214446) do
 
   create_table "staff_profiles", force: :cascade do |t|
     t.integer  "staff_id"
-    t.string   "specialties",                           array: true
-    t.string   "credentials",                           array: true
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.integer  "provider_sync_profile_id"
+    t.string   "specialties",                 array: true
+    t.string   "credentials",                 array: true
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.integer  "provider_id"
     t.integer  "practice_id"
     t.integer  "athena_id"
     t.string   "title"

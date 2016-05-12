@@ -13,7 +13,7 @@ RSpec.describe Patient, type: :model do
 
     describe "has many appointments" do
       let!(:patient) { create(:patient) }
-      let(:provider){ create(:user, :clinical) }
+      let(:provider){ create(:provider) }
       let(:guardian){ create(:user, :guardian) }
 
       let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
@@ -27,7 +27,7 @@ RSpec.describe Patient, type: :model do
       end
 
       it "should return booked appointments for of patient" do
-        expect(patient.appointments).to eq([checked_in_appointment, charge_entered_appointment])
+        expect(patient.appointments.sort).to eq([checked_in_appointment, charge_entered_appointment])
       end
     end
   end

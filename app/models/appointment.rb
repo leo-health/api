@@ -4,8 +4,7 @@ class Appointment < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :patient
   belongs_to :booked_by, polymorphic: true
-  belongs_to :provider, class_name: "User"
-  belongs_to :provider_sync_profile
+  belongs_to :provider
   belongs_to :appointment_type
   belongs_to :appointment_status
   belongs_to :practice
