@@ -182,23 +182,13 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def GET(path, parameters=nil, headers=nil, ignore_throttle=false)
+    def GET(path, parameters=nil, headers=nil, ignore_throttle=false, append_version_and_practice=true)
       url = path
-      if parameters
-        # URI escape each key and value, join them with '=', and join those pairs with '&'.  Add
-        # that to the URL with an prepended '?'.
-        url += '?' + parameters.map {
-          |k, v|
-          [k, v].map {
-            |x|
-            CGI.escape(x.to_s)
-          }.join('=')
-        }.join('&')
-      end
-
+      url += '?' + parameters.to_query if parameters && parameters.size > 0
+      url = path_join(@version, @practiceid, url) if append_version_and_practice
       headers ||= {}
-      request = Net::HTTP::Get.new(path_join(@version, @practiceid, url))
-      call(request, {}, headers, false, ignore_throttle)
+      request = Net::HTTP::Get.new(url)
+      return call(request, {}, headers, false, ignore_throttle)
     end
 
     # Perform an HTTP POST request and return a hash of the API response.
