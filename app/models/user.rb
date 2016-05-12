@@ -15,6 +15,11 @@ class User < ActiveRecord::Base
   scope :staff, -> { where(role: Role.staff_roles) }
   scope :clinical_staff, -> { where(role: Role.clinical_staff_roles) }
   scope :provider, -> { where(role: Role.provider_roles) }
+
+  # NOTE: (adam) only applies to guardian
+  # TODO:later: decouple Guardian from User
+  belongs_to :member_type
+
   belongs_to :family
   belongs_to :role
   belongs_to :practice
@@ -68,11 +73,6 @@ class User < ActiveRecord::Base
     Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
-  def add_role(name)
-    new_role = Role.find_by_name(name)
-    update_attributes(role: new_role) if new_role
-  end
-
   def guardian?
     has_role? :guardian
   end
@@ -87,6 +87,7 @@ class User < ActiveRecord::Base
 
   def upgrade!
     update_attributes(type: :Member) if guardian?
+    update_attributes(member_type: MemberType.member) if guardian?
   end
 
   def full_name
@@ -129,6 +130,7 @@ class User < ActiveRecord::Base
   def set_user_type_on_secondary_user
     unless primary_guardian?
       update_columns(type: family.primary_guardian.type)
+      self.member_type = family.primary_guardian.member_type
       WelcomeToPracticeJob.send(id)
       InternalInvitationEnrollmentNotificationJob.send(id)
     end
