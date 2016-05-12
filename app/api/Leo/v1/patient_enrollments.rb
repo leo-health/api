@@ -15,8 +15,6 @@ module Leo
           requires :birth_date, type: Date
           optional :email, type: String
           optional :title, type: String
-          optional :middle_initial, type: String
-          optional :suffix, type: String
         end
         post do
           patient_enrollment = @enrollment.patient_enrollments.create(declared(params, include_missing: false))
@@ -35,8 +33,6 @@ module Leo
           optional :sex, type: String, values: ['M', 'F']
           optional :birth_date, type: Date
           optional :title, type: String
-          optional :middle_inital, type: String
-          optional :suffix, type: String
         end
         put ':id' do
           patient_enrollment = PatientEnrollment.find(params[:id])
