@@ -48,6 +48,7 @@ describe Leo::V1::Enrollments do
     it "should update an patient enrollment" do
       do_request
       expect(response.status).to eq(200)
+      expect(PatientEnrollment.count).to eq(0)
     end
   end
 end
