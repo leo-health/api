@@ -1,9 +1,12 @@
 namespace :backfill do
   desc 'back fill provider_sync_profile on Appointment'
   task appointments: :environment do
-    Appointment.where(provider_sync_profile: nil).find_each do |appoitntment|
-      if provider_sync_profile = appointment.provider.try(:provider_sync_profile)
-        if appointment.update(provider_sync_profile: provider_sync_profile, booked_by: provider_sync_profile)
+    Appointment.find_each do |appointment|
+      provider_user = User.find_by_id(appointment.provider_id)
+      booked_by_user = User.find_by_id(appointment.booked_by_id)
+      if provider_user && booked_by_user
+        booked_by = booked_by_user == provider_user ? provider_user.provider : booked_by_user
+        if appointment.update(provider: provider_user.provider, booked_by: booked_by)
           print "*"
         else
           puts
@@ -11,10 +14,10 @@ namespace :backfill do
         end
       else
         puts
-        puts "Provider #{appointment.provider} does not have a provider_sync_profile"
+        puts "Provider #{appointment.provider} does not have a provider or a booked_by"
       end
     end
     puts
-    puts "Finished filling provider_sync_profile for Appointment"
+    puts "Finished filling provider and booked_by for Appointment"
   end
 end
