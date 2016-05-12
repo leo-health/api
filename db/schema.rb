@@ -204,6 +204,8 @@ ActiveRecord::Schema.define(version: 20160511162948) do
     t.string   "membership_type"
   end
 
+  add_index "families", ["membership_type"], name: "index_families_on_membership_type", using: :btree
+
   create_table "forms", force: :cascade do |t|
     t.integer  "patient_id",      null: false
     t.string   "title",           null: false
@@ -302,10 +304,6 @@ ActiveRecord::Schema.define(version: 20160511162948) do
 
   add_index "medications", ["athena_id"], name: "index_medications_on_athena_id", using: :btree
   add_index "medications", ["patient_id"], name: "index_medications_on_patient_id", using: :btree
-
-  create_table "member_types", force: :cascade do |t|
-    t.string "name"
-  end
 
   create_table "message_photos", force: :cascade do |t|
     t.integer  "message_id", null: false
@@ -642,12 +640,11 @@ ActiveRecord::Schema.define(version: 20160511162948) do
     t.date     "birth_date"
     t.string   "avatar_url"
     t.string   "phone"
+    t.string   "type"
     t.integer  "onboarding_group_id"
     t.integer  "insurance_plan_id"
     t.string   "vendor_id"
     t.integer  "enrollment_id"
-    t.integer  "member_type_id"
-    t.string   "type"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
