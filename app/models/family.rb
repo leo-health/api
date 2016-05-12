@@ -5,6 +5,8 @@ class Family < ActiveRecord::Base
   has_many :patients
   has_one :conversation
 
+  validates_presence_of :membership_type
+
   after_commit :set_up_conversation, on: :create
 
   class << self

@@ -205,6 +205,8 @@ ActiveRecord::Schema.define(version: 20160517130215) do
     t.string   "stripe_customer_id"
   end
 
+  add_index "families", ["membership_type"], name: "index_families_on_membership_type", using: :btree
+
   create_table "forms", force: :cascade do |t|
     t.integer  "patient_id",      null: false
     t.string   "title",           null: false

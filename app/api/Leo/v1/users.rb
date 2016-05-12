@@ -96,7 +96,7 @@ module Leo
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
 
-          user = User.new_from_enrollment enrollment
+          user = User.new_from_enrollment enrollment, declared(params, include_missing: false).except('device_token', 'device_type')
           create_success user
 
           session_params = {

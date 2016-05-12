@@ -9,6 +9,6 @@ namespace :backfill do
         puts "\nFailed to update member_type for family #{f.id}"
       end
     end
-    puts "\nFinished!"
+    puts "\nFinished updating #{Family.count} families!"
   end
 end
