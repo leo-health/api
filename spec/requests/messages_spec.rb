@@ -2,7 +2,6 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Messages do
-  let!(:bot){create(:user, :bot)}
   let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
   let!(:conversation){ user.family.conversation }
@@ -11,6 +10,7 @@ describe Leo::V1::Messages do
   before do
     in_hour_time = Time.new(2016, 3, 4, 12, 0, 0, "-05:00")
     Timecop.travel(in_hour_time)
+    Message.destroy_all
   end
 
   after do
@@ -37,7 +37,7 @@ describe Leo::V1::Messages do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect( body[:data][:messages].as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
+      expect( (body[:data][:messages].sort_by {|m| m["id"]}).as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
     end
   end
 

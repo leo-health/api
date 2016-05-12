@@ -76,6 +76,7 @@ RSpec.describe Message, type: :model do
   end
 
   describe "self.compile_sms_message" do
+    let!(:bot){ create(:user, :bot) }
     let(:clinical){ create(:user, :clinical) }
     let(:guardian){ create(:user, :guardian) }
 

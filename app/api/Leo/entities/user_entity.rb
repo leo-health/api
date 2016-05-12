@@ -1,15 +1,14 @@
 module Leo
   module Entities
     class UserEntity < Grape::Entity
-      expose :id, :title, :first_name, :middle_initial, :last_name, :suffix, :sex, :practice_id, :family_id, :email
+      expose :id
+      expose :title, :first_name, :middle_initial, :last_name, :suffix, :sex, :practice_id, :email
       expose :role, with: Leo::Entities::RoleEntity
       expose :avatar do |instance, options|
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
-      expose :type
-      expose :primary_guardian, if: Proc.new{ |u| u.guardian? }
+      expose :primary_guardian, :type, :vendor_id, :family_id, if: Proc.new{ |u| u.guardian? }
       expose :credentials, unless: Proc.new{ |u| u.guardian? }
-      expose :vendor_id, if: Proc.new{ |u| u.guardian? }
 
       private
 
@@ -22,7 +21,7 @@ module Leo
       end
 
       def credentials
-        object.staff_profile.try(:credentials)
+        object.try(:credentials) || object.try(:staff_profile).try(:credentials)
       end
     end
   end

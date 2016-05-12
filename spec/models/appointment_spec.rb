@@ -4,8 +4,8 @@ RSpec.describe Appointment, type: :model do
   describe 'relations' do
     it{ is_expected.to belong_to(:patient) }
     it{ is_expected.to belong_to(:practice) }
-    it{ is_expected.to belong_to(:booked_by).class_name('User') }
-    it{ is_expected.to belong_to(:provider).class_name('User') }
+    it{ is_expected.to belong_to(:booked_by) }
+    it{ is_expected.to belong_to(:provider) }
     it{ is_expected.to belong_to(:appointment_type) }
     it{ is_expected.to belong_to(:appointment_status) }
   end
@@ -19,8 +19,6 @@ RSpec.describe Appointment, type: :model do
     it { is_expected.to validate_presence_of(:start_datetime) }
     it { is_expected.to validate_presence_of(:appointment_status) }
     it { is_expected.to validate_presence_of(:appointment_type) }
-    it { is_expected.to validate_presence_of(:booked_by) }
-    it { is_expected.to validate_presence_of(:provider) }
 
     context "if booked by a provider" do
       before { allow(subject).to receive(:booked_by_provider?).and_return(false)}
@@ -65,7 +63,7 @@ RSpec.describe Appointment, type: :model do
     end
 
     context "booked by a provider" do
-      let(:provider){ create(:user, :clinical) }
+      let(:provider){ create(:provider) }
 
       it 'should allow booking by provider' do
         appointment = Appointment.new(patient: patient, booked_by: provider)

@@ -8,7 +8,7 @@ describe Leo::V1::Appointments do
   let(:serializer){ Leo::Entities::AppointmentEntity }
   let(:appointment_type){ create(:appointment_type)}
   let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
-  let(:provider){create(:user, :clinical)}
+  let(:provider){create(:provider)}
   let(:patient){create(:patient, family: user.family)}
   let(:practice){create(:practice)}
 

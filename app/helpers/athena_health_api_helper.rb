@@ -1,5 +1,7 @@
 require "athena_health_api"
 
+# TODO: single responsibility - get paged should not parse json?
+
 module AthenaHealthApiHelper
   def self.to_datetime(athena_date, athena_time)
     date = Date.strptime(athena_date, '%m/%d/%Y')
@@ -61,9 +63,8 @@ module AthenaHealthApiHelper
     attr_reader :connection, :common_headers
 
     def initialize
-      config = Rails.application.config_for(:athena_health_api_connector).symbolize_keys
       @common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
-      @connection = AthenaHealthAPI::Connection.new(config[:version], config[:key], config[:secret], config[:practice_id])
+      @connection = AthenaHealthAPI::Connection.new(*(ENV.values_at "ATHENA_VERSION", "ATHENA_KEY", "ATHENA_SECRET", "ATHENA_PRACTICE_ID"))
     end
 
     def get(path: , params: {})
@@ -187,6 +188,7 @@ module AthenaHealthApiHelper
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
     end
 
+
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
@@ -194,7 +196,6 @@ module AthenaHealthApiHelper
       params = params.symbolize_keys
       limit ||= params[:limit] || 1000
       response = @connection.GET(url, params, headers, append_version_and_practice)
-
       raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
       entries = parsed[field.to_s] || []
@@ -317,6 +318,7 @@ module AthenaHealthApiHelper
       return AthenaStruct.new(result[0])
     end
 
+    # NOTE: need to be careful using **kwargs. patientid: is not included in params. Here it's ok since patientid is in the url, not in the query params
     def update_patient(patientid:, **params)
       # patientid: ,
       # status: nil, #active, inactive, prospective, deleted
@@ -462,6 +464,11 @@ module AthenaHealthApiHelper
       endpoint = "appointments/#{appointmentid}/notes"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
+    end
+
+    def get_providers(**params)
+      endpoint = "providers"
+      get_paged(url: endpoint, params: params, field: :providers, headers: @common_headers)
     end
   end
 end

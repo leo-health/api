@@ -5,7 +5,7 @@ FactoryGirl.define do
     appointment_status
     appointment_type
     practice
-    association :provider, factory: [:user, :clinical]
+    association :provider, factory: [:provider]
     association :booked_by, factory: [:user, :guardian]
 
     trait :cancelled do
