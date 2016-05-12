@@ -6,8 +6,8 @@ resource "PatientEnrollments" do
   header "Content-Type", "application/json"
 
   let(:guardian_enrollment){ create(:enrollment) }
+  let(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: guardian_enrollment) }
   let(:authentication_token){ guardian_enrollment.authentication_token }
-  let(:patient_enrollment){ create(:patient_enrollment) }
   let(:id){ patient_enrollment.id }
 
   post "/api/v1/patient_enrollments" do

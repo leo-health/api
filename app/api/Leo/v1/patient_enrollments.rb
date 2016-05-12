@@ -35,7 +35,7 @@ module Leo
           optional :title, type: String
         end
         put ':id' do
-          patient_enrollment = PatientEnrollment.find(params[:id])
+          patient_enrollment = @enrollment.patient_enrollments.find(params[:id])
           if patient_enrollment.update_attributes(declared(params, include_missing: false))
             present :patient_enrollment, patient_enrollment
           else
@@ -45,7 +45,7 @@ module Leo
 
         desc "remove a patient enrollment record"
         delete ':id' do
-          patient_enrollment = PatientEnrollment.find(params[:id])
+          patient_enrollment = @enrollment.patient_enrollments.find(params[:id])
           patient_enrollment.destroy and return
         end
       end
