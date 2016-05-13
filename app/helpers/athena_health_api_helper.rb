@@ -133,7 +133,6 @@ module AthenaHealthApiHelper
       endpoint = "appointments/#{appointmentid}"
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.PUT(endpoint, params, common_headers)
-
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
       AthenaStruct.new JSON.parse(response.body).first
     end
@@ -193,10 +192,11 @@ module AthenaHealthApiHelper
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: {}, headers: , field: , limit: nil, structize: false, append_version_and_practice: true)
+    def get_paged(url: , params: {}, headers: , field: , limit: nil, structize: false, version_and_practice_already_prepended: false)
       params = params.symbolize_keys
-      limit ||= params[:limit] || 1000
-      response = @connection.GET(url, params, headers, append_version_and_practice)
+      limit ||= params[:limit] || Float::INFINITY # By default, get all pages
+      response = @connection.GET(url, params, headers, version_and_practice_already_prepended)
+
       raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
       entries = parsed[field.to_s] || []
@@ -207,17 +207,18 @@ module AthenaHealthApiHelper
       next_page_url = parsed["next"]
 
       if next_page_url && num_entries_still_needed > 0
-        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, append_version_and_practice: false)
+        next_page_url = next_page_url.split("/").from(3).join("/") # Athena responds with /v1 regardless of the original url passed /preview1
+        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, version_and_practice_already_prepended: true)
       end
 
-      entries[0...limit]
+      limit < Float::INFINITY ? entries[0...limit] : entries
     end
 
     # get a list of available appointment types
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     def get_appointment_types(hidegeneric: false,
-      hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 1000)
+      hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
@@ -231,7 +232,7 @@ module AthenaHealthApiHelper
     # raises exceptions if anything goes wrong in the process
     # todo: do we need separate calls for existing vs new patients
     def get_appointment_reasons(departmentid: ,
-      providerid: , limit: 1000)
+      providerid:)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
@@ -246,7 +247,7 @@ module AthenaHealthApiHelper
     def get_open_appointments(
       appointmenttypeid: nil, bypassscheduletimechecks: true, departmentid:, enddate: nil,
       ignoreschedulablepermission: true, providerid: nil, reasonid: nil, showfrozenslots: false,
-      startdate: nil, limit: 1000)
+      startdate: nil)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
@@ -262,8 +263,7 @@ module AthenaHealthApiHelper
       appointmenttypeid: nil, departmentid: , enddate: , endlastmodified: nil,
       ignorerestrictions: true, patientid: nil, providerid: nil, scheduledenddate: nil,
       scheduledstartdate: nil, showcancelled: true, showclaimdetail: false, showcopay: true,
-      showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil,
-      limit: 1000)
+      showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
