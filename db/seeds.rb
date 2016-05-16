@@ -691,7 +691,6 @@ practice_schedules.each do |params|
   PracticeSchedule.update_or_create!(:id, params)
 end
 
-
 practice_holidays = [
   "01/01/2016", #New Year's Day
   "05/30/2016", #Memorial Day
