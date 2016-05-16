@@ -3,14 +3,14 @@ namespace :backfill do
   task staff: :environment do
     StaffProfile.find_each do |staff|
 
-      user = staff.staff
-      staff.practice = user.practice
-      if user.provider
-        staff.provider = user.provider
-        staff.athena_id = staff.provider.athena_id
+      if user = staff.staff
+        staff.practice = user.practice
+        if user.provider
+          staff.provider = user.provider
+          staff.athena_id = staff.provider.try(:athena_id)
+        end
+        Person.writable_column_names.map { |col| staff.send("#{col}=", user.send(col)) }
       end
-
-      Person.writable_column_names.map { |col| staff.send("#{col}=", user.send(col)) }
 
       begin
         staff.save!
