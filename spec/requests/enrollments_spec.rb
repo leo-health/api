@@ -37,7 +37,7 @@ describe Leo::V1::Enrollments do
     end
 
     it "should create an enrollment record" do
-      expect{ do_request }.to change{ Enrollment.count }.from(0).to(1)
+      expect{ do_request }.to change{ Enrollment.count }.by(1)
       expect(response.status).to eq(201)
     end
   end
