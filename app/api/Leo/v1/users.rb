@@ -95,29 +95,14 @@ module Leo
         post do
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
-          enrollment_params = {
-            enrollment_id: enrollment.id,
-            encrypted_password: enrollment.encrypted_password,
-            email: enrollment.email,
-            first_name: enrollment.first_name,
-            last_name: enrollment.last_name,
-            phone: enrollment.phone,
-            onboarding_group: enrollment.onboarding_group,
-            role_id: enrollment.role_id,
-            family_id: enrollment.family_id,
-            birth_date: enrollment.birth_date,
-            sex: enrollment.sex,
-            insurance_plan_id: enrollment.insurance_plan_id,
-            vendor_id: enrollment.vendor_id
-          }
 
-          user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type'))
-          create_success user
+          user = User.new_from_enrollment enrollment, declared(params, include_missing: false).except('device_token', 'device_type')
+          create_success user # TODO: refactor to use a default error when save fails. presentation should be separate from the actual save/error response
+
           session_params = {
             device_type: params[:device_type],
             device_token: params[:device_token]
           }
-
           session = user.sessions.create(session_params)
           present :session, session
         end

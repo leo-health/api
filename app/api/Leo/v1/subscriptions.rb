@@ -2,19 +2,19 @@ module Leo
   module V1
     class Subscriptions < Grape::API
       resource :subscriptions do
-        before do
-          authenticated
-        end
-
         params do
           requires :credit_card_token, type: String
         end
 
         post do
-          patient_count = current_user.family.patients.count > 5 ? 5 : current_user.family.patients.count
+          enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
+          error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
+
+          patient_count = enrollment.patient_enrollments.count
+          patient_count = 5 if patient_count > 5
           begin
             stripe_customer = Stripe::Customer.create(
-              email: current_user.email,
+              email: enrollment.email,
               plan: StripePlanMap[patient_count],
               source: params[:credit_card_token]
             )
@@ -31,7 +31,9 @@ module Leo
             #suggest sending a email for stripe general errors
           end
 
-          update_success current_user, { stripe_customer_id: stripe_customer.id }, "User"
+          family = Family.new_from_enrollment enrollment
+          family.update stripe_customer_id: stripe_customer.id
+          create_success family.primary_guardian
         end
       end
     end

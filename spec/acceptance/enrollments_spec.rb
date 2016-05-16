@@ -2,6 +2,10 @@ require 'rails_helper'
 require 'rspec_api_documentation/dsl'
 
 resource "Enrollments" do
+  before do
+    create(:practice)
+  end
+
   header "Accept", "application/json"
   header "Content-Type", "application/json"
 
@@ -9,7 +13,6 @@ resource "Enrollments" do
   let(:session){ user.sessions.create }
   let(:authentication_token){ session.authentication_token }
   let(:enrollment){ create(:enrollment) }
-
 
   post "/api/v1/enrollments/invite" do
     parameter :first_name, "First Name", required: true
@@ -81,4 +84,3 @@ resource "Enrollments" do
     end
   end
 end
-

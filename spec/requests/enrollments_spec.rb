@@ -4,7 +4,7 @@ require 'rails_helper'
 describe Leo::V1::Enrollments do
   let!(:role){create(:role, :guardian)}
   let(:serializer){ Leo::Entities::EnrollmentEntity }
-  let(:enrollment){ create(:enrollment)}
+  let!(:enrollment){ create(:enrollment)}
 
   describe "POST /api/v1/enrollments/invite" do
     let!(:user){ create(:user, :guardian) }
@@ -37,7 +37,7 @@ describe Leo::V1::Enrollments do
     end
 
     it "should create an enrollment record" do
-      expect{ do_request }.to change{ Enrollment.count }.from(0).to(1)
+      expect{ do_request }.to change{ Enrollment.count }.by(1)
       expect(response.status).to eq(201)
     end
   end
