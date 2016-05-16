@@ -1,6 +1,6 @@
 class Practice < ActiveRecord::Base
   belongs_to :appointments_sync_job, class_name: Delayed::Job
-  has_many :staff, ->{ clinical_staff }, class_name: "User"
+  has_many :staff, class_name: "StaffProfile"
   has_many :guardians, ->{ guardians }, class_name: "User"
   has_many :appointments, -> { where appointment_status: AppointmentStatus.booked }
   has_many :practice_schedules
@@ -10,7 +10,7 @@ class Practice < ActiveRecord::Base
   after_commit :subscribe_to_athena, on: :create
 
   def self.flatiron_pediatrics
-    self.find(1)
+    self.find_by(athena_id: 1)
   end
 
   def in_office_hour?
@@ -20,7 +20,7 @@ class Practice < ActiveRecord::Base
 
 
   def subscribe_to_athena
-    SyncAppointmentsJob.new(self).subscribe_if_needed run_at: Time.now
+    SyncPracticeJob.new(self).subscribe_if_needed run_at: Time.now
   end
 
   private

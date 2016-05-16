@@ -11,15 +11,12 @@ class PeriodicPollingJob < LeoDelayedJob
     @priority = priority
   end
 
-  # NOTE: Keyword arguments below are passed to Delayed::Job.enqueue
   def subscribe(**args)
     self.start(**args.reverse_merge(run_at: @interval.from_now, owner: @owner, priority: @priority))
   end
 
   def subscribe_if_needed(**args)
-    unless Delayed::Job.exists? owner: @owner, queue: self.queue_name
-      subscribe(**args) # subclass implementation. this should be a protocol
-    end
+    Delayed::Job.find_by(owner: @owner, queue: self.queue_name) || subscribe(**args) # subclass implementation
   end
 
   def success(completed_job)

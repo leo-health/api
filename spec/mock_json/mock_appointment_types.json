@@ -1,0 +1,2386 @@
+{
+    "totalcount": 10,
+    "appointmenttypes": [{
+        "shortname": "NUR",
+        "name": "NURSE VISIT",
+        "duration": "10",
+        "patientdisplayname": "NURSE VISIT",
+        "appointmenttypeid": "1",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NP",
+        "name": "NEW PATIENT 20",
+        "duration": "20",
+        "patientdisplayname": "NEW PATIENT 20",
+        "appointmenttypeid": "3",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "VACC",
+        "name": "VACCINE\/LABS",
+        "duration": "10",
+        "patientdisplayname": "VACCINE\/LABS",
+        "appointmenttypeid": "8",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NF",
+        "name": "NEWBORN FIRST VISIT",
+        "duration": "20",
+        "patientdisplayname": "NEWBORN FIRST VISIT",
+        "appointmenttypeid": "9",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SICK",
+        "name": "SICK VISIT",
+        "duration": "10",
+        "patientdisplayname": "SICK VISIT",
+        "appointmenttypeid": "10",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WELL",
+        "name": "WELL CHILD EXAM",
+        "duration": "20",
+        "patientdisplayname": "WELL CHILD EXAM",
+        "appointmenttypeid": "11",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FU10",
+        "name": "FOLLOW UP 10",
+        "duration": "10",
+        "patientdisplayname": "FOLLOW UP 10",
+        "appointmenttypeid": "12",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "A10",
+        "name": "ANY 10",
+        "duration": "10",
+        "patientdisplayname": "ANY 10",
+        "appointmenttypeid": "21",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "true"
+    }, {
+        "shortname": "CSLT",
+        "name": "CONSULT",
+        "duration": "30",
+        "patientdisplayname": "CONSULT",
+        "appointmenttypeid": "22",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WGHT",
+        "name": "WEIGHT CHECK",
+        "duration": "20",
+        "patientdisplayname": "WEIGHT CHECK",
+        "appointmenttypeid": "41",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# COMES FROM SANDBOX
+
+
+
+
+
+{
+    "totalcount": 250,
+    "appointmenttypes": [{
+        "shortname": "OV",
+        "name": "Office Visit",
+        "duration": "10",
+        "patientdisplayname": "Office Visit",
+        "appointmenttypeid": "2",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PHYS",
+        "name": "PHYSICAL EXAM",
+        "duration": "30",
+        "patientdisplayname": "Physical Exam Visit",
+        "appointmenttypeid": "4",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "LAB",
+        "name": "Lab Work",
+        "duration": "15",
+        "patientdisplayname": "Lab Work",
+        "appointmenttypeid": "5",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SURG",
+        "name": "Surgery",
+        "duration": "60",
+        "patientdisplayname": "Surgery (time is not correct)",
+        "appointmenttypeid": "6",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NP",
+        "name": "New Patient Appointment",
+        "duration": "30",
+        "patientdisplayname": "New Patient Appointment",
+        "appointmenttypeid": "8",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ALLG",
+        "name": "CGE ALLERGY",
+        "duration": "30",
+        "patientdisplayname": "Allergy Test",
+        "appointmenttypeid": "21",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "OPEN",
+        "name": "OPEN",
+        "duration": "15",
+        "patientdisplayname": "OPEN",
+        "appointmenttypeid": "22",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "true"
+    }, {
+        "shortname": "PE",
+        "name": "PHYSICAL",
+        "duration": "15",
+        "patientdisplayname": "Annual Physical",
+        "appointmenttypeid": "23",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "EST",
+        "name": "Established",
+        "duration": "15",
+        "patientdisplayname": "Established Visit",
+        "appointmenttypeid": "42",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "CONS",
+        "name": "Consult",
+        "duration": "30",
+        "patientdisplayname": "Consultation Visit",
+        "appointmenttypeid": "62",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ANY5",
+        "name": "Any 15",
+        "duration": "15",
+        "patientdisplayname": "Established Patient",
+        "appointmenttypeid": "82",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "true"
+    }, {
+        "shortname": "CSK",
+        "name": "Sea Sickness",
+        "duration": "15",
+        "patientdisplayname": "Sea Sickness",
+        "appointmenttypeid": "102",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WF1",
+        "name": "Weigh Forward 1",
+        "duration": "30",
+        "patientdisplayname": "Weigh Forward 1",
+        "appointmenttypeid": "122",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WF2",
+        "name": "Weigh Forward 2",
+        "duration": "15",
+        "patientdisplayname": "Weigh Forward 2",
+        "appointmenttypeid": "123",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WF3",
+        "name": "Weigh Forward 3",
+        "duration": "15",
+        "patientdisplayname": "Weigh Forward 3",
+        "appointmenttypeid": "124",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WFA",
+        "name": "Weigh Forward Any",
+        "duration": "15",
+        "patientdisplayname": "Weigh Forward Any",
+        "appointmenttypeid": "142",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "hlth",
+        "name": "health history",
+        "duration": "45",
+        "patientdisplayname": "health history",
+        "appointmenttypeid": "162",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "666",
+        "name": "Cardiology",
+        "duration": "45",
+        "patientdisplayname": "Cardiology",
+        "appointmenttypeid": "182",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "RCDT",
+        "name": "ReminderCall Default",
+        "duration": "30",
+        "patientdisplayname": "ReminderCall Default",
+        "appointmenttypeid": "202",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NE",
+        "name": "New Evaluation",
+        "duration": "60",
+        "patientdisplayname": "New Evaluation",
+        "appointmenttypeid": "242",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "nob",
+        "name": "New OB",
+        "duration": "30",
+        "patientdisplayname": "New OB",
+        "appointmenttypeid": "262",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MAWV",
+        "name": "Medicare Annual Wellness Visit",
+        "duration": "15",
+        "patientdisplayname": "Medicare Annual Wellness Visit",
+        "appointmenttypeid": "282",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "LTST",
+        "name": "Lab Testing",
+        "duration": "5",
+        "patientdisplayname": "Lab Testing",
+        "appointmenttypeid": "302",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ta",
+        "name": "test appt",
+        "duration": "20",
+        "patientdisplayname": "test appt",
+        "appointmenttypeid": "322",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WST",
+        "name": "WebScheduleTest",
+        "duration": "15",
+        "patientdisplayname": "New Patient Web Schedule",
+        "appointmenttypeid": "362",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WC",
+        "name": "Well Child Check 20",
+        "duration": "20",
+        "patientdisplayname": "Well Child Check 20",
+        "appointmenttypeid": "382",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WC30",
+        "name": "Well Child Check 30",
+        "duration": "30",
+        "patientdisplayname": "Well Child Check 30",
+        "appointmenttypeid": "383",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WC10",
+        "name": "Well Visit 10",
+        "duration": "10",
+        "patientdisplayname": "Well Visit 10",
+        "appointmenttypeid": "384",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Any1",
+        "name": "Any 10",
+        "duration": "10",
+        "patientdisplayname": "Any 10",
+        "appointmenttypeid": "385",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "true"
+    }, {
+        "shortname": "COL",
+        "name": "Collaborative 1",
+        "duration": "15",
+        "patientdisplayname": "Collaborative 1",
+        "appointmenttypeid": "422",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "COL2",
+        "name": "Collaborative 2",
+        "duration": "15",
+        "patientdisplayname": "Collaborative 2",
+        "appointmenttypeid": "423",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "OVE",
+        "name": "ENT OV",
+        "duration": "15",
+        "patientdisplayname": "ENT OV",
+        "appointmenttypeid": "442",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "HRE",
+        "name": "Hearing Eval",
+        "duration": "15",
+        "patientdisplayname": "Hearing Eval",
+        "appointmenttypeid": "443",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "EUT",
+        "name": "EUT Consult",
+        "duration": "30",
+        "patientdisplayname": "Office Consult",
+        "appointmenttypeid": "462",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "TR",
+        "name": "tentacle reattachment",
+        "duration": "60",
+        "patientdisplayname": "tentacle reattachment",
+        "appointmenttypeid": "482",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "XRAY",
+        "name": "XRAY",
+        "duration": "15",
+        "patientdisplayname": "XRAY",
+        "appointmenttypeid": "502",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Any3",
+        "name": "Any 30",
+        "duration": "30",
+        "patientdisplayname": "Any 30",
+        "appointmenttypeid": "522",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "true"
+    }, {
+        "shortname": "Vag",
+        "name": "Vaginal Exam",
+        "duration": "30",
+        "patientdisplayname": "Vaginal Exam",
+        "appointmenttypeid": "542",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NV",
+        "name": "Nurse Visit",
+        "duration": "15",
+        "patientdisplayname": "Nurse Visit",
+        "appointmenttypeid": "562",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Diab",
+        "name": "Diabetes",
+        "duration": "15",
+        "patientdisplayname": "Diabetes",
+        "appointmenttypeid": "582",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NPE",
+        "name": "New PE",
+        "duration": "20",
+        "patientdisplayname": "New Well Child",
+        "appointmenttypeid": "602",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SV",
+        "name": "Sick Visit",
+        "duration": "15",
+        "patientdisplayname": "Sick Visit",
+        "appointmenttypeid": "622",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Port",
+        "name": "ANY 15- Portal",
+        "duration": "15",
+        "patientdisplayname": "ANY 15- Portal",
+        "appointmenttypeid": "642",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "true"
+    }, {
+        "shortname": "TST",
+        "name": "TEST",
+        "duration": "15",
+        "patientdisplayname": "TEST",
+        "appointmenttypeid": "662",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "TH",
+        "name": "Secure Online Video",
+        "duration": "15",
+        "patientdisplayname": "Secure Online Video",
+        "appointmenttypeid": "682",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WSPA",
+        "name": "Web Scheduling Partner Apt",
+        "duration": "15",
+        "patientdisplayname": "Web Scheduling Partner Apt",
+        "appointmenttypeid": "683",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "API",
+        "name": "API Test",
+        "duration": "30",
+        "patientdisplayname": "API Test",
+        "appointmenttypeid": "703",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SO15",
+        "name": "Smart Open 15",
+        "duration": "15",
+        "patientdisplayname": "Smart Open 15",
+        "appointmenttypeid": "723",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SO20",
+        "name": "Smart Open 20",
+        "duration": "20",
+        "patientdisplayname": "Smart Open 20",
+        "appointmenttypeid": "724",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MRI",
+        "name": "MRI SCAN",
+        "duration": "30",
+        "patientdisplayname": "MRI SCAN",
+        "appointmenttypeid": "763",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ZXCV",
+        "name": "Testt",
+        "duration": "1",
+        "patientdisplayname": "Testt",
+        "appointmenttypeid": "866",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "698",
+        "name": "test service 69847",
+        "duration": "33",
+        "patientdisplayname": "test service 69847",
+        "appointmenttypeid": "891",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "347",
+        "name": "test service 34738",
+        "duration": "33",
+        "patientdisplayname": "test service 34738",
+        "appointmenttypeid": "892",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "833",
+        "name": "test service 83290",
+        "duration": "33",
+        "patientdisplayname": "test service 83290",
+        "appointmenttypeid": "893",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "605",
+        "name": "test service 60493",
+        "duration": "33",
+        "patientdisplayname": "test service 60493",
+        "appointmenttypeid": "894",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "488",
+        "name": "test service 48796",
+        "duration": "33",
+        "patientdisplayname": "test service 48796",
+        "appointmenttypeid": "895",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "602",
+        "name": "test service 60171",
+        "duration": "33",
+        "patientdisplayname": "test service 60171",
+        "appointmenttypeid": "896",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "103",
+        "name": "test service 10268",
+        "duration": "33",
+        "patientdisplayname": "test service 10268",
+        "appointmenttypeid": "897",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "193",
+        "name": "test service 19303",
+        "duration": "33",
+        "patientdisplayname": "test service 19303",
+        "appointmenttypeid": "898",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "253",
+        "name": "test service 25263",
+        "duration": "33",
+        "patientdisplayname": "test service 25263",
+        "appointmenttypeid": "899",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "GYNG",
+        "name": "Fake service (gyNg)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (gyNg)",
+        "appointmenttypeid": "900",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "UY6J",
+        "name": "Fake service (uY6j)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (uY6j)",
+        "appointmenttypeid": "901",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "EHAJ",
+        "name": "Fake service (EhAj)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (EhAj)",
+        "appointmenttypeid": "902",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AZJI",
+        "name": "Fake service (AZJi)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (AZJi)",
+        "appointmenttypeid": "903",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "UCX3",
+        "name": "Fake service (UcX3)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (UcX3)",
+        "appointmenttypeid": "904",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "VX5I",
+        "name": "Fake service (vx5i)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (vx5i)",
+        "appointmenttypeid": "905",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MBWE",
+        "name": "Fake service (mBwe)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (mBwe)",
+        "appointmenttypeid": "906",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SEF6",
+        "name": "Fake service (sEF6)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (sEF6)",
+        "appointmenttypeid": "907",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "4XHW",
+        "name": "Fake service (4xhW)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (4xhW)",
+        "appointmenttypeid": "908",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MQLF",
+        "name": "Fake service (mqLf)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (mqLf)",
+        "appointmenttypeid": "909",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "U7QE",
+        "name": "Fake service (U7Qe)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (U7Qe)",
+        "appointmenttypeid": "910",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ASEJ",
+        "name": "Fake service (ASEJ)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (ASEJ)",
+        "appointmenttypeid": "911",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "109",
+        "name": "test service 10860",
+        "duration": "33",
+        "patientdisplayname": "test service 10860",
+        "appointmenttypeid": "912",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "JRCF",
+        "name": "Fake service (JRCF)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (JRCF)",
+        "appointmenttypeid": "913",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "315",
+        "name": "test service 31464",
+        "duration": "33",
+        "patientdisplayname": "test service 31464",
+        "appointmenttypeid": "914",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "QEQW",
+        "name": "Fake service (QEQW)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (QEQW)",
+        "appointmenttypeid": "915",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "284",
+        "name": "test service 28356",
+        "duration": "33",
+        "patientdisplayname": "test service 28356",
+        "appointmenttypeid": "916",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "GUCZ",
+        "name": "Fake service (GUCZ)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (GUCZ)",
+        "appointmenttypeid": "917",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "753",
+        "name": "test service 75284",
+        "duration": "33",
+        "patientdisplayname": "test service 75284",
+        "appointmenttypeid": "918",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "GVXC",
+        "name": "Fake service (GVXC)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (GVXC)",
+        "appointmenttypeid": "919",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ZIP",
+        "name": "zipnosis",
+        "duration": "5",
+        "patientdisplayname": "zipnosis",
+        "appointmenttypeid": "926",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "528",
+        "name": "test service 52780",
+        "duration": "33",
+        "patientdisplayname": "test service 52780",
+        "appointmenttypeid": "927",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "GUVQ",
+        "name": "Relex (GUVQ)",
+        "duration": "90",
+        "patientdisplayname": "Relex (GUVQ)",
+        "appointmenttypeid": "928",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "DDEZ",
+        "name": "Relex (DDEZ)",
+        "duration": "90",
+        "patientdisplayname": "Relex (DDEZ)",
+        "appointmenttypeid": "929",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "RAVG",
+        "name": "Service dp (RAVG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (RAVG)",
+        "appointmenttypeid": "930",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "CRDV",
+        "name": "Service dp (CRDV)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (CRDV)",
+        "appointmenttypeid": "931",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WHTZ",
+        "name": "Service dp (WHTZ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (WHTZ)",
+        "appointmenttypeid": "932",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AJZZ",
+        "name": "Service dp (AJZZ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AJZZ)",
+        "appointmenttypeid": "933",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PVV9",
+        "name": "Service dp (PVV9)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (PVV9)",
+        "appointmenttypeid": "934",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "QN8Z",
+        "name": "Service dp (QN8Z)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (QN8Z)",
+        "appointmenttypeid": "935",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MTX9",
+        "name": "Service dp (MTX9)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (MTX9)",
+        "appointmenttypeid": "936",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "RPGW",
+        "name": "Service dp (RPGW)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (RPGW)",
+        "appointmenttypeid": "937",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SHMJ",
+        "name": "Service dp (SHMJ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (SHMJ)",
+        "appointmenttypeid": "938",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WZQA",
+        "name": "Service dp (WZQA)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (WZQA)",
+        "appointmenttypeid": "939",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "RMWX",
+        "name": "Service dp (RMWX)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (RMWX)",
+        "appointmenttypeid": "940",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "8PWJ",
+        "name": "Service dp (8PWJ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (8PWJ)",
+        "appointmenttypeid": "941",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WNAY",
+        "name": "Service dp (WNAY)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (WNAY)",
+        "appointmenttypeid": "942",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "EZJY",
+        "name": "Service dp (EZJY)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (EZJY)",
+        "appointmenttypeid": "943",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "5BDI",
+        "name": "Service dp (5BDI)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (5BDI)",
+        "appointmenttypeid": "944",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FWXF",
+        "name": "Service dp (FWXF)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (FWXF)",
+        "appointmenttypeid": "945",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "N4NR",
+        "name": "Service dp (N4NR)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (N4NR)",
+        "appointmenttypeid": "946",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "N6WF",
+        "name": "Service dp (N6WF)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (N6WF)",
+        "appointmenttypeid": "947",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "K3W7",
+        "name": "Service dp (K3W7)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (K3W7)",
+        "appointmenttypeid": "948",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "TUXQ",
+        "name": "Service dp (TUXQ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (TUXQ)",
+        "appointmenttypeid": "949",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WUKB",
+        "name": "Service dp (WUKB)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (WUKB)",
+        "appointmenttypeid": "950",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "F3FG",
+        "name": "Service dp (F3FG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (F3FG)",
+        "appointmenttypeid": "951",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "36KM",
+        "name": "Service dp (36KM)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (36KM)",
+        "appointmenttypeid": "952",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "R2YH",
+        "name": "Service dp (R2YH)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (R2YH)",
+        "appointmenttypeid": "953",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "4TKH",
+        "name": "Service dp (4TKH)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (4TKH)",
+        "appointmenttypeid": "954",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "HQ45",
+        "name": "Service dp (HQ45)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (HQ45)",
+        "appointmenttypeid": "955",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MG5H",
+        "name": "Service dp (MG5H)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (MG5H)",
+        "appointmenttypeid": "956",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "YKRG",
+        "name": "Service dp (YKRG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (YKRG)",
+        "appointmenttypeid": "957",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "YHRT",
+        "name": "Service dp (YHRT)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (YHRT)",
+        "appointmenttypeid": "958",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AB23",
+        "name": "Service dp (AB23)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AB23)",
+        "appointmenttypeid": "959",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "XBNK",
+        "name": "Service dp (XBNK)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (XBNK)",
+        "appointmenttypeid": "960",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "QO55",
+        "name": "Service dp (QO55)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (QO55)",
+        "appointmenttypeid": "961",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "UKAK",
+        "name": "Service dp (UKAK)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (UKAK)",
+        "appointmenttypeid": "962",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "5BAQ",
+        "name": "Service dp (5BAQ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (5BAQ)",
+        "appointmenttypeid": "963",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "T9R8",
+        "name": "Service dp (T9R8)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (T9R8)",
+        "appointmenttypeid": "964",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "8JE8",
+        "name": "Service dp (8JE8)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (8JE8)",
+        "appointmenttypeid": "965",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "C8JL",
+        "name": "Service dp (C8JL)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (C8JL)",
+        "appointmenttypeid": "966",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PJJR",
+        "name": "Service dp (PJJR)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (PJJR)",
+        "appointmenttypeid": "967",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AZ62",
+        "name": "Service dp (AZ62)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AZ62)",
+        "appointmenttypeid": "968",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "2WHT",
+        "name": "Service dp (2WHT)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (2WHT)",
+        "appointmenttypeid": "969",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FKVK",
+        "name": "Service dp (FKVK)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (FKVK)",
+        "appointmenttypeid": "970",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MOZZ",
+        "name": "Service dp (MOZZ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (MOZZ)",
+        "appointmenttypeid": "971",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MT6W",
+        "name": "Service dp (MT6W)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (MT6W)",
+        "appointmenttypeid": "972",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PVX6",
+        "name": "Service dp (PVX6)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (PVX6)",
+        "appointmenttypeid": "973",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Z2OD",
+        "name": "Service dp (Z2OD)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (Z2OD)",
+        "appointmenttypeid": "974",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "GBEG",
+        "name": "Service dp (GBEG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (GBEG)",
+        "appointmenttypeid": "975",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "4QXX",
+        "name": "Service dp (4QXX)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (4QXX)",
+        "appointmenttypeid": "976",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "IAZ5",
+        "name": "Service dp (IAZ5)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (IAZ5)",
+        "appointmenttypeid": "977",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FVVX",
+        "name": "Service dp (FVVX)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (FVVX)",
+        "appointmenttypeid": "978",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "S8UT",
+        "name": "Service dp (S8UT)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (S8UT)",
+        "appointmenttypeid": "979",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AP4K",
+        "name": "Service dp (AP4K)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AP4K)",
+        "appointmenttypeid": "980",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "U85D",
+        "name": "Service dp (U85D)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (U85D)",
+        "appointmenttypeid": "981",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "DCNW",
+        "name": "Service dp (DCNW)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (DCNW)",
+        "appointmenttypeid": "982",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PVTK",
+        "name": "Service dp (PVTK)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (PVTK)",
+        "appointmenttypeid": "983",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "E7UY",
+        "name": "Service dp (E7UY)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (E7UY)",
+        "appointmenttypeid": "984",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "5IPR",
+        "name": "Service dp (5IPR)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (5IPR)",
+        "appointmenttypeid": "985",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "6BPM",
+        "name": "Service dp (6BPM)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (6BPM)",
+        "appointmenttypeid": "986",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "DSXH",
+        "name": "Service dp (DSXH)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (DSXH)",
+        "appointmenttypeid": "987",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "7VV6",
+        "name": "Service dp (7VV6)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (7VV6)",
+        "appointmenttypeid": "988",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ATV6",
+        "name": "Service dp (ATV6)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (ATV6)",
+        "appointmenttypeid": "989",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "BHEL",
+        "name": "Service dp (BHEL)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (BHEL)",
+        "appointmenttypeid": "990",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Z9LG",
+        "name": "Service dp (Z9LG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (Z9LG)",
+        "appointmenttypeid": "991",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "KMKQ",
+        "name": "Service dp (KMKQ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (KMKQ)",
+        "appointmenttypeid": "992",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PHXB",
+        "name": "Service dp (PHXB)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (PHXB)",
+        "appointmenttypeid": "993",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SHJ7",
+        "name": "Service dp (SHJ7)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (SHJ7)",
+        "appointmenttypeid": "994",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "REXN",
+        "name": "Service dp (REXN)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (REXN)",
+        "appointmenttypeid": "995",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MHGT",
+        "name": "Service dp (MHGT)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (MHGT)",
+        "appointmenttypeid": "996",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "6YVH",
+        "name": "Service dp (6YVH)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (6YVH)",
+        "appointmenttypeid": "997",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "C4PE",
+        "name": "Service dp (C4PE)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (C4PE)",
+        "appointmenttypeid": "998",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WGQH",
+        "name": "Service dp (WGQH)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (WGQH)",
+        "appointmenttypeid": "999",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "J5XV",
+        "name": "Service dp (J5XV)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (J5XV)",
+        "appointmenttypeid": "1000",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "XBGJ",
+        "name": "Service dp (XBGJ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (XBGJ)",
+        "appointmenttypeid": "1001",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AZ4K",
+        "name": "Service dp (AZ4K)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AZ4K)",
+        "appointmenttypeid": "1002",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FHMX",
+        "name": "Service dp (FHMX)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (FHMX)",
+        "appointmenttypeid": "1003",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "ATTE",
+        "name": "Service dp (ATTE)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (ATTE)",
+        "appointmenttypeid": "1004",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AF3F",
+        "name": "Service dp (AF3F)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AF3F)",
+        "appointmenttypeid": "1005",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MSLY",
+        "name": "Service dp (MSLY)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (MSLY)",
+        "appointmenttypeid": "1006",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "YYA6",
+        "name": "Service dp (YYA6)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (YYA6)",
+        "appointmenttypeid": "1007",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FTM8",
+        "name": "Service dp (FTM8)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (FTM8)",
+        "appointmenttypeid": "1008",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Q9AR",
+        "name": "Service dp (Q9AR)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (Q9AR)",
+        "appointmenttypeid": "1009",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "HVHS",
+        "name": "Service dp (HVHS)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (HVHS)",
+        "appointmenttypeid": "1010",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "CPZK",
+        "name": "Service dp (CPZK)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (CPZK)",
+        "appointmenttypeid": "1011",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "BNCF",
+        "name": "Service dp (BNCF)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (BNCF)",
+        "appointmenttypeid": "1012",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "IXIM",
+        "name": "Service dp (IXIM)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (IXIM)",
+        "appointmenttypeid": "1013",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "DO2J",
+        "name": "Service dp (DO2J)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (DO2J)",
+        "appointmenttypeid": "1014",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "5CRU",
+        "name": "Service dp (5CRU)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (5CRU)",
+        "appointmenttypeid": "1015",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "KQQG",
+        "name": "Service dp (KQQG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (KQQG)",
+        "appointmenttypeid": "1016",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MF3C",
+        "name": "Service dp (MF3C)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (MF3C)",
+        "appointmenttypeid": "1017",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FVKT",
+        "name": "Service dp (FVKT)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (FVKT)",
+        "appointmenttypeid": "1018",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SMQX",
+        "name": "Service dp (SMQX)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (SMQX)",
+        "appointmenttypeid": "1019",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PRAM",
+        "name": "Service dp (PRAM)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (PRAM)",
+        "appointmenttypeid": "1020",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "DCHG",
+        "name": "Service dp (DCHG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (DCHG)",
+        "appointmenttypeid": "1021",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AOXK",
+        "name": "Service dp (AOXK)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AOXK)",
+        "appointmenttypeid": "1022",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "78VG",
+        "name": "Service dp (78VG)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (78VG)",
+        "appointmenttypeid": "1023",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "JTSY",
+        "name": "Service dp (JTSY)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (JTSY)",
+        "appointmenttypeid": "1024",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "KRFL",
+        "name": "Service dp (KRFL)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (KRFL)",
+        "appointmenttypeid": "1025",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "HSR3",
+        "name": "Service dp (HSR3)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (HSR3)",
+        "appointmenttypeid": "1026",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "YQH5",
+        "name": "Service dp (YQH5)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (YQH5)",
+        "appointmenttypeid": "1027",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "HLMX",
+        "name": "Service dp (HLMX)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (HLMX)",
+        "appointmenttypeid": "1028",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "A2BM",
+        "name": "Service dp (A2BM)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (A2BM)",
+        "appointmenttypeid": "1029",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "RJHA",
+        "name": "Service dp (RJHA)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (RJHA)",
+        "appointmenttypeid": "1030",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "115",
+        "name": "test service 11485",
+        "duration": "33",
+        "patientdisplayname": "test service 11485",
+        "appointmenttypeid": "1031",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "CSFJ",
+        "name": "Service dp (CSFJ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (CSFJ)",
+        "appointmenttypeid": "1032",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "6MNH",
+        "name": "Service dp (6MNH)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (6MNH)",
+        "appointmenttypeid": "1033",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "R4CF",
+        "name": "Service dp (R4CF)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (R4CF)",
+        "appointmenttypeid": "1034",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "VDPN",
+        "name": "Service dp (VDPN)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (VDPN)",
+        "appointmenttypeid": "1035",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "866",
+        "name": "test service 86604",
+        "duration": "33",
+        "patientdisplayname": "test service 86604",
+        "appointmenttypeid": "1036",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "Z3GF",
+        "name": "Service dp (Z3GF)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (Z3GF)",
+        "appointmenttypeid": "1037",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "DZY2",
+        "name": "Service dp (DZY2)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (DZY2)",
+        "appointmenttypeid": "1038",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "YHSF",
+        "name": "Service dp (YHSF)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (YHSF)",
+        "appointmenttypeid": "1039",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NABY",
+        "name": "Service dp (NABY)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (NABY)",
+        "appointmenttypeid": "1040",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PATI",
+        "name": "anappointment",
+        "duration": "60",
+        "patientdisplayname": "anappointment",
+        "appointmenttypeid": "1046",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "X2LQ",
+        "name": "Service dp (X2LQ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (X2LQ)",
+        "appointmenttypeid": "1067",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "GUEW",
+        "name": "Service dp (GUEW)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (GUEW)",
+        "appointmenttypeid": "1068",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "VJNM",
+        "name": "Service dp (VJNM)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (VJNM)",
+        "appointmenttypeid": "1069",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "9ODD",
+        "name": "Service dp (9ODD)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (9ODD)",
+        "appointmenttypeid": "1070",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "EDHV",
+        "name": "Service dp (EDHV)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (EDHV)",
+        "appointmenttypeid": "1071",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "EXKA",
+        "name": "Service dp (EXKA)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (EXKA)",
+        "appointmenttypeid": "1072",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "YMUX",
+        "name": "Service dp (YMUX)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (YMUX)",
+        "appointmenttypeid": "1073",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "S5ZR",
+        "name": "Service dp (S5ZR)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (S5ZR)",
+        "appointmenttypeid": "1074",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "3CJU",
+        "name": "Fake service (3CJU)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (3CJU)",
+        "appointmenttypeid": "1075",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "5KEN",
+        "name": "Fake service (5KEN)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (5KEN)",
+        "appointmenttypeid": "1076",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "872",
+        "name": "test service 87163",
+        "duration": "33",
+        "patientdisplayname": "test service 87163",
+        "appointmenttypeid": "1077",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AQ5R",
+        "name": "Service dp (AQ5R)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (AQ5R)",
+        "appointmenttypeid": "1078",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WWMS",
+        "name": "Fake service (WWMS)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (WWMS)",
+        "appointmenttypeid": "1079",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "4KYZ",
+        "name": "Service dp (4KYZ)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (4KYZ)",
+        "appointmenttypeid": "1080",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "GQDC",
+        "name": "Fake service (GQDC)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (GQDC)",
+        "appointmenttypeid": "1081",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "519",
+        "name": "test service 51883",
+        "duration": "33",
+        "patientdisplayname": "test service 51883",
+        "appointmenttypeid": "1082",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "9HX5",
+        "name": "Service dp (9HX5)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (9HX5)",
+        "appointmenttypeid": "1083",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "MWTK",
+        "name": "Fake service (MWTK)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (MWTK)",
+        "appointmenttypeid": "1084",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "778",
+        "name": "test service 77767",
+        "duration": "33",
+        "patientdisplayname": "test service 77767",
+        "appointmenttypeid": "1085",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "PCO5",
+        "name": "Service dp (PCO5)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (PCO5)",
+        "appointmenttypeid": "1086",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "IVZP",
+        "name": "Fake service (IVZP)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (IVZP)",
+        "appointmenttypeid": "1087",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "912",
+        "name": "test service 91164",
+        "duration": "33",
+        "patientdisplayname": "test service 91164",
+        "appointmenttypeid": "1088",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "JGPN",
+        "name": "Service dp (JGPN)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (JGPN)",
+        "appointmenttypeid": "1089",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "KBSY",
+        "name": "Fake service (KBSY)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (KBSY)",
+        "appointmenttypeid": "1090",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "320",
+        "name": "test service 31961",
+        "duration": "33",
+        "patientdisplayname": "test service 31961",
+        "appointmenttypeid": "1091",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "DBQO",
+        "name": "Service dp (DBQO)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (DBQO)",
+        "appointmenttypeid": "1092",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "UQ5A",
+        "name": "Fake service (UQ5A)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (UQ5A)",
+        "appointmenttypeid": "1093",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "484",
+        "name": "test service 48382",
+        "duration": "33",
+        "patientdisplayname": "test service 48382",
+        "appointmenttypeid": "1094",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "UYGY",
+        "name": "Service dp (UYGY)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (UYGY)",
+        "appointmenttypeid": "1095",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "VKUS",
+        "name": "Fake service (VKUS)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (VKUS)",
+        "appointmenttypeid": "1096",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "759",
+        "name": "test service 75894",
+        "duration": "33",
+        "patientdisplayname": "test service 75894",
+        "appointmenttypeid": "1097",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "OJVU",
+        "name": "Service dp (OJVU)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (OJVU)",
+        "appointmenttypeid": "1098",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "4CHU",
+        "name": "Fake service (4CHU)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (4CHU)",
+        "appointmenttypeid": "1099",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "169",
+        "name": "test service 16919",
+        "duration": "33",
+        "patientdisplayname": "test service 16919",
+        "appointmenttypeid": "1100",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "YFPU",
+        "name": "Service dp (YFPU)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (YFPU)",
+        "appointmenttypeid": "1101",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FQVD",
+        "name": "Fake service (FQVD)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (FQVD)",
+        "appointmenttypeid": "1102",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "227",
+        "name": "test service 22691",
+        "duration": "33",
+        "patientdisplayname": "test service 22691",
+        "appointmenttypeid": "1103",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "74TI",
+        "name": "Service dp (74TI)",
+        "duration": "30",
+        "patientdisplayname": "Service dp (74TI)",
+        "appointmenttypeid": "1104",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "AMGW",
+        "name": "Fake service (AMGW)",
+        "duration": "30",
+        "patientdisplayname": "Fake service (AMGW)",
+        "appointmenttypeid": "1105",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "TTPL",
+        "name": "Tiatros Test Open Appointment",
+        "duration": "30",
+        "patientdisplayname": "Tiatros Test Open Appointment",
+        "appointmenttypeid": "1107",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "N123",
+        "name": "Name 12345",
+        "duration": "20",
+        "patientdisplayname": "Name 12345",
+        "appointmenttypeid": "1108",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "NO23",
+        "name": "Name 123456",
+        "duration": "20",
+        "patientdisplayname": "Name 123456",
+        "appointmenttypeid": "1109",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "XJDC",
+        "name": "NEW+Appointment+100",
+        "duration": "30",
+        "patientdisplayname": "NEW+Appointment+100",
+        "appointmenttypeid": "1110",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "3B24",
+        "name": "Debraj+Appointment+9999",
+        "duration": "30",
+        "patientdisplayname": "Debraj+Appointment+9999",
+        "appointmenttypeid": "1111",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "WNXC",
+        "name": "DEBU+NEW+APPOINTMENT+2016",
+        "duration": "30",
+        "patientdisplayname": "DEBU+NEW+APPOINTMENT+2016",
+        "appointmenttypeid": "1112",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "25XA",
+        "name": "DEBU+NEW+APPOINTMENT+ON+2016",
+        "duration": "30",
+        "patientdisplayname": "DEBU+NEW+APPOINTMENT+ON+2016",
+        "appointmenttypeid": "1113",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "EUSV",
+        "name": "Tiatros+Create+New+Appointment",
+        "duration": "30",
+        "patientdisplayname": "Tiatros+Create+New+Appointment",
+        "appointmenttypeid": "1114",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "SF6V",
+        "name": "Happy Holi",
+        "duration": "30",
+        "patientdisplayname": "Happy Holi",
+        "appointmenttypeid": "1115",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "FQ2H",
+        "name": "BP Checkup through TTPL and At",
+        "duration": "30",
+        "patientdisplayname": "BP Checkup through TTPL and At",
+        "appointmenttypeid": "1116",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "VHPR",
+        "name": "Monthly checkup to Dr Shom",
+        "duration": "30",
+        "patientdisplayname": "Monthly checkup to Dr Shom",
+        "appointmenttypeid": "1117",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "BMUD",
+        "name": "Meeting with Athena Staff for",
+        "duration": "30",
+        "patientdisplayname": "Meeting with Athena Staff for",
+        "appointmenttypeid": "1126",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "7JYC",
+        "name": "Appointment for Vaccine into A",
+        "duration": "30",
+        "patientdisplayname": "Appointment for Vaccine into A",
+        "appointmenttypeid": "1127",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "JTBY",
+        "name": "Appointment with DAN",
+        "duration": "30",
+        "patientdisplayname": "Appointment with DAN",
+        "appointmenttypeid": "1128",
+        "generic": "false",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }, {
+        "shortname": "60M",
+        "name": "any 60",
+        "duration": "60",
+        "patientdisplayname": "any 60",
+        "appointmenttypeid": "1246",
+        "generic": "true",
+        "patient": "true",
+        "templatetypeonly": "false"
+    }]
+}

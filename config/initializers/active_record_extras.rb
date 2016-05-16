@@ -4,7 +4,9 @@ module ActiveRecordExtras
 
     module ClassMethods
       def update_or_create!(search, attributes)
-        object = find_or_initialize_by({"#{search}": attributes[search]})
+        search_terms = search.respond_to?(:reduce) ? search : [search]
+        search_attrs = search_terms.reduce({}) { |memo, term| memo[term] = attributes[term]; memo }
+        object = find_or_initialize_by(search_attrs)
         object.update_attributes!(attributes)
         object
       end

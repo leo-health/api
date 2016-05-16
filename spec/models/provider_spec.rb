@@ -1,16 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe ProviderSyncProfile, type: :model do
+RSpec.describe Provider, type: :model do
   describe "relations" do
-    it{ is_expected.to belong_to(:provider).class_name('User') }
-  end
-
-  describe "validations" do
-    it { is_expected.to validate_presence_of(:provider) }
+    it{ is_expected.to belong_to(:user).class_name('User') }
   end
 
   describe "sync jobs" do
-    let!(:provider){ create(:provider_sync_profile) }
+    let!(:provider){ create(:provider) }
 
     context "on create" do
       it { expect(provider).to callback(:subscribe_to_athena).after(:commit).on(:create) }
