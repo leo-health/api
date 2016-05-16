@@ -53,9 +53,13 @@ module Leo
           present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
         end
 
-        def update_success object, update_params, device_type=session_device_type
+        def update_success object, update_params, entity_name=nil, device_type=session_device_type
           if object.update_attributes(update_params)
-            present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
+            entity_name ||=  object.class.name
+            full_entity_name = "Leo::Entities::#{entity_name}Entity".constantize
+            present entity_name.downcase.to_sym || object.class.name.downcase.to_sym, object,
+                    with: full_entity_name,
+                    device_type: device_type
           else
             error!({error_code: 422, error_message: object.errors.full_messages }, 422)
           end
@@ -84,7 +88,7 @@ module Leo
       ENDPOINTS = %w(appointments appointment_slots conversations sessions users
                      roles passwords patients practices read_receipts messages
                      appointment_types families cards insurers enrollments
-                     patient_enrollments avatars health_records notes pushers
+                     patient_enrollments avatars health_records notes pushers subscriptions
                      appointment_statuses forms patient_insurances deep_links ios_configuration)
 
       ENDPOINTS.each do |endpoint|
