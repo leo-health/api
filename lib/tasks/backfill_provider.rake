@@ -3,7 +3,7 @@ namespace :backfill do
   task provider: :environment do
     Provider.find_each do |provider|
       Person.writable_column_names.map { |col| provider.send("#{col}=", provider.user.try(:send, col)) }
-      provider.credentials = provider.user.staff_profile.credentials
+      provider.credentials = provider.user.try(:staff_profile).try(:credentials)
       if provider.save
         print "*"
       else
