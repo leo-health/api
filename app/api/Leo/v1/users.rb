@@ -96,8 +96,7 @@ module Leo
           enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
 
-          family = Family.new_from_enrollment enrollment
-          user = family.primary_guardian
+          user = User.new_from_enrollment enrollment
           create_success user
 
           session_params = {

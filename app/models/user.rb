@@ -134,6 +134,7 @@ class User < ActiveRecord::Base
     def new_from_enrollment(enrollment, params={})
       new({
         enrollment_id: enrollment.id,
+        stripe_customer_id: enrollment.stripe_customer_id,
         encrypted_password: enrollment.encrypted_password,
         email: enrollment.email,
         first_name: enrollment.first_name,
