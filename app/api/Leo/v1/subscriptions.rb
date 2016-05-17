@@ -30,10 +30,7 @@ module Leo
             logger.error("#{current_user.email}: #{e.json_body[:error][:message]}")
             #suggest sending a email for stripe general errors
           end
-
-          family = Family.new_from_enrollment enrollment
-          family.update stripe_customer_id: stripe_customer.id
-          create_success family.primary_guardian
+          update_success enrollment, stripe_customer_id: stripe_customer.id
         end
       end
     end
