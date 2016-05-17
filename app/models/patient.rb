@@ -12,6 +12,7 @@ class Patient < ActiveRecord::Base
   )
 
   belongs_to :family
+  belongs_to :patient_enrollment
   has_many :appointments, -> { Appointment.booked }
   has_many :medications
   has_many :allergies
@@ -34,6 +35,7 @@ class Patient < ActiveRecord::Base
   class << self
     def new_from_patient_enrollment(patient_enrollment)
       new(
+        patient_enrollment: patient_enrollment,
         family: patient_enrollment.guardian_enrollment.user.try(:family),
         email: patient_enrollment.email,
         title: patient_enrollment.title,
