@@ -30,7 +30,12 @@ module Leo
             logger.error("#{current_user.email}: #{e.json_body[:error][:message]}")
             #suggest sending a email for stripe general errors
           end
-          update_success enrollment, stripe_customer_id: stripe_customer.id
+          enrollment.stripe_customer_id = stripe_customer.id
+          if enrollment.save
+            present :enrollment, enrollment, with: Leo::Entities::EnrollmentEntity
+          else
+            error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
+          end
         end
       end
     end

@@ -97,7 +97,8 @@ module Leo
           error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
 
           family = Family.new_from_enrollment enrollment
-          create_success family.primary_guardian
+          user = family.primary_guardian
+          create_success user
 
           session_params = {
             device_type: params[:device_type],
