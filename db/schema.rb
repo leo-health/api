@@ -202,7 +202,10 @@ ActiveRecord::Schema.define(version: 20160517130215) do
     t.datetime "created_at",         null: false
     t.datetime "updated_at",         null: false
     t.string   "stripe_customer_id"
+    t.string   "membership_type"
   end
+
+  add_index "families", ["membership_type"], name: "index_families_on_membership_type", using: :btree
 
   create_table "forms", force: :cascade do |t|
     t.integer  "patient_id",      null: false
@@ -370,7 +373,7 @@ ActiveRecord::Schema.define(version: 20160517130215) do
     t.datetime "insurances_updated_at"
     t.datetime "photos_updated_at"
     t.integer  "sync_status_id"
-    t.integer  "patient_enrollments_id"
+    t.integer  "patient_enrollment_id"
   end
 
   add_index "patients", ["athena_id"], name: "index_patients_on_athena_id", using: :btree
