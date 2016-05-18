@@ -12,10 +12,13 @@ class User < ActiveRecord::Base
     }
   )
 
-  scope :guardians, -> { where(role: Role.guardian_roles) }
-  scope :staff, -> { where(role: Role.staff_roles) }
-  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles) }
-  scope :provider, -> { where(role: Role.provider_roles) }
+  scope :incomplete, -> { where(complete: false) }
+  scope :complete, -> { where(complete: true) }
+  scope :guardians, -> { where(role: Role.guardian_roles, complete: true) }
+  scope :staff, -> { where(role: Role.staff_roles, complete: true) }
+  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles, complete: true) }
+  scope :provider, -> { where(role: Role.provider_roles, complete: true) }
+
   belongs_to :family
   belongs_to :role
   belongs_to :practice
@@ -39,6 +42,7 @@ class User < ActiveRecord::Base
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
+
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
   validates_confirmation_of :password
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
@@ -46,9 +50,41 @@ class User < ActiveRecord::Base
   validates :family, :vendor_id, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
-  before_create :skip_confirmation!, if: :invited_user?
-  after_update :welcome_onboarding_notifications, if: :guardian?
+  after_validation :set_complete
+
+  before_create :confirmation_task
   after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
+
+  def incomplete?
+    !complete
+  end
+
+  def complete?
+    complete
+  end
+
+  def confirmation_task
+    if never_send_confirmation_email?
+      skip_confirmation!
+    elsif incomplete?
+      skip_confirmation_notification!
+    end
+  end
+
+  def never_send_confirmation_email?
+    invited_user?
+  end
+
+  def set_complete
+    was_incomplete = incomplete?
+    update_attribute(:complete, self.errors.empty?)
+    
+    if complete? && was_incomplete
+      WelcomeToPracticeJob.send(id) if confirmed_at_changed? && guardian?
+      InternalInvitationEnrollmentNotificationJob.send(id) if !primary_guardian? && guardian?
+      send_confirmation_instructions if unconfirmed_email
+    end
+  end
 
   def self.customer_service_user
     User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
@@ -100,12 +136,6 @@ class User < ActiveRecord::Base
     encrypted_password ? false : super
   end
 
-  def welcome_onboarding_notifications
-    if confirmed_at_changed? && guardian?
-      WelcomeToPracticeJob.send(id)
-    end
-  end
-
   def add_family_to_guardian
     self.family ||= Family.create if primary_guardian?
   end
@@ -117,8 +147,6 @@ class User < ActiveRecord::Base
   def set_user_type_on_secondary_user
     unless primary_guardian?
       update_columns(type: family.primary_guardian.type)
-      WelcomeToPracticeJob.send(id)
-      InternalInvitationEnrollmentNotificationJob.send(id)
     end
   end
 

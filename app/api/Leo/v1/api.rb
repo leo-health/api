@@ -38,7 +38,7 @@ module Leo
         def current_user
           return unless params[:authentication_token]
           @session = Session.find_by_authentication_token(params[:authentication_token])
-          @current_user ||= @session.try(:user)
+          @session.try(:user)
         end
 
         def create_success object, device_type=nil
@@ -53,6 +53,7 @@ module Leo
           present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
         end
 
+        # ????: Why is the device_type being returned here?
         def update_success object, update_params, entity_name=nil, device_type=session_device_type
           if object.update_attributes(update_params)
             entity_name ||=  object.class.name

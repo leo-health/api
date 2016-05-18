@@ -6,6 +6,6 @@ class ChangeStatusToStateOnConversation < ActiveRecord::Migration
 
   def down
     remove_column :conversations, :state, :string
-    add_column :conversations, :status, :string, null: false
+    add_column :conversations, :status, :string
   end
 end

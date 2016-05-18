@@ -16,7 +16,6 @@ module Leo
       expose :created_at
       expose :updated_at
       expose :insurance_plan
-      expose :invited_user
       expose :role_id
       expose :avatar_url
       expose :vendor_id

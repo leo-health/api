@@ -53,11 +53,22 @@ module Leo
           optional :middle_initial, type: String
           optional :title, type: String
           optional :suffix, type: String
+
+          optional :device_token, type: String
+          optional :device_type, type: String
+          optional :client_platform, type: String
+          optional :client_version, type: String
         end
 
         post do
-          user = User.new(declared(params, include_missing: false).merge({ role: Role.guardian }))
+          declared_params = declared params, include_missing: false
+          session_keys = [:device_token, :device_type, :client_platform, :client_version]
+          session_params = declared_params.extract(*session_keys)
+          user_params = declared_params.except(*session_keys).merge({ role: Role.guardian })
+
+          user = User.new user_params
           create_success user
+          user.sessions.create(session_params) if user.id
         end
       end
 
@@ -79,6 +90,11 @@ module Leo
 
       resource :users do
         desc '#create user from enrollment'
+
+        before do
+          authenticated
+        end
+
         params do
           optional :first_name, type: String
           optional :last_name, type: String
@@ -88,37 +104,29 @@ module Leo
           optional :middle_initial, type: String
           optional :title, type: String
           optional :suffix, type: String
+
           optional :device_token, type: String
           optional :device_type, type: String
+          optional :client_platform, type: String
+          optional :client_version, type: String
         end
 
         post do
-          enrollment = Enrollment.find_by_authentication_token!(params[:authentication_token])
-          error!({error_code: 401, error_message: "Invalid Token" }, 401) unless enrollment
-          enrollment_params = {
-            enrollment_id: enrollment.id,
-            encrypted_password: enrollment.encrypted_password,
-            email: enrollment.email,
-            first_name: enrollment.first_name,
-            last_name: enrollment.last_name,
-            phone: enrollment.phone,
-            onboarding_group: enrollment.onboarding_group,
-            role_id: enrollment.role_id,
-            family_id: enrollment.family_id,
-            birth_date: enrollment.birth_date,
-            sex: enrollment.sex,
-            insurance_plan_id: enrollment.insurance_plan_id,
-            vendor_id: enrollment.vendor_id
-          }
+          if params[:client_version]
+            attributes = declared(params, include_missing: false) #.except('device_token', 'device_type')
+            update_success current_user, attributes
 
-          user = User.new(enrollment_params.merge(declared(params, include_missing: false)).except('device_token', 'device_type'))
-          create_success user
-          session_params = {
-            device_type: params[:device_type],
-            device_token: params[:device_token]
-          }
+            session_params = {
+              device_type: params[:device_type],
+              device_token: params[:device_token]
+            }
 
-          session = user.sessions.create(session_params)
+            session = Session.find_by_authentication_token(params[:authentication_token])
+            session.update(session_params)
+          else
+            # TODO: handle old logic
+
+          end
           present :session, session
         end
 

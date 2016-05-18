@@ -17,17 +17,17 @@ module Leo
           post do
             error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
             onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_guardian)
-            enrollment = Enrollment.create(declared(params).merge( role: Role.guardian,
-                                                                   family_id: current_user.family_id,
-                                                                   invited_user: true,
-                                                                   vendor_id: generate_vendor_id,
-                                                                   onboarding_group: onboarding_group ))
-
-            if enrollment.valid?
-              InviteParentJob.send(enrollment.id, current_user.id)
-              present :onboarding_group, enrollment.onboarding_group.group_name
+            user = User.new(declared(params).merge(
+              role: Role.guardian,
+              family_id: current_user.family_id,
+              vendor_id: generate_vendor_id,
+              onboarding_group: onboarding_group
+            ))
+            if user.save validate: false
+              InviteParentJob.send(user, current_user)
+              present :onboarding_group, user.onboarding_group.group_name
             else
-              error!({ error_code: 422, error_message: enrollment.errors.full_messages }, 422)
+              error!({ error_code: 422, error_message: user.errors.full_messages }, 422)
             end
           end
         end
@@ -38,8 +38,9 @@ module Leo
         end
 
         get :current do
-          find_enrollment
-          present_session(@enrollment)
+          session = Session.find_by_authentication_token params[:authentication_token]
+          present session: { authentication_token: session.authentication_token }
+          present :user, session.user, with: Leo::Entities::UserEntity
         end
 
         desc "create an enrollment"
@@ -47,15 +48,28 @@ module Leo
           requires :email, type: String
           requires :password, type: String
           requires :vendor_id, type: String
+
+          optional :device_token, type: String
+          optional :device_type, type: String
+          optional :client_platform, type: String
+          optional :client_version, type: String
         end
 
         post do
           error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
-          enrollment = Enrollment.create(declared(params).merge({ role: Role.guardian }))
-          if enrollment.valid?
-            present_session(enrollment)
+
+          declared_params = declared(params)
+          session_keys = [:device_token, :device_type, :client_platform, :client_version]
+          session_params = declared_params.extract(*session_keys)
+          user_params = declared_params.except(*session_keys).merge({ role: Role.guardian })
+          user = User.new user_params
+
+          if user.save validate: false
+            session = user.sessions.create session_params
+            present session: { authentication_token: session.authentication_token }
+            present :user, session.user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
           end
         end
 
@@ -75,36 +89,25 @@ module Leo
 
         put :current do
           error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
-          find_enrollment
-          if @enrollment.update_attributes(declared(params, include_missing: false))
-            present_session(@enrollment)
-            ask_primary_guardian_approval if @enrollment.onboarding_group.try(:invited_secondary_guardian?)
+          user_params = declared(params, include_missing: false).except(:authentication_token)
+          if current_user.update_attributes user_params
+            present session: { authentication_token: params[:authentication_token] }
+            present :user, current_user, with: Leo::Entities::UserEntity
+            ask_primary_guardian_approval if current_user.onboarding_group.try(:invited_secondary_guardian?)
           else
-            error!({error_code: 422, error_message: enrollment.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: current_user.errors.full_messages }, 422)
           end
         end
       end
 
       helpers do
-        def find_enrollment
-          @enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
-          error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless @enrollment
-          @enrollment
-        end
-
         def ask_primary_guardian_approval
-          @enrollment.update_attributes(authentication_token: nil)
-          primary_guardian = @enrollment.family.primary_guardian
-          PrimaryGuardianApproveInvitationJob.send(primary_guardian.id, @enrollment.id)
+          primary_guardian = current_user.family.primary_guardian
+          PrimaryGuardianApproveInvitationJob.send(primary_guardian, current_user)
         end
 
         def email_taken?(email)
-          !!User.find_by_email(email)
-        end
-
-        def present_session(enrollment)
-          present session: { authentication_token: enrollment.authentication_token }
-          present :user, enrollment, with: Leo::Entities::EnrollmentEntity
+          !!User.complete.find_by_email(email)
         end
       end
     end
