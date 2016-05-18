@@ -135,6 +135,7 @@ module AthenaHealthApiHelper
       response = @connection.PUT(endpoint, params, common_headers)
 
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
+      AthenaStruct.new JSON.parse(response.body).first
     end
 
     # cancel a booked appointment

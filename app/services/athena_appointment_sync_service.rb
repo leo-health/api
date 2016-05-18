@@ -10,18 +10,22 @@ class AthenaAppointmentSyncService < AthenaSyncService
       raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have an athena_department_id" if leo_appt.provider.athena_department_id == 0
       raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
-      slots = Slot.free.where(provider: leo_appt.provider).between(leo_appt.start_datetime, leo_appt.end_datetime)
+      slots = Slot.free.where(provider: leo_appt.provider).start_datetime_between(leo_appt.start_datetime, leo_appt.end_datetime).order("start_datetime")
       raise "No slot available for appointment #{leo_appt}" unless slots.first
 
-      leo_appt.update(athena_id: slots.first.athena_id)
 
-      @connector.book_appointment(
-        appointmentid: leo_appt.athena_id,
+      attempt_athena_id = slots.first.athena_id
+      booked_appointment = @connector.book_appointment(
+        appointmentid: attempt_athena_id,
         patientid: leo_appt.patient.athena_id,
-        reasonid: nil,
         appointmenttypeid: leo_appt.appointment_type.athena_id,
         departmentid: leo_appt.provider.athena_department_id
       )
+
+      raise "Appointment #{leo_appt.id} failed to book on athena" unless booked_appointment
+      successful_athena_id = booked_appointment.appointmentid.to_i
+      leo_appt.update(athena_id: successful_athena_id)
+      @logger.warn("WARNING: Appointment #{leo_appt.id} synced to a differnt slot id") if successful_athena_id != attempt_athena_id
 
       slots.update_all(free_busy_type: :busy, appointment_id: leo_appt.id)
 

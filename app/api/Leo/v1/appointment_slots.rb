@@ -29,10 +29,13 @@ module Leo
 
           provider_ids.map do |provider_id|
             provider = Provider.find_by(id: provider_id)
-            error!({error_code: 422, error_message: "Provider with id #{provider_id} does not exist" }, 422) unless provider
+
+            return [{slots: []}] unless provider # Hack to prevent the front end from breaking
+            # branch on app version number
+            # error!({error_code: 422, error_message: "Provider with id #{provider_id} does not exist" }, 422) unless provider
 
 
-            slots = Slot.free.where(provider: provider).between(start_date, end_date.end_of_day)
+            slots = Slot.free.where(provider: provider).start_datetime_between(start_date, end_date.end_of_day)
 
             # Allow rescheduling for the same time if the current_user owns the appointment
             if existing_appointment = Appointment.find_by_id(params[:appointment_id])
@@ -43,10 +46,36 @@ module Leo
                 slots += [existing_appointment]
               end
             end
-            schedule =  ProviderSchedule.find_by(athena_provider_id: provider.athena_id)
 
-            filtered_slots = slots.reject { |slot| slot.start_datetime + appointment_type.duration.minutes > schedule.end_time_for_date(slot.end_datetime) }
-            slots_json = filtered_slots.map { |slot| {start_datetime: slot.start_datetime, duration: slot.duration} }
+            requested_duration = appointment_type.duration.minutes
+            filtered_slots = []
+            i = 0
+            while i < slots.size
+              slot_available = false
+              slot_unavailabile = false
+              total_duration_seen_so_far = 0
+              slot = slots[i]
+
+              # look forward until we know if the slot is available or not
+              j = i
+              until slot_available || slot_unavailabile
+                this_slot = slots[j]
+                total_duration_seen_so_far += this_slot.end_datetime - this_slot.start_datetime
+                slot_available = total_duration_seen_so_far >= requested_duration
+                next_slot = slots[j+1]
+                if !slot_available && next_slot # continue checking the next slot if contiguous
+                  slot_unavailabile = next_slot.start_datetime != this_slot.end_datetime
+                  j += 1
+                else # no more slots to check, slot unavailable
+                  slot_unavailabile = !slot_available
+                end
+              end
+
+              filtered_slots << slot if slot_available
+              i += 1
+            end
+
+            slots_json = filtered_slots.map { |available_slot| {start_datetime: available_slot.start_datetime, duration: appointment_type.duration} }
             { provider_id: provider.id, slots: slots_json }
           end
         end

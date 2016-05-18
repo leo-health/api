@@ -8,7 +8,7 @@ class AthenaProviderSyncService < AthenaSyncService
     # TODO: Make Generic to handle any Syncable type
 
     # Clean any unusable slots
-    Slot.between(nil, Time.now).destroy_all
+    Slot.start_datetime_between(nil, Time.now).destroy_all
 
     # Get athena resources and leo resources
     athena_res = @connector.get_open_appointments(
