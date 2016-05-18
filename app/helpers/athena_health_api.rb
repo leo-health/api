@@ -105,6 +105,7 @@ module AthenaHealthAPI
       end
 
       @connection.proper_ssl_context!
+      @rate_limiter = RateLimiter.new
       # End monkey patch
       @version = version
       @key = key
@@ -156,12 +157,8 @@ module AthenaHealthAPI
 
       request['authorization'] = "Bearer #{@token}"
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
-      unless ignore_throttle
-        while (Time.now - @@last_request) < AthenaHealthAPI.configuration.effective_min_request_interval
-          sleep(AthenaHealthAPI.configuration.effective_min_request_interval * 0.5)
-        end
-      end
-
+      sleep_time = @rate_limiter.sleep_time_after_incrementing_call_count
+      sleep(sleep_time) unless ignore_throttle
       response = @connection.request(request)
       @@last_request = Time.now
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
@@ -260,25 +257,30 @@ module AthenaHealthAPI
       @athena_api_key = ENV['ATHENA_KEY']
     end
 
-    def sleep_time
-      [sleep_time_day_rate_limit, sleep_time_second_rate_limit].max
+    def reset_counts
+      $redis.del(day_key)
+      $redis.del(second_key)
     end
 
-    def sleep_time_day_rate_limit
+    def sleep_time_after_incrementing_call_count
+      [sleep_time_day_rate_limit_after_incrementing_call_count, sleep_time_second_rate_limit_after_incrementing_call_count].max
+    end
+
+    def sleep_time_day_rate_limit_after_incrementing_call_count
       key = day_key
       count, _ = $redis.multi do
         $redis.incr(key)
         $redis.expireat(key, @next_day)
       end
-      count < per_day_rate_limit ? 0 : @next_day - Time.now.to_i
+      count < @per_day_rate_limit ? 0 : @next_day - Time.now.to_i
     end
 
-    def sleep_time_second_rate_limit
+    def sleep_time_second_rate_limit_after_incrementing_call_count
       count, _ = $redis.multi do
         $redis.incr(second_key)
         $redis.expire(second_key, 1)
       end
-      count < per_second_rate_limit ? 0 : 1
+      count < @per_second_rate_limit ? 0 : 1
     end
 
     private
