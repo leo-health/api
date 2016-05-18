@@ -11,8 +11,8 @@ module Leo
           requires :start_date, type: String, desc: "Start date", allow_blank: false
           requires :end_date, type: String, desc: "End date", allow_blank: false
           requires :appointment_type_id, type: Integer, desc: "Appointment Type", allow_blank: false
-          optional :provider_id, type: Integer, desc: "Provider Id", allow_blank: false
-          optional :provider_ids, type: Array[Integer], desc: "Provider Ids", allow_blank: false
+          optional :provider_id, type: Integer, desc: "Get slots for a single provider", allow_blank: false
+          optional :provider_ids, type: Array[Integer], desc: "Get slots for multiple providers", allow_blank: false
           optional :appointment_id, type: Integer, desc: "Existing appointment to reschedule", allow_blank: false
         end
 
@@ -20,7 +20,8 @@ module Leo
           provider_ids = []
           provider_ids += params[:provider_ids] if params[:provider_ids]
           provider_ids += [params[:provider_id]] if params[:provider_id]
-          provider_ids = Provider.all.pluck(&:id) if provider_ids.empty?
+          provider_ids = Provider.ids if provider_ids.empty?
+          provider_ids = provider_ids.uniq
 
           appointment_type = AppointmentType.find(params[:appointment_type_id])
           start_date = [Date.strptime(params[:start_date], "%m/%d/%Y"), Time.now + Appointment::MIN_INTERVAL_TO_SCHEDULE].max
