@@ -20,20 +20,54 @@ module Leo
           start_date = [Date.strptime(params[:start_date], "%m/%d/%Y"), Time.now + Appointment::MIN_INTERVAL_TO_SCHEDULE].max
           end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
 
-          user = User.find_by(role: Role.clinical, id: params[:provider_id])
-          error!({error_code: 422, error_message: "Provider with id #{params[:provider_id]} does not exist" }, 422) unless user
+          provider = User.find_by(role: Role.clinical, id: params[:provider_id]).try(:provider_sync_profile)
 
-          provider = user.provider_sync_profile
-          slots = Slot.free.where(provider_sync_profile: provider).between(start_date, end_date.end_of_day)
-          existing_appointment = Appointment.find_by_id(params[:appointment_id])
-          if existing_appointment.try(:provider_id) == params[:provider_id]
+          return [{slots: []}] unless provider # Hack to prevent the front end from breaking
+          # branch on app version number
+          # error!({error_code: 422, error_message: "Provider with id #{provider_id} does not exist" }, 422) unless provider
+
+
+          slots = Slot.free.where(provider_sync_profile: provider).start_datetime_between(start_date, end_date.end_of_day)
+
+          # Allow rescheduling for the same time if the current_user owns the appointment
+          if existing_appointment = Appointment.find_by_id(params[:appointment_id])
+            same_family_as_current_user = existing_appointment.patient.family_id == current_user.family_id
+            same_provider = existing_appointment.provider_sync_profile_id == provider.id
+            attempting_to_reschedule = same_family_as_current_user && same_provider
+            if attempting_to_reschedule
               slots += [existing_appointment]
+            end
           end
-          schedule =  ProviderSchedule.find_by(athena_provider_id: provider.athena_id)
 
-          filtered_slots = slots.reject { |slot| slot.start_datetime + appointment_type.duration.minutes > schedule.end_time_for_date(slot.end_datetime) }
-          slots_json = filtered_slots.map { |slot| {start_datetime: slot.start_datetime, duration: slot.duration} }
+          requested_duration = appointment_type.duration.minutes
+          filtered_slots = []
+          i = 0
+          while i < slots.size
+            slot_available = false
+            slot_unavailabile = false
+            total_duration_seen_so_far = 0
+            slot = slots[i]
 
+            # look forward until we know if the slot is available or not
+            j = i
+            until slot_available || slot_unavailabile
+              this_slot = slots[j]
+              total_duration_seen_so_far += this_slot.end_datetime - this_slot.start_datetime
+              slot_available = total_duration_seen_so_far >= requested_duration
+              next_slot = slots[j+1]
+              if !slot_available && next_slot # continue checking the next slot if contiguous
+                slot_unavailabile = next_slot.start_datetime != this_slot.end_datetime
+                j += 1
+              else # no more slots to check, slot unavailable
+                slot_unavailabile = !slot_available
+              end
+            end
+
+            filtered_slots << slot if slot_available
+            i += 1
+          end
+
+          slots_json = filtered_slots.map { |available_slot| {start_datetime: available_slot.start_datetime, duration: appointment_type.duration} }
           [{ provider_id: params[:provider_id], slots: slots_json }]
         end
       end
