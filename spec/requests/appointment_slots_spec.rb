@@ -43,7 +43,7 @@ describe Leo::V1::AppointmentSlots do
       expect(response.status).to eq(200)
       resp = JSON.parse(response.body)
       expect(resp["data"][0]["provider_id"]).to eq(provider.id)
-      expect(resp["data"][0]["slots"].size).to eq(@num_slots)
+      expect(resp["data"][0]["slots"].size).to eq(@num_available)
     end
   end
 end

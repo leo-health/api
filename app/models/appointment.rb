@@ -19,7 +19,7 @@ class Appointment < ActiveRecord::Base
   after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
 
   def mark_slots_as_busy
-    Slot.free.where(provider: provider)
+    Slot.free.where(provider_sync_profile: provider.provider_sync_profile)
     .start_datetime_between(start_datetime, end_datetime)
     .update_all(
       free_busy_type: :busy,
