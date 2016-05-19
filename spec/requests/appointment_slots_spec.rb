@@ -22,6 +22,7 @@ describe Leo::V1::AppointmentSlots do
       first_start_datetime = Date.tomorrow + 12.hours
       duration = 10
       @num_slots = 10
+      @num_available = 8
       @num_slots.times do |i|
         start_datetime = first_start_datetime + (i*duration).minutes
         end_datetime = start_datetime + duration.minutes
@@ -49,7 +50,7 @@ describe Leo::V1::AppointmentSlots do
         expect(response.status).to eq(200)
         resp = JSON.parse(response.body)
         expect(resp["data"][0]["provider_id"]).to eq(provider.id)
-        expect(resp["data"][0]["slots"].size).to eq(@num_slots)
+        expect(resp["data"][0]["slots"].size).to eq(@num_available)
       end
     end
 
@@ -67,9 +68,9 @@ describe Leo::V1::AppointmentSlots do
         expect(response.status).to eq(200)
         resp = JSON.parse(response.body)
         expect(resp["data"][0]["provider_id"]).to eq(provider.id)
-        expect(resp["data"][0]["slots"].size).to eq(@num_slots)
+        expect(resp["data"][0]["slots"].size).to eq(@num_available)
         expect(resp["data"][1]["provider_id"]).to eq(second_provider.id)
-        expect(resp["data"][1]["slots"].size).to eq(@num_slots)
+        expect(resp["data"][1]["slots"].size).to eq(@num_available)
       end
     end
 
@@ -87,7 +88,7 @@ describe Leo::V1::AppointmentSlots do
         resp = JSON.parse(response.body)
         [provider, second_provider, third_provider].each_with_index do |provider, i|
           expect(resp["data"][i]["provider_id"]).to eq(provider.id)
-          expect(resp["data"][i]["slots"].size).to eq(@num_slots)
+          expect(resp["data"][i]["slots"].size).to eq(@num_available)
         end
       end
     end
