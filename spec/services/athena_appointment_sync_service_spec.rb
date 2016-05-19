@@ -138,7 +138,7 @@ describe AthenaAppointmentSyncService do
       context "booked appointment"
         it "sends a POST /appointment to Athena" do
           expect(@connector).to receive(:get_appointment).and_return(mock_appt)
-          expect(@connector).to receive(:book_appointment)
+          expect(@connector).to receive(:book_appointment).and_return(mock_appt)
           @service.post_appointment @leo_booked_appt
         end
 
