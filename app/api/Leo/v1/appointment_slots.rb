@@ -41,7 +41,7 @@ module Leo
           filtered_slots = filter_slots_based_on_duration(slots, appointment_type.duration.minutes)
 
           schedule =  ProviderSchedule.find_by(athena_provider_id: provider.athena_id)
-          filtered_slots = slots.reject { |slot| slot.start_datetime + appointment_type.duration.minutes > schedule.end_time_for_date(slot.end_datetime) }
+          filtered_slots = filtered_slots.reject { |slot| slot.start_datetime + appointment_type.duration.minutes > schedule.end_time_for_date(slot.end_datetime) }
 
           slots_json = filtered_slots.map { |available_slot| {start_datetime: available_slot.start_datetime, duration: appointment_type.duration} }
           [{ provider_id: params[:provider_id], slots: slots_json }]
