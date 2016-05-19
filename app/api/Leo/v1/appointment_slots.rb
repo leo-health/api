@@ -64,8 +64,8 @@ module Leo
               if !slot_available && next_slot # continue checking the next slot if contiguous
                 slot_unavailabile = next_slot.start_datetime != this_slot.end_datetime
                 j += 1
-              else # no more slots to check, slot unavailable
-                slot_unavailabile = !slot_available
+              else # no more slots to check and slot not available
+                slot_unavailabile = true
               end
             end
 

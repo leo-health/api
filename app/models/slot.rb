@@ -13,7 +13,7 @@ class Slot < ActiveRecord::Base
     elsif !end_datetime
       where("start_datetime >= ?", start_datetime)
     else
-      where("start_datetime >= ? AND start_datetime <= ?", start_datetime, end_datetime)
+      where("start_datetime >= ? AND start_datetime < ?", start_datetime, end_datetime)
     end
   end
 

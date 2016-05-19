@@ -16,6 +16,17 @@ class Appointment < ActiveRecord::Base
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
+  after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
+
+  def mark_slots_as_busy
+    Slot.free.where(provider: provider)
+    .start_datetime_between(start_datetime, end_datetime)
+    .update_all(
+      free_busy_type: :busy,
+      appointment_id: id
+    )
+  end
+
   def end_datetime
     start_datetime + duration.minutes
   end
