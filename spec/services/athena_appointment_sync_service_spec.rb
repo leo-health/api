@@ -132,7 +132,7 @@ describe AthenaAppointmentSyncService do
         @leo_booked_appt = create(:appointment, :future)
         @leo_booked_appt.appointment_type.update(athena_id: 1)
         @leo_booked_appt.update(patient: @patient, provider: @provider, start_datetime: Time.now + 1.day)
-        create(:slot, start_datetime: @leo_booked_appt.start_datetime, end_datetime: @leo_booked_appt.start_datetime + @leo_booked_appt.duration.minutes, provider: @leo_booked_appt.provider)
+        create(:slot, start_datetime: @leo_booked_appt.start_datetime, end_datetime: @leo_booked_appt.start_datetime + @leo_booked_appt.duration.minutes, provider: @leo_booked_appt.provider, appointment: @leo_booked_appt)
       end
 
       context "booked appointment"
