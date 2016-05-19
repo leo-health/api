@@ -1,4 +1,6 @@
 class AnalyticsController < ApplicationController
+  before_action :set_date_range, only: [:index]
+
   def index
     @analytics = {
       registration_engagement: registration_engagement,
@@ -14,38 +16,26 @@ class AnalyticsController < ApplicationController
 
   def registration_engagement
     [
-      ["#App Accounts Enrolled (login + password)", Enrollment.count],
-      ["#App Accounts Completed (new families?)", Enrollment.count - User.guardians.count]
     ]
   end
 
   def practice_engagement
-    active_patient_count = Vital.where("taken_at > ?", Time.now-18.months).joins(:patient).uniq.count
-    active_patient_percent = active_patient_count.to_f / Patient.count.to_f * 100.00
     [
-      [ '# of Families in Practice (BOM)', Family.count ],
-      [ '# of Patients in Practice (BOM)', Patient.count ],
-      [ '# of Active Patients in Practice', active_patient_count ],
-      [ '% of Active Patients in Practice', "#{active_patient_percent}%" ]
+      ['# of patients who had at least 1 appointment in the last 18 months', Analytics.patients_with_appointments_in(18.months.ago..Time.now).count],
+      ['# of new patients enrolled in practice', month_format_keys(Analytics.new_patients_enrolled_in_practice) ]
     ]
   end
 
   def scheduling_engagement
-    visits_from_app = Appointment.where(booked_by_type: :User).count
-    visits_from_app_percent = Appointment.count == 0 ? 'n/a' : visits_from_app.to_f / Appointment.count.to_f * 100.00
     [
-      ['# of visits scheduled from app', visits_from_app],
-      ['# of visits scheduled from app + practice (total)', Appointment.count],
-      ['% of total visits scheduled from app', "#{visits_from_app_percent}%"],
-      ['% of App Active guardians that scheduled', 'n/a']
+      ['# of visits scheduled from app', Analytics.visits_booked_by(Role.guardian, @stats_time_range).count],
+      ['# of visits scheduled from app + practice (total)', Analytics.appointments_count(@stats_time_range)]
     ]
   end
 
   def messaging_engagement
-    guardians_sent_message = User.joins(:sent_messages).guardians.count
     [
-      ['# of guardians that sent a message', guardians_sent_message],
-      ['% of App Active guardians that messaged', 'n/a']
+      ['# of guardians that sent a message', Analytics.guardians_who_sent_messages(@stats_time_range).count]
     ]
   end
 
@@ -76,7 +66,7 @@ class AnalyticsController < ApplicationController
       ['# of Cases Assigned', EscalationNote.count],
       ['# of Cases Closed', ClosureNote.count],
       ['# of Notes Created', total_notes_created],
-      ['Time to Assigned', "#{average_assign_time} minitues"] #Time to Assigned - first message after last closed to assigned timestamp before closed
+      ['Time to Assigned', "#{average_assign_time} minutes"] #Time to Assigned - first message after last closed to assigned timestamp before closed
     ]
   end
 
@@ -137,5 +127,20 @@ class AnalyticsController < ApplicationController
       end
     end
     time_to_assigned
+  end
+
+  def month_format_keys(datetime_to_number_hash)
+    datetime_to_number_hash.transform_keys{|k| k.strftime('%Y-%m')}
+  end
+
+
+  protected  ## Protected methods until EOF
+
+  # Reads a desired date range for the stats from provided params
+  # if date is missing assume range from year 2000 to tomorrow
+  def set_date_range
+    begin_date = Date.strptime(params[:stats_begin_date], '%m-%d-%Y') rescue Date.new(2000)
+    end_date = Date.strptime(params[:stats_end_date], '%m-%d-%Y') rescue Date.tomorrow
+    @stats_time_range = begin_date..end_date
   end
 end
