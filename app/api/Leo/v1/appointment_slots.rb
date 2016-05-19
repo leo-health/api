@@ -26,7 +26,6 @@ module Leo
           # branch on app version number
           # error!({error_code: 422, error_message: "Provider with id #{provider_id} does not exist" }, 422) unless provider
 
-
           slots = Slot.free.where(provider_sync_profile: provider).start_datetime_between(start_date, end_date.end_of_day)
 
           # Allow rescheduling for the same time if the current_user owns the appointment
@@ -39,7 +38,14 @@ module Leo
             end
           end
 
-          requested_duration = appointment_type.duration.minutes
+          filtered_slots = filter_slots_based_on_duration(slots, appointment_type.duration.minutes)
+          slots_json = filtered_slots.map { |available_slot| {start_datetime: available_slot.start_datetime, duration: appointment_type.duration} }
+          { provider_id: provider.id, slots: slots_json }
+        end
+      end
+
+      helpers do
+        def filter_slots_based_on_duration(slots, requested_duration)
           filtered_slots = []
           i = 0
           while i < slots.size
@@ -66,9 +72,7 @@ module Leo
             filtered_slots << slot if slot_available
             i += 1
           end
-
-          slots_json = filtered_slots.map { |available_slot| {start_datetime: available_slot.start_datetime, duration: appointment_type.duration} }
-          [{ provider_id: params[:provider_id], slots: slots_json }]
+          filtered_slots
         end
       end
     end
