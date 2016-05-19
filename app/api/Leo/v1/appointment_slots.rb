@@ -40,7 +40,7 @@ module Leo
 
           filtered_slots = filter_slots_based_on_duration(slots, appointment_type.duration.minutes)
           slots_json = filtered_slots.map { |available_slot| {start_datetime: available_slot.start_datetime, duration: appointment_type.duration} }
-          [{ provider_id: provider.id, slots: slots_json }]
+          [{ provider_id: params[:provider_id], slots: slots_json }]
         end
       end
 
