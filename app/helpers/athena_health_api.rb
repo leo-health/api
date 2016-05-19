@@ -161,7 +161,6 @@ module AthenaHealthAPI
           sleep(AthenaHealthAPI.configuration.effective_min_request_interval * 0.5)
         end
       end
-
       response = @connection.request(request)
       @@last_request = Time.now
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")

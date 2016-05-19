@@ -8,7 +8,7 @@ class AthenaProviderSyncService < AthenaSyncService
     # TODO: Make Generic to handle any Syncable type
 
     # Clean any unusable slots
-    Slot.between(nil, Time.now).destroy_all
+    Slot.start_datetime_between(nil, Time.now).destroy_all
 
     # Get athena resources and leo resources
     athena_res = @connector.get_open_appointments(
@@ -19,8 +19,8 @@ class AthenaProviderSyncService < AthenaSyncService
       startdate: format_date.call(query_start),
       enddate: format_date.call(query_end)
     )
-    leo_res = Slot.where(provider_sync_profile_id: provider_sync_profile.id).where("start_datetime >= ? AND end_datetime <= ?", query_start, query_end)
-
+    leo_res = Slot.where(provider_sync_profile_id: provider_sync_profile.id).start_datetime_between(query_start, query_end)
+    
     # Map key = athena_id, value = [athena_res, leo_res]
     athena_map = Hash[athena_res.map {|r| [r.appointmentid.to_i, [r, nil]] }]
     leo_map = Hash[leo_res.map {|r| [r.athena_id, [nil, r]]}]
