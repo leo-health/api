@@ -283,13 +283,12 @@ module AthenaHealthAPI
       count < @per_second_rate_limit ? 0 : 1
     end
 
-    private
-
     def day_key
       if Time.now.to_i <=  $redis.get('expire_at').to_i
         "day_rate_limit:#{athena_api_key}:#{$redis.get('expire_at')}"
       else
         @next_day = (Time.now + 1.day).to_i
+        $redis.set('expire_at', @next_day)
         "day_rate_limit:#{athena_api_key}:#{@next_day.to_s}"
       end
     end
