@@ -10,8 +10,8 @@ class AthenaAppointmentSyncService < AthenaSyncService
       raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have an athena_department_id" if leo_appt.provider.athena_department_id == 0
       raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
-      slots = Slot.free.where(provider: leo_appt.provider).start_datetime_between(leo_appt.start_datetime, leo_appt.end_datetime).order("start_datetime")
-      raise "No slot available for appointment #{leo_appt}" unless slots.first
+      slots = Slot.where(appointment: leo_appt)
+      raise "No slot associated with appointment #{leo_appt}" unless slots.first
 
 
       attempt_athena_id = slots.first.athena_id

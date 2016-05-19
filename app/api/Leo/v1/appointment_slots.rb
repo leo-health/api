@@ -51,37 +51,38 @@ module Leo
             { provider_id: provider.id, slots: slots_json }
           end
         end
+      end
 
-        helpers do
-          def filter_slots_based_on_duration(slots, requested_duration)
-            filtered_slots = []
-            i = 0
-            while i < slots.size
-              slot_available = false
-              slot_unavailabile = false
-              total_duration_seen_so_far = 0
-              slot = slots[i]
+      helpers do
+        def filter_slots_based_on_duration(slots, requested_duration)
+          filtered_slots = []
+          i = 0
+          while i < slots.size
+            slot_available = false
+            slot_unavailabile = false
+            total_duration_seen_so_far = 0
+            slot = slots[i]
 
-              # look forward until we know if the slot is available or not
-              j = i
-              until slot_available || slot_unavailabile
-                this_slot = slots[j]
-                total_duration_seen_so_far += this_slot.end_datetime - this_slot.start_datetime
-                slot_available = total_duration_seen_so_far >= requested_duration
-                next_slot = slots[j+1]
-                if !slot_available && next_slot # continue checking the next slot if contiguous
-                  slot_unavailabile = next_slot.start_datetime != this_slot.end_datetime
-                  j += 1
-                else # no more slots to check, slot unavailable
-                  slot_unavailabile = !slot_available
-                end
+            # look forward until we know if the slot is available or not
+            j = i
+            until slot_available || slot_unavailabile
+              this_slot = slots[j]
+              total_duration_seen_so_far += this_slot.end_datetime - this_slot.start_datetime
+              slot_available = total_duration_seen_so_far >= requested_duration
+              next_slot = slots[j+1]
+
+              if !slot_available && next_slot # continue checking the next slot if contiguous
+                slot_unavailabile = next_slot.start_datetime != this_slot.end_datetime
+                j += 1
+              else # no more slots to check and slot not available
+                slot_unavailabile = true
               end
-
-              filtered_slots << slot if slot_available
-              i += 1
             end
-            filtered_slots
+
+            filtered_slots << slot if slot_available
+            i += 1
           end
+          filtered_slots
         end
       end
     end
