@@ -24,6 +24,7 @@ module Leo
               onboarding_group: onboarding_group
             ))
             if user.save validate: false
+              user.sessions.create
               InviteParentJob.send(user, current_user)
               present :onboarding_group, user.onboarding_group.group_name
             else

@@ -65,14 +65,15 @@ resource "Users" do
     parameter :title
     parameter :suffix
 
-    let(:enrollment){create(:enrollment, email: "bigtree@gmail.com", password: "password")}
+    let(:enrollment_user){create(:user, email: "bigtree@gmail.com", password: "password")}
 
     let(:first_name){ "Big" }
     let(:last_name){ "Tree" }
     let(:email){ "BigTree@yahoo.com" }
     let(:password){ "password" }
     let(:phone){ "1234567890" }
-    let(:authentication_token){ enrollment.authentication_token }
+    let(:session){ enrollment_user.sessions.create }
+    let(:authentication_token){ session.authentication_token }
     let(:raw_post) { params.to_json }
 
     example "create a user from enrollment record" do

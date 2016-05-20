@@ -50,11 +50,27 @@ class User < ActiveRecord::Base
   validates :family, :vendor_id, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
-  after_validation :set_complete
+  after_validation :user_is_complete_callback
 
   before_create :confirmation_task
-  after_commit :set_user_type_on_secondary_user, on: :create, if: :guardian?
+  after_commit :guardian_was_confirmed_callback, if: :guardian?
 
+  class << self
+    def customer_service_user
+      User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
+    end
+
+    def leo_bot
+      leo_bot_id = $redis.get "leo_bot_id"
+      leo_bot = self.find_by(id: leo_bot_id) || self.unscoped.find_by_email("leo_bot@leohealth.com")
+      if leo_bot
+        $redis.set "leo_bot_id", leo_bot.id
+      end
+      leo_bot
+    end
+  end
+
+  # Question properties
   def incomplete?
     !complete
   end
@@ -63,42 +79,20 @@ class User < ActiveRecord::Base
     complete
   end
 
-  def confirmation_task
-    if never_send_confirmation_email?
-      skip_confirmation!
-    elsif incomplete?
-      skip_confirmation_notification!
-    end
-  end
-
   def never_send_confirmation_email?
     invited_user?
   end
 
-  def set_complete
-    was_incomplete = incomplete?
-    update_attribute(:complete, self.errors.empty?)
-    
-    if complete? && was_incomplete
-      WelcomeToPracticeJob.send(id) if confirmed_at_changed? && guardian?
-      InternalInvitationEnrollmentNotificationJob.send(id) if !primary_guardian? && guardian?
-      send_confirmation_instructions if unconfirmed_email
-    end
+  def invited_user?
+    onboarding_group.try(:invited_secondary_guardian?)
   end
 
-  def self.customer_service_user
-    User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
+  def primary_guardian?
+    return false unless guardian?
+    User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
   end
 
-  def self.leo_bot
-    leo_bot_id = $redis.get "leo_bot_id"
-    leo_bot = self.find_by(id: leo_bot_id) || self.unscoped.find_by_email("leo_bot@leohealth.com")
-    if leo_bot
-      $redis.set "leo_bot_id", leo_bot.id
-    end
-    leo_bot
-  end
-
+  # Calculated properties
   def find_conversation_by_status(status)
     return if guardian?
     conversations.where(status: status)
@@ -109,28 +103,49 @@ class User < ActiveRecord::Base
     Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
-  def upgrade!
-    update_attributes(type: :Member) if guardian?
-  end
-
   def full_name
     "#{first_name} #{last_name}"
   end
 
-  def primary_guardian?
-    return false unless guardian?
-    User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
+  def invitation_token
+    if invited_user? && incomplete?
+      sessions.first.try(:authentication_token)
+    end
+  end
+
+  # Actions
+  def upgrade!
+    update_attributes(type: :Member) if guardian?
   end
 
   def collect_device_tokens
     sessions.map{|session| session.device_token}.compact.uniq
   end
 
-  def invited_user?
-    onboarding_group.try(:invited_secondary_guardian?)
+  private
+
+  # Callbacks
+  def confirmation_task
+    if never_send_confirmation_email?
+      skip_confirmation! # permanently marks as confirmed
+    elsif incomplete?
+      skip_confirmation_notification!
+    end
   end
 
-  private
+  def user_is_complete_callback
+    was_incomplete = incomplete?
+    update_attribute(:complete, self.errors.empty?)
+
+    if complete? && was_incomplete
+      if !primary_guardian? && guardian?
+        self.confirm
+        update_attribute(:type, family.primary_guardian.type)
+        InternalInvitationEnrollmentNotificationJob.send(id)
+      end
+      send_confirmation_instructions if unconfirmed_email
+    end
+  end
 
   def password_required?
     encrypted_password ? false : super
@@ -144,9 +159,9 @@ class User < ActiveRecord::Base
     self.practice ||= Practice.first
   end
 
-  def set_user_type_on_secondary_user
-    unless primary_guardian?
-      update_columns(type: family.primary_guardian.type)
+  def guardian_was_confirmed_callback
+    if confirmed_at_changed? && guardian?
+      WelcomeToPracticeJob.send(id)
     end
   end
 

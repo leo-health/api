@@ -112,20 +112,29 @@ module Leo
         end
 
         post do
-          if params[:client_version]
-            attributes = declared(params, include_missing: false) #.except('device_token', 'device_type')
-            update_success current_user, attributes
+          declared_params = declared params, include_missing: false
+          session_keys = [:device_token, :device_type, :client_platform, :client_version]
+          session_params = declared_params.extract(*session_keys) || {}
+          # user_params should be required in versions > "1.0.0"
+          user_params = (declared_params.except(*session_keys) || {}).merge({ role: Role.guardian })
 
-            session_params = {
-              device_type: params[:device_type],
-              device_token: params[:device_token]
-            }
-
-            session = Session.find_by_authentication_token(params[:authentication_token])
-            session.update(session_params)
+          if (params[:client_version] || "0") >= "1.0.0"
+            # NOTE: in the newer version,
+            # this endpoint is used to create an incomplete user
+            # instead of post enrollments
+            user = User.new user_params
+            if user.save validate: false
+              user.sessions.create(session_params)
+              present :user, user, Leo::Entities::UserEntity
+            else
+              error!({error_code: 422, error_message: user.errors.full_messages}, 422)
+            end
           else
-            # TODO: handle old logic
-
+            # in the old version, this endpoint is used to
+            # update an incomplete user after calling post enrollments
+            update_success current_user, user_params
+            session = Session.find_by_authentication_token(params[:authentication_token])
+            session.update session_params
           end
           present :session, session
         end
