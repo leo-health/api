@@ -31,7 +31,7 @@ module Leo
           # Allow rescheduling for the same time if the current_user owns the appointment
           if existing_appointment = Appointment.find_by_id(params[:appointment_id])
             same_family_as_current_user = existing_appointment.patient.family_id == current_user.family_id
-            same_provider = existing_appointment.provider_sync_profile_id == provider.id
+            same_provider = existing_appointment.provider.provider_sync_profile.id == provider.id
             attempting_to_reschedule = same_family_as_current_user && same_provider
             if attempting_to_reschedule
               slots += [existing_appointment]
