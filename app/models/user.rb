@@ -81,10 +81,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def validation_errors?
-    self.errors.empty?
-  end
-
   class << self
     def customer_service_user
       User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
@@ -100,10 +96,8 @@ class User < ActiveRecord::Base
     end
   end
 
-  # Question properties
-
-  def never_send_confirmation_email?
-    invited_user?
+  def validation_errors?
+    self.errors.empty?
   end
 
   def invited_user?
@@ -115,7 +109,6 @@ class User < ActiveRecord::Base
     User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
   end
 
-  # Calculated properties
   def find_conversation_by_status(status)
     return if guardian?
     conversations.where(status: status)
@@ -136,7 +129,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  # Actions
   def upgrade!
     update_attributes(type: :Member) if guardian?
   end
@@ -145,15 +137,19 @@ class User < ActiveRecord::Base
     sessions.map{|session| session.device_token}.compact.uniq
   end
 
+  def confirm_secondary_guardian
+    confirm
+    set_complete
+    self.type = family.primary_guardian.type
+    save!
+    InternalInvitationEnrollmentNotificationJob.send(id)
+    WelcomeToPracticeJob.send(id)
+  end
+
   private
 
-  # Callbacks
   def skip_confirmation_task_if_needed_callback
-    if never_send_confirmation_email?
-      skip_confirmation! # permanently marks as confirmed
-    elsif !completed?
-      skip_confirmation_notification!
-    end
+    skip_confirmation_notification! if !completed?
   end
 
   def password_required?
@@ -170,13 +166,6 @@ class User < ActiveRecord::Base
 
   def guardian_was_confirmed_callback
     WelcomeToPracticeJob.send(id) if completed? && previous_changes[:confirmed_at]
-  end
-
-  def confirm_secondary_guardian
-    self.confirm
-    update_attributes(complete: true, type: family.primary_guardian.type)
-    InternalInvitationEnrollmentNotificationJob.send(id)
-    WelcomeToPracticeJob.send(id)
   end
 
   def format_phone_number

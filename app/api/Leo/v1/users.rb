@@ -115,7 +115,8 @@ module Leo
           declared_params = declared params, include_missing: false
           session_keys = [:device_token, :device_type, :client_platform, :client_version]
           session_params = declared_params.extract(*session_keys) || {}
-          # user_params should be required in versions > "1.0.0"
+
+          # TODO: user_params should be required in versions > "1.0.0"
           user_params = (declared_params.except(*session_keys) || {}).merge({ role: Role.guardian })
 
           if (params[:client_version] || "0") >= "1.0.0"
@@ -132,8 +133,11 @@ module Leo
           else
             # in the old version, this endpoint is used to
             # update an incomplete user after calling post enrollments
-            update_success current_user, user_params
-            current_user.confirm_secondary_guardian if current_user.invited_user?
+            update_success current_user, user_params, "User"
+            user = current_user
+            if user.invited_user?
+              error!({error_code: 422, error_message: user.errors.full_messages}, 422) unless user.confirm_secondary_guardian
+            end
             session = Session.find_by_authentication_token(params[:authentication_token])
             session.update session_params
           end
@@ -165,7 +169,6 @@ module Leo
             update_success @user, user_params
           end
         end
-
       end
     end
   end
