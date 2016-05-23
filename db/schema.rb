@@ -642,7 +642,7 @@ ActiveRecord::Schema.define(version: 20160520153441) do
     t.integer  "insurance_plan_id"
     t.string   "vendor_id"
     t.integer  "enrollment_id"
-    t.boolean  "complete",               default: false
+    t.string   "complete_status"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree

@@ -46,6 +46,7 @@ describe AthenaHealthAPI do
         end
 
         expect(Time.now - start_time).to be >= 1
+        expect(Time.now - start_time).to be < 2
       end
 
       it "should not throttle requests on ignore_throttle" do
@@ -66,7 +67,7 @@ describe AthenaHealthAPI do
     before do
       subject.reset_counts
     end
-    
+
     subject { AthenaHealthAPI::RateLimiter.new }
 
     describe "sleep_time" do

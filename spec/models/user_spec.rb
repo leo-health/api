@@ -139,27 +139,11 @@ describe User do
     let(:onboarding_group){ create(:onboarding_group) }
     let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, first_name: "second", family: user.family) }
 
-    describe "after update" do
-      context "for send welcome to practice email" do
-        it "should send user an email to welcome to practice after user confirmed account" do
-          expect{ Delayed::Job.count }.to be(1)
-        end
-      end
-    end
-
     describe "after validation" do
-      it { expect(user).to callback(:user_is_complete_callback).after(:validation) }
+      it { expect(user).to callback(:set_complete_validation_callback).after(:validation) }
 
       it "should set confirmed_at for secondary user" do
         expect( secondary_guardian.confirmed_at ).not_to eq(nil)
-      end
-
-      it "should set the user type of secondary guardian to be intentical to the primary guadian" do
-        expect( secondary_guardian.type ).to eq(user.type)
-      end
-
-      it "sends an internal notification email to ios" do
-        expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(1)
       end
     end
 
@@ -167,8 +151,8 @@ describe User do
       it { expect(user).to callback(:guardian_was_confirmed_callback).after(:commit) }
 
       context "for secondary guardian" do
-        it "should send a welcome to practice email to secodonary user" do
-          expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(2)
+        it "should send a welcome to practice email to primary guardian after confirming email" do
+          expect{ user.confirm }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(1)
         end
       end
     end

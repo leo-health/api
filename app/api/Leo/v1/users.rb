@@ -133,6 +133,7 @@ module Leo
             # in the old version, this endpoint is used to
             # update an incomplete user after calling post enrollments
             update_success current_user, user_params
+            current_user.confirm_secondary_guardian if current_user.invited_user?
             session = Session.find_by_authentication_token(params[:authentication_token])
             session.update session_params
           end

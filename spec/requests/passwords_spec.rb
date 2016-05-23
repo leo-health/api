@@ -82,7 +82,7 @@ describe Leo::V1::Passwords do
 
     context "with unmatched passwords" do
       def do_request
-        password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "nnew_password" }
+        password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "new_password_with_typo" }
         put "/api/v1/passwords/change_password", password_params
       end
 

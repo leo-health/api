@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  include RoleCheckable
+  include RoleCheckable, AASM
   devise :database_authenticatable, :registerable, :confirmable, :recoverable, :validatable
   acts_as_paranoid
   include PgSearch
@@ -12,12 +12,12 @@ class User < ActiveRecord::Base
     }
   )
 
-  scope :incomplete, -> { where(complete: false) }
-  scope :complete, -> { where(complete: true) }
-  scope :guardians, -> { where(role: Role.guardian_roles, complete: true) }
-  scope :staff, -> { where(role: Role.staff_roles, complete: true) }
-  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles, complete: true) }
-  scope :provider, -> { where(role: Role.provider_roles, complete: true) }
+  scope :incomplete, -> { where.not(complete_status: :completed) }
+  scope :complete, -> { where(complete_status: :completed) }
+  scope :guardians, -> { where(role: Role.guardian_roles, complete_status: :completed) }
+  scope :staff, -> { where(role: Role.staff_roles, complete_status: :completed) }
+  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles, complete_status: :completed) }
+  scope :provider, -> { where(role: Role.provider_roles, complete_status: :completed) }
 
   belongs_to :family
   belongs_to :role
@@ -50,10 +50,40 @@ class User < ActiveRecord::Base
   validates :family, :vendor_id, presence: true, if: :guardian?
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
-  after_validation :user_is_complete_callback
+  after_validation :set_complete_validation_callback
 
-  before_create :confirmation_task
+  before_create :skip_confirmation_task_if_needed_callback
   after_commit :guardian_was_confirmed_callback, if: :guardian?
+
+  aasm whiny_transitions: false, column: :complete_status do
+    state :not_validated, initial: true
+    state :incomplete
+    state :completed
+
+    event :set_complete_validation_callback do
+      after do
+        send_confirmation_instructions if unconfirmed_email
+      end
+
+      transitions from: :not_validated, to: :completed, guard: :validation_errors?
+    end
+
+    event :set_complete do
+      after do
+        send_confirmation_instructions if unconfirmed_email
+      end
+
+      transitions from: [:not_validated, :incomplete], to: :completed, guard: :validation_errors?
+    end
+
+    event :set_incomplete do
+      transitions to: :incomplete
+    end
+  end
+
+  def validation_errors?
+    self.errors.empty?
+  end
 
   class << self
     def customer_service_user
@@ -71,13 +101,6 @@ class User < ActiveRecord::Base
   end
 
   # Question properties
-  def incomplete?
-    !complete
-  end
-
-  def complete?
-    complete
-  end
 
   def never_send_confirmation_email?
     invited_user?
@@ -108,7 +131,7 @@ class User < ActiveRecord::Base
   end
 
   def invitation_token
-    if invited_user? && incomplete?
+    if invited_user? && !completed?
       sessions.first.try(:authentication_token)
     end
   end
@@ -125,25 +148,11 @@ class User < ActiveRecord::Base
   private
 
   # Callbacks
-  def confirmation_task
+  def skip_confirmation_task_if_needed_callback
     if never_send_confirmation_email?
       skip_confirmation! # permanently marks as confirmed
-    elsif incomplete?
+    elsif !completed?
       skip_confirmation_notification!
-    end
-  end
-
-  def user_is_complete_callback
-    was_incomplete = incomplete?
-    update_attribute(:complete, self.errors.empty?)
-
-    if complete? && was_incomplete
-      if !primary_guardian? && guardian?
-        self.confirm
-        update_attribute(:type, family.primary_guardian.type)
-        InternalInvitationEnrollmentNotificationJob.send(id)
-      end
-      send_confirmation_instructions if unconfirmed_email
     end
   end
 
@@ -160,9 +169,14 @@ class User < ActiveRecord::Base
   end
 
   def guardian_was_confirmed_callback
-    if confirmed_at_changed? && guardian?
-      WelcomeToPracticeJob.send(id)
-    end
+    WelcomeToPracticeJob.send(id) if completed? && previous_changes[:confirmed_at]
+  end
+
+  def confirm_secondary_guardian
+    self.confirm
+    update_attributes(complete: true, type: family.primary_guardian.type)
+    InternalInvitationEnrollmentNotificationJob.send(id)
+    WelcomeToPracticeJob.send(id)
   end
 
   def format_phone_number

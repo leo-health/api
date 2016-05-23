@@ -23,6 +23,8 @@ module Leo
               vendor_id: generate_vendor_id,
               onboarding_group: onboarding_group
             ))
+
+            user.set_incomplete
             if user.save validate: false
               user.sessions.create
               InviteParentJob.send(user, current_user)

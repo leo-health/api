@@ -29,11 +29,12 @@ module Leo
           end
 
           put do
-            error!({ error_code: 422, error_message: "Current password is not valid." }, 422) unless current_user.valid_password?(params[:current_password])
-            unless current_user.reset_password(params[:password], params[:password_confirmation])
-              error!({ error_code: 422, error_message: current_user.errors.full_messages }, 422)
+            user = current_user
+            error!({ error_code: 422, error_message: "Current password is not valid." }, 422) unless user.valid_password?(params[:current_password])
+            unless user.reset_password(params[:password], params[:password_confirmation])
+              error!({ error_code: 422, error_message: user.errors.full_messages }, 422)
             else
-              PasswordChangeConfirmationJob.send(current_user.id) and return
+              PasswordChangeConfirmationJob.send(user.id) and return
             end
           end
         end
