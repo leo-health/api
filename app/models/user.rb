@@ -44,10 +44,10 @@ class User < ActiveRecord::Base
   has_many :user_generated_health_records
 
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
-  validates_confirmation_of :password
-  validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true
+  validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true, if: :completed?
+  validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.completed? }
   validates :provider, presence: true, if: :clinical?
-  validates :family, :vendor_id, presence: true, if: :guardian?
+  validates_confirmation_of :password
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
   after_validation :set_complete_validation_callback
@@ -97,7 +97,7 @@ class User < ActiveRecord::Base
   end
 
   def validation_errors?
-    self.errors.empty?
+    errors.empty?
   end
 
   def invited_user?
@@ -153,6 +153,7 @@ class User < ActiveRecord::Base
   end
 
   def password_required?
+    return false if !completed?
     encrypted_password ? false : super
   end
 

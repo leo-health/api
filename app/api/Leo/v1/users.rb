@@ -124,7 +124,7 @@ module Leo
             # this endpoint is used to create an incomplete user
             # instead of post enrollments
             user = User.new user_params
-            if user.save validate: false
+            if user.save
               user.sessions.create(session_params)
               present :user, user, Leo::Entities::UserEntity
             else

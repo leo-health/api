@@ -25,7 +25,7 @@ module Leo
             ))
 
             user.set_incomplete
-            if user.save validate: false
+            if user.save
               user.sessions.create
               InviteParentJob.send(user, current_user)
               present :onboarding_group, user.onboarding_group.group_name
@@ -67,7 +67,7 @@ module Leo
           user_params = declared_params.except(*session_keys).merge({ role: Role.guardian })
           user = User.new user_params
 
-          if user.save validate: false
+          if user.save
             session = user.sessions.create session_params
             present session: { authentication_token: session.authentication_token }
             present :user, session.user, with: Leo::Entities::UserEntity

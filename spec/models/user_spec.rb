@@ -100,7 +100,7 @@ describe User do
   end
 
   describe "validations" do
-    subject { build(:user) }
+    subject { build(:user, complete_status: :completed) }
 
     it { is_expected.to validate_length_of(:password).is_at_least(8)}
     it { is_expected.to validate_presence_of(:first_name) }
@@ -139,14 +139,7 @@ describe User do
     let(:onboarding_group){ create(:onboarding_group) }
     let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, first_name: "second", family: user.family) }
 
-    describe "after validation" do
-      it { expect(user).to callback(:set_complete_validation_callback).after(:validation) }
-
-      it "should set confirmed_at for secondary user" do
-        expect( secondary_guardian.confirmed_at ).not_to eq(nil)
-      end
-    end
-
+    it { expect(user).to callback(:set_complete_validation_callback).after(:validation) }
     describe "after commit on create" do
       it { expect(user).to callback(:guardian_was_confirmed_callback).after(:commit) }
 
