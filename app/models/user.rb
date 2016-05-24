@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   include RoleCheckable, AASM
-  devise :database_authenticatable, :registerable, :confirmable, :recoverable, :validatable
+  devise :database_authenticatable, :registerable, :confirmable, :recoverable
   acts_as_paranoid
   include PgSearch
   pg_search_scope(
@@ -12,12 +12,12 @@ class User < ActiveRecord::Base
     }
   )
 
-  scope :incomplete, -> { where.not(complete_status: :completed) }
-  scope :complete, -> { where(complete_status: :completed) }
-  scope :guardians, -> { where(role: Role.guardian_roles, complete_status: :completed) }
-  scope :staff, -> { where(role: Role.staff_roles, complete_status: :completed) }
-  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles, complete_status: :completed) }
-  scope :provider, -> { where(role: Role.provider_roles, complete_status: :completed) }
+  scope :incomplete, -> { where.not(complete_status: :complete) }
+  scope :complete, -> { where(complete_status: :complete) }
+  scope :guardians, -> { where(role: Role.guardian_roles, complete_status: :complete) }
+  scope :staff, -> { where(role: Role.staff_roles, complete_status: :complete) }
+  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles, complete_status: :complete) }
+  scope :provider, -> { where(role: Role.provider_roles, complete_status: :complete) }
 
   belongs_to :family
   belongs_to :role
@@ -44,36 +44,36 @@ class User < ActiveRecord::Base
   has_many :user_generated_health_records
 
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
-  validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true, if: :completed?
-  validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.completed? }
+
+  validates_presence_of   :email
+  validates_uniqueness_of :email, allow_blank: true, if: :email_changed?, conditions: -> { complete }
+  validates_format_of     :email, with: Devise.email_regexp, allow_blank: true, if: :email_changed?
+  validates_presence_of     :password, if: :password_required?
+  validates_confirmation_of :password, if: :password_required?
+  validates_length_of       :password, within: Devise.password_length, allow_blank: true
+
+  validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true, if: :should_validate_for_completion?
+  validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.should_validate_for_completion? }
   validates :provider, presence: true, if: :clinical?
   validates_confirmation_of :password
   validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
-  after_validation :set_complete_validation_callback
 
+  before_save :set_completion_state_by_validation, unless: :complete?
   before_create :skip_confirmation_task_if_needed_callback
-  after_commit :guardian_was_confirmed_callback, if: :guardian?
+  after_commit :guardian_was_completed_callback, if: :guardian?
 
   aasm whiny_transitions: false, column: :complete_status do
-    state :not_validated, initial: true
-    state :incomplete
-    state :completed
-
-    event :set_complete_validation_callback do
-      after do
-        send_confirmation_instructions if unconfirmed_email
-      end
-
-      transitions from: :not_validated, to: :completed, guard: :validation_errors?
-    end
+    state :incomplete, initial: true
+    state :valid_incomplete
+    state :complete
 
     event :set_complete do
-      after do
-        send_confirmation_instructions if unconfirmed_email
-      end
+      transitions from: :valid_incomplete, to: :complete
+    end
 
-      transitions from: [:not_validated, :incomplete], to: :completed, guard: :validation_errors?
+    event :set_valid_incomplete do
+      transitions to: :valid_incomplete
     end
 
     event :set_incomplete do
@@ -96,8 +96,26 @@ class User < ActiveRecord::Base
     end
   end
 
-  def validation_errors?
-    errors.empty?
+  def should_validate_for_completion?
+    !incomplete?
+  end
+
+  def set_completion_state_by_validation
+    if !complete? && prevalidate_for_completion
+      set_valid_incomplete
+      set_complete unless invited_user?
+    end
+    complete_status
+  end
+
+  def prevalidate_for_completion
+    return true if complete?
+    old_complete_status = complete_status
+    # test validity without callbacks
+    self.complete_status = :valid_incomplete
+    valid_for_completion = valid?
+    self.complete_status = old_complete_status
+    valid_for_completion
   end
 
   def invited_user?
@@ -124,7 +142,7 @@ class User < ActiveRecord::Base
   end
 
   def invitation_token
-    if invited_user? && !completed?
+    if invited_user? && !complete?
       sessions.first.try(:authentication_token)
     end
   end
@@ -141,19 +159,19 @@ class User < ActiveRecord::Base
     confirm
     set_complete
     self.type = family.primary_guardian.type
-    save!
+    return false unless save
     InternalInvitationEnrollmentNotificationJob.send(id)
-    WelcomeToPracticeJob.send(id)
+    true
   end
 
   private
 
   def skip_confirmation_task_if_needed_callback
-    skip_confirmation_notification! if !completed?
+    skip_confirmation_notification! if !complete?
   end
 
   def password_required?
-    return false if !completed?
+    return false if !complete?
     encrypted_password ? false : super
   end
 
@@ -165,8 +183,10 @@ class User < ActiveRecord::Base
     self.practice ||= Practice.first
   end
 
-  def guardian_was_confirmed_callback
-    WelcomeToPracticeJob.send(id) if completed? && previous_changes[:confirmed_at]
+  def guardian_was_completed_callback
+    if complete? && previous_changes[:complete_status].present?
+      WelcomeToPracticeJob.send(id)
+    end
   end
 
   def format_phone_number

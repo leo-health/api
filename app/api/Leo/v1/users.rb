@@ -89,7 +89,7 @@ module Leo
       end
 
       resource :users do
-        desc '#create user from enrollment'
+        desc '#create user'
 
         before do
           authenticated
@@ -116,7 +116,7 @@ module Leo
           session_keys = [:device_token, :device_type, :client_platform, :client_version]
           session_params = declared_params.extract(*session_keys) || {}
 
-          # TODO: user_params should be required in versions > "1.0.0"
+          # TODO: user_params (all params?) should be required in versions > "1.0.0"
           user_params = (declared_params.except(*session_keys) || {}).merge({ role: Role.guardian })
 
           if (params[:client_version] || "0") >= "1.0.0"
@@ -142,6 +142,11 @@ module Leo
             session.update session_params
           end
           present :session, session
+        end
+
+        put do
+
+
         end
 
         route_param :id do

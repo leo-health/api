@@ -97,44 +97,49 @@ class AthenaPatientSyncService < AthenaSyncService
 
     #create and/or update the medication records in Leo
     meds.each do | med |
-      leo_med = Medication.find_or_create_by!(athena_id: med[:medicationid.to_s])
 
-      leo_med.patient_id = leo_patient.id
-      leo_med.athena_id = med[:medicationid.to_s]
-      leo_med.medication = med[:medication.to_s]
-      leo_med.sig = med[:unstructuredsig.to_s]
-      leo_med.sig ||= ''
-      leo_med.note = med[:patientnote.to_s]
-      leo_med.note ||= ''
+      unless med[:medicationid.to_s]
+        @logger.error("ERROR: medicationid is null! #{med}")
+      else
+        leo_med = Medication.find_or_create_by!(athena_id: med[:medicationid.to_s])
 
-      structured_sig = {}
-      structured_sig = med[:structuredsig.to_s]
+        leo_med.patient_id = leo_patient.id
+        leo_med.athena_id = med[:medicationid.to_s]
+        leo_med.medication = med[:medication.to_s]
+        leo_med.sig = med[:unstructuredsig.to_s]
+        leo_med.sig ||= ''
+        leo_med.note = med[:patientnote.to_s]
+        leo_med.note ||= ''
 
-      if structured_sig
-        leo_med.dose = "#{structured_sig[:dosagequantityvalue.to_s]} #{structured_sig[:dosagequantityunit.to_s]} #{structured_sig[:dosagefrequencyvalue.to_s]} #{structured_sig[:dosagefrequencyunit.to_s]}"
+        structured_sig = {}
+        structured_sig = med[:structuredsig.to_s]
+
+        if structured_sig
+          leo_med.dose = "#{structured_sig[:dosagequantityvalue.to_s]} #{structured_sig[:dosagequantityunit.to_s]} #{structured_sig[:dosagefrequencyvalue.to_s]} #{structured_sig[:dosagefrequencyunit.to_s]}"
+        end
+        leo_med.dose ||= ''
+        leo_med.route = structured_sig[:dosageroute.to_s] if (structured_sig && structured_sig[:dosageroute.to_s])
+        leo_med.route ||= ''
+        leo_med.frequency = structured_sig[:dosagefrequencydescription.to_s] if (structured_sig && structured_sig[:dosagefrequencydescription.to_s])
+        leo_med.frequency ||= ''
+        leo_med.started_at = nil
+        leo_med.ended_at = nil
+        leo_med.ordered_at = nil
+        leo_med.filled_at = nil
+        leo_med.entered_at = nil
+        leo_med.hidden_at = nil
+
+        med[:events.to_s].each do | evt |
+          leo_med.started_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
+          leo_med.ended_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
+          leo_med.ordered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
+          leo_med.filled_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
+          leo_med.entered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
+          leo_med.hidden_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
+        end
+
+        leo_med.save!
       end
-      leo_med.dose ||= ''
-      leo_med.route = structured_sig[:dosageroute.to_s] if (structured_sig && structured_sig[:dosageroute.to_s])
-      leo_med.route ||= ''
-      leo_med.frequency = structured_sig[:dosagefrequencydescription.to_s] if (structured_sig && structured_sig[:dosagefrequencydescription.to_s])
-      leo_med.frequency ||= ''
-      leo_med.started_at = nil
-      leo_med.ended_at = nil
-      leo_med.ordered_at = nil
-      leo_med.filled_at = nil
-      leo_med.entered_at = nil
-      leo_med.hidden_at = nil
-
-      med[:events.to_s].each do | evt |
-        leo_med.started_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
-        leo_med.ended_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
-        leo_med.ordered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
-        leo_med.filled_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
-        leo_med.entered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
-        leo_med.hidden_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
-      end
-
-      leo_med.save!
     end
 
     leo_patient.medications_updated_at = DateTime.now.utc

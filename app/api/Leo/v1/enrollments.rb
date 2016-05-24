@@ -24,7 +24,6 @@ module Leo
               onboarding_group: onboarding_group
             ))
 
-            user.set_incomplete
             if user.save
               user.sessions.create
               InviteParentJob.send(user, current_user)
@@ -93,7 +92,8 @@ module Leo
         put :current do
           error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
           user_params = declared(params, include_missing: false).except(:authentication_token)
-          if current_user.update_attributes user_params
+          user = current_user
+          if user.update_attributes user_params
             present session: { authentication_token: params[:authentication_token] }
             present :user, current_user, with: Leo::Entities::UserEntity
             ask_primary_guardian_approval if current_user.onboarding_group.try(:invited_secondary_guardian?)

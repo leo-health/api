@@ -100,7 +100,7 @@ describe User do
   end
 
   describe "validations" do
-    subject { build(:user, complete_status: :completed) }
+    subject { build(:user, complete_status: :complete) }
 
     it { is_expected.to validate_length_of(:password).is_at_least(8)}
     it { is_expected.to validate_presence_of(:first_name) }
@@ -129,23 +129,21 @@ describe User do
 
     context "if not guardian" do
       before { allow(subject).to receive(:guardian?).and_return(false)}
-
       it { should_not validate_presence_of(:vendor_id) }
     end
   end
 
   describe "callbacks" do
-    let(:user){ create(:user, email: "emailtest@testemail.com", first_name: "first") }
+    let!(:user){ create(:user, email: "emailtest@testemail.com", first_name: "first") }
     let(:onboarding_group){ create(:onboarding_group) }
     let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, first_name: "second", family: user.family) }
 
-    it { expect(user).to callback(:set_complete_validation_callback).after(:validation) }
     describe "after commit on create" do
-      it { expect(user).to callback(:guardian_was_confirmed_callback).after(:commit) }
+      it { expect(user).to callback(:guardian_was_completed_callback).after(:commit) }
 
       context "for secondary guardian" do
-        it "should send a welcome to practice email to primary guardian after confirming email" do
-          expect{ user.confirm }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(1)
+        it "should send a welcome to practice email and an internal invite email after confirming email" do
+          expect{ secondary_guardian.confirm_secondary_guardian }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(2)
         end
       end
     end
