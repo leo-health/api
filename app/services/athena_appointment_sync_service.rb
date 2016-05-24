@@ -13,7 +13,6 @@ class AthenaAppointmentSyncService < AthenaSyncService
       slots = Slot.where(appointment: leo_appt)
       raise "No slot associated with appointment #{leo_appt}" unless slots.first
 
-
       attempt_athena_id = slots.first.athena_id
       booked_appointment = @connector.book_appointment(
         appointmentid: attempt_athena_id,

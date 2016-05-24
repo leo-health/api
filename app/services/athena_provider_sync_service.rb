@@ -19,8 +19,8 @@ class AthenaProviderSyncService < AthenaSyncService
       startdate: format_date.call(query_start),
       enddate: format_date.call(query_end)
     )
-    leo_res = Slot.where(provider: provider).start_datetime_between(query_start, query_end)
 
+    leo_res = Slot.where(provider: provider).start_datetime_between(query_start, query_end)
     # Map key = athena_id, value = [athena_res, leo_res]
     athena_map = Hash[athena_res.map {|r| [r.appointmentid.to_i, [r, nil]] }]
     leo_map = Hash[leo_res.map {|r| [r.athena_id, [nil, r]]}]
