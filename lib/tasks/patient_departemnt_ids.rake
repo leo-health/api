@@ -8,10 +8,8 @@ namespace :backfill do
     @connector = AthenaHealthApiHelper::AthenaHealthApiConnector.instance
 
     patients = @connector.get_patients(departmentid: departmentid)
-    byebug
     patient_ids -= patients.map { |patient| patient["patientid"].try(:to_i) }
 
-    byebug
     patient_ids.map do |patient_id|
       begin
         @connector.update_patient(patientid: patient_id, departmentid: departmentid)

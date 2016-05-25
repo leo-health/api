@@ -91,9 +91,9 @@ module Leo
       resource :users do
         desc '#create user'
         params do
-          requires :email, type: String
-          requires :password, type: String
-          requires :vendor_id, type: String
+          optional :email, type: String
+          optional :password, type: String
+          optional :vendor_id, type: String
           optional :first_name, type: String
           optional :last_name, type: String
           optional :phone, type: String
@@ -173,7 +173,7 @@ module Leo
           desc "#show get an individual user"
           get do
             authorize! :show, @user
-            render_success @user
+            present :user, @user, with: Leo::Entities::UserEntity
           end
 
           desc "#put update individual user"
@@ -184,7 +184,7 @@ module Leo
           put do
             authorize! :update, @user
             user_params = declared(params)
-            update_success @user, user_params
+            update_success @user, user_params, "User"
           end
         end
       end
