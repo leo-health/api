@@ -250,12 +250,13 @@ module AthenaHealthAPI
   end
 
   class RateLimiter
-    attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit
+    attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit, :next_day
 
     def initialize
       @per_day_rate_limit = ENV['ATHENA_DAY_RATE'].to_i
       @per_second_rate_limit = ENV['ATHENA_SECOND_RATE'].to_i
       @athena_api_key = ENV['ATHENA_KEY']
+      @next_day = Date.tomorrow.to_datetime.to_i
     end
 
     def reset_counts
@@ -288,7 +289,7 @@ module AthenaHealthAPI
       if Time.now.to_i <=  $redis.get('expire_at').to_i
         "day_rate_limit:#{athena_api_key}:#{$redis.get('expire_at')}"
       else
-        @next_day = (Time.now + 1.day).to_i
+        @next_day = Date.tomorrow.to_datetime.to_i
         $redis.set('expire_at', @next_day)
         "day_rate_limit:#{athena_api_key}:#{@next_day.to_s}"
       end
