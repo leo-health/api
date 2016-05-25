@@ -179,10 +179,10 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def GET(path, parameters=nil, headers=nil, ignore_throttle=false, version_and_practice_already_prepended=false)
+    def GET(path, parameters=nil, headers=nil, ignore_throttle=false, version_and_practice_prepended=false)
       url = path
       url += '?' + parameters.to_query if parameters && parameters.size > 0
-      url = path_join(@version, @practiceid, url) unless version_and_practice_already_prepended
+      url = path_join(@version, @practiceid, url) unless version_and_practice_prepended
       headers ||= {}
       request = Net::HTTP::Get.new(url)
       return call(request, {}, headers, false, ignore_throttle)

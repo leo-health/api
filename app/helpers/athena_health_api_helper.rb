@@ -192,10 +192,10 @@ module AthenaHealthApiHelper
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: {}, headers: , field: , limit: nil, structize: false, version_and_practice_already_prepended: false)
+    def get_paged(url: , params: {}, headers: , field: , limit: nil, structize: false, version_and_practice_prepended: false)
       params = params.symbolize_keys
       limit ||= params[:limit] || Float::INFINITY # By default, get all pages
-      response = @connection.GET(url, params, headers, version_and_practice_already_prepended)
+      response = @connection.GET(url, params, headers, version_and_practice_prepended)
 
       raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
@@ -208,7 +208,7 @@ module AthenaHealthApiHelper
 
       if next_page_url && num_entries_still_needed > 0
         next_page_url = next_page_url.split("/").from(3).join("/") # Athena responds with /v1 regardless of the original url passed /preview1
-        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, version_and_practice_already_prepended: true)
+        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, version_and_practice_prepended: true)
       end
 
       limit < Float::INFINITY ? entries[0...limit] : entries
