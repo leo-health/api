@@ -4,7 +4,7 @@ FactoryGirl.define do
     last_name 	{ Faker::Name::first_name }
     email { Faker::Internet.email }
     password 'password'
-    phone '1234567890'
+    phone { Faker::PhoneNumber.phone_number }
     vendor_id { SecureRandom.urlsafe_base64(nil, false) }
     association :role, factory: [:role, :guardian]
     practice

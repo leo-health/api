@@ -110,7 +110,8 @@ module Leo
         end
 
         def email_taken?(email)
-          !!User.complete.find_by_email(email)
+          return true if User.complete.find_by(email: email)
+          return true if User.find_by(email: email, onboarding_group: OnboardingGroup.find_by(group_name: :generated_from_athena))
         end
       end
     end

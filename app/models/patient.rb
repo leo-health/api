@@ -55,6 +55,18 @@ class Patient < ActiveRecord::Base
     avatars.order("created_at DESC").first
   end
 
+  def self.create_with_patient_enrollment!(patient_enrollment)
+    guardian = User.find_by(enrollment_id: patient_enrollment.guardian_enrollment.id)
+    family = guardian.try(:family)
+    attributes = (Person.writable_column_names + [:birth_date]).reduce({}) { |attrs, col|
+      if patient_enrollment.respond_to?(col)
+        attrs[col] = patient_enrollment.send(col)
+      end
+      attrs
+    }.merge(family: family)
+    self.create!(attributes)
+  end
+
   private
 
   def upgrade_guardian!

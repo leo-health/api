@@ -201,8 +201,8 @@ ActiveRecord::Schema.define(version: 20160520153441) do
   create_table "families", force: :cascade do |t|
     t.datetime "created_at",         null: false
     t.datetime "updated_at",         null: false
-    t.string   "stripe_customer_id"
     t.string   "membership_type"
+    t.string   "stripe_customer_id"
   end
 
   add_index "families", ["membership_type"], name: "index_families_on_membership_type", using: :btree
@@ -346,6 +346,7 @@ ActiveRecord::Schema.define(version: 20160520153441) do
     t.string   "sex",                    null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.integer  "athena_id"
   end
 
   add_index "patient_enrollments", ["guardian_enrollment_id"], name: "index_patient_enrollments_on_guardian_enrollment_id", using: :btree

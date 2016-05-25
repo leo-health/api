@@ -201,4 +201,14 @@ describe User do
       expect(invited_user.invited_user?).to eq(true)
     end
   end
+
+  describe ".create_with_enrollment" do
+    let(:enrollment){ create(:enrollment) }
+    let!(:practice){ create(:practice) }
+    it "creates a user associated with the enrollment" do
+      User.create_with_enrollment!(enrollment)
+      expect(User.count).to be(1)
+      expect(User.first.enrollment).to eq(enrollment)
+    end
+  end
 end
