@@ -35,6 +35,7 @@ module Leo
             #suggest sending a email for stripe general errors
           end
           family.stripe_customer_id = stripe_customer.id
+          family.renew_membership
           family.save!
         end
       end
