@@ -58,7 +58,7 @@ module Leo
           if object.update_attributes(update_params)
             entity_name ||=  object.class.name
             full_entity_name = "Leo::Entities::#{entity_name}Entity".constantize
-            present entity_name.downcase.to_sym || object.class.name.downcase.to_sym, object,
+            present entity_name.downcase.to_sym, object,
                     with: full_entity_name,
                     device_type: device_type
           else

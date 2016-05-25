@@ -12,6 +12,7 @@ class Patient < ActiveRecord::Base
   )
 
   belongs_to :family
+  belongs_to :patient_enrollment
   has_many :appointments, -> { Appointment.booked }
   has_many :medications
   has_many :allergies

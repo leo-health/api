@@ -5,9 +5,8 @@ describe Leo::V1::Subscriptions do
   describe "Post /api/v1/subscriptions" do
     let(:stripe_helper) { StripeMock.create_test_helper }
     let(:credit_card_token){ stripe_helper.generate_card_token }
-    let(:user){ create(:user) }
+    let(:user){create(:user, email: "bigtree@gmail.com", password: "password")}
     let(:session){ user.sessions.create }
-    let(:serializer){ Leo::Entities::UserEntity }
 
     before do
       Stripe.api_key="test_key"
@@ -30,7 +29,7 @@ describe Leo::V1::Subscriptions do
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:user].as_json.to_json).to eq(serializer.represent(user.reload).to_json)
+      expect(body[:data]).to be(true)
     end
   end
 end

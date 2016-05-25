@@ -79,6 +79,10 @@ class User < ActiveRecord::Base
     end
   end
 
+  def stripe_customer_id
+    family.try(:stripe_customer_id)
+  end
+
   class << self
     def customer_service_user
       User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
@@ -190,4 +194,27 @@ class User < ActiveRecord::Base
   def format_phone_number
     self.phone = phone.scan(/\d+/).join[-10..-1] if phone
   end
+
+  class << self
+    def new_from_enrollment(enrollment, params={})
+      new({
+        enrollment_id: enrollment.id,
+        stripe_customer_id: enrollment.stripe_customer_id,
+        encrypted_password: enrollment.encrypted_password,
+        email: enrollment.email,
+        first_name: enrollment.first_name,
+        last_name: enrollment.last_name,
+        phone: enrollment.phone,
+        onboarding_group: enrollment.onboarding_group,
+        role_id: enrollment.role_id,
+        family_id: enrollment.family_id,
+        birth_date: enrollment.birth_date,
+        sex: enrollment.sex,
+        insurance_plan_id: enrollment.insurance_plan_id,
+        vendor_id: enrollment.vendor_id,
+        practice: enrollment.practice
+      }.merge(params))
+    end
+  end
+
 end
