@@ -87,11 +87,10 @@ describe AthenaHealthAPI do
       end
 
       context "over day rate limit" do
-        let(:key){ "day_rate_limit:#{subject.athena_api_key}:#{(Time.now + 1.day).to_i.to_s}" }
-
         before do
           Timecop.freeze(Time.now)
-          $redis.set(key, subject.per_day_rate_limit)
+          $redis.flushall
+          $redis.set(subject.day_key, subject.per_day_rate_limit)
         end
 
         after do
@@ -104,11 +103,9 @@ describe AthenaHealthAPI do
       end
 
       context "over day rate limit, but pass previous time cycle" do
-        let(:key){ "day_rate_limit:#{subject.athena_api_key}:#{(Time.now + 1.day).to_i.to_s}" }
-
         before do
           Timecop.freeze(Time.now)
-          $redis.set(key, subject.per_day_rate_limit)
+          $redis.set(subject.day_key, subject.per_day_rate_limit)
         end
 
         after do
@@ -130,11 +127,9 @@ describe AthenaHealthAPI do
       end
 
       context "over second rate limit" do
-        let(:key){ "second_rate_limit:#{subject.athena_api_key}:#{Time.now.strftime("%Y-%m-%d-%H-%M-%S")}" }
-
         before do
           Timecop.freeze(Time.now)
-          $redis.set(key, subject.per_second_rate_limit)
+          $redis.set(subject.second_key, subject.per_day_rate_limit)
         end
 
         after do
