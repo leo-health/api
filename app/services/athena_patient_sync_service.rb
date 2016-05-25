@@ -1,4 +1,64 @@
 class AthenaPatientSyncService < AthenaSyncService
+  def sync_all_patients(practice)
+    athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
+    athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
+
+    existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id)
+    enrollment_athena_ids = PatientEnrollment.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id)
+    all_existing_ids = GenericHelper.merge_sorted(existing_athena_ids, enrollment_athena_ids).to_enum
+
+    next_existing_athena_id = nil
+    athena_patients.reduce([]) { |created_patients, athena_patient|
+      begin
+        next_existing_athena_id ||= all_existing_ids.next
+      rescue StopIteration
+      end
+
+      if get_athena_id(athena_patient) == next_existing_athena_id
+        next_existing_athena_id = nil
+      elsif created_patient = create_patient_enrollment(athena_patient)
+        created_patients << created_patient
+      end
+      created_patients
+    }
+  end
+
+  def get_athena_id(athena_patient)
+    athena_patient["patientid"].try(:to_i)
+  end
+
+  def create_patient_enrollment(athena_patient)
+    # TODO: handle guardians with no email
+    enrollment_params = parse_athena_patient_json_to_guardian_enrollment(athena_patient)
+    guardian_enrollment = Enrollment.create_with(enrollment_params).find_or_create_by(email: enrollment_params[:email])
+    PatientEnrollment.create({guardian_enrollment: guardian_enrollment}.merge(parse_athena_patient_json_to_patient_enrollment(athena_patient))) if guardian_enrollment.id
+  end
+
+  def parse_athena_patient_json_to_guardian_enrollment(athena_patient)
+    {
+      first_name: athena_patient["guarantorfirstname"],
+      last_name: athena_patient["guarantorlastname"],
+      email: athena_patient["guarantoremail"],
+      password: "temporary_password!",
+      phone: athena_patient["contactmobilephone"] ||
+              athena_patient["homephone"] ||
+              athena_patient["employerphone"] ||
+              athena_patient["nextkinphone"],
+      role: Role.guardian,
+      vendor_id: GenericHelper.generate_vendor_id
+    }
+  end
+
+  def parse_athena_patient_json_to_patient_enrollment(athena_patient)
+    {
+      first_name: athena_patient["firstname"],
+      last_name: athena_patient["lastname"],
+      birth_date: Date.strptime(athena_patient["dob"], "%m/%d/%Y"),
+      sex: athena_patient["sex"],
+      athena_id: get_athena_id(athena_patient)
+    }
+  end
+
   def to_athena_json(patient)
     parent = patient.family.primary_guardian
     patient_birth_date = patient.birth_date.strftime("%m/%d/%Y") if patient.birth_date
@@ -277,7 +337,6 @@ class AthenaPatientSyncService < AthenaSyncService
       put_patient(leo_patient)
     end
 
-
     # TODO: remove this if we can
     #create insurance if not entered yet
     insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
@@ -303,5 +362,80 @@ class AthenaPatientSyncService < AthenaSyncService
 
     leo_patient.patient_updated_at = DateTime.now.utc
     leo_patient.save!
+  end
+
+  private
+
+  def get_athena_id(athena_patient)
+    athena_patient["patientid"].try(:to_i)
+  end
+
+  def create_patient_enrollment(athena_patient)
+    # TODO: handle guardians with no email
+    enrollment_params = parse_athena_patient_json_to_guardian_enrollment(athena_patient)
+    guardian_enrollment = Enrollment.create_with(enrollment_params).find_or_create_by(email: enrollment_params[:email])
+    PatientEnrollment.create({guardian_enrollment: guardian_enrollment}.merge(parse_athena_patient_json_to_patient_enrollment(athena_patient))) if guardian_enrollment.id
+  end
+
+  def parse_athena_patient_json_to_guardian_enrollment(athena_patient)
+    {
+      first_name: athena_patient["guarantorfirstname"],
+      last_name: athena_patient["guarantorlastname"],
+      email: athena_patient["guarantoremail"],
+      password: SecureRandom.urlsafe_base64(nil, false),
+      phone: athena_patient["contactmobilephone"] ||
+              athena_patient["homephone"] ||
+              athena_patient["employerphone"] ||
+              athena_patient["nextkinphone"],
+      role: Role.guardian,
+      vendor_id: GenericHelper.generate_vendor_id,
+      onboarding_group: OnboardingGroup.find_by(group_name: :generated_from_athena)
+    }
+  end
+
+  def parse_athena_patient_json_to_patient_enrollment(athena_patient)
+    {
+      first_name: athena_patient["firstname"],
+      last_name: athena_patient["lastname"],
+      birth_date: Date.strptime(athena_patient["dob"], "%m/%d/%Y"),
+      sex: athena_patient["sex"],
+      athena_id: get_athena_id(athena_patient)
+    }
+  end
+
+  def to_athena_json(patient)
+    parent = patient.family.primary_guardian
+    patient_birth_date = patient.birth_date.strftime("%m/%d/%Y") if patient.birth_date
+    parent_birth_date = parent.birth_date.strftime("%m/%d/%Y") if parent.birth_date
+
+    guardians = patient.family.guardians.order('created_at ASC')
+    contactname = nil
+    contactrelationship = nil
+    contactmobilephone = nil
+    if guardians.size >= 2
+      contactname = "#{guardians[1].first_name} #{guardians[1].last_name}"
+      contactrelationship = "GUARDIAN"
+      contactmobilephone = guardians[1].phone
+    end
+    params = patient.athena_id > 0 ? { patientid: patient.athena_id } : {}
+    params.merge({
+      departmentid: parent.practice.athena_id,
+      firstname: patient.first_name,
+      middlename: patient.middle_initial.to_s,
+      lastname: patient.last_name,
+      sex: patient.sex,
+      dob: patient_birth_date,
+      mobilephone: parent.phone,
+      guarantorfirstname: parent.first_name,
+      guarantormiddlename: parent.middle_initial.to_s,
+      guarantorlastname: parent.last_name,
+      guarantordob: parent_birth_date,
+      guarantoremail: parent.email,
+      guarantorrelationshiptopatient: 3, #3==child
+      guarantorphone: parent.phone,
+      contactname: contactname,
+      contactrelationship: contactrelationship,
+      contactmobilephone: contactmobilephone
+    })
   end
 end

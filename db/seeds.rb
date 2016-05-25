@@ -192,7 +192,8 @@ insurance_plan_seed.each do |insurance_plan|
 end
 
 onboarding_group_seed = [
-  { group_name: :invited_secondary_guardian }
+  { group_name: :invited_secondary_guardian },
+  { group_name: :generated_from_athena }
 ]
 
 onboarding_group_seed.each do |param|
