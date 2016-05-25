@@ -9,6 +9,7 @@ class Enrollment < ActiveRecord::Base
   belongs_to :role
   belongs_to :onboarding_group
   belongs_to :family
+  belongs_to :practice
 
   before_validation :ensure_authentication_token, on: [:create, :update]
 
