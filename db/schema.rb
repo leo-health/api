@@ -81,7 +81,7 @@ ActiveRecord::Schema.define(version: 20160520153441) do
     t.integer  "rescheduled_id"
     t.datetime "deleted_at"
     t.integer  "appointment_status_id",             null: false
-    t.integer  "practice_id"
+    t.integer  "practice_id",                       null: false
     t.string   "booked_by_type"
   end
 
@@ -100,7 +100,7 @@ ActiveRecord::Schema.define(version: 20160520153441) do
     t.string   "owner_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string   "avatar"
+    t.string   "avatar",     null: false
   end
 
   add_index "avatars", ["owner_type", "owner_id"], name: "index_avatars_on_owner_type_and_owner_id", using: :btree
