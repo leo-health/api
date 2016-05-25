@@ -22,6 +22,7 @@ namespace :load do
       phone: "9735172669",
       vendor_id: "bush_vendor_id"
     )
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy
     family.patients.create!(
       first_name: "Jeb",
       last_name: "Bush",
