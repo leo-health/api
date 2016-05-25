@@ -20,10 +20,9 @@ module Leo
             user = User.new(declared(params).merge(
               role: Role.guardian,
               family_id: current_user.family_id,
-              vendor_id: generate_vendor_id,
+              vendor_id: GenericHelper.generate_vendor_id,
               onboarding_group: onboarding_group
             ))
-
             if user.save
               user.sessions.create
               InviteParentJob.send(user, current_user)

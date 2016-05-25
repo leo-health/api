@@ -6,8 +6,9 @@ resource "Subscriptions" do
   header "Accept", "application/json"
   header "Content-Type", "application/json"
 
-  let!(:enrollment){ create(:enrollment) }
-  let!(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: enrollment) }
+  let!(:user){ create(:user) }
+  let!(:session){ user.sessions.create }
+  let!(:patient){ create(:patient, family: user.family) }
 
   before do
     Stripe.api_key="test_key"
@@ -25,7 +26,7 @@ resource "Subscriptions" do
 
     let(:stripe_helper) { StripeMock.create_test_helper }
     let(:credit_card_token){ stripe_helper.generate_card_token }
-    let(:authentication_token){ enrollment.authentication_token }
+    let(:authentication_token){ session.authentication_token }
     let(:raw_post){ params.to_json }
 
     example "create a stripe subscription for enrollment" do
