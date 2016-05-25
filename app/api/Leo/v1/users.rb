@@ -90,11 +90,6 @@ module Leo
 
       resource :users do
         desc '#create user'
-
-        before do
-          authenticated
-        end
-
         params do
           optional :first_name, type: String
           optional :last_name, type: String
@@ -119,7 +114,7 @@ module Leo
           # TODO: user_params (all params?) should be required in versions > "1.0.0"
           user_params = (declared_params.except(*session_keys) || {}).merge({ role: Role.guardian })
 
-          if (params[:client_version] || "0") >= "1.0.0"
+          if (params[:client_version] || "0") >= "1.0.1"
             # NOTE: in the newer version,
             # this endpoint is used to create an incomplete user
             # instead of post enrollments
@@ -131,6 +126,7 @@ module Leo
               error!({error_code: 422, error_message: user.errors.full_messages}, 422)
             end
           else
+            authenticated
             # in the old version, this endpoint is used to
             # update an incomplete user after calling post enrollments
             update_success current_user, user_params, "User"
@@ -144,9 +140,22 @@ module Leo
           present :session, session
         end
 
+        params do
+          optional :first_name, type: String
+          optional :last_name, type: String
+          optional :phone, type: String
+          optional :birth_date, type: Date
+          optional :sex, type: String, values: ['M', 'F']
+          optional :middle_initial, type: String
+          optional :title, type: String
+          optional :suffix, type: String
+        end
+
         put do
-
-
+          authenticated
+          user = current_user
+          user_params = declared(params)
+          update_success user, user_params
         end
 
         route_param :id do
@@ -170,6 +179,7 @@ module Leo
           end
 
           put do
+            authorize! :update, @user
             user_params = declared(params)
             update_success @user, user_params
           end
