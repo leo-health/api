@@ -12,6 +12,7 @@ class Patient < ActiveRecord::Base
   )
 
   belongs_to :family
+  belongs_to :patient_enrollment
   has_many :appointments, -> { Appointment.booked }
   has_many :medications
   has_many :allergies
@@ -30,6 +31,23 @@ class Patient < ActiveRecord::Base
 
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, if: :did_successfully_sync?
+
+  class << self
+    def new_from_patient_enrollment(patient_enrollment)
+      new(
+        patient_enrollment: patient_enrollment,
+        family: patient_enrollment.guardian_enrollment.user.try(:family),
+        email: patient_enrollment.email,
+        title: patient_enrollment.title,
+        first_name: patient_enrollment.first_name,
+        middle_initial: patient_enrollment.middle_initial,
+        last_name: patient_enrollment.last_name,
+        suffix: patient_enrollment.suffix,
+        birth_date: patient_enrollment.birth_date,
+        sex: patient_enrollment.sex
+      )
+    end
+  end
 
   def did_successfully_sync?
     attribute = :athena_id

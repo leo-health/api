@@ -38,7 +38,7 @@ module Leo
         end
 
         get :current do
-          find_enrollment
+          find_enrollment!
           present_session(@enrollment)
         end
 
@@ -75,7 +75,7 @@ module Leo
 
         put :current do
           error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
-          find_enrollment
+          find_enrollment!
           if @enrollment.update_attributes(declared(params, include_missing: false))
             present_session(@enrollment)
             ask_primary_guardian_approval if @enrollment.onboarding_group.try(:invited_secondary_guardian?)
@@ -86,7 +86,7 @@ module Leo
       end
 
       helpers do
-        def find_enrollment
+        def find_enrollment!
           @enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
           error!({ error_code: 401, error_message: '401 Unauthorized' }, 401) unless @enrollment
           @enrollment
