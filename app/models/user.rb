@@ -55,8 +55,6 @@ class User < ActiveRecord::Base
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true, if: :should_validate_for_completion?
   validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.should_validate_for_completion? }
   validates :provider, presence: true, if: :clinical?
-  validates_confirmation_of :password
-  validates :password, presence: true, if: :password_required?
   validates_uniqueness_of :vendor_id, allow_blank: true
 
   before_save :set_completion_state_by_validation, unless: :complete?

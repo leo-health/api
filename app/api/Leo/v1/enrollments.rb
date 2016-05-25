@@ -95,10 +95,10 @@ module Leo
           user = current_user
           if user.update_attributes user_params
             present session: { authentication_token: params[:authentication_token] }
-            present :user, current_user, with: Leo::Entities::UserEntity
-            ask_primary_guardian_approval if current_user.onboarding_group.try(:invited_secondary_guardian?)
+            present :user, user, with: Leo::Entities::UserEntity
+            ask_primary_guardian_approval if user.onboarding_group.try(:invited_secondary_guardian?)
           else
-            error!({error_code: 422, error_message: current_user.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
           end
         end
       end
