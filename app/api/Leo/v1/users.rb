@@ -91,6 +91,9 @@ module Leo
       resource :users do
         desc '#create user'
         params do
+          requires :email, type: String
+          requires :password, type: String
+          requires :vendor_id, type: String
           optional :first_name, type: String
           optional :last_name, type: String
           optional :phone, type: String
@@ -120,8 +123,9 @@ module Leo
             # instead of post enrollments
             user = User.new user_params
             if user.save
-              user.sessions.create(session_params)
-              present :user, user, Leo::Entities::UserEntity
+              session = user.sessions.create(session_params)
+              present :user, user, with: Leo::Entities::UserEntity
+              present :session, session, with: Leo::Entities::SessionEntity
             else
               error!({error_code: 422, error_message: user.errors.full_messages}, 422)
             end
@@ -135,9 +139,8 @@ module Leo
               error!({error_code: 422, error_message: user.errors.full_messages}, 422) unless user.confirm_secondary_guardian
             end
             session = Session.find_by_authentication_token(params[:authentication_token])
-            session.update session_params
+            update_success session, session_params
           end
-          present :session, session
         end
 
         params do
