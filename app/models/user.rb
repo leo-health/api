@@ -1,4 +1,3 @@
-#testing
 class User < ActiveRecord::Base
   include RoleCheckable
   devise :database_authenticatable, :registerable, :confirmable, :recoverable, :validatable
