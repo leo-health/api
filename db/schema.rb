@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160510050153) do
+ActiveRecord::Schema.define(version: 20160520153441) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -614,12 +614,12 @@ ActiveRecord::Schema.define(version: 20160510050153) do
 
   create_table "users", force: :cascade do |t|
     t.string   "title"
-    t.string   "first_name",             null: false
+    t.string   "first_name"
     t.string   "middle_initial"
-    t.string   "last_name",              null: false
+    t.string   "last_name"
     t.string   "sex"
     t.integer  "practice_id"
-    t.string   "email",                  null: false
+    t.string   "email"
     t.string   "encrypted_password"
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
@@ -632,7 +632,7 @@ ActiveRecord::Schema.define(version: 20160510050153) do
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
     t.string   "suffix"
-    t.integer  "role_id",                null: false
+    t.integer  "role_id"
     t.datetime "deleted_at"
     t.date     "birth_date"
     t.string   "avatar_url"
@@ -642,11 +642,12 @@ ActiveRecord::Schema.define(version: 20160510050153) do
     t.integer  "insurance_plan_id"
     t.string   "vendor_id"
     t.integer  "enrollment_id"
+    t.string   "complete_status"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
   add_index "users", ["deleted_at"], name: "index_users_on_deleted_at", using: :btree
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["email"], name: "index_users_on_email", using: :btree
   add_index "users", ["enrollment_id"], name: "index_users_on_enrollment_id", unique: true, using: :btree
   add_index "users", ["first_name", "last_name"], name: "index_users_on_first_name_and_last_name", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
