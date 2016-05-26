@@ -98,7 +98,7 @@ describe AthenaHealthAPI do
         end
 
         it "should return time left till the 24hour cycle end" do
-          expect(subject.sleep_time_day_rate_limit_after_incrementing_call_count).to eq(24*60*60)
+          expect(subject.sleep_time_day_rate_limit_after_incrementing_call_count).to eq(Date.tomorrow.to_datetime.to_i - Time.now.to_i)
         end
       end
 
