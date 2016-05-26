@@ -16,7 +16,6 @@ class AthenaPatientSyncService < AthenaSyncService
         created_patients << created_patient
       end
 
-      byebug
       created_patients
     }
   end
@@ -29,8 +28,6 @@ class AthenaPatientSyncService < AthenaSyncService
     # TODO: handle guardians with no email
     user_params = parse_athena_patient_json_to_guardian(athena_patient)
     guardian = User.create_with(user_params).find_or_create_by(email: user_params[:email])
-
-    byebug
     Patient.create({family: guardian.family}.merge(parse_athena_patient_json_to_patient(athena_patient))) if guardian.id
   end
 

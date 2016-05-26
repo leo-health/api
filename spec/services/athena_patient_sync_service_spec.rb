@@ -230,45 +230,47 @@ describe AthenaPatientSyncService do
       it "creates a patient enrollment" do
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
         do_request
-        expect(PatientEnrollment.count).to be(1)
-        expect(Enrollment.count).to be(1)
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
       end
     end
 
     context "patient already exists" do
       before do
-        create(:patient, athena_id: 2)
+        user = create(:user, :guardian)
+        create(:patient, family: user.family, athena_id: 2)
       end
-      it "creates a patient enrollment" do
+      it "does not create a patient enrollment" do
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
         do_request
-        expect(PatientEnrollment.count).to be(0)
-        expect(Enrollment.count).to be(0)
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
       end
     end
 
     context "patient enrollment already exists" do
       before do
-        create(:patient_enrollment, athena_id: 2)
+        user = create(:user, :guardian)
+        create(:patient, family: user.family, athena_id: 2)
       end
       it "creates a patient enrollment" do
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
         do_request
-        expect(PatientEnrollment.count).to be(1)
-        expect(Enrollment.count).to be(1)
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
       end
     end
 
     context "enrollment already exists" do
       before do
-        create(:enrollment, email: "z@a.com")
+        create(:user, email: "z@a.com")
       end
       it "creates a patient and uses the matching enrollment" do
-        expect(Enrollment.count).to be(1)
+        expect(User.count).to be(1)
         expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
         do_request
-        expect(PatientEnrollment.count).to be(1)
-        expect(Enrollment.count).to be(1)
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
       end
     end
   end

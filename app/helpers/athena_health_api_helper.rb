@@ -192,9 +192,10 @@ module AthenaHealthApiHelper
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: {}, headers: , field: , limit: nil, structize: false, version_and_practice_prepended: false)
+    def get_paged(url: , params: {}, headers: , field: , limit: nil, page_size: nil, structize: false, version_and_practice_prepended: false)
       params = params.symbolize_keys
       limit ||= params[:limit] || Float::INFINITY # By default, get all pages
+      params[:limit] = page_size if page_size
       response = @connection.GET(url, params, headers, version_and_practice_prepended)
 
       raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
@@ -206,7 +207,6 @@ module AthenaHealthApiHelper
       num_entries_still_needed = limit - entries.size
       next_page_url = parsed["next"]
 
-      byebug
       if next_page_url && num_entries_still_needed > 0
         next_page_url = next_page_url.split("/").from(3).join("/") # Athena responds with /v1 regardless of the original url passed /preview1
         entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, version_and_practice_prepended: true)
@@ -274,12 +274,18 @@ module AthenaHealthApiHelper
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients
-    def get_patients(departmentid: , limit: nil)
+    def get_patients(departmentid:)
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-
-      return get_paged(
-        url: "patients", params: params,
-        headers: common_headers, field: :patients, limit: limit)
+      start = Time.now
+      entries = get_paged(
+        url: "patients",
+        params: params,
+        headers: common_headers,
+        field: :patients,
+        page_size: 100
+      )
+      puts "Request time: #{Time.now - start}"
+      entries
     end
 
     #Create a patient: POST /preview1/:practiceid/patients
