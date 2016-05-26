@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
 
   validates_presence_of   :email
-  validates_uniqueness_of :email, allow_blank: true, if: :email_changed?, conditions: -> { complete }
+  validates_uniqueness_of :email, allow_blank: true, if: :email_changed?, conditions: -> { complete.where(deleted_at: nil) }
   validates_format_of     :email, with: Devise.email_regexp, allow_blank: true, if: :email_changed?
   validates_presence_of     :password, if: :password_required?
   validates_confirmation_of :password

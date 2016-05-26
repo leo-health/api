@@ -206,6 +206,7 @@ module AthenaHealthApiHelper
       num_entries_still_needed = limit - entries.size
       next_page_url = parsed["next"]
 
+      byebug
       if next_page_url && num_entries_still_needed > 0
         next_page_url = next_page_url.split("/").from(3).join("/") # Athena responds with /v1 regardless of the original url passed /preview1
         entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, version_and_practice_prepended: true)
@@ -273,12 +274,12 @@ module AthenaHealthApiHelper
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients
-    def get_patients(departmentid: )
+    def get_patients(departmentid: , limit: nil)
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "patients", params: params,
-        headers: common_headers, field: :patients)
+        headers: common_headers, field: :patients, limit: limit)
     end
 
     #Create a patient: POST /preview1/:practiceid/patients
