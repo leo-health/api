@@ -20,7 +20,7 @@ class Family < ActiveRecord::Base
     end
 
     event :expire_membership do
-      transitions from: :member, to: :delinquent
+      transitions from: [:member, :incomplete], to: :delinquent
     end
 
     event :exempt_membership do

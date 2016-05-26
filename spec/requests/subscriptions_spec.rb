@@ -26,10 +26,19 @@ describe Leo::V1::Subscriptions do
     end
 
     it "subscribe user to stripe subscription" do
+      previous_membership_type = user.family.membership_type
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data]).to be(true)
+      expect(user.family.membership_type).to be(previous_membership_type)
+    end
+
+    it "fails to charge card" do
+      allow(Stripe::Customer).to receive(:create).and_raise(StripeMock.prepare_card_error(:card_declined).first.first.second)
+      do_request
+      expect(response.status).to eq(422)
+      expect(user.family.reload.membership_type).to eq("delinquent")
     end
   end
 end

@@ -25,6 +25,7 @@ module Leo
           rescue Stripe::AuthenticationError => e
             error!({error_code: 401, error_message: e.json_body[:error][:code] }, 401)
           rescue Stripe::CardError => e
+            family.expire_membership!
             error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
             logger.error("#{user.email}: #{e.json_body[:error][:message]}")
           rescue Stripe::RateLimitError, Stripe::APIConnectionError => e
