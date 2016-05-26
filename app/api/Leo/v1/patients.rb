@@ -23,6 +23,7 @@ module Leo
           patient = current_user.family.patients.new(declared(params, including_missing: false))
           authorize! :create, patient
           patient.save!
+          patient.family.update_or_create_stripe_subscription_if_needed
           create_success patient
         end
 
@@ -63,9 +64,11 @@ module Leo
 
         desc "#delete: delete individual patient, guardian only"
         delete ':id' do
-          patient = Patient.find(params[:id])
-          authorize! :destroy, patient
-          patient.try(:destroy)
+          if patient = Patient.find(params[:id])
+            authorize! :destroy, patient
+            patient.destroy
+            patient.family.update_or_create_stripe_subscription_if_needed
+          end
         end
       end
     end

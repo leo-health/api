@@ -4,6 +4,7 @@ class Family < ActiveRecord::Base
   has_many :guardians, class_name: 'User'
   has_many :patients
   has_one :conversation
+  store :stripe_customer, coder: JSON
 
   validates_presence_of :membership_type
 
@@ -34,6 +35,51 @@ class Family < ActiveRecord::Base
 
   def primary_guardian
     guardians.order('created_at ASC').first
+  end
+
+  def stripe_customer=(stripe_customer)
+    super stripe_customer
+    self.stripe_customer_id = stripe_customer_id
+  end
+
+  def stripe_customer_id
+    stripe_customer[:id]
+  end
+
+  def stripe_subscription_id
+    stripe_subscription.try(:[], :id)
+  end
+
+  def stripe_subscription
+    stripe_customer
+    .try(:[], :subscriptions)
+    .try(:[], :data)
+    .try(:[], 0)
+  end
+
+  def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
+    patient_count = patients.count
+    patient_count = 5 if patient_count > 5
+
+    if !stripe_customer_id
+      self.stripe_customer = Stripe::Customer.create(
+        email: primary_guardian.email,
+        plan: STRIPE_PLAN,
+        quantity: patient_count,
+        source: credit_card_token
+      ).to_hash
+      renew_membership
+    elsif credit_card_token
+      customer = Stripe::Customer.retrieve stripe_customer_id
+      customer.source = credit_card_token
+      customer.save
+      renew_membership
+    else
+      subscription = Stripe::Subscription.retrieve("sub_8WUySPCsFlrL6B")
+      subscription.quantity = patient_count
+      subscription.save
+    end
+    save!
   end
 
   private
