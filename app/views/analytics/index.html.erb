@@ -1,121 +1,95 @@
 <html>
 <head>
-  <!-- Date Range Picker Prerequisites -->
+  <!-- Date Range Picker prerequisites -->
   <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
   <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
   <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />
 
-  <!-- Date Range Picker Itself -->
+  <!-- Date Range Picker itself (by: http://www.daterangepicker.com) -->
   <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
   <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
 </head>
 <body>
 
 <ul>
-  <h1>Analytics</h1>
-  <h2>General analytics</h2>
-  <hr style="margin-top: 0px;">
-  <h3>registration engagement</h3>
-  <% @analytics[:registration_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h3>practice engagement</h3>
-  <% @analytics[:practice_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h2 style="float: left;">Date-ranged analytics</h2>
-  <div style="float: left; margin: 28px 20px 5px 20px;">
+  <h1 style="float: left;">Analytics</h1>
+  <div style="float: left; margin: 30px 20px 5px 30px;">
     For dates:
-    <%= text_field_tag(:stats_date_range, '', size: 21) %>
+    <%= text_field_tag(:stats_time_range, '', size: 24, style: 'text-align: center;') %>
   </div>
   <div class="clearfix"></div>
   <hr style="margin-top: 0px;">
 
+  <h3>practice engagement</h3>
+  <% @analytics.practice_engagement.each do |metric, value| %>
+      <li><%= metric %>:  <%= value %></li>
+  <% end %>
+
   <h3>schedule engagement</h3>
-  <% @analytics[:scheduling_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h3>message engagement</h3>
-  <% @analytics[:messaging_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h3>response time metric</h3>
-  <% @analytics[:response_time_metrics].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h3>provider app engagement</h3>
-  <% @analytics[:provider_app_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
+  <% @analytics.scheduling_engagement.each do |metric, value| %>
+      <li><%= metric %>:  <%= value %></li>
   <% end %>
 
   <h3>appointment engagement</h3>
-  <% @analytics[:appointment_enagament].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
+  <% @analytics.appointment_engagement.each do |metric, value| %>
+    <li><%= metric %>:  <%= value %></li>
+  <% end %>
+
+  <h3>message engagement</h3>
+  <% @analytics.messaging_engagement.each do |metric, value| %>
+      <li><%= metric %>:  <%= value %></li>
+  <% end %>
+
+  <h3>response time metric</h3>
+  <% @analytics.response_time_metrics.each do |metric, value| %>
+      <li><%= metric %>:  <%= value %></li>
   <% end %>
 </ul>
 
 <script type="text/javascript" charset="utf-8">
-  $('#stats_date_range').daterangepicker({
+  // Initialize the date range picker
+  $('#stats_time_range').daterangepicker({
     'showDropdowns': true,
     'autoApply': true,
     'ranges': {
-      <% time_now = Time.zone.now.beginning_of_day %>
-      <% date_now_string = time_now.to_date.strftime('%m/%d/%Y') %>
-      <% beginning_of_time_string = '01/01/2010' %>
+      <% beginning_of_today = Time.zone.now.beginning_of_day %>
+      <% date_today_string = beginning_of_today.to_date.strftime('%m/%d/%Y') %>
+      <% beginning_of_time_string = '01/01/2015' %>
       'Anytime': [
         '<%= beginning_of_time_string %>',
-        '<%= date_now_string %>'
+        '<%= date_today_string %>'
       ],
       'Today': [
-        '<%= date_now_string %>',
-        '<%= date_now_string %>'
+        '<%= date_today_string %>',
+        '<%= date_today_string %>'
       ],
       'Yesterday': [
-        '<%= (time_now - 1.day).strftime('%m/%d/%Y') %>',
-        '<%= (time_now - 1.day).strftime('%m/%d/%Y') %>'
+        '<%= (beginning_of_today - 1.day).strftime('%m/%d/%Y') %>',
+        '<%= (beginning_of_today - 1.day).strftime('%m/%d/%Y') %>'
       ],
       'Last 7 Days': [
-        '<%= (time_now - 7.days).strftime('%m/%d/%Y') %>',
-        '<%= date_now_string %>'
+        '<%= (beginning_of_today - 7.days).strftime('%m/%d/%Y') %>',
+        '<%= date_today_string %>'
       ],
       'Last 30 Days': [
-        '<%= (time_now - 30.days).strftime('%m/%d/%Y') %>',
-        '<%= date_now_string %>'
+        '<%= (beginning_of_today - 30.days).strftime('%m/%d/%Y') %>',
+        '<%= date_today_string %>'
       ],
       'This Month': [
-        '<%= (time_now.beginning_of_month).strftime('%m/%d/%Y') %>',
-        '<%= (time_now.end_of_month).strftime('%m/%d/%Y') %>'
+        '<%= (beginning_of_today.beginning_of_month).strftime('%m/%d/%Y') %>',
+        '<%= (beginning_of_today.end_of_month).strftime('%m/%d/%Y') %>'
       ],
       'Last Month': [
-        <% last_month = (time_now.beginning_of_month - 1.day).beginning_of_month %>
+        <% last_month = beginning_of_today.beginning_of_month.last_month %>
         '<%= last_month.strftime('%m/%d/%Y') %>',
         '<%= last_month.end_of_month.strftime('%m/%d/%Y') %>'
       ]
     },
     'alwaysShowCalendars': true,
-    'startDate': '<%= @stats_begin_date.try(:strftime, '%m/%d/%Y') || beginning_of_time_string %>',
-    'endDate': '<%= @stats_end_date.try(:strftime, '%m/%d/%Y') || date_now_string %>'
+    'startDate': '<%= @stats_time_range.try(:begin).try(:strftime, '%m/%d/%Y') || beginning_of_time_string %>',
+    'endDate': '<%= @stats_time_range.try(:end).try(:strftime, '%m/%d/%Y') || date_today_string %>'
   }, function (start, end, label) {
-    window.location = '<%= analytics_url %>' + '?stats_begin_date=' + start.format('MM-DD-YYYY') + '&stats_end_date=' + end.format('MM-DD-YYYY');
+    window.location = '<%= analytics_url %>' + '?begin_date=' + start.format('MM-DD-YYYY') + '&end_date=' + end.format('MM-DD-YYYY');
   });
 </script>
 </body>

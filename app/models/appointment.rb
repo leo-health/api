@@ -4,6 +4,10 @@ class Appointment < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :patient
   belongs_to :booked_by, polymorphic: true
+  belongs_to :booked_by_user,  # Alternative way to query the 'booked_by' polymorphic association for Users only - used to construct compound 'where-s'
+             -> { where(appointments: { booked_by_type: 'User' }) },
+             class_name: 'User',
+             foreign_key: :booked_by_id
   belongs_to :provider
   belongs_to :appointment_type
   belongs_to :appointment_status
