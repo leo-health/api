@@ -157,8 +157,8 @@ module AthenaHealthAPI
 
       request['authorization'] = "Bearer #{@token}"
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
-      # sleep_time = @rate_limiter.sleep_time_after_incrementing_call_count
-      # sleep(sleep_time) unless ignore_throttle
+      sleep_time = @rate_limiter.sleep_time_after_incrementing_call_count
+      sleep(sleep_time) unless ignore_throttle
       response = @connection.request(request)
       @@last_request = Time.now
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
@@ -179,10 +179,10 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def GET(path, parameters=nil, headers=nil, ignore_throttle=false, append_version_and_practice=true)
+    def GET(path, parameters=nil, headers=nil, ignore_throttle=false, version_and_practice_prepended=false)
       url = path
       url += '?' + parameters.to_query if parameters && parameters.size > 0
-      url = path_join(@version, @practiceid, url) if append_version_and_practice
+      url = path_join(@version, @practiceid, url) unless version_and_practice_prepended
       headers ||= {}
       request = Net::HTTP::Get.new(url)
       return call(request, {}, headers, false, ignore_throttle)
@@ -249,12 +249,13 @@ module AthenaHealthAPI
   end
 
   class RateLimiter
-    attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit
+    attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit, :next_day
 
     def initialize
       @per_day_rate_limit = ENV['ATHENA_DAY_RATE'].to_i
       @per_second_rate_limit = ENV['ATHENA_SECOND_RATE'].to_i
       @athena_api_key = ENV['ATHENA_KEY']
+      @next_day = Date.tomorrow.to_datetime.to_i
     end
 
     def reset_counts
@@ -283,13 +284,12 @@ module AthenaHealthAPI
       count < @per_second_rate_limit ? 0 : 1
     end
 
-    private
-
     def day_key
       if Time.now.to_i <=  $redis.get('expire_at').to_i
         "day_rate_limit:#{athena_api_key}:#{$redis.get('expire_at')}"
       else
-        @next_day = (Time.now + 1.day).to_i
+        @next_day = Date.tomorrow.to_datetime.to_i
+        $redis.set('expire_at', @next_day)
         "day_rate_limit:#{athena_api_key}:#{@next_day.to_s}"
       end
     end
