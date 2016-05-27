@@ -157,8 +157,8 @@ module AthenaHealthAPI
 
       request['authorization'] = "Bearer #{@token}"
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
-      # sleep_time = @rate_limiter.sleep_time_after_incrementing_call_count
-      # sleep(sleep_time) unless ignore_throttle
+      sleep_time = @rate_limiter.sleep_time_after_incrementing_call_count
+      sleep(sleep_time) unless ignore_throttle
       response = @connection.request(request)
       @@last_request = Time.now
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
@@ -283,13 +283,12 @@ module AthenaHealthAPI
       count < @per_second_rate_limit ? 0 : 1
     end
 
-    private
-
     def day_key
       if Time.now.to_i <=  $redis.get('expire_at').to_i
         "day_rate_limit:#{athena_api_key}:#{$redis.get('expire_at')}"
       else
         @next_day = (Time.now + 1.day).to_i
+        $redis.set('expire_at', @next_day)
         "day_rate_limit:#{athena_api_key}:#{@next_day.to_s}"
       end
     end
