@@ -158,7 +158,6 @@ module AthenaHealthAPI
       request['authorization'] = "Bearer #{@token}"
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
       sleep_time = @rate_limiter.sleep_time_after_incrementing_call_count
-      AthenaHealthAPI.configuration.logger.info("TEMPORARY INFO: SHOULD SLEEP FOR #{sleep_time} SECONDS")
       sleep(sleep_time) unless ignore_throttle
       response = @connection.request(request)
       @@last_request = Time.now
