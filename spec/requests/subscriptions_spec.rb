@@ -27,13 +27,14 @@ describe Leo::V1::Subscriptions do
     end
 
     it "subscribes a user to stripe subscription" do
-      previous_membership_type = user.family.membership_type
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data]).to be(true)
-      expect(user.family.membership_type).to be(previous_membership_type)
-      expect(user.family.stripe_customer).to eq({})
+      fam = user.family.reload
+      expect(fam.membership_type).to eq("member")
+      expect(fam.stripe_customer).not_to eq({})
+      expect(fam.stripe_subscription_id).not_to be_nil
     end
 
     it "fails to charge card" do
@@ -45,33 +46,55 @@ describe Leo::V1::Subscriptions do
   end
 
   describe "Put /api/v1/subscriptions" do
-    before do
-      user.family.expire_membership
-      user.family.update stripe_customer_id: "fake_customer_id"
-    end
+    let(:second_credit_card_token){ stripe_helper.generate_card_token }
 
     def do_request
       put "/api/v1/subscriptions", {
         authentication_token: session.authentication_token,
-        credit_card_token: credit_card_token
+        credit_card_token: second_credit_card_token
       }
     end
 
-    it "updates a users stripe card" do
-      previous_membership_type = user.family.membership_type
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data]).to be(true)
-      expect(user.family.membership_type).to be(previous_membership_type)
-      expect(user.family.stripe_customer).to eq({})
+    context "when delinquent" do
+      before do
+        user.family.update_or_create_stripe_subscription_if_needed! credit_card_token
+        user.family.expire_membership
+      end
+
+      it "updates a users stripe card" do
+        do_request
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data]).to be(true)
+        fam = user.family.reload
+        expect(fam.membership_type).to eq("member")
+        expect(fam.stripe_customer).not_to eq({})
+        expect(fam.stripe_subscription_id).not_to be_nil
+      end
+
+      it "fails to charge card" do
+        allow_any_instance_of(Stripe::Customer).to receive(:save).and_raise(StripeMock.prepare_card_error(:card_declined).first.first.second)
+        do_request
+        expect(response.status).to eq(422)
+        expect(user.family.reload.membership_type).to eq("delinquent")
+      end
     end
 
-    it "fails to charge card" do
-      allow(Stripe::Customer).to receive(:create).and_raise(StripeMock.prepare_card_error(:card_declined).first.first.second)
-      do_request
-      expect(response.status).to eq(422)
-      expect(user.family.reload.membership_type).to eq("delinquent")
+    context "when exempted" do
+      before do
+        user.family.exempt_membership!
+      end
+
+      it "creates a customer with no plan" do
+        do_request
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data]).to be(true)
+        fam = user.family.reload
+        expect(fam.membership_type).to eq("exempted")
+        expect(fam.stripe_customer).not_to eq({})
+        expect(fam.stripe_subscription_id).to be_nil
+      end
     end
   end
 end

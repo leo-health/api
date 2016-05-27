@@ -43,7 +43,7 @@ class Family < ActiveRecord::Base
   end
 
   def stripe_customer_id
-    stripe_customer[:id]
+    stripe_customer[:id] || self[:stripe_customer_id]
   end
 
   def stripe_subscription_id
@@ -62,20 +62,22 @@ class Family < ActiveRecord::Base
     patient_count = 5 if patient_count > 5
 
     if !stripe_customer_id
-      self.stripe_customer = Stripe::Customer.create(
+      customer_params = {
         email: primary_guardian.email,
+        source: credit_card_token,
         plan: STRIPE_PLAN,
-        quantity: patient_count,
-        source: credit_card_token
-      ).to_hash
+        quantity: patient_count
+      }
+      customer_params = customer_params.except(:plan, :quantity) if exempted?
+      self.stripe_customer = Stripe::Customer.create(customer_params).to_hash
       renew_membership
     elsif credit_card_token
       customer = Stripe::Customer.retrieve stripe_customer_id
       customer.source = credit_card_token
       customer.save
       renew_membership
-    else
-      subscription = Stripe::Subscription.retrieve("sub_8WUySPCsFlrL6B")
+    elsif !exempted?
+      subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
       subscription.quantity = patient_count
       subscription.save
     end
