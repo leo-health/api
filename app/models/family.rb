@@ -76,7 +76,7 @@ class Family < ActiveRecord::Base
       customer.source = credit_card_token
       customer.save
       renew_membership
-    elsif !exempted?
+    elsif stripe_subscription_id
       subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
       subscription.quantity = patient_count
       subscription.save
