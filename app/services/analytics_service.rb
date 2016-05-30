@@ -1,3 +1,5 @@
+require 'csv'
+
 class AnalyticsService
 
   #### Class methods - stats data queries
@@ -127,38 +129,58 @@ class AnalyticsService
 
   ## Final stats containers
 
-  def practice_engagement
-    @practice_engagement ||= {
-      '# of patients who had at least 1 appointment' => patients_with_appointments.size,
-      '# of new patients enrolled in practice' => new_patients_enrolled_monthly
+  # @return [Hash<String, Hash<String, #to_s>>]
+  def single_value_stats
+    @single_value_stats ||= {
+      'Schedule Engagement' => {
+        '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
+        '# of visits scheduled from app + practice (total)' => appointments_booked.size
+      },
+      'Appointment Engagement' => {
+        '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
+        '# of same day appointments from app + practice (total)' => appointments_booked(same_day_only: true).size
+      },
+      'Message Engagement' => {
+        '# of guardians that sent a message' => guardians_who_sent_messages.size
+      },
+      'Response Time Metric' => {
+        'Average Time to Case Close (minutes)' => average_case_time_in_minutes,
+        'Median Time to Case Close (minutes)'=> median_case_time_in_minutes
+      }
     }
   end
 
-  def scheduling_engagement
-    @scheduling_engagement ||= {
-      '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
-      '# of visits scheduled from app + practice (total)' => appointments_booked.size
+  # @return [Hash<String, #to_s>]
+  def practice_engagement_single_value_stats
+    @practice_engagement_value_stats ||= {
+      '# of patients who had at least 1 appointment' => patients_with_appointments.size
     }
   end
 
-  def appointment_engagement
-    @appointment_engagement ||= {
-      '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
-      '# of same day appointments from app + practice (total)' => appointments_booked(same_day_only: true).size
+  # @return [Hash<String, Hash<>>]
+  def practice_engagement_monthly_stats
+    @practice_engagement_monthly_stats ||= {
+      '# of new patients enrolled in practice monthly' => new_patients_enrolled_monthly
     }
   end
 
-  def messaging_engagement
-    @messaging_engagement ||= {
-      '# of guardians that sent a message' => guardians_who_sent_messages.size
-    }
-  end
 
-  def response_time_metrics
-    @response_time_metrics ||= {
-      'Avg. Time to Case Close' => "#{average_case_time_in_minutes} minutes",
-      'Med. Time to Case Close'=> "#{median_case_time_in_minutes} minutes"
-    }
+  ## Formatters
+
+  # @return [CSV]
+  def to_csv
+    CSV.generate do |csv|
+      # Single-value stats
+      stats_hash = {}.merge(practice_engagement_single_value_stats)
+      single_value_stats.each_value { |value| stats_hash.merge!(value) }
+      stats_hash.to_a.each { |stat_item| csv << stat_item }
+
+      # Monthly stats
+      stat_name, data = practice_engagement_monthly_stats.to_a.first
+      data = data.to_a
+      csv << [stat_name] + data.shift  # First data point added next to the stat name
+      data.each { |datum| csv << [''] + datum }  # Following data points added with a one column offset
+    end
   end
 
 
