@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<ul>
+<div class="container">
   <h1 style="float: left;">Analytics</h1>
   <div style="float: left; margin: 30px 20px 5px 30px;">
     For dates:
@@ -20,31 +20,42 @@
   <div class="clearfix"></div>
   <hr style="margin-top: 0px;">
 
-  <h3>practice engagement</h3>
-  <% @analytics.practice_engagement.each do |metric, value| %>
-      <li><%= metric %>:  <%= value %></li>
+  <h3>Practice Engagement</h3>
+  <ul>
+    <% @analytics.practice_engagement_single_value_stats.each do |metric, value| %>
+      <li>
+        <%= metric %>:
+        <span style="font-weight: bold;"><%= value %></span>
+      </li>
+    <% end %>
+    <% @analytics.practice_engagement_monthly_stats.each do |metric, value| %>
+      <li>
+        <%= metric %>:
+        <span style="font-weight: bold;"><%= value %></span>
+      </li>
+    <% end %>
+  </ul>
+
+  <% @analytics.single_value_stats.each do |stats_group_name, stats_values| %>
+    <h3><%= stats_group_name %></h3>
+    <ul>
+      <% stats_values.each do |metric, value| %>
+        <li>
+          <%= metric %>:
+          <span style="font-weight: bold;"><%= value %></span>
+        </li>
+      <% end %>
+    </ul>
   <% end %>
 
-  <h3>schedule engagement</h3>
-  <% @analytics.scheduling_engagement.each do |metric, value| %>
-      <li><%= metric %>:  <%= value %></li>
-  <% end %>
-
-  <h3>appointment engagement</h3>
-  <% @analytics.appointment_engagement.each do |metric, value| %>
-    <li><%= metric %>:  <%= value %></li>
-  <% end %>
-
-  <h3>message engagement</h3>
-  <% @analytics.messaging_engagement.each do |metric, value| %>
-      <li><%= metric %>:  <%= value %></li>
-  <% end %>
-
-  <h3>response time metric</h3>
-  <% @analytics.response_time_metrics.each do |metric, value| %>
-      <li><%= metric %>:  <%= value %></li>
-  <% end %>
-</ul>
+  <div style="margin-top: 30px; margin-bottom: 30px;">
+    <%= link_to 'Download as CSV',
+                analytics_path(format: :csv,
+                               begin_date: @stats_time_range.begin.strftime('%Y-%m-%d'),
+                               end_date: @stats_time_range.end.strftime('%Y-%m-%d')),
+                class: 'btn btn-primary' %>
+  </div>
+</div>
 
 <script type="text/javascript" charset="utf-8">
   // Initialize the date range picker
@@ -89,8 +100,9 @@
     'startDate': '<%= @stats_time_range.try(:begin).try(:strftime, '%m/%d/%Y') || beginning_of_time_string %>',
     'endDate': '<%= @stats_time_range.try(:end).try(:strftime, '%m/%d/%Y') || date_today_string %>'
   }, function (start, end, label) {
-    window.location = '<%= analytics_url %>' + '?begin_date=' + start.format('MM-DD-YYYY') + '&end_date=' + end.format('MM-DD-YYYY');
+    window.location = '<%= analytics_url %>' + '?begin_date=' + start.format('YYYY-MM-DD') + '&end_date=' + end.format('YYYY-MM-DD');
   });
 </script>
+
 </body>
 </html>
