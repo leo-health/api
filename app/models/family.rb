@@ -74,6 +74,7 @@ class Family < ActiveRecord::Base
       customer.source = credit_card_token
       customer.save
       renew_membership
+      PaymentsMailer.payment_updated(primary_guardian)
     elsif stripe_subscription_id
       subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
       subscription.quantity = patient_count
