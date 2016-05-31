@@ -6,7 +6,7 @@ describe Leo::V1::Patients do
   before do
     Stripe.api_key="test_key"
     StripeMock.start
-    stripe_helper.create_plan(id: "com.leohealth.standard-1_child")
+    stripe_helper.create_plan(id: STRIPE_PLAN)
   end
 
   after do

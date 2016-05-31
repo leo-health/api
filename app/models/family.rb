@@ -59,8 +59,6 @@ class Family < ActiveRecord::Base
 
   def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
     patient_count = patients.count
-    patient_count = 5 if patient_count > 5
-
     if !stripe_customer_id && credit_card_token
       customer_params = {
         email: primary_guardian.email,
