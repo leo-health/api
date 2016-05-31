@@ -15,11 +15,16 @@ describe Leo::V1::Patients do
 
   let!(:stripe_helper) { StripeMock.create_test_helper }
   let!(:guardian){create(:user, :member)}
+  let!(:second_guardian){ create(:user, family: guardian.family) }
   let!(:session){guardian.sessions.create}
   let!(:serializer){ Leo::Entities::PatientEntity }
   let!(:patient){create(:patient, family: guardian.family)}
 
   describe 'POST /api/v1/patients' do
+    before do
+      Delayed::Job.destroy_all
+    end
+
     let(:patient_params){{first_name: "patient_first_name",
                           last_name: "patient_last_name",
                           birth_date: 5.years.ago,
@@ -48,6 +53,8 @@ describe Leo::V1::Patients do
       it "should add a patient to the family, update the subscription, and send an email to all guardians" do
         expect_patient_to_be_added guardian.family, session
         expect(guardian.family.reload.stripe_subscription[:quantity]).to be(2)
+        byebug
+        expect(Delayed::Job.where(queue: PaymentsMailer.queue_name).count).to be(2)
       end
     end
 
@@ -59,6 +66,7 @@ describe Leo::V1::Patients do
       it "should add a patient to the family" do
         expect_patient_to_be_added incomplete_guardian.family, incomplete_session
         expect(incomplete_guardian.family.reload.stripe_subscription).to be_nil
+        expect(Delayed::Job.where(queue: PaymentsMailer.queue_name).count).to be(0)
       end
     end
 
@@ -74,6 +82,7 @@ describe Leo::V1::Patients do
       it "should add a patient to the family" do
         expect_patient_to_be_added exempt_guardian.family, exempt_session
         expect(exempt_guardian.family.reload.stripe_subscription).to be_nil
+        expect(Delayed::Job.where(queue: PaymentsMailer.queue_name).count).to be(0)
       end
     end
   end
