@@ -8,7 +8,7 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
 
   def new_payment_method(family)
     family.guardians.each do |user|
-      mandrill_mail(
+      delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - New Payment Method',
         subject: 'Leo - You have enrolled a new payment method.',
         to: user.unconfirmed_email || user.email,
@@ -18,11 +18,10 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
       )
     end
   end
-  handle_asynchronously :new_payment_method, queue: queue_name
 
   def invalid_payment_method(family)
     family.guardians.each do |user|
-      mandrill_mail(
+      delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - Invalid Credit Card',
         subject: 'Leo - Your credit card is invalid, please call us.',
         to: user.unconfirmed_email || user.email,
@@ -32,11 +31,10 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
       )
     end
   end
-  handle_asynchronously :invalid_payment_method, queue: queue_name
 
   def subscription_updated(family)
-    customer_id = user.family.stripe_customer_id
-    subscription = user.family.stripe_subscription
+    customer_id = family.stripe_customer_id
+    subscription = family.stripe_subscription
     subscription_plan = subscription[:plan][:id]
 
     invoice = Stripe::Invoice.upcoming(
@@ -56,13 +54,11 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
         subscription_amount += line_item.amount
       end
     end
-
-    subscription_amount = user.family.stripe_subscription
-
-    byebug
+    
+    payment_change_reason = "Today 1 child was added to your family"
 
     family.guardians.each do |user|
-      mandrill_mail(
+      delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - Change in Plan',
         subject: 'Leo - Your plan has changed.',
         to: user.unconfirmed_email || user.email,
@@ -75,11 +71,10 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
       )
     end
   end
-  handle_asynchronously :subscription_updated, queue: queue_name
 
   def did_unsubscribe(family)
     family.guardians.each do |user|
-      mandrill_mail(
+      delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - Unsubscribe Confirmation',
         subject: 'Leo - You have been unsubscribed from Leo.',
         to: user.unconfirmed_email || user.email,
@@ -89,5 +84,4 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
       )
     end
   end
-  handle_asynchronously :did_unsubscribe, queue: queue_name
 end

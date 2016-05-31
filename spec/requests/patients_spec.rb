@@ -53,7 +53,6 @@ describe Leo::V1::Patients do
       it "should add a patient to the family, update the subscription, and send an email to all guardians" do
         expect_patient_to_be_added guardian.family, session
         expect(guardian.family.reload.stripe_subscription[:quantity]).to be(2)
-        byebug
         expect(Delayed::Job.where(queue: PaymentsMailer.queue_name).count).to be(2)
       end
     end
