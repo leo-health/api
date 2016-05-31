@@ -38,40 +38,87 @@ class AnalyticsService
       guardians.distinct
     end
 
+    # @param [Range<Time>] time_range Only cases fully contained within that time range will be counted
     # @return [Array<Numeric>]
     def cases_times_in_seconds(time_range: nil)
-      [].tap do |cases_times|
-        conversations = Conversation.includes(:closure_notes, :messages)
-        conversations = conversations.where(closure_notes: { created_at: time_range }) if time_range.present?
+      cases_times = []
 
-        conversations.find_each do |conversation|
-          closure_notes = conversation.closure_notes.sort_by(&:created_at)
-          messages = conversation.messages.sort_by(&:created_at)
-          if time_range.present?
-            closure_notes = closure_notes.select { |closure_note| closure_note.created_at > time_range.begin && closure_note.created_at < time_range.end }
-            messages = messages.select { |messages| messages.created_at > time_range.begin && messages.created_at < time_range.end }
-          end
-          next if closure_notes.empty? || messages.empty?
+      conversations = Conversation.includes(:closure_notes, :messages)
+      conversations = conversations.where(closure_notes: { created_at: time_range }) if time_range.present?
+      conversations.find_each do |conversation|
+        cases_times.concat conversation_cases_times(conversation, time_range: time_range)
+      end
 
-          conversation_cases_times = []
+      cases_times
+    end
 
-          messages_enum = messages.to_enum
-          message = messages_enum.next
-          closure_notes.each do |closure_note|
-            next unless message.try(:created_at) < closure_note.created_at  # Case has begun before the time_range, thus ignore it
-            conversation_cases_times << (closure_note.created_at - message.created_at).to_f
 
-            # Ignore all subsequent messages before the current closure_note
-            begin
-              message = messages_enum.next while closure_note.created_at > message.created_at
-            rescue StopIteration
-              break
-            end
-          end
+    protected
 
-          cases_times.concat(conversation_cases_times)
+    # Durations of all 'cases' in a given conversation, optionally only ones fully contained within a given time_range
+    # @param [Conversation] conversation
+    # @param [Range<Time>] time_range Only cases fully contained within that time range will be counted
+    # @return [Array<Numeric>] Times in seconds
+    def conversation_cases_times(conversation, time_range: nil)
+      closure_notes = conversation.closure_notes.reload.sort_by(&:created_at)  # Note the '#reload' here. Needed to obtain 'last_closure_note_before_time_range'
+      messages = conversation.messages.sort_by(&:created_at)
+      if time_range.present?
+        filtered_closure_notes_and_messages = messages_and_closure_times_within_time_range(time_range, closure_notes, messages)
+        closure_notes, messages = filtered_closure_notes_and_messages[:closure_notes], filtered_closure_notes_and_messages[:messages]
+      end
+
+      return [] if closure_notes.empty? || messages.empty?
+
+      cases_times = []
+
+      messages_enum = messages.to_enum
+      message = messages_enum.next
+      closure_notes.each do |closure_note|
+        next unless message.try(:created_at) < closure_note.created_at  # Case has begun before the time_range, thus ignore it
+        cases_times << (closure_note.created_at - message.created_at).to_f
+
+        # Ignore all subsequent messages before the current closure_note
+        begin
+          message = messages_enum.next while message.created_at <= closure_note.created_at
+        rescue StopIteration
+          break
         end
       end
+
+      cases_times
+    end
+
+    # Filters a set of Message-s and ClosureNote-s to return only those that constitute to 'cases' contained within a given time_range
+    # @param [Range<Time>] time_range
+    # @param [Array<ClosureNote>] closure_notes Must be sorted by created_at!
+    # @param [Array<Message>] messages Must be sorted by created_at!
+    # @return [{closure_notes: Array<ClosureNote>, messages: Array<Message>}]
+    def messages_and_closure_times_within_time_range(time_range, closure_notes, messages)
+      last_closure_note_before_time_range = closure_notes.reverse.find { |closure_note| closure_note.created_at < time_range.begin }
+      last_message_before_time_range = messages.reverse.find { |message| message.created_at < time_range.begin }
+
+      closure_notes.reject! { |closure_note| closure_note.created_at < time_range.begin || closure_note.created_at > time_range.end }
+      messages.reject! { |messages| messages.created_at < time_range.begin || messages.created_at > time_range.end }
+
+      # If there was a message *before* time_range associated with the first closure_note *within* time_range,
+      # then the resulting 'case' is outside the range. Thus discard that closure_note and all messages before it.
+      if last_message_before_time_range.present? &&
+          (last_closure_note_before_time_range.nil? || last_message_before_time_range.created_at > last_closure_note_before_time_range.created_at)
+        discarded_closure_note = closure_notes.shift
+        messages.reject! { |message| message.created_at <= discarded_closure_note.created_at }
+      end
+
+      # Discard all closure_notes that do not have preceding messages
+      return [], [] if messages.empty?
+      first_message_created_at = messages.first.created_at
+      closure_notes.reject! { |closure_note| closure_note.created_at < first_message_created_at }
+
+      # Discard all messages that do not have following closure_notes
+      return [], [] if closure_notes.empty?
+      last_closure_note_created_at = closure_notes.last.created_at
+      messages.reject! { |message| message.created_at > last_closure_note_created_at }
+
+      { closure_notes: closure_notes, messages: messages }
     end
   end
 
