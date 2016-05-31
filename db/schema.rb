@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160520153441) do
+ActiveRecord::Schema.define(version: 20160526192733) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -203,6 +203,7 @@ ActiveRecord::Schema.define(version: 20160520153441) do
     t.datetime "updated_at",         null: false
     t.string   "membership_type"
     t.string   "stripe_customer_id"
+    t.text     "stripe_customer"
   end
 
   add_index "families", ["membership_type"], name: "index_families_on_membership_type", using: :btree

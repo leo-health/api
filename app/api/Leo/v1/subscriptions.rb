@@ -11,33 +11,33 @@ module Leo
         end
 
         post do
+          update_or_create_subscription
+        end
+
+        put do
+          update_or_create_subscription
+        end
+      end
+
+      helpers do
+        def update_or_create_subscription
           user = current_user
           family = user.family
-
-          patient_count = family.patients.count
-          patient_count = 5 if patient_count > 5
           begin
-            stripe_customer = Stripe::Customer.create(
-              email: user.email,
-              plan: StripePlanMap[patient_count],
-              source: params[:credit_card_token]
-            )
+            family.update_or_create_stripe_subscription_if_needed! params[:credit_card_token]
           rescue Stripe::AuthenticationError => e
-            error!({error_code: 401, error_message: e.json_body[:error][:code] }, 401)
+            error!({error_code: 500, error_message: e.json_body[:error][:code] }, 500)
           rescue Stripe::CardError => e
             family.expire_membership!
-            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
+            error!({error_code: 422, error_message: "Your card was declined, please try a different one." }, 422)
             logger.error("#{user.email}: #{e.json_body[:error][:message]}")
           rescue Stripe::RateLimitError, Stripe::APIConnectionError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
+            error!({error_code: 500, error_message: e.json_body[:error][:code] }, 500)
           rescue Stripe::StripeError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
-            logger.error("#{user.email}: #{e.json_body[:error][:message]}")
+            error!({error_code: 500, error_message: e.to_s }, 500)
+            logger.error("#{user.email}: #{e.to_s}")
             #suggest sending a email for stripe general errors
           end
-          family.stripe_customer_id = stripe_customer.id
-          family.renew_membership
-          family.save!
         end
       end
     end
