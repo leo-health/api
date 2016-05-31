@@ -61,7 +61,7 @@ class Family < ActiveRecord::Base
     patient_count = patients.count
     patient_count = 5 if patient_count > 5
 
-    if !stripe_customer_id
+    if !stripe_customer_id && credit_card_token
       customer_params = {
         email: primary_guardian.email,
         source: credit_card_token,
@@ -80,6 +80,7 @@ class Family < ActiveRecord::Base
       subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
       subscription.quantity = patient_count
       subscription.save
+      self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
     end
     save!
   end

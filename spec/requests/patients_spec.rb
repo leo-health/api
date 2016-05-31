@@ -26,17 +26,55 @@ describe Leo::V1::Patients do
                           sex: "M"
                         }}
 
-    def do_request
-      patient_params.merge!({authentication_token: session.authentication_token})
+    def do_request(a_session)
+      patient_params.merge!({authentication_token: a_session.authentication_token})
       post "/api/v1/patients", patient_params, format: :json
     end
 
-    it "should add a patient to the family" do
-      do_request
+    def expect_patient_to_be_added(family, a_session)
+      do_request a_session
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       patient_id = body[:data][:patient][:id]
       expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(Patient.find(patient_id)).as_json.to_json)
+      expect(family.reload.patients.count).to be(2)
+    end
+
+    context "family is a member" do
+      it "should add a patient to the family" do
+        expect_patient_to_be_added guardian.family, session
+      end
+
+      it "should add a patient to the family, update the subscription, and send an email to all guardians" do
+        expect_patient_to_be_added guardian.family, session
+        expect(guardian.family.reload.stripe_subscription[:quantity]).to be(2)
+      end
+    end
+
+    context "family is incomplete" do
+      let!(:incomplete_guardian){ create(:user) }
+      let!(:incomplete_session){ incomplete_guardian.sessions.create }
+      let!(:incomplete_patient){ create(:patient, family: incomplete_guardian.family) }
+
+      it "should add a patient to the family" do
+        expect_patient_to_be_added incomplete_guardian.family, incomplete_session
+        expect(incomplete_guardian.family.reload.stripe_subscription).to be_nil
+      end
+    end
+
+    context "family is exempt" do
+      let!(:exempt_guardian){ create(:user) }
+      let!(:exempt_session){ exempt_guardian.sessions.create }
+      let!(:exempt_patient){ create(:patient, family: exempt_guardian.family) }
+
+      before do
+        exempt_guardian.family.exempt_membership!
+      end
+
+      it "should add a patient to the family" do
+        expect_patient_to_be_added exempt_guardian.family, exempt_session
+        expect(exempt_guardian.family.reload.stripe_subscription).to be_nil
+      end
     end
   end
 
