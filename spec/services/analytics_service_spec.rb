@@ -14,7 +14,7 @@ describe AnalyticsService do
     end
 
     context 'when appointments are present' do
-      let(:time_range) { 12.months.ago..6.months.ago }
+      let!(:time_range) { (1.week.ago.beginning_of_day)..(1.day.ago.end_of_day) }
       let!(:appointment_before_time_range)   { create(:appointment, booked_by: guardian_user, start_datetime: time_range.begin - 1.second) }
       let!(:appointment_within_time_range_1) { create(:appointment, booked_by: guardian_user, start_datetime: time_range.begin) }
       let!(:appointment_within_time_range_2) { create(:appointment, booked_by: guardian_user, start_datetime: time_range.begin) }
@@ -68,7 +68,7 @@ describe AnalyticsService do
   end
 
   describe '.appointments_booked' do
-    let(:time_range) { (1.week.ago)..(2.days.from_now) }
+    let!(:time_range) { (1.week.ago)..(2.days.from_now) }
 
     let(:guardian_user_1) { create(:user, :guardian) }
     let(:guardian_user_2) { create(:user, :guardian) }
@@ -207,7 +207,7 @@ describe AnalyticsService do
   end
 
   describe '.guardians_who_sent_messages' do
-    let(:time_range) { (1.week.ago)..(Time.zone.today) }
+    let!(:time_range) { (1.week.ago)..(Time.zone.today) }
 
     let!(:guardian_with_sent_message_1) { create(:user, :guardian) }
     let!(:guardian_with_sent_message_2) { create(:user, :guardian) }
@@ -272,10 +272,10 @@ describe AnalyticsService do
   end
 
   describe '.cases_times_in_seconds' do
-    let(:time_range) { (1.week.ago)..(Time.zone.yesterday.end_of_day) }
+    let!(:time_range) { (1.week.ago.beginning_of_day)..(1.day.ago.end_of_day) }
 
     # Conversation 1: before time_range
-    let!(:conversation_1) { create(:conversation, created_at: time_range.begin - 1.month) }
+    let!(:conversation_1) { create(:conversation, created_at: time_range.begin - 4.weeks) }
     let!(:case_time_1_conversation_1) { 2.hours }
     let!(:case_time_2_conversation_1) { 3.hours }
 
@@ -350,22 +350,22 @@ describe AnalyticsService do
                                                  created_at: message_2_conversation_4.created_at + case_time_2_conversation_4) }
 
     # Conversation 5: after time_range
-    let!(:conversation_5) { create(:conversation, created_at: time_range.end + 1.month) }
-    let!(:case_time_1_conversation_5) { 12.hours }
+    let!(:conversation_5) { create(:conversation, created_at: time_range.end + 4.weeks) }
+    let!(:case_time_1_conversation_5) { 11.hours }
     let!(:case_time_2_conversation_5) { 14.hours }
 
     let!(:message_1_conversation_5) { create(:message,
                                              conversation: conversation_5,
-                                             created_at: conversation_5.created_at) }
+                                             created_at: conversation_5.created_at + 1.week) }
     let!(:closure_note_1_conversation_5) { create(:closure_note,
-                                                 conversation: conversation_5,
-                                                 created_at: message_1_conversation_5.created_at + case_time_1_conversation_5) }
+                                                  conversation: conversation_5,
+                                                  created_at: message_1_conversation_5.created_at + case_time_1_conversation_5) }
     let!(:message_2_conversation_5) { create(:message,
                                              conversation: conversation_5,
-                                             created_at: closure_note_1_conversation_5.created_at + 1.week) }
+                                             created_at: conversation_5.created_at + 2.weeks) }
     let!(:closure_note_2_conversation_5) { create(:closure_note,
-                                                 conversation: conversation_5,
-                                                 created_at: message_2_conversation_5.created_at + case_time_2_conversation_5) }
+                                                  conversation: conversation_5,
+                                                  created_at: message_2_conversation_5.created_at + case_time_2_conversation_5) }
 
     # Conversation 6: has cases that are partially within time_range
     let!(:conversation_6) { create(:conversation, created_at: time_range.begin - 6.minutes) }
@@ -373,12 +373,15 @@ describe AnalyticsService do
     let!(:case_time_2_conversation_6) { 14.minutes }
     let!(:case_time_3_conversation_6) { 16.minutes }
 
-    let!(:message_1_conversation_6) { create(:message,
+    let!(:message_1a_conversation_6) { create(:message,
                                              conversation: conversation_6,
                                              created_at: conversation_6.created_at) }
+    let!(:message_1b_conversation_6) { create(:message,
+                                             conversation: conversation_6,
+                                             created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6 - 1.minute) }
     let!(:closure_note_1_conversation_6) { create(:closure_note,
                                                   conversation: conversation_6,
-                                                  created_at: message_1_conversation_6.created_at + case_time_1_conversation_6) }
+                                                  created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6) }
     let!(:message_2_conversation_6) { create(:message,
                                              conversation: conversation_6,
                                              created_at: time_range.begin + 6.hours) }
@@ -404,9 +407,7 @@ describe AnalyticsService do
                                                   case_time_1_conversation_3.to_f,
                                                   case_time_2_conversation_3.to_f,
                                                   case_time_1_conversation_4.to_f,
-                                                  case_time_2_conversation_4.to_f,
-                                                  case_time_1_conversation_5.to_f,
-                                                  case_time_2_conversation_5.to_f)
+                                                  case_time_2_conversation_4.to_f)
       end
 
     end
