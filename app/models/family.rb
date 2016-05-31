@@ -74,12 +74,14 @@ class Family < ActiveRecord::Base
       customer.source = credit_card_token
       customer.save
       renew_membership
-      PaymentsMailer.payment_updated(primary_guardian)
+      # each guardian
+      PaymentsMailer.new_payment_method primary_guardian
     elsif stripe_subscription_id
       subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
       subscription.quantity = patient_count
       subscription.save
       self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
+      PaymentsMailer.subscription_updated primary_guardian
     end
     save!
   end
