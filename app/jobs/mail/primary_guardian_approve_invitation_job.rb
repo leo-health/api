@@ -1,12 +1,10 @@
-class PrimaryGuardianApproveInvitationJob < Struct.new(:primary_guardian_id, :enrollment_id)
-  def self.send(primary_guardian_id, enrollment_id )
-    Delayed::Job.enqueue(new(primary_guardian_id, enrollment_id))
+class PrimaryGuardianApproveInvitationJob < Struct.new(:primary_guardian, :secondary_guardian)
+  def self.send(primary_guardian, secondary_guardian )
+    Delayed::Job.enqueue new(primary_guardian, secondary_guardian)
   end
 
   def perform
-    user = User.find_by_id(primary_guardian_id)
-    enrollment = Enrollment.find_by_id(enrollment_id)
-    UserMailer.primary_guardian_approve_invitation(user, enrollment).deliver if user && enrollment
+    UserMailer.primary_guardian_approve_invitation(primary_guardian, secondary_guardian).deliver if primary_guardian && secondary_guardian
   end
 
   def queue_name

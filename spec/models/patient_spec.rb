@@ -115,4 +115,24 @@ RSpec.describe Patient, type: :model do
       end
     end
   end
+
+  describe ".create_with_patient_enrollment" do
+    let(:guardian_enrollment){ create(:enrollment) }
+    let(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: guardian_enrollment) }
+    context "guardian exists" do
+      let!(:guardian){ create(:user, :guardian, enrollment: guardian_enrollment) }
+      it "creates a patient associated with the family" do
+        Patient.create_with_patient_enrollment!(patient_enrollment)
+        expect(Patient.count).to be(1)
+        expect(Patient.first.family).to eq(guardian.family)
+      end
+    end
+
+    context "guardian enrollment does not exist" do
+      it "does not create a patient" do
+        expect{ Patient.create_with_patient_enrollment!(patient_enrollment) }.to raise_error ActiveRecord::RecordInvalid
+        expect(Patient.count).to be(0)
+      end
+    end
+  end
 end

@@ -2,14 +2,16 @@ require 'rails_helper'
 require 'rspec_api_documentation/dsl'
 
 resource "Enrollments" do
+  before do
+    create(:practice)
+  end
+
   header "Accept", "application/json"
   header "Content-Type", "application/json"
 
   let(:user){ create(:user) }
   let(:session){ user.sessions.create }
   let(:authentication_token){ session.authentication_token }
-  let(:enrollment){ create(:enrollment) }
-
 
   post "/api/v1/enrollments/invite" do
     parameter :first_name, "First Name", required: true
@@ -49,8 +51,6 @@ resource "Enrollments" do
   get "/api/v1/enrollments/current" do
     parameter :authentication_token, "Enrollment Token", required: true
 
-    let(:authentication_token){ enrollment.authentication_token }
-
     example "find/show an enrollment" do
       explanation "show the enrollment via authentication token(enrollment token)"
       do_request
@@ -70,7 +70,6 @@ resource "Enrollments" do
     parameter :stripe_customer_id
     parameter :insurance_plan_id
 
-    let(:authentication_token){ enrollment.authentication_token }
     let(:first_name){ "little" }
     let(:raw_post){ params.to_json }
 
@@ -81,4 +80,3 @@ resource "Enrollments" do
     end
   end
 end
-
