@@ -31,7 +31,7 @@ module Leo
             present :user, user, with: Leo::Entities::UserEntity
             present :session, session, with: Leo::Entities::SessionEntity
           else
-            error!({error_code: 422, error_message: session.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: session.errors.full_messages.first }, 422)
           end
         end
       end
@@ -65,7 +65,7 @@ module Leo
             present :user, user, with: Leo::Entities::UserEntity
             present :session, session, with: Leo::Entities::SessionEntity
           else
-            error!({error_code: 422, error_message: session.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: session.errors.full_messages.first }, 422)
           end
         end
       end

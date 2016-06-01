@@ -32,7 +32,7 @@ module Leo
             user = current_user
             error!({ error_code: 422, error_message: "Current password is not valid." }, 422) unless user.valid_password?(params[:current_password])
             unless user.reset_password(params[:password], params[:password_confirmation])
-              error!({ error_code: 422, error_message: user.errors.full_messages }, 422)
+              error!({ error_code: 422, error_message: user.errors.full_messages.first }, 422)
             else
               PasswordChangeConfirmationJob.send(user.id) and return
             end
@@ -51,7 +51,7 @@ module Leo
               error!({error_code: 401, error_message: "401 Unauthorized"}, 401) unless user = User.with_reset_password_token(params[:token])
               error!({error_code: 422, error_message: "Reset password period expired."}, 422) unless user.reset_password_period_valid?
               unless user.reset_password(params[:password], params[:password_confirmation])
-                error!({ error_code: 422, error_message: user.errors.full_messages }, 422)
+                error!({ error_code: 422, error_message: user.errors.full_messages.first }, 422)
               end
             end
           end

@@ -56,7 +56,7 @@ namespace :load do
         print "*"
       else
         print "x"
-        print "Failed to create a family - #{family.errors.full_messages}"
+        print "Failed to create a family - #{family.errors.full_messages.first}"
         false
       end
 
@@ -79,7 +79,7 @@ namespace :load do
         print "*"
       else
         print "x"
-        print "Failed to seed guardian user - #{guardian_male.errors.full_messages}"
+        print "Failed to seed guardian user - #{guardian_male.errors.full_messages.first}"
         false
       end
 
@@ -103,7 +103,7 @@ namespace :load do
         print "*"
       else
         print "x"
-        print "Failed to seed guardian user - #{guardian_female.errors.full_messages}"
+        print "Failed to seed guardian user - #{guardian_female.errors.full_messages.first}"
         false
       end
 
@@ -120,7 +120,7 @@ namespace :load do
           print "*"
         else
           print "x"
-          print "Failed to seed patient user - #{patient.errors.full_messages}"
+          print "Failed to seed patient user - #{patient.errors.full_messages.first}"
           false
         end
       end

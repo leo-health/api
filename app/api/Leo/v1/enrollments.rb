@@ -28,7 +28,7 @@ module Leo
               InviteParentJob.send(user, current_user)
               present :onboarding_group, user.onboarding_group.group_name
             else
-              error!({ error_code: 422, error_message: user.errors.full_messages }, 422)
+              error!({ error_code: 422, error_message: user.errors.full_messages.first }, 422)
             end
           end
         end
@@ -70,7 +70,7 @@ module Leo
             present session: { authentication_token: session.authentication_token }
             present :user, session.user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: user.errors.full_messages.first }, 422)
           end
         end
 
@@ -97,7 +97,7 @@ module Leo
             present :user, user, with: Leo::Entities::UserEntity
             ask_primary_guardian_approval if user.onboarding_group.try(:invited_secondary_guardian?)
           else
-            error!({error_code: 422, error_message: user.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: user.errors.full_messages.first }, 422)
           end
         end
       end
