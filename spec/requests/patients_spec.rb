@@ -6,7 +6,7 @@ describe Leo::V1::Patients do
   before do
     Stripe.api_key="test_key"
     StripeMock.start
-    stripe_helper.create_plan(id: STRIPE_PLAN)
+    stripe_helper.create_plan(STRIPE_PLAN_PARAMS_MOCK)
   end
 
   after do
@@ -53,7 +53,9 @@ describe Leo::V1::Patients do
       it "should add a patient to the family, update the subscription, and send an email to all guardians" do
         expect_patient_to_be_added guardian.family, session
         expect(guardian.family.reload.stripe_subscription[:quantity]).to be(2)
-        expect(Delayed::Job.where(queue: PaymentsMailer.queue_name).count).to be(2)
+        jobs = Delayed::Job.where(queue: PaymentsMailer.queue_name)
+        expect(jobs.count).to be(2)
+        expect(jobs.pluck(:owner_id).sort).to eq(guardian.family.reload.guardians.pluck(:id).sort)
       end
     end
 

@@ -33,30 +33,9 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
   end
 
   def subscription_updated(family)
-    customer_id = family.stripe_customer_id
     subscription = family.stripe_subscription
-    subscription_plan = subscription[:plan][:id]
-
-    invoice = Stripe::Invoice.upcoming(
-      customer: customer_id,
-      subscription_prorate: true,
-      subscription_plan: subscription_plan,
-      subscription_quantity: subscription[:quantity]
-    )
-
-    line_items = invoice.lines.data
-    subscription_amount = 0
-    prorated_amount = 0
-    line_items.each do |line_item|
-      if line_item.try :prorated
-        prorated_amount += line_item.amount
-      else
-        subscription_amount += line_item.amount
-      end
-    end
-    
-    payment_change_reason = "Today 1 child was added to your family"
-
+    subscription_amount = subscription[:plan][:amount] * subscription[:quantity]
+    payment_change_reason = "1 child was added to" # "Today |PAYMENT_CHANGE_REASON| your family on Leo."
     family.guardians.each do |user|
       delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - Change in Plan',
@@ -65,7 +44,6 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
         vars: {
           "FIRST_NAME": user.first_name,
           "PAYMENT_CHANGE_REASON": payment_change_reason,
-          "PRORATED_AMOUNT": prorated_amount,
           "SUBSCRIPTION_AMOUNT": subscription_amount
         }
       )
