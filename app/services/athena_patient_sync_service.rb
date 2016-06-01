@@ -2,23 +2,20 @@ class AthenaPatientSyncService < AthenaSyncService
   def sync_all_patients(practice)
     athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
     athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
-
-    existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id)
-    enrollment_athena_ids = PatientEnrollment.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id)
-    all_existing_ids = GenericHelper.merge_sorted(existing_athena_ids, enrollment_athena_ids).to_enum
-
+    existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id).to_enum
     next_existing_athena_id = nil
     athena_patients.reduce([]) { |created_patients, athena_patient|
       begin
-        next_existing_athena_id ||= all_existing_ids.next
+        next_existing_athena_id ||= existing_athena_ids.next
       rescue StopIteration
       end
 
       if get_athena_id(athena_patient) == next_existing_athena_id
         next_existing_athena_id = nil
-      elsif created_patient = create_patient_enrollment(athena_patient)
+      elsif created_patient = create_patient(athena_patient)
         created_patients << created_patient
       end
+
       created_patients
     }
   end
@@ -27,19 +24,18 @@ class AthenaPatientSyncService < AthenaSyncService
     athena_patient["patientid"].try(:to_i)
   end
 
-  def create_patient_enrollment(athena_patient)
+  def create_patient(athena_patient)
     # TODO: handle guardians with no email
-    enrollment_params = parse_athena_patient_json_to_guardian_enrollment(athena_patient)
-    guardian_enrollment = Enrollment.create_with(enrollment_params).find_or_create_by(email: enrollment_params[:email])
-    PatientEnrollment.create({guardian_enrollment: guardian_enrollment}.merge(parse_athena_patient_json_to_patient_enrollment(athena_patient))) if guardian_enrollment.id
+    user_params = parse_athena_patient_json_to_guardian(athena_patient)
+    guardian = User.create_with(user_params).find_or_create_by(email: user_params[:email])
+    Patient.create({family: guardian.family}.merge(parse_athena_patient_json_to_patient(athena_patient))) if guardian.id
   end
 
-  def parse_athena_patient_json_to_guardian_enrollment(athena_patient)
+  def parse_athena_patient_json_to_guardian(athena_patient)
     {
       first_name: athena_patient["guarantorfirstname"],
       last_name: athena_patient["guarantorlastname"],
       email: athena_patient["guarantoremail"],
-      password: "temporary_password!",
       phone: athena_patient["contactmobilephone"] ||
               athena_patient["homephone"] ||
               athena_patient["employerphone"] ||
@@ -49,7 +45,7 @@ class AthenaPatientSyncService < AthenaSyncService
     }
   end
 
-  def parse_athena_patient_json_to_patient_enrollment(athena_patient)
+  def parse_athena_patient_json_to_patient(athena_patient)
     {
       first_name: athena_patient["firstname"],
       last_name: athena_patient["lastname"],
