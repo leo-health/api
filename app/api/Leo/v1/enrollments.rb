@@ -15,7 +15,7 @@ module Leo
           end
 
           post do
-            error!({error_code: 422, error_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+            error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
             onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_guardian)
             user = User.new(declared(params).merge(
               role: Role.guardian,
@@ -28,7 +28,7 @@ module Leo
               InviteParentJob.send(user, current_user)
               present :onboarding_group, user.onboarding_group.group_name
             else
-              error!({ error_code: 422, error_message: user.errors.full_messages.first }, 422)
+              error!({ error_code: 422, user_message: user.errors.full_messages.first }, 422)
             end
           end
         end
@@ -57,7 +57,7 @@ module Leo
         end
 
         post do
-          error!({error_code: 422, error_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+          error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
 
           declared_params = declared(params)
           session_keys = [:device_token, :device_type, :client_platform, :client_version]
@@ -70,7 +70,7 @@ module Leo
             present session: { authentication_token: session.authentication_token }
             present :user, session.user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, error_message: user.errors.full_messages.first }, 422)
+            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
         end
 
@@ -89,7 +89,7 @@ module Leo
         end
 
         put :current do
-          error!({error_code: 422, error_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+          error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
           user_params = declared(params, include_missing: false).except(:authentication_token)
           user = current_user
           if user.update_attributes user_params
@@ -97,7 +97,7 @@ module Leo
             present :user, user, with: Leo::Entities::UserEntity
             ask_primary_guardian_approval if user.onboarding_group.try(:invited_secondary_guardian?)
           else
-            error!({error_code: 422, error_message: user.errors.full_messages.first }, 422)
+            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
         end
       end

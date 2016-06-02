@@ -20,7 +20,7 @@ module Leo
           if patient.valid?
             present :patient_enrollment, patient
           else
-            error!({error_code: 422, error_message: patient.errors.full_messages.first }, 422)
+            error!({error_code: 422, user_message: patient.errors.full_messages.first }, 422)
           end
         end
 
@@ -38,7 +38,7 @@ module Leo
           if patient.update_attributes(declared(params, include_missing: false))
             present :patient_enrollment, patient
           else
-            error!({error_code: 422, error_message: patient.errors.full_messages.first }, 422)
+            error!({error_code: 422, user_message: patient.errors.full_messages.first }, 422)
           end
         end
 

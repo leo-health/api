@@ -27,7 +27,7 @@ module Leo
         end
 
         get do
-          error!({error_code: 422, error_message: 'query must have at least two characters'}, 422) if params[:query].length < 2
+          error!({error_code: 422, user_message: 'query must have at least two characters'}, 422) if params[:query].length < 2
           users = User.search(params[:query])
           guardians = users.joins(:role).where(roles: {name: "guardian"})
           staff = users.joins(:role).where.not(roles: {name: "guardian"})
@@ -127,7 +127,7 @@ module Leo
               present :user, user, with: Leo::Entities::UserEntity
               present :session, session, with: Leo::Entities::SessionEntity
             else
-              error!({error_code: 422, error_message: user.errors.full_messages.first}, 422)
+              error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
             end
           else
             authenticated
@@ -136,7 +136,7 @@ module Leo
             update_success current_user, user_params, "User"
             user = current_user
             if user.invited_user?
-              error!({error_code: 422, error_message: user.errors.full_messages.first}, 422) unless user.confirm_secondary_guardian
+              error!({error_code: 422, user_message: user.errors.full_messages.first}, 422) unless user.confirm_secondary_guardian
             end
             session = Session.find_by_authentication_token(params[:authentication_token])
             update_success session, session_params

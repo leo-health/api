@@ -13,7 +13,7 @@ module Leo
           begin
             JSON.parse(raw.body)
           rescue JSON::ParserError
-            error!({error_code: 422, error_message: "Error parsing JSON from the given source" }, 422)
+            error!({error_code: 422, user_message: "Error parsing JSON from the given source" }, 422)
           end
         end
         redirect url.to_s
