@@ -28,7 +28,7 @@ describe Leo::V1::Families do
     let!(:onboarding_group){ create(:onboarding_group)}
 
     def do_request
-      enrollment_params = { email: "wuang@leohealth.com", first_name: "Yellow", last_name: "BigRiver" }
+      enrollment_params = { email: Faker::Internet::email, first_name: Faker::Name::first_name, last_name: Faker::Name::last_name }
       enrollment_params.merge!(authentication_token: session.authentication_token)
       post "/api/v1/family/invite", enrollment_params
     end

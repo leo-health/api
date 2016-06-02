@@ -164,7 +164,7 @@ class User < ActiveRecord::Base
       leo_bot_id = $redis.get "leo_bot_id"
       leo_bot = self.find_by(id: leo_bot_id) || self.unscoped.find_by_email("leo_bot@leohealth.com")
       if leo_bot
-        $redis.set "leo_bot_id", leo_bot.id
+        $redis.set("leo_bot_id", leo_bot.id)
       end
       leo_bot
     end
