@@ -27,11 +27,13 @@ describe Leo::V1::Subscriptions do
     end
 
     it "subscribes a user to stripe subscription" do
+      expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(0)
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data]).to be(true)
       fam = user.family.reload
+      expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
       expect(fam.membership_type).to eq("member")
       expect(fam.stripe_customer).not_to eq({})
       expect(fam.stripe_subscription_id).not_to be_nil
