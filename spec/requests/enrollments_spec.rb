@@ -23,6 +23,7 @@ describe Leo::V1::Enrollments do
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data][:onboarding_group].to_sym).to eq(:invited_secondary_guardian)
+      expect(user.family.reload.guardians.count).to be(1)
     end
   end
 

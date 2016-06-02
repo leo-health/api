@@ -1,7 +1,7 @@
 class Family < ActiveRecord::Base
   include AASM
 
-  has_many :guardians, class_name: 'User'
+  has_many :guardians, -> { complete }, class_name: 'User'
   has_many :patients
   has_one :conversation
   store :stripe_customer, coder: JSON

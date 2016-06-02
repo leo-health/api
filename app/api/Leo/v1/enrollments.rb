@@ -15,7 +15,7 @@ module Leo
           end
 
           post do
-            error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
+            error!({error_code: 422, error_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
             onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_guardian)
             user = User.new(declared(params).merge(
               role: Role.guardian,
@@ -57,7 +57,7 @@ module Leo
         end
 
         post do
-          error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
+          error!({error_code: 422, error_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
 
           declared_params = declared(params)
           session_keys = [:device_token, :device_type, :client_platform, :client_version]
@@ -89,7 +89,7 @@ module Leo
         end
 
         put :current do
-          error!({error_code: 422, error_message: 'E-mail is not available.'}) if email_taken?(params[:email])
+          error!({error_code: 422, error_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
           user_params = declared(params, include_missing: false).except(:authentication_token)
           user = current_user
           if user.update_attributes user_params
@@ -106,11 +106,6 @@ module Leo
         def ask_primary_guardian_approval
           primary_guardian = current_user.family.primary_guardian
           PrimaryGuardianApproveInvitationJob.send(primary_guardian, current_user)
-        end
-
-        def email_taken?(email)
-          return true if User.complete.find_by(email: email)
-          return true if User.find_by(email: email, onboarding_group: OnboardingGroup.find_by(group_name: :generated_from_athena))
         end
       end
     end

@@ -87,25 +87,6 @@ class User < ActiveRecord::Base
     family.try(:membership_type)
   end
 
-  class << self
-    def customer_service_user
-      User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
-    end
-
-    def leo_bot
-      leo_bot_id = $redis.get "leo_bot_id"
-      leo_bot = self.find_by(id: leo_bot_id) || self.unscoped.find_by_email("leo_bot@leohealth.com")
-      if leo_bot
-        $redis.set "leo_bot_id", leo_bot.id
-      end
-      leo_bot
-    end
-  end
-
-  def self.customer_service_user
-    User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
-  end
-
   def should_validate_for_completion?
     !incomplete?
   end
@@ -172,6 +153,26 @@ class User < ActiveRecord::Base
     return false unless save
     InternalInvitationEnrollmentNotificationJob.send(id)
     true
+  end
+
+  class << self
+    def customer_service_user
+      User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
+    end
+
+    def leo_bot
+      leo_bot_id = $redis.get "leo_bot_id"
+      leo_bot = self.find_by(id: leo_bot_id) || self.unscoped.find_by_email("leo_bot@leohealth.com")
+      if leo_bot
+        $redis.set("leo_bot_id", leo_bot.id)
+      end
+      leo_bot
+    end
+
+    def email_taken?(email)
+      return true if User.complete.find_by(email: email)
+      return true if User.find_by(email: email, onboarding_group: OnboardingGroup.find_by(group_name: :generated_from_athena))
+    end
   end
 
   private
