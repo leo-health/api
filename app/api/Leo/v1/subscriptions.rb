@@ -26,16 +26,37 @@ module Leo
           begin
             family.update_or_create_stripe_subscription_if_needed! params[:credit_card_token]
           rescue Stripe::AuthenticationError => e
-            error!({error_code: 500, error_message: "Stripe::AuthenticationError #{e.to_s}" }, 500)
+            error!(
+              {
+                error_code: 500,
+                user_message: "Sorry, we did something wrong and couldn't process your payment. Please try again later or contact us for help at info@leohealth.com",
+                debug_message: "Stripe::AuthenticationError #{e.to_s}"
+              }, 500)
           rescue Stripe::CardError => e
             family.expire_membership!
-            error!({error_code: 422, error_message: "Your card was declined, please try a different one." }, 422)
-            logger.error("#{user.email}: #{e.to_s}")
+            debug_message = "#{user.email}: #{e.to_s}"
+            error!(
+              {
+                error_code: 422,
+                user_message: "Your card was declined, please try a different one.",
+                debug_message: debug_message
+              }, 422)
+            logger.error(debug_message)
           rescue Stripe::RateLimitError, Stripe::APIConnectionError => e
-            error!({error_code: 500, error_message: "Stripe::RateLimitError APIConnectionError #{e.to_s}" }, 500)
+            error!(
+              {
+                error_code: 500,
+                user_message: "Sorry, we did something wrong and couldn't process your payment. Please try again later or contact us for help at info@leohealth.com",
+                debug_message: "Stripe::RateLimitError APIConnectionError #{e.to_s}"
+              }, 500)
           rescue Stripe::StripeError => e
-            error!({error_code: 500, error_message: "Stripe::StripeError #{e.to_s}" }, 500)
-            logger.error("#{user.email}: #{e.to_s}")
+            error!(
+              {
+                error_code: 500,
+                user_message: "Sorry, we did something wrong and couldn't process your payment. Please try again later or contact us for help at info@leohealth.com",
+                debug_message: "Stripe::StripeError #{debug_message}"
+              }, 500)
+            logger.error(debug_message)
             #suggest sending a email for stripe general errors
           end
         end

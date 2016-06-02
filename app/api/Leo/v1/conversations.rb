@@ -27,7 +27,7 @@ module Leo
               present :message_type, :close
               present :id, closure_note.id
             else
-              error!({error_code: 422, error_message: "can't close the conversation" }, 422)
+              error!({error_code: 422, user_message: "can't close the conversation" }, 422)
             end
           end
         end
@@ -55,7 +55,7 @@ module Leo
               present :message_type, :escalation
               present :id, escalation_note.id
             else
-              error!({error_code: 422, error_message: "can't escalate the conversation" }, 422)
+              error!({error_code: 422, user_message: "can't escalate the conversation" }, 422)
             end
           end
         end

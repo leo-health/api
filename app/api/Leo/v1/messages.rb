@@ -91,7 +91,7 @@ module Leo
               present message, with: Leo::Entities::MessageEntity, device_type: session_device_type
               message.broadcast_message(current_user)
             else
-              error!({ error_code: 422, error_message: message.errors.full_messages.first }, 422)
+              error!({ error_code: 422, user_message: message.errors.full_messages.first }, 422)
             end
           end
         end

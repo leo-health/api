@@ -13,7 +13,7 @@ module Leo
           if current_user.has_role? :guardian
             render_success current_user.family, session_device_type
           else
-            error!({error_code: 422, error_message: "Current user is not a guardian"}, 422)
+            error!({error_code: 422, user_message: "Current user is not a guardian"}, 422)
           end
         end
 
@@ -30,7 +30,7 @@ module Leo
           end
 
           post do
-            error!({error_code: 422, error_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+            error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
             onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_guardian)
             user = User.new(declared(params).merge(
               role: Role.guardian,
@@ -43,7 +43,7 @@ module Leo
               InviteParentJob.send(user, current_user)
               present :onboarding_group, user.onboarding_group.group_name
             else
-              error!({ error_code: 422, error_message: user.errors.full_messages.first }, 422)
+              error!({ error_code: 422, user_message: user.errors.full_messages.first }, 422)
             end
           end
         end
