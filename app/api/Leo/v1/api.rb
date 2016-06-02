@@ -45,7 +45,7 @@ module Leo
           if object.save
             present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
           else
-            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: object.errors.full_messages.first }, 422)
           end
         end
 
@@ -62,7 +62,7 @@ module Leo
                     with: full_entity_name,
                     device_type: device_type
           else
-            error!({error_code: 422, error_message: object.errors.full_messages }, 422)
+            error!({error_code: 422, error_message: object.errors.full_messages.first }, 422)
           end
         end
 

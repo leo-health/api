@@ -36,7 +36,7 @@ describe Leo::V1::Passwords do
       it 'should not reset the password for user' do
         do_request({password: "1", password_confirmation: "1"})
         expect(response.status).to eq(422)
-        expect_json("message.error_message.0", "Password is too short (minimum is 8 characters)" )
+        expect_json("message.error_message", "Password is too short (minimum is 8 characters)" )
       end
     end
 
@@ -44,7 +44,7 @@ describe Leo::V1::Passwords do
       it 'should not reset the password for user' do
         do_request({password: "password1", password_confirmation: "password2"})
         expect(response.status).to eq(422)
-        expect_json("message.error_message.0", "Password confirmation doesn't match Password" )
+        expect_json("message.error_message", "Password confirmation doesn't match Password" )
       end
     end
 
@@ -89,7 +89,7 @@ describe Leo::V1::Passwords do
       it "should not change the password for user" do
         expect{ do_request }.to change( Delayed::Job, :count ).by(0)
         expect(response.status).to eq(422)
-        expect_json("message.error_message.0", "Password confirmation doesn't match Password" )
+        expect_json("message.error_message", "Password confirmation doesn't match Password" )
       end
     end
   end
