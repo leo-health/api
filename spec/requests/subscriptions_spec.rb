@@ -10,7 +10,7 @@ describe Leo::V1::Subscriptions do
   before do
     Stripe.api_key="test_key"
     StripeMock.start
-    stripe_helper.create_plan(id: "com.leohealth.standard")
+    stripe_helper.create_plan(STRIPE_PLAN_PARAMS_MOCK)
     create(:patient, family: user.family)
   end
 
