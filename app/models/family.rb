@@ -40,8 +40,30 @@ class Family < ActiveRecord::Base
   end
 
   def stripe_customer=(stripe_customer)
-    super stripe_customer
-    self.stripe_customer_id = stripe_customer_id
+    limited_stripe_customer = {
+      id: stripe_customer[:id]
+    }
+
+    limited_stripe_subscription = GenericHelper.try_nested_value_for_key_path(
+      stripe_customer,
+      [:subscriptions, :data, 0]
+    ).try(:slice, :id, :quantity)
+
+    if limited_stripe_subscription
+      limited_stripe_subscription[:plan] = GenericHelper.try_nested_value_for_key_path(
+        stripe_customer,
+        [:subscriptions, :data, 0, :plan]
+      ).try(:slice, :id, :amount)
+
+      limited_stripe_customer[:subscriptions] = {
+        data: [
+          limited_stripe_subscription
+        ]
+      }
+    end
+
+    super limited_stripe_customer
+    self.stripe_customer_id = limited_stripe_customer[:id]
   end
 
   def stripe_customer_id
@@ -53,10 +75,10 @@ class Family < ActiveRecord::Base
   end
 
   def stripe_subscription
-    stripe_customer
-    .try(:[], :subscriptions)
-    .try(:[], :data)
-    .try(:[], 0)
+    GenericHelper.try_nested_value_for_key_path(
+      stripe_customer,
+      [:subscriptions, :data, 0]
+    )
   end
 
   def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
