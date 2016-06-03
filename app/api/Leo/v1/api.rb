@@ -35,6 +35,10 @@ module Leo
           error!('401 Unauthorized', 401) unless current_user
         end
 
+        def authenticated_and_complete
+          error!('401 Unauthorized', 401) unless current_user.try(:complete?)
+        end
+
         def current_user
           return unless params[:authentication_token]
           @session = Session.find_by_authentication_token(params[:authentication_token])

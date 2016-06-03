@@ -10,15 +10,29 @@ describe Leo::V1::Families do
   let(:serializer){ Leo::Entities::FamilyEntity }
 
   describe "Get /api/v1/family" do
-    def do_request
-      get "/api/v1/family", { authentication_token: session.authentication_token }
+    def do_request(token)
+      get "/api/v1/family", { authentication_token: token }
     end
 
-    it "should return the members of the family" do
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data][:family].as_json.to_json).to eq(serializer.represent(user.reload.family).as_json.to_json)
+    context "user is complete" do
+      it "should return the members of the family" do
+        do_request session.authentication_token
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true)
+        expect(body[:data][:family].as_json.to_json).to eq(serializer.represent(user.reload.family).as_json.to_json)
+      end
+    end
+
+    context "user is incomplete" do
+      before do
+        user.first_name = nil
+        user.set_incomplete!
+      end
+
+      it "should return an authentication error" do
+        do_request session.authentication_token
+        expect(response.status).to eq(401)
+      end
     end
   end
 
