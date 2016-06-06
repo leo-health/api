@@ -197,6 +197,7 @@ class User < ActiveRecord::Base
   def guardian_was_completed_callback
     if complete? && previous_changes[:complete_status].present?
       WelcomeToPracticeJob.send(id)
+      Conversation.create(family_id: family.id, state: :closed) unless Conversation.find_by_family_id(family.id)
     end
   end
 

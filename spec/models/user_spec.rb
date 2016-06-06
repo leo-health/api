@@ -101,6 +101,9 @@ describe User do
 
   describe "validations" do
     subject { build(:user, complete_status: :complete) }
+    before do
+      subject.validate
+    end
 
     it { is_expected.to validate_length_of(:password).is_at_least(8)}
     it { is_expected.to validate_presence_of(:first_name) }

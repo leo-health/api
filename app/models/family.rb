@@ -8,8 +8,6 @@ class Family < ActiveRecord::Base
 
   validates_presence_of :membership_type
 
-  after_commit :set_up_conversation, on: :create
-
   aasm whiny_transitions: false, column: :membership_type do
     state :incomplete, initial: true
     state :delinquent
@@ -83,11 +81,5 @@ class Family < ActiveRecord::Base
       PaymentsMailer.subscription_updated self
     end
     save!
-  end
-
-  private
-
-  def set_up_conversation
-    Conversation.create(family_id: id, state: :closed) unless Conversation.find_by_family_id(id)
   end
 end
