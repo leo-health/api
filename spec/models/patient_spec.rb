@@ -62,6 +62,7 @@ RSpec.describe Patient, type: :model do
 
     before do
       @patient = patient
+      patient.family.renew_membership!
     end
 
     context 'before syncing the patient' do

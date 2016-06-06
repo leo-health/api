@@ -40,6 +40,7 @@ class Patient < ActiveRecord::Base
   end
 
   def post_to_athena
+    return if family.incomplete?
     PostPatientJob.new(self).start unless Delayed::Job.find_by(owner: self, queue: PostPatientJob.queue_name)
   end
 

@@ -15,6 +15,10 @@ class Family < ActiveRecord::Base
     state :exempted
 
     event :renew_membership do
+      after do
+        patients.map(&:subscribe_to_athena)
+      end
+      
       transitions from: [:incomplete, :delinquent], to: :member
     end
 
