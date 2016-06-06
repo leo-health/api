@@ -133,8 +133,11 @@ module Leo
             authenticated
             # in the old version, this endpoint is used to
             # update an incomplete user after calling post enrollments
-            update_success current_user, user_params, "User"
             user = current_user
+            ActiveRecord::Base.transaction do
+              user.family.exempt_membership!
+              update_success user, user_params, "User"
+            end
             if user.invited_user?
               error!({error_code: 422, user_message: user.errors.full_messages.first}, 422) unless user.confirm_secondary_guardian
             end
