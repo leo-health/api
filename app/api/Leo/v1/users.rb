@@ -138,6 +138,8 @@ module Leo
             if user.invited_user?
               error!({error_code: 422, user_message: user.errors.full_messages.first}, 422) unless user.confirm_secondary_guardian
             end
+
+            user.family.exempt_membership!
             session = Session.find_by_authentication_token(params[:authentication_token])
             update_success session, session_params
           end
