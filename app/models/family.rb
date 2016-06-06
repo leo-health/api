@@ -79,6 +79,8 @@ class Family < ActiveRecord::Base
       subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
       subscription.quantity = patient_count
       subscription.save
+      # immediately pay the proration amount
+      Stripe::Invoice.create(customer: stripe_customer_id).pay
       self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
       PaymentsMailer.subscription_updated self
     end
