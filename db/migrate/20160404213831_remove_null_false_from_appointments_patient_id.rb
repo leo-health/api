@@ -1,9 +1,9 @@
 class RemoveNullFalseFromAppointmentsPatientId < ActiveRecord::Migration
   def up
-    change_column :appointments, :patient_id, :integer, null: true
+    change_column_null :appointments, :patient_id, true
   end
 
   def down
-    change_column :appointments, :patient_id, :integer, null: false
+    change_column_null :appointments, :patient_id, true
   end
 end

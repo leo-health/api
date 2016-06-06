@@ -11,27 +11,54 @@ module Leo
         end
 
         post do
-          patient_count = current_user.family.patients.count > 5 ? 5 : current_user.family.patients.count
+          update_or_create_subscription
+        end
+
+        put do
+          update_or_create_subscription
+        end
+      end
+
+      helpers do
+        def update_or_create_subscription
+          user = current_user
+          family = user.family
           begin
-            stripe_customer = Stripe::Customer.create(
-              email: current_user.email,
-              plan: StripePlanMap[patient_count],
-              source: params[:credit_card_token]
-            )
+            family.update_or_create_stripe_subscription_if_needed! params[:credit_card_token]
           rescue Stripe::AuthenticationError => e
-            error!({error_code: 401, error_message: e.json_body[:error][:code] }, 401)
+            error!(
+              {
+                error_code: 500,
+                user_message: "Sorry, we did something wrong and couldn't process your payment. Please try again later or contact us for help at info@leohealth.com",
+                debug_message: "Stripe::AuthenticationError #{e.to_s}"
+              }, 500)
           rescue Stripe::CardError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
-            logger.error("#{current_user.email}: #{e.json_body[:error][:message]}")
+            family.expire_membership!
+            debug_message = "#{user.email}: #{e.to_s}"
+            error!(
+              {
+                error_code: 422,
+                user_message: "Your card was declined, please try a different one.",
+                debug_message: debug_message
+              }, 422)
+            logger.error(debug_message)
           rescue Stripe::RateLimitError, Stripe::APIConnectionError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
+            error!(
+              {
+                error_code: 500,
+                user_message: "Sorry, we did something wrong and couldn't process your payment. Please try again later or contact us for help at info@leohealth.com",
+                debug_message: "Stripe::RateLimitError APIConnectionError #{e.to_s}"
+              }, 500)
           rescue Stripe::StripeError => e
-            error!({error_code: 422, error_message: e.json_body[:error][:code] }, 422)
-            logger.error("#{current_user.email}: #{e.json_body[:error][:message]}")
+            error!(
+              {
+                error_code: 500,
+                user_message: "Sorry, we did something wrong and couldn't process your payment. Please try again later or contact us for help at info@leohealth.com",
+                debug_message: "Stripe::StripeError #{debug_message}"
+              }, 500)
+            logger.error(debug_message)
             #suggest sending a email for stripe general errors
           end
-
-          update_success current_user, { stripe_customer_id: stripe_customer.id }, "User"
         end
       end
     end
