@@ -171,7 +171,10 @@ class User < ActiveRecord::Base
 
     def email_taken?(email)
       return true if User.complete.find_by(email: email)
-      return true if User.find_by(email: email, onboarding_group: OnboardingGroup.find_by(group_name: :generated_from_athena))
+      return true if User.where(email: email)
+        .includes(:onboarding_group)
+        .where(onboarding_group: { group_name: "generated_from_athena" })
+        .first
     end
   end
 

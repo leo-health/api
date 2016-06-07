@@ -27,6 +27,12 @@ class Family < ActiveRecord::Base
     end
 
     event :exempt_membership do
+      after do
+        if subscription = Stripe::Subscription.retrieve(stripe_subscription_id)
+          subscription.at_period_end = true
+          subscription.save
+        end
+      end
       transitions to: :exempted
     end
   end
