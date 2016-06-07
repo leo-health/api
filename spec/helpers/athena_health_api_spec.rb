@@ -46,6 +46,7 @@ describe AthenaHealthAPI do
         end
 
         expect(Time.now - start_time).to be >= 1
+        expect(Time.now - start_time).to be < 2
       end
 
       it "should not throttle requests on ignore_throttle" do
@@ -66,7 +67,7 @@ describe AthenaHealthAPI do
     before do
       subject.reset_counts
     end
-    
+
     subject { AthenaHealthAPI::RateLimiter.new }
 
     describe "sleep_time" do
@@ -86,11 +87,10 @@ describe AthenaHealthAPI do
       end
 
       context "over day rate limit" do
-        let(:key){ "day_rate_limit:#{subject.athena_api_key}:#{(Time.now + 1.day).to_i.to_s}" }
-
         before do
           Timecop.freeze(Time.now)
-          $redis.set(key, subject.per_day_rate_limit)
+          $redis.flushall
+          $redis.set(subject.day_key, subject.per_day_rate_limit)
         end
 
         after do
@@ -98,16 +98,14 @@ describe AthenaHealthAPI do
         end
 
         it "should return time left till the 24hour cycle end" do
-          expect(subject.sleep_time_day_rate_limit_after_incrementing_call_count).to eq(24*60*60)
+          expect(subject.sleep_time_day_rate_limit_after_incrementing_call_count).to eq(Date.tomorrow.to_datetime.to_i - Time.now.to_i)
         end
       end
 
       context "over day rate limit, but pass previous time cycle" do
-        let(:key){ "day_rate_limit:#{subject.athena_api_key}:#{(Time.now + 1.day).to_i.to_s}" }
-
         before do
           Timecop.freeze(Time.now)
-          $redis.set(key, subject.per_day_rate_limit)
+          $redis.set(subject.day_key, subject.per_day_rate_limit)
         end
 
         after do
@@ -129,11 +127,9 @@ describe AthenaHealthAPI do
       end
 
       context "over second rate limit" do
-        let(:key){ "second_rate_limit:#{subject.athena_api_key}:#{Time.now.strftime("%Y-%m-%d-%H-%M-%S")}" }
-
         before do
           Timecop.freeze(Time.now)
-          $redis.set(key, subject.per_second_rate_limit)
+          $redis.set(subject.second_key, subject.per_day_rate_limit)
         end
 
         after do

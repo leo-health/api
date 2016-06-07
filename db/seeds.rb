@@ -18,6 +18,7 @@ roles_seed.each do |param|
   Role.update_or_create!(:name, param)
 end
 
+puts "Finished seeding #{roles_seed.count} Role records"
 
 default_provider_schedule = {
   athena_provider_id: nil,
@@ -80,6 +81,8 @@ appointment_statuses_seed = [
 appointment_statuses_seed.each do |param|
   AppointmentStatus.update_or_create!(:status, param)
 end
+
+puts "Finished seeding #{appointment_statuses_seed.count} AppointmentStatus records"
 
 insurance_plan_seed = [
   {
@@ -191,13 +194,18 @@ insurance_plan_seed.each do |insurance_plan|
   end
 end
 
+puts "Finished seeding #{insurance_plan_seed.count} InsurancePlan records"
+
 onboarding_group_seed = [
-  { group_name: :invited_secondary_guardian }
+  { group_name: :invited_secondary_guardian },
+  { group_name: :generated_from_athena }
 ]
 
 onboarding_group_seed.each do |param|
   OnboardingGroup.update_or_create!(:group_name, param)
 end
+
+puts "Finished seeding #{onboarding_group_seed.count} OnboardingGroup records"
 
 #Seed the database with growth curves
 begin
@@ -230,6 +238,8 @@ begin
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
+  puts "Finished seeding HeightGrowthCurve records"
+
   WeightGrowthCurve.delete_all
 
   #populate boys 0-24 months weight
@@ -256,6 +266,8 @@ begin
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
 
+  puts "Finished seeding WeightGrowthCurve records"
+
   BmiGrowthCurve.delete_all
 
   #populate boys 0-24 months bmi
@@ -281,17 +293,9 @@ begin
       s: row["S"]})
     entry.save! if (entry.days > 712 && row["Agemos"] != "24")
   end
+
+  puts "Finished seeding BMIGrowthCurve records"
 end
-
-
-
-
-
-
-
-
-
-
 
 if should_seed_flatiron
   Practice.update_or_create!(:athena_id, {
@@ -318,7 +322,6 @@ else
     time_zone: "Eastern Time (US & Canada)"
   })
 end
-
 
 
 
@@ -587,10 +590,7 @@ if should_seed_flatiron
       hidden: true
     }
   ]
-
 end
-
-
 
 
 def person_attributes(person)
@@ -602,12 +602,17 @@ providers.each do |attributes|
     user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_attributes, :staff_profile_attributes, :avatar_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy if Rails.env.development?
   end
 
   if avatar = user.avatar
     avatar.update_attributes!(attributes[:avatar_attributes])
   else
-    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+    begin
+      Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+    rescue Seahorse::Client::NetworkingError => e
+      puts "Could not create Avatar: #{e}"
+    end
   end
 
   if attributes[:staff_profile_attributes] && user.staff_profile
@@ -627,17 +632,24 @@ providers.each do |attributes|
   end
 end
 
+puts "Finished seeding #{providers.count} User & Provider & ProviderSchedule records"
+
 staff.each do |attributes|
   if user = User.find_by(email: attributes[:email])
     user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes))
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy if Rails.env.development?
   end
 
   if avatar = user.avatar
     avatar.update_attributes!(attributes[:avatar_attributes])
   else
-    Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+    begin
+      Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
+    rescue Seahorse::Client::NetworkingError => e
+      puts "Could not create Avatar: #{e}"
+    end
   end
 
   if attributes[:staff_profile_attributes] && user.staff_profile
@@ -645,27 +657,31 @@ staff.each do |attributes|
   end
 end
 
+puts "Finished seeding #{staff.count} User & StaffProfile records"
+
 appointment_types_seed.each do |param|
   AppointmentType.update_or_create!(:name, param)
 end
 
+puts "Finished seeding #{appointment_types_seed.count} AppointmentType records"
+
 default_practice_schedule = {
-    practice_id: 1,
-    monday_start_time: "08:00",
-    monday_end_time: "19:30",
-    tuesday_start_time: "08:00",
-    tuesday_end_time: "17:30",
-    wednesday_start_time: "10:00",
-    wednesday_end_time: "19:30",
-    thursday_start_time: "08:00",
-    thursday_end_time: "17:30",
-    friday_start_time: "09:00",
-    friday_end_time: "16:30",
-    saturday_start_time: "00:00",
-    saturday_end_time: "00:00",
-    sunday_start_time: "00:00",
-    sunday_end_time: "00:00"
-  }
+  practice_id: 1,
+  monday_start_time: "08:00",
+  monday_end_time: "19:30",
+  tuesday_start_time: "08:00",
+  tuesday_end_time: "17:30",
+  wednesday_start_time: "10:00",
+  wednesday_end_time: "19:30",
+  thursday_start_time: "08:00",
+  thursday_end_time: "17:30",
+  friday_start_time: "09:00",
+  friday_end_time: "16:30",
+  saturday_start_time: "00:00",
+  saturday_end_time: "00:00",
+  sunday_start_time: "00:00",
+  sunday_end_time: "00:00"
+}
 
 practice_schedules = [
   {
@@ -691,6 +707,7 @@ practice_schedules.each do |params|
   PracticeSchedule.update_or_create!(:id, params)
 end
 
+puts "Finished seeding #{practice_schedules.count} PracticeSchedule records"
 
 practice_holidays = [
   "01/01/2016", #New Year's Day
@@ -714,3 +731,7 @@ Provider.all.each do |provider|
     )
   end
 end
+
+puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
+
+puts "Finished seeding all data"

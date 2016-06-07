@@ -3,8 +3,7 @@ module Leo
     class PatientEnrollments < Grape::API
       resource :patient_enrollments do
         before do
-          @enrollment = Enrollment.find_by_authentication_token(params[:authentication_token])
-          error!('401 Unauthorized', 401) unless @enrollment
+          authenticated
         end
 
         desc "create a patient enrollment record"
@@ -17,11 +16,11 @@ module Leo
           optional :title, type: String
         end
         post do
-          patient_enrollment = @enrollment.patient_enrollments.create(declared(params, include_missing: false))
-          if patient_enrollment.valid?
-            present :patient_enrollment, patient_enrollment
+          patient = current_user.family.patients.create(declared(params, include_missing: false))
+          if patient.valid?
+            present :patient_enrollment, patient
           else
-            error!({error_code: 422, error_message: patient_enrollment.errors.full_messages }, 422)
+            error!({error_code: 422, user_message: patient.errors.full_messages.first }, 422)
           end
         end
 
@@ -35,18 +34,19 @@ module Leo
           optional :title, type: String
         end
         put ':id' do
-          patient_enrollment = @enrollment.patient_enrollments.find(params[:id])
-          if patient_enrollment.update_attributes(declared(params, include_missing: false))
-            present :patient_enrollment, patient_enrollment
+          patient = Patient.find(params[:id])
+          if patient.update_attributes(declared(params, include_missing: false))
+            present :patient_enrollment, patient
           else
-            error!({error_code: 422, error_message: patient_enrollment.errors.full_messages }, 422)
+            error!({error_code: 422, user_message: patient.errors.full_messages.first }, 422)
           end
         end
 
         desc "remove a patient enrollment record"
         delete ':id' do
-          patient_enrollment = @enrollment.patient_enrollments.find(params[:id])
-          patient_enrollment.destroy and return
+          patient = Patient.find(params[:id])
+          authorize! :destroy, patient
+          patient.destroy and return
         end
       end
     end

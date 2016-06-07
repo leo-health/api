@@ -1,9 +1,15 @@
 Stripe.api_key = ENV['STRIPE_API_KEY']
-StripePlanMap={
-  0 => "com.leohealth.standard-no_child",
-  1 => "com.leohealth.standard-1_child",
-  2 => "com.leohealth.standard-2_children",
-  3 => "com.leohealth.standard-3_children",
-  4 => "com.leohealth.standard-4_children",
-  5 => "com.leohealth.standard-5_or_more_children"
+STRIPE_PLAN = "com.leohealth.standard"
+STRIPE_PLAN_PARAMS_MOCK = {
+                  :id => "com.leohealth.standard",
+              :object => "plan",
+              :amount => 2000,
+             :created => 1464723959,
+            :currency => "usd",
+            :interval => "month",
+      :interval_count => 1,
+            :livemode => false,
+                :name => "Leo Health - Standard",
+:statement_descriptor => nil,
+   :trial_period_days => nil
 }

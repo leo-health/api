@@ -22,6 +22,7 @@ namespace :load do
       phone: "9735172669",
       vendor_id: "bush_vendor_id"
     )
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy
     family.patients.create!(
       first_name: "Jeb",
       last_name: "Bush",
@@ -55,7 +56,7 @@ namespace :load do
         print "*"
       else
         print "x"
-        print "Failed to create a family - #{family.errors.full_messages}"
+        print "Failed to create a family - #{family.errors.full_messages.first}"
         false
       end
 
@@ -78,7 +79,7 @@ namespace :load do
         print "*"
       else
         print "x"
-        print "Failed to seed guardian user - #{guardian_male.errors.full_messages}"
+        print "Failed to seed guardian user - #{guardian_male.errors.full_messages.first}"
         false
       end
 
@@ -102,7 +103,7 @@ namespace :load do
         print "*"
       else
         print "x"
-        print "Failed to seed guardian user - #{guardian_female.errors.full_messages}"
+        print "Failed to seed guardian user - #{guardian_female.errors.full_messages.first}"
         false
       end
 
@@ -119,7 +120,7 @@ namespace :load do
           print "*"
         else
           print "x"
-          print "Failed to seed patient user - #{patient.errors.full_messages}"
+          print "Failed to seed patient user - #{patient.errors.full_messages.first}"
           false
         end
       end
