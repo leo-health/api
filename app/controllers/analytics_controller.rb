@@ -31,7 +31,7 @@ class AnalyticsController < ApplicationController
   end
 
   def scheduling_engagement
-    visits_from_app = Appointment.includes(:booked_by).where(booked_by: { role_id: Role.guardian.id }).count
+    visits_from_app = Appointment.where(booked_by_type: :User).count
     visits_from_app_percent = Appointment.count == 0 ? 'n/a' : visits_from_app.to_f / Appointment.count.to_f * 100.00
     [
       ['# of visits scheduled from app', visits_from_app],

@@ -3,12 +3,12 @@ class Appointment < ActiveRecord::Base
 
   acts_as_paranoid
   belongs_to :patient
-  belongs_to :booked_by, class_name: "User"
-  belongs_to :provider, class_name: "User"
+  belongs_to :booked_by, polymorphic: true
+  belongs_to :provider
   belongs_to :appointment_type
   belongs_to :appointment_status
   belongs_to :practice
-  validates :duration, :athena_id, :start_datetime, :appointment_status, :appointment_type, :booked_by, :provider, :practice, presence: true
+  validates :duration, :athena_id, :start_datetime, :appointment_status, :appointment_type, :practice, presence: true
   validates_presence_of :patient, unless: :booked_by_provider?
   validate :same_family?, on: :create
   validates_uniqueness_of :start_datetime, scope: :provider_id, if: :booked?,
@@ -19,7 +19,7 @@ class Appointment < ActiveRecord::Base
   after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
 
   def mark_slots_as_busy
-    Slot.free.where(provider_sync_profile: provider.provider_sync_profile)
+    Slot.free.where(provider: provider)
     .start_datetime_between(start_datetime, end_datetime)
     .update_all(
       free_busy_type: :busy,
@@ -37,7 +37,7 @@ class Appointment < ActiveRecord::Base
   end
 
   def booked_by_provider?
-    booked_by.try(:provider?)
+    booked_by.try(:clinical?)
   end
 
   def pre_checked_in?

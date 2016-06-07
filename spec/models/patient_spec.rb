@@ -13,7 +13,7 @@ RSpec.describe Patient, type: :model do
 
     describe "has many appointments" do
       let!(:patient) { create(:patient) }
-      let(:provider){ create(:user, :clinical) }
+      let(:provider){ create(:provider) }
       let(:guardian){ create(:user, :guardian) }
 
       let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
@@ -27,7 +27,7 @@ RSpec.describe Patient, type: :model do
       end
 
       it "should return booked appointments for of patient" do
-        expect(patient.appointments).to eq([checked_in_appointment, charge_entered_appointment])
+        expect(patient.appointments.sort).to eq([checked_in_appointment, charge_entered_appointment])
       end
     end
   end
@@ -62,6 +62,7 @@ RSpec.describe Patient, type: :model do
 
     before do
       @patient = patient
+      patient.family.renew_membership!
     end
 
     context 'before syncing the patient' do
@@ -77,7 +78,7 @@ RSpec.describe Patient, type: :model do
           expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
         end
       end
-      
+
       context "the job does not exist" do
         before do
           Delayed::Job.where(queue: PostPatientJob.queue_name).destroy_all
@@ -112,6 +113,26 @@ RSpec.describe Patient, type: :model do
           @patient.subscribe_to_athena
           expect(Delayed::Job.where(queue: SyncPatientJob.queue_name).count).to be(1)
         end
+      end
+    end
+  end
+
+  describe ".create_with_patient_enrollment" do
+    let(:guardian_enrollment){ create(:enrollment) }
+    let(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: guardian_enrollment) }
+    context "guardian exists" do
+      let!(:guardian){ create(:user, :guardian, enrollment: guardian_enrollment) }
+      it "creates a patient associated with the family" do
+        Patient.create_with_patient_enrollment!(patient_enrollment)
+        expect(Patient.count).to be(1)
+        expect(Patient.first.family).to eq(guardian.family)
+      end
+    end
+
+    context "guardian enrollment does not exist" do
+      it "does not create a patient" do
+        expect{ Patient.create_with_patient_enrollment!(patient_enrollment) }.to raise_error ActiveRecord::RecordInvalid
+        expect(Patient.count).to be(0)
       end
     end
   end

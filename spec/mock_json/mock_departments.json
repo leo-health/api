@@ -1,0 +1,24 @@
+{
+    "totalcount": 1,
+    "departments": [{
+        "medicationhistoryconsent": "false",
+        "timezoneoffset": -5,
+        "state": "NY",
+        "portalurl": "https:\/\/13092.portal.athenahealth.com\/",
+        "city": "NEW YORK",
+        "placeofservicefacility": "false",
+        "servicedepartment": "true",
+        "doesnotobservedst": "false",
+        "departmentid": "1",
+        "address": "27 E 22ND ST",
+        "placeofservicetypeid": "11",
+        "clinicals": "ON",
+        "timezone": -4,
+        "patientdepartmentname": "Main Office",
+        "name": "Main Office",
+        "placeofservicetypename": "OFFICE",
+        "phone": "(212) 460-5600",
+        "ecommercecreditcardtypes": [],
+        "zip": "10010-5300"
+    }]
+}

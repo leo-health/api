@@ -105,6 +105,7 @@ module AthenaHealthAPI
       end
 
       @connection.proper_ssl_context!
+      @rate_limiter = RateLimiter.new
       # End monkey patch
       @version = version
       @key = key
@@ -156,11 +157,8 @@ module AthenaHealthAPI
 
       request['authorization'] = "Bearer #{@token}"
       AthenaHealthAPI.configuration.logger.info("#{request.method} #{request.path}\n#{request.body}")
-      unless ignore_throttle
-        while (Time.now - @@last_request) < AthenaHealthAPI.configuration.effective_min_request_interval
-          sleep(AthenaHealthAPI.configuration.effective_min_request_interval * 0.5)
-        end
-      end
+      sleep_time = @rate_limiter.sleep_time_after_incrementing_call_count
+      sleep(sleep_time) unless ignore_throttle
       response = @connection.request(request)
       @@last_request = Time.now
       AthenaHealthAPI.configuration.logger.info("#{response.code}\n#{response.body[0..2048]}")
@@ -181,23 +179,13 @@ module AthenaHealthAPI
     # ==== Optional arguments
     # * +parameters+ - the request parameters, as a hash
     # * +headers+ - the request headers, as a hash
-    def GET(path, parameters=nil, headers=nil, ignore_throttle=false)
+    def GET(path, parameters=nil, headers=nil, ignore_throttle=false, version_and_practice_prepended=false)
       url = path
-      if parameters
-        # URI escape each key and value, join them with '=', and join those pairs with '&'.  Add
-        # that to the URL with an prepended '?'.
-        url += '?' + parameters.map {
-          |k, v|
-          [k, v].map {
-            |x|
-            CGI.escape(x.to_s)
-          }.join('=')
-        }.join('&')
-      end
-
+      url += '?' + parameters.to_query if parameters && parameters.size > 0
+      url = path_join(@version, @practiceid, url) unless version_and_practice_prepended
       headers ||= {}
-      request = Net::HTTP::Get.new(path_join(@version, @practiceid, url))
-      call(request, {}, headers, false, ignore_throttle)
+      request = Net::HTTP::Get.new(url)
+      return call(request, {}, headers, false, ignore_throttle)
     end
 
     # Perform an HTTP POST request and return a hash of the API response.
@@ -261,42 +249,47 @@ module AthenaHealthAPI
   end
 
   class RateLimiter
-    attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit
+    attr_reader :athena_api_key, :per_second_rate_limit, :per_day_rate_limit, :next_day
 
     def initialize
       @per_day_rate_limit = ENV['ATHENA_DAY_RATE'].to_i
       @per_second_rate_limit = ENV['ATHENA_SECOND_RATE'].to_i
       @athena_api_key = ENV['ATHENA_KEY']
+      @next_day = Date.tomorrow.to_datetime.to_i
     end
 
-    def sleep_time
-      [sleep_time_day_rate_limit, sleep_time_second_rate_limit].max
+    def reset_counts
+      $redis.del(day_key)
+      $redis.del(second_key)
     end
 
-    def sleep_time_day_rate_limit
+    def sleep_time_after_incrementing_call_count
+      [sleep_time_day_rate_limit_after_incrementing_call_count, sleep_time_second_rate_limit_after_incrementing_call_count].max
+    end
+
+    def sleep_time_day_rate_limit_after_incrementing_call_count
       key = day_key
       count, _ = $redis.multi do
         $redis.incr(key)
         $redis.expireat(key, @next_day)
       end
-      count < per_day_rate_limit ? 0 : @next_day - Time.now.to_i
+      count < @per_day_rate_limit ? 0 : @next_day - Time.now.to_i
     end
 
-    def sleep_time_second_rate_limit
+    def sleep_time_second_rate_limit_after_incrementing_call_count
       count, _ = $redis.multi do
         $redis.incr(second_key)
         $redis.expire(second_key, 1)
       end
-      count < per_second_rate_limit ? 0 : 1
+      count < @per_second_rate_limit ? 0 : 1
     end
-
-    private
 
     def day_key
       if Time.now.to_i <=  $redis.get('expire_at').to_i
         "day_rate_limit:#{athena_api_key}:#{$redis.get('expire_at')}"
       else
-        @next_day = (Time.now + 1.day).to_i
+        @next_day = Date.tomorrow.to_datetime.to_i
+        $redis.set('expire_at', @next_day)
         "day_rate_limit:#{athena_api_key}:#{@next_day.to_s}"
       end
     end

@@ -10,15 +10,49 @@ describe Leo::V1::Families do
   let(:serializer){ Leo::Entities::FamilyEntity }
 
   describe "Get /api/v1/family" do
-    def do_request
-      get "/api/v1/family", { authentication_token: session.authentication_token }
+    def do_request(token)
+      get "/api/v1/family", { authentication_token: token }
     end
 
-    it "should return the members of the family" do
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data][:family].as_json.to_json).to eq(serializer.represent(user.reload.family).as_json.to_json)
+    context "user is complete" do
+      it "should return the members of the family" do
+        do_request session.authentication_token
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true)
+        expect(body[:data][:family].as_json.to_json).to eq(serializer.represent(user.reload.family).as_json.to_json)
+      end
+    end
+
+    context "user is incomplete" do
+      before do
+        user.first_name = nil
+        user.set_incomplete!
+      end
+
+      it "should return an authentication error" do
+        do_request session.authentication_token
+        expect(response.status).to eq(401)
+      end
+    end
+  end
+
+  describe "POST /api/v1/family/invite" do
+    let!(:user){ create(:user, :guardian) }
+    let(:session){ user.sessions.create }
+    let!(:onboarding_group){ create(:onboarding_group)}
+
+    def do_request
+      enrollment_params = { email: Faker::Internet::email, first_name: Faker::Name::first_name, last_name: Faker::Name::last_name }
+      enrollment_params.merge!(authentication_token: session.authentication_token)
+      post "/api/v1/family/invite", enrollment_params
+    end
+
+    it "should send a invite to the user" do
+      expect{ do_request }.to change{ Delayed::Job.count }.by(1)
+      expect(response.status).to eq(201)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:onboarding_group].to_sym).to eq(:invited_secondary_guardian)
+      expect(user.family.reload.guardians.count).to be(1)
     end
   end
 end

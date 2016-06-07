@@ -9,7 +9,7 @@ module Leo
       private
 
       def credentials
-        object.staff_profile.try(:credentials)
+        object.try(:credentials) || object.try(:staff_profile).try(:credentials)
       end
     end
   end

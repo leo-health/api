@@ -1,30 +1,90 @@
 require 'airborne'
 require 'rails_helper'
+require 'stripe_mock'
 
 describe Leo::V1::Patients do
-  let(:guardian){create(:user)}
-  let(:session){guardian.sessions.create}
-  let(:serializer){ Leo::Entities::PatientEntity }
+  before do
+    Stripe.api_key="test_key"
+    StripeMock.start
+    stripe_helper.create_plan(STRIPE_PLAN_PARAMS_MOCK)
+  end
+
+  after do
+    StripeMock.stop
+  end
+
+  let!(:stripe_helper) { StripeMock.create_test_helper }
+  let!(:guardian){create(:user, :member)}
+  let!(:second_guardian){ create(:user, family: guardian.family) }
+  let!(:session){guardian.sessions.create}
+  let!(:serializer){ Leo::Entities::PatientEntity }
   let!(:patient){create(:patient, family: guardian.family)}
 
   describe 'POST /api/v1/patients' do
+    before do
+      Delayed::Job.destroy_all
+    end
+
     let(:patient_params){{first_name: "patient_first_name",
                           last_name: "patient_last_name",
                           birth_date: 5.years.ago,
                           sex: "M"
                         }}
 
-    def do_request
-      patient_params.merge!({authentication_token: session.authentication_token})
+    def do_request(a_session)
+      patient_params.merge!({authentication_token: a_session.authentication_token})
       post "/api/v1/patients", patient_params, format: :json
     end
 
-    it "should add a patient to the family" do
-      do_request
+    def expect_patient_to_be_added(family, a_session)
+      do_request a_session
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       patient_id = body[:data][:patient][:id]
       expect(body[:data][:patient].as_json.to_json).to eq(serializer.represent(Patient.find(patient_id)).as_json.to_json)
+      expect(family.reload.patients.count).to be(2)
+    end
+
+    context "family is a member" do
+      it "should add a patient to the family" do
+        expect_patient_to_be_added guardian.family, session
+      end
+
+      it "should add a patient to the family, update the subscription, and send an email to all guardians" do
+        expect_patient_to_be_added guardian.family, session
+        expect(guardian.family.reload.stripe_subscription[:quantity]).to be(2)
+        jobs = Delayed::Job.where(queue: PaymentsMailer.queue_name)
+        expect(jobs.count).to be(2)
+        expect(jobs.pluck(:owner_id).sort).to eq(guardian.family.reload.guardians.pluck(:id).sort)
+      end
+    end
+
+    context "family is incomplete" do
+      let!(:incomplete_guardian){ create(:user) }
+      let!(:incomplete_session){ incomplete_guardian.sessions.create }
+      let!(:incomplete_patient){ create(:patient, family: incomplete_guardian.family) }
+
+      it "should add a patient to the family" do
+        expect_patient_to_be_added incomplete_guardian.family, incomplete_session
+        expect(incomplete_guardian.family.reload.stripe_subscription).to be_nil
+        expect(Delayed::Job.where(queue: PaymentsMailer.queue_name).count).to be(0)
+      end
+    end
+
+    context "family is exempt" do
+      let!(:exempt_guardian){ create(:user) }
+      let!(:exempt_session){ exempt_guardian.sessions.create }
+      let!(:exempt_patient){ create(:patient, family: exempt_guardian.family) }
+
+      before do
+        exempt_guardian.family.exempt_membership!
+      end
+
+      it "should add a patient to the family" do
+        expect_patient_to_be_added exempt_guardian.family, exempt_session
+        expect(exempt_guardian.family.reload.stripe_subscription).to be_nil
+        expect(Delayed::Job.where(queue: PaymentsMailer.queue_name).count).to be(0)
+      end
     end
   end
 

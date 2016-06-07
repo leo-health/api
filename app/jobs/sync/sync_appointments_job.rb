@@ -8,6 +8,6 @@ class SyncAppointmentsJob < PeriodicPollingJob
   end
 
   def self.queue_name
-    'get_appointments'
+    'get_appointments_for_practice'
   end
 end

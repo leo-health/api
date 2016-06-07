@@ -1,7 +1,7 @@
 module Leo
   module Entities
     class FamilyEntity < Grape::Entity
-      expose :id
+      expose :id, :membership_type
       expose :patients do |instance, options|
         Leo::Entities::PatientEntity.represent instance.patients, options
       end

@@ -68,7 +68,7 @@ module Leo
           if current_user.has_role? :guardian
             appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id))
           elsif current_user.has_role? :clinical
-            appointments = current_user.provider_appointments
+            appointments = Appointment.booked.where(provider: current_user.provider)
           end
           appointments.order(start_datetime: :asc)
           authorize! :read, Appointment
@@ -78,10 +78,10 @@ module Leo
 
       helpers do
         def generate_appointment
-          error!({error_code: 422, error_message: "Appointment start time must be at least 15 minutes in the future" }, 422) if params[:start_datetime] < (DateTime.now + Appointment::MIN_INTERVAL_TO_SCHEDULE)
+          error!({error_code: 422, user_message: "Appointment start time must be at least 15 minutes in the future" }, 422) if params[:start_datetime] < (DateTime.now + Appointment::MIN_INTERVAL_TO_SCHEDULE)
           duration = AppointmentType.find(params[:appointment_type_id]).duration
-          appointment_params = declared(params, include_missing: false).merge(duration: duration)
-          appointment = current_user.booked_appointments.new(appointment_params)
+          appointment_params = declared(params, include_missing: false).merge(duration: duration, booked_by: current_user)
+          appointment = Appointment.new(appointment_params)
           authorize! :create, appointment
           appointment.save!
           PostAppointmentJob.new(appointment).start

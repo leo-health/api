@@ -2,7 +2,7 @@ require "rails_helper"
 describe AthenaProviderSyncService do
   describe ".sync_open_slots" do
 
-    let(:provider_sync_profile){ create(:provider_sync_profile, athena_id: 1) }
+    let(:provider){ create(:provider, athena_id: 1) }
 
     before do
       @service = AthenaProviderSyncService.new
@@ -10,7 +10,7 @@ describe AthenaProviderSyncService do
     end
 
     def do_request
-      @service.sync_open_slots provider_sync_profile, Date.new(2015, 12, 25)
+      @service.sync_open_slots provider, Date.new(2015, 12, 25)
     end
 
     context "no slots exist" do
@@ -56,7 +56,7 @@ describe AthenaProviderSyncService do
           end_datetime: start_datetime + 20.minutes,
           free_busy_type: :free,
           athena_id: 389202,
-          provider_sync_profile: provider_sync_profile
+          provider: provider
         )
       end
 

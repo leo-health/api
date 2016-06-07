@@ -1,5 +1,7 @@
 require "athena_health_api"
 
+# TODO: single responsibility - get paged should not parse json?
+
 module AthenaHealthApiHelper
   def self.to_datetime(athena_date, athena_time)
     date = Date.strptime(athena_date, '%m/%d/%Y')
@@ -61,9 +63,8 @@ module AthenaHealthApiHelper
     attr_reader :connection, :common_headers
 
     def initialize
-      config = Rails.application.config_for(:athena_health_api_connector).symbolize_keys
       @common_headers = { "Accept-Encoding" => "deflate;q=0.6,identity;q=0.3" }
-      @connection = AthenaHealthAPI::Connection.new(config[:version], config[:key], config[:secret], config[:practice_id])
+      @connection = AthenaHealthAPI::Connection.new(*(ENV.values_at "ATHENA_VERSION", "ATHENA_KEY", "ATHENA_SECRET", "ATHENA_PRACTICE_ID"))
     end
 
     def get(path: , params: {})
@@ -132,7 +133,6 @@ module AthenaHealthApiHelper
       endpoint = "appointments/#{appointmentid}"
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.PUT(endpoint, params, common_headers)
-
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
       AthenaStruct.new JSON.parse(response.body).first
     end
@@ -188,51 +188,44 @@ module AthenaHealthApiHelper
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
     end
 
+
     # recursive function for retrieving a full dataset thorugh multiple GET calls.
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
-    def get_paged(url: , params: , headers: , field: , offset: 0, limit: 1000, structize: false)
+    def get_paged(url: , params: {}, headers: , field: , limit: nil, page_size: nil, structize: false, version_and_practice_prepended: false)
+      params = params.symbolize_keys
+      limit ||= params[:limit] || Float::INFINITY # By default, get all pages
+      params[:limit] = page_size if page_size
+      response = @connection.GET(url, params, headers, version_and_practice_prepended)
 
-      raise "limit #{limit} is higher then max allowed 1000." if limit > 1000
-      local_params = params.clone
-      local_params['offset'] = offset
-      local_params['limit'] = limit
-      endpoint = url
-      response = @connection.GET(endpoint, local_params, headers)
-
-      raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
+      raise "HTTP error for endpoint #{url} code encountered: #{response.code}" unless response.code.to_i == 200
       parsed = JSON.parse(response.body)
-      entries = []
-      parsed[field.to_s].each do | val |
-        if structize
-          entries.push AthenaStruct.new val
-        else
-          entries.push val
-        end
-      end
+      entries = parsed[field.to_s] || []
+      entries = entries.map { |val| AthenaStruct.new val } if structize
 
       #add following pages of results
-      if parsed[:next.to_s]
-        entries.concat(
-          get_paged(url: url,
-            params: params, headers: headers, field: field, offset: offset + limit,
-            limit: limit, structize: structize))
+      num_entries_still_needed = limit - entries.size
+      next_page_url = parsed["next"]
+
+      if next_page_url && num_entries_still_needed > 0
+        next_page_url = next_page_url.split("/").from(3).join("/") # Athena responds with /v1 regardless of the original url passed /preview1
+        entries += get_paged(url: next_page_url, headers: headers, field: field, limit: num_entries_still_needed, structize: structize, version_and_practice_prepended: true)
       end
 
-      return entries
+      limit < Float::INFINITY ? entries[0...limit] : entries
     end
 
     # get a list of available appointment types
     # returns an array of AthenaStructs
     # raises exceptions if anything goes wrong in the process
     def get_appointment_types(hidegeneric: false,
-      hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true, limit: 1000)
+      hidenongeneric: false, hidenonpatient: false, hidetemplatetypeonly: true)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/appointmenttypes", params: params,
-        headers: common_headers, field: :appointmenttypes, limit: limit)
+        headers: common_headers, field: :appointmenttypes)
     end
 
     # get a list of available appointment reasons
@@ -240,13 +233,13 @@ module AthenaHealthApiHelper
     # raises exceptions if anything goes wrong in the process
     # todo: do we need separate calls for existing vs new patients
     def get_appointment_reasons(departmentid: ,
-      providerid: , limit: 1000)
+      providerid:)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/patientappointmentreasons", params: params,
-        headers: common_headers, field: :patientappointmentreasons, limit: limit)
+        headers: common_headers, field: :patientappointmentreasons)
     end
 
     # get a list of open appointments
@@ -255,13 +248,13 @@ module AthenaHealthApiHelper
     def get_open_appointments(
       appointmenttypeid: nil, bypassscheduletimechecks: true, departmentid:, enddate: nil,
       ignoreschedulablepermission: true, providerid: nil, reasonid: nil, showfrozenslots: false,
-      startdate: nil, limit: 1000)
+      startdate: nil)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/appointments/open", params: params,
-        headers: common_headers, field: :appointments, limit: limit, structize: true)
+        headers: common_headers, field: :appointments, structize: true)
     end
 
     # get a list of booked appointments
@@ -271,23 +264,28 @@ module AthenaHealthApiHelper
       appointmenttypeid: nil, departmentid: , enddate: , endlastmodified: nil,
       ignorerestrictions: true, patientid: nil, providerid: nil, scheduledenddate: nil,
       scheduledstartdate: nil, showcancelled: true, showclaimdetail: false, showcopay: true,
-      showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil,
-      limit: 1000)
+      showinsurance: false, showpatientdetail: false, startdate:, startlastmodified: nil)
 
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
 
       return get_paged(
         url: "/appointments/booked", params: params,
-        headers: common_headers, field: :appointments, limit: limit, structize: true)
+        headers: common_headers, field: :appointments, structize: true)
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients
-    def get_patients(departmentid: )
+    def get_patients(departmentid:)
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
-
-      return get_paged(
-        url: "patients", params: params,
-        headers: common_headers, field: :patients)
+      start = Time.now
+      entries = get_paged(
+        url: "patients",
+        params: params,
+        headers: common_headers,
+        field: :patients,
+        page_size: 100
+      )
+      puts "Request time: #{Time.now - start}"
+      entries
     end
 
     #Create a patient: POST /preview1/:practiceid/patients
@@ -328,6 +326,7 @@ module AthenaHealthApiHelper
       return AthenaStruct.new(result[0])
     end
 
+    # NOTE: need to be careful using **kwargs. patientid: is not included in params. Here it's ok since patientid is in the url, not in the query params
     def update_patient(patientid:, **params)
       # patientid: ,
       # status: nil, #active, inactive, prospective, deleted
@@ -473,6 +472,11 @@ module AthenaHealthApiHelper
       endpoint = "appointments/#{appointmentid}/notes"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
+    end
+
+    def get_providers(**params)
+      endpoint = "providers"
+      get_paged(url: endpoint, params: params, field: :providers, headers: @common_headers)
     end
   end
 end
