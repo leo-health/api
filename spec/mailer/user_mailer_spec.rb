@@ -31,10 +31,10 @@ describe UserMailer do
   end
 
   describe "#invite_secondary_parent" do
-    let(:enrollment){ build(:enrollment) }
+    let(:secondary_guardian){ build(:user, family: user.family) }
 
     it "should send the secondary parent a invite" do
-      UserMailer.invite_secondary_parent(enrollment, user).deliver
+      UserMailer.invite_secondary_parent(secondary_guardian, user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Invite a Secondary Guardian' &&
           mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
@@ -151,10 +151,10 @@ describe UserMailer do
   end
 
   describe "#primary_guardian_approve_invitation" do
-    let(:enrollment){ build :enrollment }
+    let(:secondary_guardian){ build(:user, family: user.family) }
 
     it "should ask primary guardian for approval of pending invitation" do
-      UserMailer.primary_guardian_approve_invitation(user, enrollment).deliver
+      UserMailer.primary_guardian_approve_invitation(user, secondary_guardian).deliver
       email = MandrillMailer::deliveries.detect do |mail|
         mail.template_name == 'Leo - Secondary Guardian Confirmation' &&
             mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }

@@ -7,17 +7,17 @@ namespace :session do
 			if (patients = family.patients) ? true:false
 				ap patients
 			else
-				print "Error - #{patients.errors.full_messages}"
+				print "Error - #{patients.errors.full_messages.first}"
 			end
 			if(guardian = family.guardians.first) ? true:false
 				guardian.sessions.create
 				ap guardian
 				ap guardian.sessions.last
 			else
-				print "Error - #{guardian.errors.full_messages}"
+				print "Error - #{guardian.errors.full_messages.first}"
 			end
     else
-      print "Error - #{family.errors.full_messages}"
+      print "Error - #{family.errors.full_messages.first}"
 		end
 	end
 end

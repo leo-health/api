@@ -2,13 +2,13 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Practices do
-  let!(:practice){ create(:practice) }
+  let(:practice){ create(:practice) }
   let(:user){ create(:user, :guardian, practice: practice) }
   let!(:session){ user.sessions.create }
 
   describe "create a practice" do
-    it "should create a delayed job for registration and practice" do
-      expect(Delayed::Job.count).to be(2)
+    it "should create a delayed job practice sync" do
+      expect(Delayed::Job.where(owner: practice).count).to be(1)
     end
   end
 
