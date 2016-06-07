@@ -27,6 +27,15 @@ class Family < ActiveRecord::Base
     end
 
     event :exempt_membership do
+      after do
+        if stripe_customer_id && stripe_subscription_id
+          if customer = Stripe::Customer.retrieve(stripe_customer_id)
+            if subscription = customer.subscriptions.retrieve(stripe_subscription_id)
+              subscription.delete
+            end
+          end
+        end
+      end
       transitions to: :exempted
     end
   end
