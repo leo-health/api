@@ -10,17 +10,16 @@ module Leo
                     appointment_type message short_user full_message patient conversation practice_schedule
                     provider_leave practice appointment short_patient short_conversation card family session
                     vital allergy medication vaccine user_generated_health_record form patient_insurance phr
-                   )
+                    )
 
       ENTITIES.each do |entity_name|
         require_relative "../entities/#{entity_name}_entity"
       end
 
-      require_relative 'exception_handler'
       require_relative 'error_formatter'
       require_relative 'success_formatter'
 
-      include Leo::V1::ExceptionsHandler
+      include ExceptionHandler
       formatter :json, Leo::V1::SuccessFormatter
       error_formatter :json, Leo::V1::ErrorFormatter
       default_error_status 400
