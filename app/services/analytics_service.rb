@@ -33,6 +33,15 @@ class AnalyticsService
       appointments
     end
 
+    def appointments_cancelled(time_range: nil, role: nil, same_day_only: false)
+      appointments = Appointment.all
+      appointments = appointments.where(created_at: time_range) if time_range.present?
+      appointments = appointments.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
+      appointments = appointments.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
+      appointments = appointments.where(appointment_status: 6)
+      appointments 
+    end
+
     # @param [Range<Time>] time_range Only Guardian-s who sent Message-s within that time range will be retrieved
     # @return [ActiveRecord::Relation<User>]
     def guardians_who_sent_messages(time_range: nil)
@@ -146,6 +155,9 @@ class AnalyticsService
   def appointments_booked(role: nil, same_day_only: false)
     AnalyticsService.appointments_booked(time_range: time_range, role: role, same_day_only: same_day_only)
   end
+  def appointments_cancelled(role: nil, same_day_only: false)
+    AnalyticsService.appointments_cancelled(time_range: time_range, role: role, same_day_only: same_day_only)
+  end
   def guardians_who_sent_messages
     @guardians_who_sent_messages ||= AnalyticsService.guardians_who_sent_messages(time_range: time_range)
   end
@@ -184,8 +196,7 @@ class AnalyticsService
     @single_value_stats ||= {
       'Schedule Engagement' => {
         '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
-        '# of visits cancelled from app' => 5,
-        '# of visits rescheduled from app' => 5
+        '# of visits cancelled from app' => appointments_cancelled(role: Role.guardian).size,
       },
       'Appointment Engagement' => {
         '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
