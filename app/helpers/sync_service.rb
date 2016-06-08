@@ -1,6 +1,6 @@
 class SyncService
   def self.start
-    Delayed::Job.where(queue: [SyncProviderJob, SyncAppointmentsJob, SyncPatientJob].map(&:queue_name)).destroy_all
+    Delayed::Job.where(queue: [SyncProviderJob, SyncPracticeJob, SyncAppointmentsJob, SyncPatientJob].map(&:queue_name)).destroy_all
     [
       Provider,
       Practice,
