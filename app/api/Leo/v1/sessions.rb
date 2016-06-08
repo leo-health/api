@@ -11,6 +11,7 @@ module Leo
           optional :platform, type: String,  values: ['web', 'ios', 'android']
           optional :device_type, type: String
           optional :device_token, type: String
+          optional :os_version, type: String
         end
 
         desc "create a session when user login"
@@ -20,11 +21,7 @@ module Leo
             error!({error_code: 403, user_message: "Invalid Email or Password."}, 422)
           end
 
-          session_params = {
-            platform: params[:platform],
-            device_type: params[:device_type],
-            device_token: params[:device_token]
-          }
+          session_params = params.slice(:platform, :device_token, :device_type, :os_version)
 
           session = user.sessions.create(session_params)
           if session.valid?
