@@ -8,9 +8,11 @@ class AnalyticsService
     # @param [Range<Time>] time_range Only Patient-s with Appointment-s within that time range will be retrieved
     # @return [ActiveRecord::Relation<Patient>] Patient-s with Appointment-s in the given time range
     def patients_with_appointments(time_range: nil)
-      patients = Patient.joins(:appointments)
-      patients = patients.where(appointments: {start_datetime: time_range}) if time_range.present?
-      patients.uniq(:id)
+      #patients = Patient.joins(:appointments)
+      #patients = patients.where(appointments: {start_datetime: time_range}) if time_range.present?
+      #patients.uniq(:id)
+      appts = Appointment.pluck(:patient_id)
+      appts.uniq
     end
 
     # @return [Array<Hash{Time => Integer}>]
@@ -182,11 +184,11 @@ class AnalyticsService
     @single_value_stats ||= {
       'Schedule Engagement' => {
         '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
-        '# of visits scheduled from app + practice (total)' => appointments_booked.size
+        '# of visits cancelled from app' => 5,
+        '# of visits rescheduled from app' => 5
       },
       'Appointment Engagement' => {
         '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
-        '# of same day appointments from app + practice (total)' => appointments_booked(same_day_only: true).size
       },
       'Message Engagement' => {
         '# of guardians that sent a message' => guardians_who_sent_messages.size
@@ -201,16 +203,16 @@ class AnalyticsService
   # @return [Hash<String, #to_s>]
   def practice_engagement_single_value_stats
     @practice_engagement_value_stats ||= {
-      '# of patients who had at least 1 appointment' => patients_with_appointments.size
+      '# of parents who booked at least 1 appointment through the app' => patients_with_appointments.size
     }
   end
 
   # @return [Hash<String, Hash<>>]
-  def practice_engagement_monthly_stats
-    @practice_engagement_monthly_stats ||= {
-      '# of new patients enrolled in practice monthly' => new_patients_enrolled_monthly
-    }
-  end
+  #def practice_engagement_monthly_stats
+   # @practice_engagement_monthly_stats ||= {
+    #  '# of new patients enrolled in practice monthly' => new_patients_enrolled_monthly
+    #}
+  #end
 
 
   ## Formatters

@@ -20,15 +20,9 @@
   <div class="clearfix"></div>
   <hr style="margin-top: 0px;">
 
-  <h3>Practice Engagement</h3>
+  <h3>Leo</h3>
   <ul>
     <% @analytics.practice_engagement_single_value_stats.each do |metric, value| %>
-      <li>
-        <%= metric %>:
-        <span style="font-weight: bold;"><%= value %></span>
-      </li>
-    <% end %>
-    <% @analytics.practice_engagement_monthly_stats.each do |metric, value| %>
       <li>
         <%= metric %>:
         <span style="font-weight: bold;"><%= value %></span>
