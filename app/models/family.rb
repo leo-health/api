@@ -110,6 +110,7 @@ class Family < ActiveRecord::Base
       update_subscription_quantity
     end
     save!
+    stripe_customer
   end
 
   private

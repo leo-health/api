@@ -31,7 +31,21 @@ describe Leo::V1::Subscriptions do
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data]).to be(true)
+      expect(body[:data]).to eq({
+        id: "test_cus_3",
+        subscriptions: {
+          data: [
+            {
+              id: "test_su_4",
+              quantity: 1,
+              plan: {
+                id: "com.leohealth.standard",
+                amount: 2000
+              }
+            }
+          ]
+        }
+      })
       fam = user.family.reload
       expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
       expect(fam.membership_type).to eq("member")
@@ -67,7 +81,21 @@ describe Leo::V1::Subscriptions do
         do_request
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data]).to be(true)
+        expect(body[:data]).to eq({
+          id: "test_cus_3",
+          subscriptions: {
+            data: [
+              {
+                id: "test_su_4",
+                quantity: 1,
+                plan: {
+                  id: "com.leohealth.standard",
+                  amount: 2000
+                }
+              }
+            ]
+          }
+        })
         fam = user.family.reload
         expect(fam.membership_type).to eq("member")
         expect(fam.stripe_customer).not_to eq({})
@@ -91,7 +119,9 @@ describe Leo::V1::Subscriptions do
         do_request
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data]).to be(true)
+        expect(body[:data]).to eq({
+          id: "test_cus_3",
+        })
         fam = user.family.reload
         expect(fam.membership_type).to eq("exempted")
         expect(fam.stripe_customer).not_to eq({})
