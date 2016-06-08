@@ -10,7 +10,9 @@ module Leo
             error_code: 500
           }
         end
-        { status: 'error', message: nested_message, backtrace: backtrace }.to_json
+        error_json = { status: 'error', message: nested_message}
+        error_json[:backtrace] = backtrace unless Rails.env.production?
+        error_json.to_json
       end
     end
   end

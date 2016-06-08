@@ -21,7 +21,8 @@ module Leo
             error!({error_code: 403, user_message: "Invalid Email or Password."}, 422)
           end
 
-          session_params = params.slice(:platform, :device_type, :device_type, :os_version)
+          session_params = params.slice(:platform, :device_token, :device_type, :os_version)
+
           session = user.sessions.create(session_params)
           if session.valid?
             present :user, user, with: Leo::Entities::UserEntity

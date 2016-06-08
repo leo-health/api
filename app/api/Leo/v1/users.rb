@@ -115,7 +115,7 @@ module Leo
           declared_params = declared params, include_missing: false
           session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
           session_params = declared_params.slice(*session_keys) || {}
-          
+
           # TODO: user_params (all params?) should be required in versions > "1.0.0"
           user_params = (declared_params.except(*session_keys) || {}).merge({ role: Role.guardian })
 
