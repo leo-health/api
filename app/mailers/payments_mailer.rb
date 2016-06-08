@@ -6,6 +6,23 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
     'payments_notifications'
   end
 
+  def new_subscription_created(family)
+    subscription = family.stripe_subscription
+    subscription_amount = subscription[:plan][:amount] * subscription[:quantity]
+    family.guardians.each do |user|
+      delay(queue: queue_name, owner: user).mandrill_mail(
+        template: 'Leo - First Invoice',
+        subject: 'Leo - Thank you for subscribing to Leo.',
+        to: user.unconfirmed_email || user.email,
+        vars: {
+          'FIRST_NAME': user.first_name,
+          'SUBSCRIPTION_AMOUNT': subscription_amount,
+          'NUMBER OF CHILDREN': family.patients.count
+        }
+      )
+    end
+  end
+
   def new_payment_method(family)
     family.guardians.each do |user|
       delay(queue: queue_name, owner: user).mandrill_mail(
