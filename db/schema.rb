@@ -544,6 +544,7 @@ ActiveRecord::Schema.define(version: 20160608201214) do
     t.string   "device_width"
     t.string   "device_height"
     t.string   "client_version"
+    t.string   "client_platform"
   end
 
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree
