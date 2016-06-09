@@ -497,3 +497,6 @@ DEPENDENCIES
   useragent
   whenever
   zeus-parallel_tests
+
+BUNDLED WITH
+   1.11.2
