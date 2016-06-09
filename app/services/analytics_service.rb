@@ -26,6 +26,7 @@ class AnalyticsService
       appointments = Appointment.all
       appointments = appointments.where(created_at: time_range) if time_range.present?
       appointments = appointments.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
+      appointments = appointments.for_analytics
       appointments = appointments.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
       appointments
     end
@@ -74,8 +75,8 @@ class AnalyticsService
       messages_enum = messages.to_enum
       message = messages_enum.next
       closure_notes.each do |closure_note|
-        next unless message.try(:created_at) < closure_note.created_at  # Case has begun before the time_range, thus ignore it
-        cases_times << (closure_note.created_at - message.created_at).to_f
+        case_time = (closure_note.created_at - message.created_at).to_f
+        cases_times << case_time unless case_time < 0  # The comparison is only a safety check - should never happen with proper data
 
         # Ignore all subsequent messages before the current closure_note
         begin
@@ -90,8 +91,8 @@ class AnalyticsService
 
     # Filters a set of Message-s and ClosureNote-s to return only those that constitute to 'cases' contained within a given time_range
     # @param [Range<Time>] time_range
-    # @param [Array<ClosureNote>] closure_notes Must be sorted by created_at!
-    # @param [Array<Message>] messages Must be sorted by created_at!
+    # @param [Array<ClosureNote>] closure_notes Must be sorted by 'created_at'!
+    # @param [Array<Message>] messages Must be sorted by 'created_at'!
     # @return [{closure_notes: Array<ClosureNote>, messages: Array<Message>}]
     def messages_and_closure_times_within_time_range(time_range, closure_notes, messages)
       last_closure_note_before_time_range = closure_notes.reverse.find { |closure_note| closure_note.created_at < time_range.begin }
@@ -109,12 +110,12 @@ class AnalyticsService
       end
 
       # Discard all closure_notes that do not have preceding messages
-      return [], [] if messages.empty?
+      return { closure_notes: [], messages: [] } if messages.empty?
       first_message_created_at = messages.first.created_at
       closure_notes.reject! { |closure_note| closure_note.created_at < first_message_created_at }
 
       # Discard all messages that do not have following closure_notes
-      return [], [] if closure_notes.empty?
+      return { closure_notes: [], messages: [] } if closure_notes.empty?
       last_closure_note_created_at = closure_notes.last.created_at
       messages.reject! { |message| message.created_at > last_closure_note_created_at }
 
