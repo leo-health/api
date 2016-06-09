@@ -120,10 +120,23 @@ describe AnalyticsService do
                                                    start_datetime: Time.zone.today + 1.hour) }
       let!(:clinical_appointment)         { create(:appointment,
                                                    booked_by: clinical_user) }
+      let!(:cancelled_appointment)        { create(:appointment, :cancelled,
+                                                   booked_by: clinical_user) }
+      let!(:rescheduled_appointment)      { create(:appointment,
+                                                   booked_by: customer_service_user,
+                                                   rescheduled_id: cancelled_appointment.id) }
 
       context 'called without arguments' do
         it 'returns all appointments' do
           expect(appointments.size).to eq 9
+        end
+
+        it 'does not return cancelled appointments' do
+          expect(appointments).not_to include(cancelled_appointment)
+        end
+
+        it 'does not return rescheduled appointments' do
+          expect(appointments).not_to include(rescheduled_appointment)
         end
       end
 
