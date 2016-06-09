@@ -33,13 +33,17 @@ class AnalyticsService
       appointments
     end
 
+    # @param [Role] role Limit only to Appointment-s by User-s with that role
+    # @param [Range<Time>] time_range Only Appointment-s starting within that time rage will be retrieved
+    # @param [Boolean] same_day_only If true, returns only Appointment-s scheduled for the same day
+    # @return [Enumerable<Appointment>]
     def appointments_cancelled(time_range: nil, role: nil, same_day_only: false)
-      appointments = Appointment.all
-      appointments = appointments.where(created_at: time_range) if time_range.present?
-      appointments = appointments.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
-      appointments = appointments.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
-      appointments = appointments.where(appointment_status: 6)
-      appointments 
+      cancelled = Appointment.all
+      cancelled = cancelled.where(created_at: time_range) if time_range.present?
+      cancelled = cancelled.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
+      cancelled = cancelled.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
+      cancelled = cancelled.where(appointment_status: 6)
+      cancelled
     end
 
     # @param [Range<Time>] time_range Only Guardian-s who sent Message-s within that time range will be retrieved
@@ -48,6 +52,17 @@ class AnalyticsService
       guardians = User.guardians.joins(:sent_messages)
       guardians = guardians.where(sent_messages: {created_at: time_range}) if time_range.present?
       guardians.distinct
+    end
+
+
+    # @param [Range<Time>] time_range Only Message-s sent within the time range will be retrieved
+    # @return [Enumerable<Message>]
+    def total_messages_sent(time_range: nil)
+      # @param [Range<Time>] time_range Only Guardian-s who sent Message-s within that time range will be retrieved
+      messages = Message.all
+      messages = messages.where.not(sender_id: 5)
+      messages = messages.where(created_at: time_range) if time_range.present?
+      messages
     end
 
     # @param [Range<Time>] time_range Only cases fully contained within that time range will be counted
@@ -161,6 +176,9 @@ class AnalyticsService
   def guardians_who_sent_messages
     @guardians_who_sent_messages ||= AnalyticsService.guardians_who_sent_messages(time_range: time_range)
   end
+  def total_messages_sent(time_range: nil)
+    AnalyticsService.total_messages_sent(time_range: time_range)
+  end
   def cases_times_in_seconds
     @cases_times_in_seconds ||= AnalyticsService.cases_times_in_seconds(time_range: time_range)
   end
@@ -196,13 +214,14 @@ class AnalyticsService
     @single_value_stats ||= {
       'Schedule Engagement' => {
         '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
-        '# of visits cancelled from app' => appointments_cancelled(role: Role.guardian).size,
+        '# of visits cancelled or rescheduled from app' => appointments_cancelled(role: Role.guardian).size,
       },
       'Appointment Engagement' => {
         '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
       },
       'Message Engagement' => {
-        '# of guardians that sent a message' => guardians_who_sent_messages.size
+        '# of guardians that sent a message' => guardians_who_sent_messages.size,
+        '# of total messages sent' => total_messages_sent.size
       },
       'Response Time Metric' => {
         'Average Time to Case Close (minutes)' => average_case_time_in_minutes,
