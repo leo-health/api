@@ -47,19 +47,6 @@ describe Leo::V1::Users do
     end
   end
 
-  describe "POST /api/v1/sign_up - create user with params" do
-    let!(:role){create(:role, :guardian)}
-
-    def do_request
-      post "/api/v1/sign_up", user_params, format: :json
-    end
-
-    it "should create the user with a role, and return created user along with authentication_token" do
-      expect{ do_request }.to change{ User.count }.from(0).to(1)
-      expect(response.status).to eq(201)
-    end
-  end
-
   describe "POST /api/v1/users - create user from enrollment" do
     let!(:guardian_role){create(:role, :guardian)}
     let(:enrollment_user){ create(:user, email: "bigtree@gmail.com", password: "password")}
@@ -87,6 +74,21 @@ describe Leo::V1::Users do
 
     def do_request
       get "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token}, format: :json
+    end
+
+    it "should show the requested user" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json('data.user.id', user.id)
+    end
+  end
+
+  describe "GET /api/v1/users/id" do
+    let(:user){create(:user)}
+    let!(:session){user.sessions.create}
+
+    def do_request
+      get "/api/v1/users", {authentication_token: session.authentication_token}, format: :json
     end
 
     it "should show the requested user" do
