@@ -102,6 +102,7 @@ class Family < ActiveRecord::Base
   end
 
   def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
+    return unless primary_guardian
     if !stripe_customer_id && credit_card_token
       create_stripe_customer(credit_card_token)
     elsif credit_card_token
