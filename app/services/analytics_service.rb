@@ -28,7 +28,8 @@ class AnalyticsService
       appointments = Appointment.all
       appointments = appointments.where(created_at: time_range) if time_range.present?
       appointments = appointments.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
-      appointments = appointments.for_analytics
+      #appointments = appointments.for_analytics
+      appointments = appointments.where.not(appointment_status: 6)
       appointments = appointments.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
       appointments
     end
@@ -44,6 +45,19 @@ class AnalyticsService
       cancelled = cancelled.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
       cancelled = cancelled.where(appointment_status: 6)
       cancelled
+    end
+
+     # @param [Role] role Limit only to Appointment-s by User-s with that role
+    # @param [Range<Time>] time_range Only Appointment-s starting within that time rage will be retrieved
+    # @param [Boolean] same_day_only If true, returns only Appointment-s scheduled for the same day
+    # @return [Enumerable<Appointment>]
+    def appointments_rescheduled(time_range: nil, role: nil, same_day_only: false)
+      rescheduled = Appointment.all
+      rescheduled = rescheduled.where(created_at: time_range) if time_range.present?
+      rescheduled = rescheduled.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
+      rescheduled = rescheduled.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
+      rescheduled = rescheduled.where.not(rescheduled_id: nil)
+      rescheduled
     end
 
     # @param [Range<Time>] time_range Only Guardian-s who sent Message-s within that time range will be retrieved
@@ -173,6 +187,9 @@ class AnalyticsService
   def appointments_cancelled(role: nil, same_day_only: false)
     AnalyticsService.appointments_cancelled(time_range: time_range, role: role, same_day_only: same_day_only)
   end
+  def appointments_rescheduled(role: nil, same_day_only: false)
+    AnalyticsService.appointments_rescheduled(time_range: time_range, role: role, same_day_only: same_day_only)
+  end
   def guardians_who_sent_messages
     @guardians_who_sent_messages ||= AnalyticsService.guardians_who_sent_messages(time_range: time_range)
   end
@@ -214,7 +231,8 @@ class AnalyticsService
     @single_value_stats ||= {
       'Schedule Engagement' => {
         '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
-        '# of visits cancelled or rescheduled from app' => appointments_cancelled(role: Role.guardian).size,
+        '# of visits cancelled from app' => appointments_cancelled(role: Role.guardian).size - appointments_rescheduled(role: Role.guardian).size,
+        '# of visits rescheduled from app' => appointments_rescheduled(role: Role.guardian).size,
       },
       'Appointment Engagement' => {
         '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
