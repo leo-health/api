@@ -27,9 +27,9 @@ class AnalyticsService
     def appointments_booked(time_range: nil, role: nil, same_day_only: false)
       appointments = Appointment.all
       appointments = appointments.where(created_at: time_range) if time_range.present?
+      appointments = appointments.where(rescheduled_id: nil)
       appointments = appointments.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
       #appointments = appointments.for_analytics
-      appointments = appointments.where.not(appointment_status: 6)
       appointments = appointments.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
       appointments
     end
@@ -75,6 +75,7 @@ class AnalyticsService
       # @param [Range<Time>] time_range Only Guardian-s who sent Message-s within that time range will be retrieved
       messages = Message.all
       messages = messages.where.not(sender_id: 5)
+      messages = messages.where("sender_id > ?", 11) 
       messages = messages.where(created_at: time_range) if time_range.present?
       messages
     end
