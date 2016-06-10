@@ -14,6 +14,10 @@ FactoryGirl.define do
     association :role, factory: [:role, :guardian]
     practice
 
+    after(:create) do |instance|
+      instance.set_complete!
+    end
+
     trait :member do
       sex					'M'
       association :role, factory: [:role, :guardian]

@@ -2,6 +2,7 @@ class Family < ActiveRecord::Base
   include AASM
 
   has_many :guardians, -> { complete }, class_name: 'User'
+  has_many :incomplete_guardians, class_name: 'User'
   has_many :patients
   has_one :conversation
   store :stripe_customer, coder: JSON
@@ -17,6 +18,7 @@ class Family < ActiveRecord::Base
     event :renew_membership do
       after do
         patients.map(&:subscribe_to_athena)
+        incomplete_guardians.map { |g| g.set_complete! if g.valid_incomplete? }
       end
 
       transitions from: [:incomplete, :delinquent], to: :member
@@ -28,6 +30,7 @@ class Family < ActiveRecord::Base
 
     event :exempt_membership do
       after do
+        incomplete_guardians.map { |g| g.set_complete! if g.valid_incomplete? }
         if stripe_customer_id && stripe_subscription_id
           if customer = Stripe::Customer.retrieve(stripe_customer_id)
             if subscription = customer.subscriptions.retrieve(stripe_subscription_id)

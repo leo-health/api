@@ -23,6 +23,8 @@ describe Leo::V1::Patients do
   describe 'POST /api/v1/patients' do
     before do
       Delayed::Job.destroy_all
+      second_guardian.confirm
+      second_guardian.set_complete!
     end
 
     let(:patient_params){{first_name: "patient_first_name",
