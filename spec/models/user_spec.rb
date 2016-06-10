@@ -4,7 +4,7 @@ require 'mandrill_mailer/offline'
 describe User do
   describe "relations" do
     let(:guardian){ create(:user, :guardian) }
-    let(:provider){ create(:user, :clinical) }
+    let(:provider){ create(:provider) }
     let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
     let!(:checked_in_appointment){ create(:appointment, :checked_in, booked_by: guardian, provider: provider, start_datetime: 2.minutes.ago) }
     let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
@@ -19,7 +19,7 @@ describe User do
 
     it{ is_expected.to have_one(:avatar) }
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
-    it{ is_expected.to have_one(:provider_sync_profile).with_foreign_key('provider_id') }
+    it{ is_expected.to have_one(:provider) }
 
     it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:forms) }
@@ -30,13 +30,12 @@ describe User do
     it{ is_expected.to have_many(:read_messages).class_name('Message').with_foreign_key('read_receipts') }
     it{ is_expected.to have_many(:sessions) }
     it{ is_expected.to have_many(:sent_messages).class_name('Message').with_foreign_key('sender_id') }
-    it{ is_expected.to have_many(:provider_appointments).class_name('Appointment').with_foreign_key('provider_id') }
     it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id') }
     it{ is_expected.to have_many(:user_generated_health_records) }
 
     describe "has many provider appointments" do
       it "should return provider appointments" do
-        expect(provider.provider_appointments.sort).to eq([checked_in_appointment, charge_entered_appointment].sort)
+        expect(Appointment.booked.where(provider: provider).sort).to eq([checked_in_appointment, charge_entered_appointment].sort)
       end
     end
 
@@ -101,7 +100,10 @@ describe User do
   end
 
   describe "validations" do
-    subject { build(:user) }
+    subject { build(:user, complete_status: :complete) }
+    before do
+      subject.validate
+    end
 
     it { is_expected.to validate_length_of(:password).is_at_least(8)}
     it { is_expected.to validate_presence_of(:first_name) }
@@ -113,13 +115,13 @@ describe User do
     it { is_expected.to validate_uniqueness_of(:vendor_id).allow_nil }
 
     context "if provider" do
-      before { allow(subject).to receive(:provider?).and_return(true)}
-      it { should validate_presence_of(:provider_sync_profile) }
+      before { allow(subject).to receive(:clinical?).and_return(true)}
+      it { should validate_presence_of(:provider) }
     end
 
     context "if not provider" do
-      before { allow(subject).to receive(:provider?).and_return(false)}
-      it { should_not validate_presence_of(:provider_sync_profile) }
+      before { allow(subject).to receive(:clinical?).and_return(false)}
+      it { should_not validate_presence_of(:provider) }
     end
 
     context "if guardian" do
@@ -130,40 +132,21 @@ describe User do
 
     context "if not guardian" do
       before { allow(subject).to receive(:guardian?).and_return(false)}
-
       it { should_not validate_presence_of(:vendor_id) }
     end
   end
 
   describe "callbacks" do
-    let(:user){ create(:user, email: "emailtest@testemail.com", first_name: "first") }
+    let!(:user){ create(:user, email: "emailtest@testemail.com", first_name: "first") }
     let(:onboarding_group){ create(:onboarding_group) }
     let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, first_name: "second", family: user.family) }
 
-    describe "after update" do
-      context "for send welcome to practice email" do
-        it { expect(user).to callback(:welcome_onboarding_notifications).after(:update) }
-
-        it "should send user an email to welcome to practice after user confirmed account" do
-          expect{ user.confirm }.to change(Delayed::Job, :count).by(1)
-        end
-      end
-    end
-
     describe "after commit on create" do
-      it { expect(user).to callback(:set_user_type_on_secondary_user).after(:commit) }
+      it { expect(user).to callback(:guardian_was_completed_callback).after(:commit) }
 
       context "for secondary guardian" do
-        it "should set confirmed_at for secondary user" do
-          expect( secondary_guardian.confirmed_at ).not_to eq(nil)
-        end
-
-        it "should set the user type of secondary guardian to be intentical to the primary guadian" do
-          expect( secondary_guardian.type ).to eq(user.type)
-        end
-
-        it "should send a welcome to practice email to secodonary user, and a internal notification email to ios" do
-          expect( Delayed::Job.where(queue: 'notification_email').count ).to eq(2)
+        it "should send a welcome to practice email and an internal invite email after confirming email" do
+          expect{ secondary_guardian.confirm_secondary_guardian }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(2)
         end
       end
     end
@@ -209,7 +192,7 @@ describe User do
     end
 
     it "should collect all the unique device tokens" do
-      expect(user.collect_device_tokens).to eq(uniq_tokens)
+      expect(user.collect_device_tokens.sort).to eq(uniq_tokens.sort)
     end
   end
 

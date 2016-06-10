@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160420032516) do
+ActiveRecord::Schema.define(version: 20160526192733) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -75,13 +75,14 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.datetime "start_datetime",                    null: false
     t.integer  "appointment_type_id",               null: false
     t.string   "notes"
-    t.integer  "booked_by_id",                      null: false
-    t.integer  "provider_id",                       null: false
+    t.integer  "booked_by_id"
+    t.integer  "provider_id"
     t.integer  "patient_id"
     t.integer  "rescheduled_id"
     t.datetime "deleted_at"
     t.integer  "appointment_status_id",             null: false
-    t.integer  "practice_id",                       null: false
+    t.integer  "practice_id"
+    t.string   "booked_by_type"
   end
 
   add_index "appointments", ["appointment_status_id"], name: "index_appointments_on_appointment_status_id", using: :btree
@@ -99,7 +100,7 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.string   "owner_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string   "avatar",     null: false
+    t.string   "avatar"
   end
 
   add_index "avatars", ["owner_type", "owner_id"], name: "index_avatars_on_owner_type_and_owner_id", using: :btree
@@ -198,9 +199,14 @@ ActiveRecord::Schema.define(version: 20160420032516) do
   add_index "escalation_notes", ["escalated_to_id"], name: "index_escalation_notes_on_escalated_to_id", using: :btree
 
   create_table "families", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.string   "membership_type"
+    t.string   "stripe_customer_id"
+    t.text     "stripe_customer"
   end
+
+  add_index "families", ["membership_type"], name: "index_families_on_membership_type", using: :btree
 
   create_table "forms", force: :cascade do |t|
     t.integer  "patient_id",      null: false
@@ -341,6 +347,7 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.string   "sex",                    null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.integer  "athena_id"
   end
 
   add_index "patient_enrollments", ["guardian_enrollment_id"], name: "index_patient_enrollments_on_guardian_enrollment_id", using: :btree
@@ -368,12 +375,29 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.datetime "insurances_updated_at"
     t.datetime "photos_updated_at"
     t.integer  "sync_status_id"
+    t.integer  "patient_enrollment_id"
   end
 
   add_index "patients", ["athena_id"], name: "index_patients_on_athena_id", using: :btree
   add_index "patients", ["deleted_at"], name: "index_patients_on_deleted_at", using: :btree
   add_index "patients", ["first_name", "family_id"], name: "index_patients_on_first_name_and_family_id", using: :btree
   add_index "patients", ["first_name", "last_name"], name: "index_patients_on_first_name_and_last_name", using: :btree
+
+  create_table "people", force: :cascade do |t|
+    t.string   "title",          default: ""
+    t.string   "first_name",     default: "", null: false
+    t.string   "middle_initial", default: ""
+    t.string   "last_name",      default: "", null: false
+    t.datetime "dob"
+    t.string   "sex"
+    t.integer  "role",                        null: false
+    t.integer  "practice_id"
+    t.string   "email"
+    t.string   "type"
+    t.integer  "avatar_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "photos", force: :cascade do |t|
     t.integer  "patient_id"
@@ -472,11 +496,21 @@ ActiveRecord::Schema.define(version: 20160420032516) do
 
   add_index "provider_schedules", ["athena_provider_id"], name: "index_provider_schedules_on_athena_provider_id", using: :btree
 
-  create_table "provider_sync_profiles", force: :cascade do |t|
-    t.integer  "provider_id",                      null: false
+  create_table "providers", force: :cascade do |t|
+    t.integer  "user_id"
     t.integer  "athena_department_id", default: 0
     t.integer  "athena_id",            default: 0
     t.datetime "leave_updated_at"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "credentials",                      array: true
+    t.integer  "practice_id"
+    t.string   "title"
+    t.string   "middle_initial"
+    t.string   "suffix"
+    t.string   "sex"
+    t.string   "email"
+    t.integer  "avatar_id"
   end
 
   create_table "read_receipts", force: :cascade do |t|
@@ -520,23 +554,35 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.datetime "end_datetime"
     t.string   "free_busy_type"
     t.integer  "athena_id"
-    t.integer  "provider_sync_profile_id"
+    t.integer  "provider_id"
     t.integer  "appointment_type_id"
     t.integer  "sync_status_id"
     t.integer  "appointment_id"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
   end
 
   add_index "slots", ["end_datetime"], name: "index_slots_on_end_datetime", using: :btree
   add_index "slots", ["start_datetime"], name: "index_slots_on_start_datetime", using: :btree
 
   create_table "staff_profiles", force: :cascade do |t|
-    t.integer  "staff_id",    null: false
-    t.string   "specialties",              array: true
-    t.string   "credentials",              array: true
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.integer  "staff_id"
+    t.string   "specialties",                 array: true
+    t.string   "credentials",                 array: true
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.integer  "provider_id"
+    t.integer  "practice_id"
+    t.integer  "athena_id"
+    t.string   "title"
+    t.string   "first_name"
+    t.string   "middle_initial"
+    t.string   "last_name"
+    t.string   "suffix"
+    t.string   "sex"
+    t.string   "email"
+    t.string   "type"
+    t.integer  "avatar_id"
   end
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
@@ -575,12 +621,12 @@ ActiveRecord::Schema.define(version: 20160420032516) do
 
   create_table "users", force: :cascade do |t|
     t.string   "title"
-    t.string   "first_name",             null: false
+    t.string   "first_name"
     t.string   "middle_initial"
-    t.string   "last_name",              null: false
+    t.string   "last_name"
     t.string   "sex"
     t.integer  "practice_id"
-    t.string   "email",                  null: false
+    t.string   "email"
     t.string   "encrypted_password"
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
@@ -593,7 +639,7 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
     t.string   "suffix"
-    t.integer  "role_id",                null: false
+    t.integer  "role_id"
     t.datetime "deleted_at"
     t.date     "birth_date"
     t.string   "avatar_url"
@@ -603,11 +649,12 @@ ActiveRecord::Schema.define(version: 20160420032516) do
     t.integer  "insurance_plan_id"
     t.string   "vendor_id"
     t.integer  "enrollment_id"
+    t.string   "complete_status"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
   add_index "users", ["deleted_at"], name: "index_users_on_deleted_at", using: :btree
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["email"], name: "index_users_on_email", using: :btree
   add_index "users", ["enrollment_id"], name: "index_users_on_enrollment_id", unique: true, using: :btree
   add_index "users", ["first_name", "last_name"], name: "index_users_on_first_name_and_last_name", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree

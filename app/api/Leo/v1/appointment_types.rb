@@ -10,7 +10,11 @@ module Leo
         end
 
         get do
-          present AppointmentType.where(hidden: false).order("lower(name) DESC").all, with: Leo::Entities::AppointmentTypeEntity
+          appointment_types = AppointmentType.where(hidden: false)
+          if appointment_types.count == 0
+            appointment_types = AppointmentType.all
+          end
+          present appointment_types.order("lower(name) DESC"), with: Leo::Entities::AppointmentTypeEntity
         end
       end
     end

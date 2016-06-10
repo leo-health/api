@@ -11,7 +11,7 @@ resource "Appointments" do
   let(:appointment_status){ create(:appointment_status)}
   let!(:cancelled_appointment_status){ create(:appointment_status, :cancelled) }
   let(:appointment_type){ create(:appointment_type)}
-  let(:provider){create(:user, :clinical)}
+  let(:provider){create(:provider)}
   let(:patient){create(:patient, family: user.family)}
   let(:practice){create(:practice)}
   let(:appointment){create(:appointment, booked_by: user)}

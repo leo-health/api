@@ -149,6 +149,132 @@ describe AthenaPatientSyncService do
     end
   end
 
+  describe ".sync_all_patients" do
+    let!(:practice){ create(:practice, athena_id: 1) }
+
+    def do_request
+      @service.sync_all_patients practice
+    end
+
+    before do
+      create(:role, :guardian)
+      create(:onboarding_group, group_name: :generated_from_athena)
+    end
+
+    let!(:athena_patient_1) {{
+      "racename" => "Patient Declined",
+      "occupationcode" => nil,
+      "departmentid" => "1",
+      "homephone" => "1234567890",
+      "guarantorstate" => "MA",
+      "driverslicense" => "false",
+      "homebound" => "false",
+      "ethnicitycode" => "declined",
+      "contactpreference" => "HOMEPHONE",
+      "industrycode" => nil,
+      "contacthomephone" => nil,
+      "guarantorssn" => nil,
+      "guarantordob" => "12/12/2015",
+      "zip" => "02474",
+      "guarantoraddresssameaspatient" => "true",
+      "employerphone" => nil,
+      "contactmobilephone" => nil,
+      "nextkinphone" => nil,
+      "portaltermsonfile" => "false",
+      "status" => "active",
+      "lastname" => "Test",
+      "guarantorfirstname" => "Zachary",
+      "city" => "ARLINGTON",
+      "ssn" => nil,
+      "lastappointment" => "02/29/2016 12:30",
+      "guarantoremail" => "z@a.com",
+      "guarantorcity" => "ARLINGTON",
+      "guarantorzip" => "02474",
+      "sex" => "F",
+      "privacyinformationverified" => "true",
+      "primarydepartmentid" => "1",
+      "balances" => [{
+        "balance" => 0,
+        "departmentlist" => "1",
+        "cleanbalance" => "true"
+      }],
+      "emailexists" => "true",
+      "race" => [
+        "declined"
+      ],
+      "firstappointment" => "02/16/2016 14:00",
+      "language6392code" => "declined",
+      "primaryproviderid" => "1",
+      "patientphoto" => "false",
+      "consenttocall" => "true",
+      "hasmobile" => "true",
+      "caresummarydeliverypreference" => "PORTAL",
+      "guarantorlastname" => "Scott",
+      "firstname" => "Praneetha",
+      "guarantorcountrycode" => "USA",
+      "state" => "MA",
+      "patientid" => "2",
+      "dob" => "12/12/2015",
+      "guarantorrelationshiptopatient" => "3",
+      "address1" => "300 Arsenal St",
+      "guarantorphone" => "1234567890",
+      "maritalstatus" => "U",
+      "countrycode" => "USA",
+      "guarantoraddress1" => "300 Arsenal St",
+      "maritalstatusname" => "UNKNOWN",
+      "consenttotext" => "false",
+      "countrycode3166" => "US",
+      "guarantorcountrycode3166" => "US"
+      }}
+    context "patient does not exist" do
+      it "creates a patient enrollment" do
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        do_request
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
+      end
+    end
+
+    context "patient already exists" do
+      before do
+        user = create(:user, :guardian)
+        create(:patient, family: user.family, athena_id: 2)
+      end
+      it "does not create a patient enrollment" do
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        do_request
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
+      end
+    end
+
+    context "patient enrollment already exists" do
+      before do
+        user = create(:user, :guardian)
+        create(:patient, family: user.family, athena_id: 2)
+      end
+      it "creates a patient enrollment" do
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        do_request
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
+      end
+    end
+
+    context "enrollment already exists" do
+      before do
+        create(:user, email: "z@a.com")
+      end
+      it "creates a patient and uses the matching enrollment" do
+        expect(User.count).to be(1)
+        expect(@connector).to receive(:get_patients).with(hash_including(departmentid: 1)).and_return([athena_patient_1])
+        do_request
+        expect(Patient.count).to be(1)
+        expect(User.count).to be(1)
+      end
+    end
+  end
+
   describe ".sync_allergies" do
     let(:parent) { create(:user, :guardian) }
     let!(:patient) { create(:patient, athena_id: 1, family: parent.family) }
@@ -259,17 +385,6 @@ describe AthenaPatientSyncService do
       )))
       @service.sync_vaccines patient
       expect(Vaccine.where(patient: patient).count).to be(1)
-    end
-  end
-
-  describe "process_patient_insurances" do
-    let(:parent) { create(:user, :guardian) }
-    let!(:patient) { create(:patient, athena_id: 1, family: parent.family) }
-
-    it "creates insurance" do
-      expect(@connector).to receive(:get_patient_insurances).and_return(insurance_response)
-      @service.sync_insurances patient
-      expect(Insurance.where(patient: patient).count).to be(1)
     end
   end
 end

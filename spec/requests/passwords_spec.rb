@@ -36,7 +36,7 @@ describe Leo::V1::Passwords do
       it 'should not reset the password for user' do
         do_request({password: "1", password_confirmation: "1"})
         expect(response.status).to eq(422)
-        expect_json("message.error_message.0", "Password is too short (minimum is 8 characters)" )
+        expect_json("message.user_message", "Password is too short (minimum is 8 characters)" )
       end
     end
 
@@ -44,7 +44,7 @@ describe Leo::V1::Passwords do
       it 'should not reset the password for user' do
         do_request({password: "password1", password_confirmation: "password2"})
         expect(response.status).to eq(422)
-        expect_json("message.error_message.0", "Password confirmation doesn't match Password" )
+        expect_json("message.user_message", "Password confirmation doesn't match Password" )
       end
     end
 
@@ -58,7 +58,7 @@ describe Leo::V1::Passwords do
       it 'should not reset the password for user' do
         do_request({password: "new_password", password_confirmation: "new_password"})
         expect(response.status).to eq(422)
-        expect_json("message.error_message", "Reset password period expired")
+        expect_json("message.user_message", "Reset password period expired")
       end
     end
   end
@@ -82,14 +82,14 @@ describe Leo::V1::Passwords do
 
     context "with unmatched passwords" do
       def do_request
-        password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "nnew_password" }
+        password_params = { authentication_token: session.authentication_token, current_password: "old_password", password: "new_password", password_confirmation: "new_password_with_typo" }
         put "/api/v1/passwords/change_password", password_params
       end
 
       it "should not change the password for user" do
         expect{ do_request }.to change( Delayed::Job, :count ).by(0)
         expect(response.status).to eq(422)
-        expect_json("message.error_message.0", "Password confirmation doesn't match Password" )
+        expect_json("message.user_message", "Password confirmation doesn't match Password" )
       end
     end
   end

@@ -1,3 +1,5 @@
+require 'stripe_mock'
+
 FactoryGirl.define do
   factory :user do
     first_name 	{ Faker::Name::first_name }
@@ -11,6 +13,14 @@ FactoryGirl.define do
     password_confirmation 'password'
     association :role, factory: [:role, :guardian]
     practice
+
+    trait :member do
+      sex					'M'
+      association :role, factory: [:role, :guardian]
+      after(:create) do |instance|
+        instance.family.update_or_create_stripe_subscription_if_needed! StripeMock.create_test_helper.generate_card_token
+      end
+    end
 
     trait :guardian do
       sex					'M'
@@ -35,8 +45,8 @@ FactoryGirl.define do
     trait :clinical do
       practice
       association :role, factory: [:role, :clinical]
-      after(:build) do |provider|
-        provider.provider_sync_profile ||= FactoryGirl.build(:provider_sync_profile, provider: provider)
+      after(:build) do |user|
+        user.provider ||= FactoryGirl.build(:provider, user: user)
       end
     end
 

@@ -6,7 +6,7 @@ class ChangeStatusColumnOnAppointmentsTable < ActiveRecord::Migration
   end
 
   def down
-    add_column :appointments, :status, :string, null: false
+    add_column :appointments, :status, :string
     remove_column :appointments, :appointment_status_id
   end
 end

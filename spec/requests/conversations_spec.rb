@@ -93,11 +93,11 @@ describe Leo::V1::Conversations do
   end
 
   describe "Get /api/v1/conversations" do
-    let(:clinial_user){create(:user, :clinical)}
+    let(:clinial_user){create(:user, :clinical) }
     let!(:session){ clinial_user.sessions.create }
-    let!(:family ){ create(:family)}
-    let!(:family_one ){ create(:family)}
-    let!(:family_two ){ create(:family)}
+    let!(:family ){ create(:family_with_members) }
+    let!(:family_one ){ create(:family_with_members) }
+    let!(:family_two ){ create(:family_with_members) }
 
     before do
       @new_conversation = family.conversation

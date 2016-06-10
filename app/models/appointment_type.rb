@@ -1,6 +1,6 @@
 class AppointmentType < ActiveRecord::Base
   has_many :appointments
-  validates :name, :duration, :athena_id, presence: true
+  validates :name, :duration, presence: true
   validates_uniqueness_of :name
 
   # TODO: remove hard coded ids
@@ -12,11 +12,24 @@ class AppointmentType < ActiveRecord::Base
     find_by(athena_id: BLOCK_TYPE_ATHENA_ID)
   end
 
+  def self.other
+    find_by(name: "Other")
+  end
+
   def self.APPOINTMENT_TYPE_MAP
     { 61 => BLOCK_TYPE_ATHENA_ID }.reverse_merge(Hash[AppointmentType.order(:athena_id).map { |e| [e.athena_id]*2 }].reverse_merge(Hash[WELL_VISIT_TYPES.map { |e| [e, WELL_VISIT_TYPE_ATHENA_ID] }]))
   end
 
   def self.mapped_appointment_type_id_for_athena_id(appointmenttypeid)
     self.APPOINTMENT_TYPE_MAP[appointmenttypeid] || BLOCK_TYPE_ATHENA_ID
+  end
+
+  def self.find_by_athena_id_with_mapping_if_needed(appointmenttypeid)
+    # try the given type
+    appt_type = find_by athena_id: appointmenttypeid
+    # try to map the type
+    appt_type ||= find_by athena_id: mapped_appointment_type_id_for_athena_id(appointmenttypeid)
+    # default to "Other"
+    appt_type ||= other
   end
 end

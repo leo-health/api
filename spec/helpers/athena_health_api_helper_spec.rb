@@ -700,5 +700,13 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
         expect(insurances.length).to eq (1)
       end
     end
+
+    describe ".get_providers" do
+      it "returns providers without pagination data" do
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200,IO.read("spec/mock_json/mock_providers.json")))
+        providers = connector.get_providers(departmentid: 1)
+        expect(providers.count).to eq(3)
+      end
+    end
   end
 end
