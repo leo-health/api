@@ -232,7 +232,7 @@ class AnalyticsService
 
   # @return [Hash<String, #to_s>]
   def practice_engagement_single_value_stats
-    @practice_engagement_value_stats ||= {
+    @practice_engagement_single_value_stats ||= {
       '# of parents who booked at least 1 appointment through the app' => patients_with_appointments.size
     }
   end
