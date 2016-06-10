@@ -96,6 +96,7 @@ describe Leo::V1::Appointments do
       expect(appointment.reload.cancelled?).to eq(true)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data][:appointment].as_json.to_json).to eq(serializer.represent(Appointment.last).as_json.to_json)
+      expect(Appointment.last.rescheduled_id).to eq(appointment.id)
     end
   end
 end
