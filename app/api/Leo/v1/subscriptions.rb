@@ -24,7 +24,20 @@ module Leo
           user = current_user
           family = user.family
           begin
-            family.update_or_create_stripe_subscription_if_needed! params[:credit_card_token]
+            success = family.update_or_create_stripe_subscription_if_needed! params[:credit_card_token]
+            unless success
+              if family.primary_guardian
+                debug_message = family.errors.full_messages.to_s
+              else
+                debug_message = "You can only create a subscription with a complete user"
+              end
+              error!({
+                error_code: 422,
+                user_message: "Sorry, we did something wrong and couldn't process your payment. Please try again later or contact us for help at info@leohealth.com",
+                debug_message: debug_message
+              }, 422)
+            end
+            success
           rescue Stripe::AuthenticationError => e
             error!(
               {
@@ -57,7 +70,6 @@ module Leo
                 debug_message: "Stripe::StripeError #{debug_message}"
               }, 500)
             logger.error(debug_message)
-            #suggest sending a email for stripe general errors
           end
         end
       end
