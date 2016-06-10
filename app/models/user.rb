@@ -67,7 +67,7 @@ class User < ActiveRecord::Base
     state :complete
 
     event :set_complete do
-      transitions from: :valid_incomplete, to: :complete, guard: :secondary_guardian_was_confirmed?
+      transitions from: :valid_incomplete, to: :complete, guard: :guardian_was_approved?
     end
 
     event :set_valid_incomplete do
@@ -152,7 +152,7 @@ class User < ActiveRecord::Base
     true
   end
 
-  def secondary_guardian_was_confirmed?
+  def guardian_was_approved?
     return true unless guardian?
     return true if primary_guardian?
     confirmed?

@@ -18,7 +18,7 @@ class Family < ActiveRecord::Base
     event :renew_membership do
       after do
         patients.map(&:subscribe_to_athena)
-        incomplete_guardians.map { |g| g.set_complete! if g.valid_incomplete? }
+        complete_all_guardians
       end
 
       transitions from: [:incomplete, :delinquent], to: :member
@@ -30,7 +30,7 @@ class Family < ActiveRecord::Base
 
     event :exempt_membership do
       after do
-        incomplete_guardians.map { |g| g.set_complete! if g.valid_incomplete? }
+        complete_all_guardians
         if stripe_customer_id && stripe_subscription_id
           if customer = Stripe::Customer.retrieve(stripe_customer_id)
             if subscription = customer.subscriptions.retrieve(stripe_subscription_id)
@@ -41,6 +41,10 @@ class Family < ActiveRecord::Base
       end
       transitions to: :exempted
     end
+  end
+
+  def complete_all_guardians
+    incomplete_guardians.map { |g| g.set_complete! if g.valid_incomplete? }
   end
 
   def members
