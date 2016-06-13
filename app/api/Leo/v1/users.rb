@@ -38,40 +38,6 @@ module Leo
         end
       end
 
-      desc "#post create a user with provided params"
-      namespace :sign_up do
-        params do
-          requires :first_name, type: String
-          requires :last_name, type: String
-          requires :vendor_id, type: String
-          requires :email, type: String
-          requires :password, type: String
-          requires :phone, type: String
-          optional :birth_date, type: Date
-          optional :sex, type: String, values: ['M', 'F']
-          optional :family_id, type: Integer
-          optional :middle_initial, type: String
-          optional :title, type: String
-          optional :suffix, type: String
-
-          optional :device_token, type: String
-          optional :device_type, type: String
-          optional :client_platform, type: String
-          optional :client_version, type: String
-        end
-
-        post do
-          declared_params = declared params, include_missing: false
-          session_keys = [:device_token, :device_type, :client_platform, :client_version]
-          session_params = declared_params.extract(*session_keys)
-          user_params = declared_params.except(*session_keys).merge({ role: Role.guardian })
-
-          user = User.new user_params
-          create_success user
-          user.sessions.create(session_params) if user.id
-        end
-      end
-
       desc "confirm user's email address"
       namespace "users/confirm_email" do
         params do
@@ -105,14 +71,15 @@ module Leo
 
           optional :device_token, type: String
           optional :device_type, type: String
+          optional :os_version, type: String
           optional :client_platform, type: String
           optional :client_version, type: String
         end
 
         post do
           declared_params = declared params, include_missing: false
-          session_keys = [:device_token, :device_type, :client_platform, :client_version]
-          session_params = declared_params.extract(*session_keys) || {}
+          session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
+          session_params = declared_params.slice(*session_keys) || {}
 
           # TODO: user_params (all params?) should be required in versions > "1.0.0"
           user_params = (declared_params.except(*session_keys) || {}).merge({ role: Role.guardian })
@@ -162,6 +129,11 @@ module Leo
           user = current_user
           user_params = declared(params)
           update_success user, user_params
+        end
+
+        get do
+          authenticated
+          present :user, current_user, with: Leo::Entities::UserEntity
         end
 
         route_param :id do

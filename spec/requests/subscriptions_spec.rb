@@ -31,9 +31,24 @@ describe Leo::V1::Subscriptions do
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data]).to be(true)
+      expect(body[:data]).to eq({
+        id: "test_cus_3",
+        subscriptions: {
+          data: [
+            {
+              id: "test_su_4",
+              quantity: 1,
+              plan: {
+                id: "com.leohealth.standard",
+                amount: 2000
+              }
+            }
+          ]
+        }
+      })
       fam = user.family.reload
       expect(Delayed::Job.where(queue: PostPatientJob.queue_name).count).to be(1)
+      expect(Delayed::Job.where(queue: PaymentsMailer.queue_name, owner: user).count).to be(1)
       expect(fam.membership_type).to eq("member")
       expect(fam.stripe_customer).not_to eq({})
       expect(fam.stripe_subscription_id).not_to be_nil
@@ -43,6 +58,7 @@ describe Leo::V1::Subscriptions do
       allow(Stripe::Customer).to receive(:create).and_raise(StripeMock.prepare_card_error(:card_declined).first.first.second)
       do_request
       expect(response.status).to eq(422)
+      expect(Delayed::Job.where(queue: PaymentsMailer.queue_name, owner: user).count).to be(0)
       expect(user.family.reload.membership_type).to eq("delinquent")
     end
   end
@@ -60,14 +76,28 @@ describe Leo::V1::Subscriptions do
     context "when delinquent" do
       before do
         user.family.update_or_create_stripe_subscription_if_needed! credit_card_token
-        user.family.expire_membership
+        user.family.expire_membership!
       end
 
       it "updates a users stripe card" do
         do_request
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data]).to be(true)
+        expect(body[:data]).to eq({
+          id: "test_cus_3",
+          subscriptions: {
+            data: [
+              {
+                id: "test_su_4",
+                quantity: 1,
+                plan: {
+                  id: "com.leohealth.standard",
+                  amount: 2000
+                }
+              }
+            ]
+          }
+        })
         fam = user.family.reload
         expect(fam.membership_type).to eq("member")
         expect(fam.stripe_customer).not_to eq({})
@@ -91,9 +121,12 @@ describe Leo::V1::Subscriptions do
         do_request
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data]).to be(true)
+        expect(body[:data]).to eq({
+          id: "test_cus_3",
+        })
         fam = user.family.reload
         expect(fam.membership_type).to eq("exempted")
+        expect(Delayed::Job.where(queue: PaymentsMailer.queue_name, owner: user).count).to be(0)
         expect(fam.stripe_customer).not_to eq({})
         expect(fam.stripe_subscription_id).to be_nil
       end
