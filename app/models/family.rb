@@ -125,6 +125,7 @@ class Family < ActiveRecord::Base
     }
     customer_params = customer_params.except(:plan, :quantity) if exempted?
     self.stripe_customer = Stripe::Customer.create(customer_params).to_hash
+    PaymentsMailer.new_subscription_created(self) unless exempted?
     renew_membership
   end
 
