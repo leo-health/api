@@ -16,7 +16,7 @@ class AthenaPatientSyncService < AthenaSyncService
 
       if get_athena_id(athena_patient) == next_existing_athena_id
         next_existing_athena_id = nil
-      elsif created_patient = create_patient(athena_patient, verbose: verbose)
+      elsif created_patient = create_exempt_patient(athena_patient, verbose: verbose)
         created_patients << created_patient
       end
 
@@ -30,7 +30,7 @@ class AthenaPatientSyncService < AthenaSyncService
     athena_patient["patientid"].try(:to_i)
   end
 
-  def create_patient(athena_patient, verbose: false)
+  def create_exempt_patient(athena_patient, verbose: false)
     user_params = parse_athena_patient_json_to_guardian(athena_patient)
 
     guardian = User.find_by_email(user_params[:email])

@@ -123,6 +123,7 @@ module Leo
           optional :middle_initial, type: String
           optional :title, type: String
           optional :suffix, type: String
+          at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :middle_initial, :title, :suffix
         end
 
         put do
