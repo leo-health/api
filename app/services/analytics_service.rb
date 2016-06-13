@@ -234,6 +234,7 @@ class AnalyticsService
         '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
         '# of visits cancelled from app' => appointments_cancelled(role: Role.guardian).size - appointments_rescheduled(role: Role.guardian).size,
         '# of visits rescheduled from app' => appointments_rescheduled(role: Role.guardian).size,
+        '# of visits cancelled or rescheduled from app' => appointments_cancelled(role: Role.guardian).size,
       },
       'Appointment Engagement' => {
         '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
@@ -245,13 +246,14 @@ class AnalyticsService
       'Response Time Metric' => {
         'Average Time to Case Close (minutes)' => average_case_time_in_minutes,
         'Median Time to Case Close (minutes)' => median_case_time_in_minutes
+        'Median Time to Case Close (minutes)'=> median_case_time_in_minutes
       }
     }
   end
 
   # @return [Hash<String, #to_s>]
   def practice_engagement_single_value_stats
-    @practice_engagement_single_value_stats ||= {
+    @practice_engagement_value_stats ||= {
       '# of parents who booked at least 1 appointment through the app' => patients_with_appointments.size
     }
   end

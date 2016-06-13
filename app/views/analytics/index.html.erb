@@ -22,7 +22,11 @@
 
   <h3>Leo</h3>
   <ul>
+<<<<<<< HEAD
     <% @analytics.practice_engagement_single_value_stats do |metric, value| %>
+=======
+    <% @analytics.practice_engagement_single_value_stats.each do |metric, value| %>
+>>>>>>> b7f6431217e7d8414c8ac29e68ff3ceffe7fe08d
       <li>
         <%= metric %>:
         <span style="font-weight: bold;"><%= value %></span>
