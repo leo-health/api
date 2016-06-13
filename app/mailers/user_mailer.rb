@@ -1,6 +1,26 @@
 class UserMailer < MandrillMailer::TemplateMailer
   default from: 'info@leohealth.com'
 
+  def invite_all_exempt_synced_users
+    onboarding_group = OnboardingGroup.generated_from_athena
+    onboarding_group.users.find_each do
+      invite_exempt_synced_user(guardian)
+    end
+  end
+
+  def invite_exempt_synced_user(user)
+    token = user.sessions.create.authentication_token
+    delay(queue: 'exempt_registration_email', owner: user).mandrill_mail(
+      template: '',
+      subject: '',
+      to: user.unconfirmed_email || user.email,
+      vars: {
+        'FIRST_NAME': user.first_name,
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/complete_registration?token=#{token}"
+      }
+    )
+  end
+
   def confirmation_instructions(user, token, opts={})
     mandrill_mail(
       template: 'Leo - Sign Up Confirmation',

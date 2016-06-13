@@ -149,6 +149,7 @@ module Leo
         params do
           optional :first_name, type: String
           optional :last_name, type: String
+          optional :password, type: String
           optional :phone, type: String
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
@@ -160,7 +161,7 @@ module Leo
         put do
           authenticated
           user = current_user
-          user_params = declared(params)
+          user_params = declared(params, include_missing: false)
           update_success user, user_params
         end
 
