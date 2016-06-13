@@ -122,7 +122,7 @@ describe AnalyticsService do
                                                    booked_by: clinical_user) }
       let!(:cancelled_appointment_1)        { create(:appointment, :cancelled,
                                                    booked_by: clinical_user) }
-      let!(:cancelled_appointment_2)        { create(:appointment, :cancelled,
+      let!(:cancelled_appointment_2)        { create(:appointment, :cancelled, 
                                                    booked_by: clinical_user) }
       let!(:cancelled_appointment_3)        { create(:appointment, :cancelled,
                                                    booked_by: clinical_user) }
@@ -132,16 +132,20 @@ describe AnalyticsService do
 
       context 'called without arguments' do
         it 'returns all appointments' do
-          expect(appointments.size).to eq 10
+          expect(appointments.size).to eq 12
         end
 
         it 'does return cancelled appointments' do
           expect(appointments).to include(cancelled_appointment_1, cancelled_appointment_2, cancelled_appointment_3)
-          expect(AnalyticsService.appointments_cancelled.count).to eq(2)
+          #cancelled_count = AnalyticsService.appointments_cancelled.count-AnalyticsService.appointments_rescheduled.count
+          expect(AnalyticsService.appointments_rescheduled.count).to eq(1)
+          expect(AnalyticsService.appointments_cancelled.count).to eq(3)
+          #expect(cancelled_count).to eq(2)
         end
 
-        it 'does not return rescheduled appointments' do
+        it 'counts rescheduled appointments correctly' do
           expect(appointments).not_to include(rescheduled_appointment)
+          expect(AnalyticsService.appointments_rescheduled).to include(rescheduled_appointment)
           expect(AnalyticsService.appointments_rescheduled.count).to eq(1)
         end
       end
