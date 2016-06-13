@@ -175,17 +175,4 @@ class UserMailer < MandrillMailer::TemplateMailer
       }
     )
   end
-
-  def internal_invitation_enrollment_notification(user)
-    mandrill_mail(
-      template: 'Leo - Internal Invitation Enrollment Notification',
-      subject: 'Leo Internal - A second parent has joined a family on Leo',
-      to: 'internal.notifications@leohealth.com',
-      vars: {
-        'SECONDARY_GUARDIAN_FIRST_NAME': "#{user.first_name}",
-        'SECONDARY_GUARDIAN_LAST_NAME': "#{user.last_name}",
-        'SECONDARY_GUARDIAN_EMAIL': "#{user.email}"
-      }
-    )
-  end
 end
