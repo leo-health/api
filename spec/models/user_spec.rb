@@ -143,11 +143,8 @@ describe User do
 
     describe "after commit on create" do
       context "for secondary guardian" do
-        before do
-          secondary_guardian.set_incomplete!
-        end
-        it "should send a welcome to practice email and an internal invite email after confirming email" do
-          expect{ secondary_guardian.confirm_secondary_guardian }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(2)
+        it "should send a welcome to practice email" do
+          expect{ secondary_guardian.confirm_secondary_guardian }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(1)
         end
       end
     end

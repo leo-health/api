@@ -150,9 +150,7 @@ class User < ActiveRecord::Base
     confirm
     set_complete
     self.type = family.primary_guardian.type
-    return false unless save
-    InternalInvitationEnrollmentNotificationJob.send(id)
-    true
+    save
   end
 
   def guardian_was_approved?
