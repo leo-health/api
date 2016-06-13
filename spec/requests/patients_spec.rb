@@ -51,6 +51,7 @@ describe Leo::V1::Patients do
       end
 
       it "should add a patient to the family, update the subscription, and send an email to all guardians" do
+        expect_any_instance_of(Stripe::Invoice).to receive(:pay)
         expect_patient_to_be_added guardian.family, session
         expect(guardian.family.reload.stripe_subscription[:quantity]).to be(2)
         jobs = Delayed::Job.where(queue: PaymentsMailer.queue_name)

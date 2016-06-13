@@ -124,8 +124,14 @@ class Family < ActiveRecord::Base
       quantity: patients.count
     }
     customer_params = customer_params.except(:plan, :quantity) if exempted?
-    self.stripe_customer = Stripe::Customer.create(customer_params).to_hash
-    PaymentsMailer.new_subscription_created(self) unless exempted?
+
+    begin
+      self.stripe_customer = Stripe::Customer.create(customer_params).to_hash
+      PaymentsMailer.new_subscription_created(self) unless exempted?
+    rescue Stripe::CardError => e
+      expire_membership!
+      raise e
+    end
     renew_membership
   end
 
@@ -141,6 +147,11 @@ class Family < ActiveRecord::Base
     subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
     subscription.quantity = patients.count
     subscription.save
+    begin
+      # immediately pay the proration amount
+      Stripe::Invoice.create(customer: stripe_customer_id).pay
+    rescue Stripe::CardError # defer a failed payment to the payments_listener endpoint
+    end
     self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
     PaymentsMailer.subscription_updated self
   end

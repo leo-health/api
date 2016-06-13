@@ -41,7 +41,7 @@ module Leo
         def current_user
           return unless params[:authentication_token]
           @session = Session.find_by_authentication_token(params[:authentication_token])
-          @session.try(:user)
+          current_session.try(:user)
         end
 
         def create_success object, device_type=nil
