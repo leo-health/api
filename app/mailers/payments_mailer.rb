@@ -17,7 +17,7 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
         vars: {
           'FIRST_NAME': user.first_name,
           'SUBSCRIPTION_AMOUNT': subscription_amount,
-          'NUMBER OF CHILDREN': family.patients.count
+          'NUMBER_OF_CHILDREN': family.patients.count
         }
       )
     end
