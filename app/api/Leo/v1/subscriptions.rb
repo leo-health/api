@@ -61,7 +61,7 @@ module Leo
             }, error_code)
           end
 
-          family.stripe_customer
+          family.reload.stripe_customer
         end
       end
     end
