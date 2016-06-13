@@ -117,6 +117,7 @@ module Leo
         params do
           optional :first_name, type: String
           optional :last_name, type: String
+          optional :password, type: String
           optional :phone, type: String
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']

@@ -232,6 +232,7 @@ describe AthenaPatientSyncService do
         do_request
         expect(Patient.count).to be(1)
         expect(User.count).to be(1)
+        expect(User.first.onboarding_group.group_name.to_sym).to be(:generated_from_athena)
       end
     end
 
