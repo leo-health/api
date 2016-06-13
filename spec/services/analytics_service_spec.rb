@@ -125,6 +125,7 @@ describe AnalyticsService do
       let!(:cancelled_appointment_2)        { create(:appointment, :cancelled, 
                                                    booked_by: clinical_user) }
       let!(:cancelled_appointment_3)        { create(:appointment, :cancelled,
+                                                   appointment_status_id: 6,
                                                    booked_by: clinical_user) }
       let!(:rescheduled_appointment)      { create(:appointment,
                                                    booked_by: customer_service_user,
