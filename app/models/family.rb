@@ -147,13 +147,17 @@ class Family < ActiveRecord::Base
     subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
     subscription.quantity = patients.count
     subscription.save
-    begin
-      # immediately pay the proration amount
-      Stripe::Invoice.create(customer: stripe_customer_id).pay
-    rescue Stripe::CardError # defer a failed payment to the payments_listener endpoint
-    end
+    self.delay(
+      queue: "invoice_payment",
+      owner: self,
+      run_at: Time.now
+    ).pay_invoice
     self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
     PaymentsMailer.subscription_updated self
+  end
+
+  def pay_invoice
+    Stripe::Invoice.create(customer: stripe_customer_id).pay
   end
 
   def set_up_conversation
