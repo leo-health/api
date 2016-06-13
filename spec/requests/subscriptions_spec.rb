@@ -76,7 +76,7 @@ describe Leo::V1::Subscriptions do
     context "when delinquent" do
       before do
         user.family.update_or_create_stripe_subscription_if_needed! credit_card_token
-        user.family.expire_membership
+        user.family.expire_membership!
       end
 
       it "updates a users stripe card" do

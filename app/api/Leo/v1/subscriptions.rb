@@ -63,7 +63,8 @@ module Leo
               debug_message: debug_message
             }, error_code)
           end
-          true
+
+          family.stripe_customer
         end
       end
     end
