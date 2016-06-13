@@ -54,7 +54,8 @@ module Leo
           if appointment_rescheduled
             Appointment.transaction do
               cancel_appointment
-              generate_appointment
+              id = appointment.id
+              generate_appointment(id)
             end
           else
             duration = AppointmentType.find(params[:appointment_type_id]).duration
@@ -77,11 +78,12 @@ module Leo
       end
 
       helpers do
-        def generate_appointment
+        def generate_appointment(rescheduled_id = nil)
           error!({error_code: 422, user_message: "Appointment start time must be at least 15 minutes in the future" }, 422) if params[:start_datetime] < (DateTime.now + Appointment::MIN_INTERVAL_TO_SCHEDULE)
           duration = AppointmentType.find(params[:appointment_type_id]).duration
           appointment_params = declared(params, include_missing: false).merge(duration: duration, booked_by: current_user)
           appointment = Appointment.new(appointment_params)
+          appointment.rescheduled_id = rescheduled_id
           authorize! :create, appointment
           appointment.save!
           PostAppointmentJob.new(appointment).start

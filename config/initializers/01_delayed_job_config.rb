@@ -7,7 +7,17 @@ Delayed::Worker.max_attempts = 20
 # SOURCE: http://stackoverflow.com/questions/7326301/how-do-i-find-a-specific-delayed-job-not-by-id
 class Delayed::Job < ActiveRecord::Base
   belongs_to :owner, :polymorphic => true
-  def self.queues
-    all.pluck(:queue).uniq
+  class << self
+    def queues
+      all.pluck(:queue).uniq
+    end
+
+    def failed
+      where("attempts > 0")
+    end
+
+    def late
+      where("run_at < ?", Time.now)
+    end
   end
 end
