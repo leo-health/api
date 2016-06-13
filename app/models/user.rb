@@ -67,7 +67,7 @@ class User < ActiveRecord::Base
     state :complete
 
     event :set_complete do
-      transitions from: :valid_incomplete, to: :complete
+      transitions from: :valid_incomplete, to: :complete, guard: :guardian_was_approved?
     end
 
     event :set_valid_incomplete do
@@ -92,10 +92,7 @@ class User < ActiveRecord::Base
   end
 
   def set_completion_state_by_validation
-    if !complete? && prevalidate_for_completion
-      set_valid_incomplete
-      set_complete unless invited_user?
-    end
+    set_valid_incomplete if !complete? && prevalidate_for_completion
     complete_status
   end
 
@@ -153,6 +150,12 @@ class User < ActiveRecord::Base
     return false unless save
     InternalInvitationEnrollmentNotificationJob.send(id)
     true
+  end
+
+  def guardian_was_approved?
+    return true unless guardian?
+    return true if primary_guardian?
+    confirmed?
   end
 
   class << self

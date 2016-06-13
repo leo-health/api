@@ -23,6 +23,8 @@ describe Leo::V1::Patients do
   describe 'POST /api/v1/patients' do
     before do
       Delayed::Job.destroy_all
+      second_guardian.confirm
+      second_guardian.set_complete!
     end
 
     let(:patient_params){{first_name: "patient_first_name",
@@ -53,6 +55,7 @@ describe Leo::V1::Patients do
       it "should add a patient to the family, update the subscription, and send an email to all guardians" do
         expect_patient_to_be_added guardian.family, session
         expect(guardian.family.reload.stripe_subscription[:quantity]).to be(2)
+        expect(Delayed::Job.where(queue: "invoice_payment").count).to be(1)
         jobs = Delayed::Job.where(queue: PaymentsMailer.queue_name)
         expect(jobs.count).to be(2)
         expect(jobs.pluck(:owner_id).sort).to eq(guardian.family.reload.guardians.pluck(:id).sort)
