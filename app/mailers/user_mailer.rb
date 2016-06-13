@@ -11,7 +11,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def invite_exempt_synced_user(user)
     token = user.sessions.create.authentication_token
     delay(queue: 'exempt_registration_email', owner: user).mandrill_mail(
-      template: '',
+      template: 'Leo - Exempt User Registration',
       subject: '',
       to: user.unconfirmed_email || user.email,
       vars: {
