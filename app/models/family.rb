@@ -109,6 +109,7 @@ class Family < ActiveRecord::Base
 
   def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
     return unless primary_guardian
+    return if exempted?
     if !stripe_customer_id && credit_card_token
       create_stripe_customer(credit_card_token)
     elsif credit_card_token
@@ -151,6 +152,7 @@ class Family < ActiveRecord::Base
 
   def update_subscription_quantity
     subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
+    return unless subscription
     subscription.quantity = patients.count
     subscription.save
     self.delay(
