@@ -28,10 +28,11 @@ module Leo
 
         get do
           error!({error_code: 422, user_message: 'query must have at least two characters'}, 422) if params[:query].length < 2
-          users = User.search(params[:query])
+          users = User.complete.search(params[:query])
           guardians = users.joins(:role).where(roles: {name: "guardian"})
           staff = users.joins(:role).where.not(roles: {name: "guardian"})
-          patients = Patient.search(params[:query])
+          patients = Patient.search(params[:query]).to_a
+          patients.reject! { |patient| patient.family.incomplete? }
           present :guardians, guardians, with: Leo::Entities::ShortUserEntity
           present :staff, staff, with: Leo::Entities::ShortUserEntity
           present :patients, patients, with: Leo::Entities::ShortPatientEntity
