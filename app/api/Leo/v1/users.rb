@@ -102,8 +102,8 @@ module Leo
             # update an incomplete user after calling post enrollments
             user = current_user
             ActiveRecord::Base.transaction do
-              user.family.exempt_membership!
               update_success user, user_params, "User"
+              user.family.exempt_membership!
             end
             if user.invited_user?
               error!({error_code: 422, user_message: user.errors.full_messages.first}, 422) unless user.confirm_secondary_guardian

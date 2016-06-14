@@ -165,8 +165,4 @@ class Family < ActiveRecord::Base
   def pay_invoice
     Stripe::Invoice.create(customer: stripe_customer_id).pay
   end
-
-  def set_up_conversation
-    Conversation.create(family_id: id, state: :closed) unless Conversation.find_by_family_id(id)
-  end
 end
