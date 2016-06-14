@@ -5,7 +5,7 @@ module Leo
 
       resource :family do
         before do
-          authenticated_and_complete
+          authenticated
         end
 
         desc "Return the family and members of current user"

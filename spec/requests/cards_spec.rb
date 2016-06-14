@@ -18,6 +18,18 @@ describe Leo::V1::Cards do
       get "/api/v1/cards", {authentication_token: session.authentication_token}
     end
 
+    context "user is incomplete" do
+      before do
+        user.first_name = nil
+        user.set_incomplete!
+      end
+
+      it "should return an authentication error" do
+        do_request
+        expect(response.status).to eq(401)
+      end
+    end
+
     it "should return the cards of current user" do
       do_request
       expect(response.status).to eq(200)

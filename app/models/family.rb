@@ -31,11 +31,15 @@ class Family < ActiveRecord::Base
       after do
         complete_all_guardians!
         if stripe_customer_id && stripe_subscription_id
-          if customer = Stripe::Customer.retrieve(stripe_customer_id)
-            if subscription = customer.subscriptions.retrieve(stripe_subscription_id)
-              subscription.delete
-            end
+          customer = Stripe::Customer.retrieve(stripe_customer_id)
+          begin
+            subscription = customer.subscriptions.retrieve(stripe_subscription_id)
+            subscription.delete
+            self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id)
+          rescue Stripe::InvalidRequestError
+            self.stripe_customer = customer
           end
+          save!
         end
       end
       transitions to: :exempted
@@ -51,13 +55,15 @@ class Family < ActiveRecord::Base
   end
 
   def primary_guardian
-    guardians.order('created_at ASC').first
+    User.where(family: self).order('created_at ASC').first
   end
 
   def stripe_customer=(stripe_customer)
+    stripe_customer ||= {}
+    stripe_customer = stripe_customer.to_hash
     limited_stripe_customer = parse_limited_stripe_customer(stripe_customer)
+    self.stripe_customer_id = limited_stripe_customer.try(:slice, :id)
     super limited_stripe_customer
-    self.stripe_customer_id = limited_stripe_customer[:id]
   end
 
   private
@@ -151,6 +157,7 @@ class Family < ActiveRecord::Base
 
   def update_subscription_quantity
     subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
+    return unless subscription
     subscription.quantity = patients.count
     subscription.save
     self.delay(
@@ -164,9 +171,5 @@ class Family < ActiveRecord::Base
 
   def pay_invoice
     Stripe::Invoice.create(customer: stripe_customer_id).pay
-  end
-
-  def set_up_conversation
-    Conversation.create(family_id: id, state: :closed) unless Conversation.find_by_family_id(id)
   end
 end

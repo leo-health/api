@@ -142,8 +142,6 @@ describe User do
     let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, first_name: "second", family: user.family) }
 
     describe "after commit on create" do
-      it { expect(user).to callback(:guardian_was_completed_callback).after(:commit) }
-
       context "for secondary guardian" do
         before do
           secondary_guardian.set_incomplete!
