@@ -51,7 +51,7 @@ class Family < ActiveRecord::Base
   end
 
   def primary_guardian
-    guardians.order('created_at ASC').first
+    User.where(family: self).order('created_at ASC').first
   end
 
   def stripe_customer=(stripe_customer)

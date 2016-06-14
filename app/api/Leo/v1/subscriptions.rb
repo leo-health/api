@@ -35,9 +35,6 @@ module Leo
           if family.patients.count == 0
             user_message = "You must add a child before you can subscribe to Leo."
             error_code = 422
-          elsif !user.complete?
-            debug_message = "You can only create a subscription for a complete user"
-            error_code = 422
           else
             begin
               unless family.update_or_create_stripe_subscription_if_needed!(params[:credit_card_token])
