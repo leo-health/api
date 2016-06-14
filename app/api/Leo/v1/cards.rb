@@ -4,7 +4,7 @@ module Leo
       desc "Return all cards of a user"
       namespace "cards" do
         before do
-          authenticated
+          authenticated_and_complete
         end
 
         get do
