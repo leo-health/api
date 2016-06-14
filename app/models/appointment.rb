@@ -4,6 +4,10 @@ class Appointment < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :patient
   belongs_to :booked_by, polymorphic: true
+  belongs_to :booked_by_user,  # Alternative way to query the 'booked_by' polymorphic association for Users only - used to construct compound 'where-s'
+             -> { where(appointments: { booked_by_type: 'User' }) },
+             class_name: 'User',
+             foreign_key: :booked_by_id
   belongs_to :provider
   belongs_to :appointment_type
   belongs_to :appointment_status
@@ -15,6 +19,7 @@ class Appointment < ActiveRecord::Base
     conditions: -> { where(deleted_at: nil, athena_id: 0, appointment_status: AppointmentStatus.booked) }
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
+  scope :for_analytics, -> { where.not(appointment_status: AppointmentStatus.cancelled).where(rescheduled_id: nil) }  # Ones not cancelled nor rescheduled
 
   after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
 
