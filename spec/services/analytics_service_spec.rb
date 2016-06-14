@@ -23,10 +23,10 @@ describe AnalyticsService do
       context 'without time range provided' do
         it 'includes patients with appointments within given time range' do
           expect(patients.size).to eq(4)
-          expect(patients).to include(appointment_within_time_range_1.patient,
-                                      appointment_within_time_range_2.patient,
-                                      appointment_before_time_range.patient,
-                                      appointment_after_time_range.patient)
+          expect(patients).to include(appointment_within_time_range_1.patient_id,
+                                      appointment_within_time_range_2.patient_id,
+                                      appointment_before_time_range.patient_id,
+                                      appointment_after_time_range.patient_id)
         end
       end
 
@@ -34,6 +34,7 @@ describe AnalyticsService do
         subject(:patients) { AnalyticsService.patients_with_appointments(time_range: time_range) }
 
         it 'includes patients with appointments within given time range' do
+          byebug
           expect(patients.size).to eq(2)
           expect(patients).to include(appointment_within_time_range_1.patient,
                                       appointment_within_time_range_2.patient)
@@ -125,7 +126,6 @@ describe AnalyticsService do
       let!(:cancelled_appointment_2)        { create(:appointment, :cancelled, 
                                                    booked_by: clinical_user) }
       let!(:cancelled_appointment_3)        { create(:appointment, :cancelled,
-                                                   appointment_status_id: 6,
                                                    booked_by: clinical_user) }
       let!(:rescheduled_appointment)      { create(:appointment,
                                                    booked_by: customer_service_user,
@@ -138,10 +138,10 @@ describe AnalyticsService do
 
         it 'does return cancelled appointments' do
           expect(appointments).to include(cancelled_appointment_1, cancelled_appointment_2, cancelled_appointment_3)
-          #cancelled_count = AnalyticsService.appointments_cancelled.count-AnalyticsService.appointments_rescheduled.count
+          cancelled_count = AnalyticsService.appointments_cancelled.count-AnalyticsService.appointments_rescheduled.count
           expect(AnalyticsService.appointments_rescheduled.count).to eq(1)
           expect(AnalyticsService.appointments_cancelled.count).to eq(3)
-          #expect(cancelled_count).to eq(2)
+          expect(cancelled_count).to eq(2)
         end
 
         it 'counts rescheduled appointments correctly' do

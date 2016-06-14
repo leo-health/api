@@ -43,7 +43,7 @@ class AnalyticsService
       cancelled = cancelled.where(created_at: time_range) if time_range.present?
       cancelled = cancelled.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
       cancelled = cancelled.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
-      cancelled = cancelled.where(appointment_status_id: 6)
+      cancelled = cancelled.where(appointment_status_id: AppointmentStatus.cancelled.id)
       cancelled
     end
 
