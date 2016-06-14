@@ -23,10 +23,10 @@ describe AnalyticsService do
       context 'without time range provided' do
         it 'includes patients with appointments within given time range' do
           expect(patients.size).to eq(4)
-          expect(patients).to include(appointment_within_time_range_1.patient_id,
-                                      appointment_within_time_range_2.patient_id,
-                                      appointment_before_time_range.patient_id,
-                                      appointment_after_time_range.patient_id)
+          expect(patients).to include(appointment_within_time_range_1.patient,
+                                      appointment_within_time_range_2.patient,
+                                      appointment_before_time_range.patient,
+                                      appointment_after_time_range.patient)
         end
       end
 
@@ -34,7 +34,6 @@ describe AnalyticsService do
         subject(:patients) { AnalyticsService.patients_with_appointments(time_range: time_range) }
 
         it 'includes patients with appointments within given time range' do
-          byebug
           expect(patients.size).to eq(2)
           expect(patients).to include(appointment_within_time_range_1.patient,
                                       appointment_within_time_range_2.patient)
