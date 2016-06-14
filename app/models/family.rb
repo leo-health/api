@@ -31,14 +31,15 @@ class Family < ActiveRecord::Base
       after do
         complete_all_guardians!
         if stripe_customer_id && stripe_subscription_id
+          customer = Stripe::Customer.retrieve(stripe_customer_id)
           begin
-            customer = Stripe::Customer.retrieve(stripe_customer_id)
             subscription = customer.subscriptions.retrieve(stripe_subscription_id)
             subscription.delete
             self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id)
-          rescue Stripe::StripeError
-
+          rescue Stripe::InvalidRequestError
+            self.stripe_customer = customer
           end
+          save!
         end
       end
       transitions to: :exempted
@@ -59,8 +60,9 @@ class Family < ActiveRecord::Base
 
   def stripe_customer=(stripe_customer)
     stripe_customer ||= {}
+    stripe_customer = stripe_customer.to_hash
     limited_stripe_customer = parse_limited_stripe_customer(stripe_customer)
-    self.stripe_customer_id = limited_stripe_customer[:id]
+    self.stripe_customer_id = limited_stripe_customer.try(:slice, :id)
     super limited_stripe_customer
   end
 
