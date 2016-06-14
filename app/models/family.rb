@@ -31,10 +31,13 @@ class Family < ActiveRecord::Base
       after do
         complete_all_guardians!
         if stripe_customer_id && stripe_subscription_id
-          if customer = Stripe::Customer.retrieve(stripe_customer_id)
-            if subscription = customer.subscriptions.retrieve(stripe_subscription_id)
-              subscription.delete
-            end
+          begin
+            customer = Stripe::Customer.retrieve(stripe_customer_id)
+            subscription = customer.subscriptions.retrieve(stripe_subscription_id)
+            subscription.delete
+            self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id)
+          rescue Stripe::StripeError
+
           end
         end
       end
@@ -55,9 +58,10 @@ class Family < ActiveRecord::Base
   end
 
   def stripe_customer=(stripe_customer)
+    stripe_customer ||= {}
     limited_stripe_customer = parse_limited_stripe_customer(stripe_customer)
-    super limited_stripe_customer
     self.stripe_customer_id = limited_stripe_customer[:id]
+    super limited_stripe_customer
   end
 
   private
@@ -109,7 +113,6 @@ class Family < ActiveRecord::Base
 
   def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
     return unless primary_guardian
-    return if exempted?
     if !stripe_customer_id && credit_card_token
       create_stripe_customer(credit_card_token)
     elsif credit_card_token

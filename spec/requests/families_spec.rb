@@ -22,18 +22,6 @@ describe Leo::V1::Families do
         expect(body[:data][:family].as_json.to_json).to eq(serializer.represent(user.reload.family).as_json.to_json)
       end
     end
-
-    context "user is incomplete" do
-      before do
-        user.first_name = nil
-        user.set_incomplete!
-      end
-
-      it "should return an authentication error" do
-        do_request session.authentication_token
-        expect(response.status).to eq(401)
-      end
-    end
   end
 
   describe "POST /api/v1/family/invite" do
