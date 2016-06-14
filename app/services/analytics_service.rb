@@ -8,11 +8,9 @@ class AnalyticsService
     # @param [Range<Time>] time_range Only Patient-s with Appointment-s within that time range will be retrieved
     # @return [ActiveRecord::Relation<Patient>] Patient-s with Appointment-s in the given time range
     def patients_with_appointments(time_range: nil)
-      #patients = Patient.joins(:appointments)
-      #patients = patients.where(appointments: {start_datetime: time_range}) if time_range.present?
-      #patients.uniq(:id)
-      appts = Appointment.pluck(:patient_id)
-      appts.uniq
+      patients = Patient.joins(:appointments)
+      patients = patients.where(appointments: {start_datetime: time_range}) if time_range.present?
+      patients.uniq(:id)
     end
 
     # @return [Array<Hash{Time => Integer}>]
@@ -29,7 +27,6 @@ class AnalyticsService
       appointments = appointments.where(created_at: time_range) if time_range.present?
       appointments = appointments.where(rescheduled_id: nil)
       appointments = appointments.includes(:booked_by_user).where(booked_by_user: {role_id: role.id}) if role.present?
-      #appointments = appointments.for_analytics
       appointments = appointments.select { |appointment| appointment.created_at.to_date === appointment.start_datetime.to_date } if same_day_only
       appointments
     end
