@@ -59,7 +59,6 @@ class User < ActiveRecord::Base
 
   before_save :set_completion_state_by_validation, unless: :complete?
   before_create :skip_confirmation_task_if_needed_callback
-  after_commit :guardian_was_completed_callback, if: :guardian?
 
   aasm whiny_transitions: false, column: :complete_status do
     state :incomplete, initial: true
@@ -67,6 +66,10 @@ class User < ActiveRecord::Base
     state :complete
 
     event :set_complete do
+      after do
+        guardian_was_completed_callback if guardian?
+      end
+
       transitions from: :valid_incomplete, to: :complete, guard: :guardian_was_approved?
     end
 
@@ -201,7 +204,7 @@ class User < ActiveRecord::Base
   end
 
   def guardian_was_completed_callback
-    if complete? && previous_changes[:complete_status].present?
+    if complete?
       WelcomeToPracticeJob.send(id)
       Conversation.create(family_id: family.id, state: :closed) unless Conversation.find_by_family_id(family.id)
     end
