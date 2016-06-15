@@ -23,7 +23,7 @@ describe Leo::V1::DeepLinks do
       it "should redirect to a url" do
         do_request
         expect(response.status).to eq(301)
-        expect(response.header['Location']).to eq("http://localhost:8888/#/invalid-device")
+        expect(response.header['Location']).to eq("http://localhost:8888/invalid-device")
       end
     end
   end

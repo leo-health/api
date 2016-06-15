@@ -47,9 +47,9 @@ module Leo
         get do
           if user = User.find_by(confirmation_token: params[:token])
             user.confirm
-            redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true
+            redirect "#{ENV['PROVIDER_APP_HOST']}/success", permanent: true
           else
-            redirect "#{ENV['PROVIDER_APP_HOST']}/#/404", permanent: true
+            redirect "#{ENV['PROVIDER_APP_HOST']}/404", permanent: true
           end
         end
       end
@@ -116,18 +116,20 @@ module Leo
         params do
           optional :first_name, type: String
           optional :last_name, type: String
+          optional :password, type: String
           optional :phone, type: String
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
           optional :middle_initial, type: String
           optional :title, type: String
           optional :suffix, type: String
+          at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :middle_initial, :title, :suffix
         end
 
         put do
           authenticated
           user = current_user
-          user_params = declared(params)
+          user_params = declared(params, include_missing: false)
           update_success user, user_params
         end
 
