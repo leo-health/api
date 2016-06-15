@@ -130,9 +130,7 @@ module Leo
           user_params = declared(params)
 
           if user.update_attributes(user_params)
-
             if current_user.invited_user? && !current_user.complete?
-              # clear auth token after secondary user update
               current_session.destroy!
             end
             present :user, user, Leo::Entities::UserEntity
