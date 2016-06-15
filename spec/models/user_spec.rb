@@ -205,4 +205,13 @@ describe User do
       expect(invited_user.invited_user?).to eq(true)
     end
   end
+
+  describe "#set_complete" do
+    it "should send a WelcomeToPractice email, email confirmation email, and create a conversation" do
+      user = create(:user, :guardian)
+      expect(Delayed::Job.where(queue: "notification_email").count).to eq(1)
+      expect(Delayed::Job.where(queue: "registration_email").count).to eq(1)
+      expect(user.family.conversation).not_to be(nil)
+    end
+  end
 end
