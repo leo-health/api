@@ -19,7 +19,6 @@ class Appointment < ActiveRecord::Base
     conditions: -> { where(deleted_at: nil, athena_id: 0, appointment_status: AppointmentStatus.booked) }
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
-  scope :for_analytics, -> { where.not(appointment_status: AppointmentStatus.cancelled).where(rescheduled_id: nil) }  # Ones not cancelled nor rescheduled
 
   after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
 
