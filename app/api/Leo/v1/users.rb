@@ -128,7 +128,15 @@ module Leo
           authenticated
           user = current_user
           user_params = declared(params)
-          update_success user, user_params
+
+          if user.update_attributes(user_params)
+            if current_user.invited_user? && !current_user.complete?
+              current_session.destroy!
+            end
+            present :user, user, Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, user_message: object.errors.full_messages.first }, 422)
+          end
         end
 
         get do
