@@ -60,8 +60,8 @@ module Leo
           error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
 
           declared_params = declared(params)
-          session_keys = [:device_token, :device_type, :client_platform, :client_version]
-          session_params = declared_params.extract(*session_keys)
+          session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
+          session_params = declared_params.slice(*session_keys)
           user_params = declared_params.except(*session_keys).merge({ role: Role.guardian })
           user = User.new user_params
 

@@ -16,15 +16,6 @@ module Leo
         object.try(:membership_type)
       end
 
-      # backward compatibility
-      def type
-        # Testflight front-end only shows the feed if the type is "Member"
-        membership_type = object.try(:membership_type)
-        membership_type = "Member" if ["exempted", "member"].include? membership_type
-
-        "Member" # !!!!: remove this when the member_type changes based on payments
-      end
-
       def device_type
         options[:device_type]
       end

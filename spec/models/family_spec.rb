@@ -8,13 +8,39 @@ describe Family, type: :model do
   end
 
   let!(:user){ create(:user, :member) }
-  let!(:patient){ create(:patient, family: user.family) }
-  let!(:second_patient){ create(:patient, family: user.family) }
+  let!(:family){ user.family }
+  let!(:patient){ create(:patient, family: family) }
+  let!(:second_patient){ create(:patient, family: family) }
+  let!(:secondary_guardian){ create(:user, family: family) }
+
+  describe ".complete_all_guardians" do
+    context "when secondary_guardian is not confirmed" do
+      it "makes all guardians complete except the secondary" do
+        expect(User.where(family: family).count).to eq(2)
+        expect(family.guardians.count).to eq(1)
+        family.complete_all_guardians!
+        expect(family.reload.guardians.count).to eq(1)
+      end
+    end
+
+    context "when secondary guardian is confirmed" do
+      before do
+        secondary_guardian.confirm
+      end
+
+      it "makes all guardians complete" do
+        expect(User.where(family: family).count).to eq(2)
+        expect(family.guardians.count).to eq(1)
+        family.complete_all_guardians!
+        expect(family.reload.guardians.size).to eq(2)
+      end
+    end
+  end
 
   describe ".stripe_customer=" do
     it "has a stripe customer with limited fields" do
-      user.family.update_or_create_stripe_subscription_if_needed!
-      expect(user.family.stripe_customer).to eq(
+      family.update_or_create_stripe_subscription_if_needed!
+      expect(family.stripe_customer).to eq(
         {
           "id"=>"test_cus_3",
           "subscriptions"=>{

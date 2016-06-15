@@ -12,6 +12,7 @@ namespace :load do
   desc "Seed Jonathan Bush family"
   task bush: :environment do
     family = Family.create!
+    family.exempt_membership!
     family.guardians.create!(
       first_name: "Jonathan",
       last_name: "Bush",
@@ -22,7 +23,8 @@ namespace :load do
       phone: "9735172669",
       vendor_id: "bush_vendor_id"
     )
-    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.try(:destroy)
+    Delayed::Job.where(queue: "notification_email").order("created_at DESC").first.try(:destroy)
     family.patients.create!(
       first_name: "Jeb",
       last_name: "Bush",

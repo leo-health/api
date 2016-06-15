@@ -59,7 +59,6 @@ class User < ActiveRecord::Base
 
   before_save :set_completion_state_by_validation, unless: :complete?
   before_create :skip_confirmation_task_if_needed_callback
-  after_commit :guardian_was_completed_callback, if: :guardian?
 
   aasm whiny_transitions: false, column: :complete_status do
     state :incomplete, initial: true
@@ -67,7 +66,11 @@ class User < ActiveRecord::Base
     state :complete
 
     event :set_complete do
-      transitions from: :valid_incomplete, to: :complete
+      after do
+        guardian_was_completed_callback if guardian?
+      end
+
+      transitions from: :valid_incomplete, to: :complete, guard: :guardian_was_approved?
     end
 
     event :set_valid_incomplete do
@@ -92,10 +95,7 @@ class User < ActiveRecord::Base
   end
 
   def set_completion_state_by_validation
-    if !complete? && prevalidate_for_completion
-      set_valid_incomplete
-      set_complete unless invited_user?
-    end
+    set_valid_incomplete if !complete? && prevalidate_for_completion
     complete_status
   end
 
@@ -155,6 +155,12 @@ class User < ActiveRecord::Base
     true
   end
 
+  def guardian_was_approved?
+    return true unless guardian?
+    return true if primary_guardian?
+    confirmed?
+  end
+
   class << self
     def customer_service_user
       User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
@@ -198,7 +204,7 @@ class User < ActiveRecord::Base
   end
 
   def guardian_was_completed_callback
-    if complete? && previous_changes[:complete_status].present?
+    if complete?
       WelcomeToPracticeJob.send(id)
       Conversation.create(family_id: family.id, state: :closed) unless Conversation.find_by_family_id(family.id)
     end

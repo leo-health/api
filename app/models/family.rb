@@ -17,6 +17,7 @@ class Family < ActiveRecord::Base
     event :renew_membership do
       after do
         patients.map(&:subscribe_to_athena)
+        complete_all_guardians!
       end
 
       transitions from: [:incomplete, :delinquent], to: :member
@@ -28,30 +29,41 @@ class Family < ActiveRecord::Base
 
     event :exempt_membership do
       after do
+        complete_all_guardians!
         if stripe_customer_id && stripe_subscription_id
-          if customer = Stripe::Customer.retrieve(stripe_customer_id)
-            if subscription = customer.subscriptions.retrieve(stripe_subscription_id)
-              subscription.delete
-            end
+          customer = Stripe::Customer.retrieve(stripe_customer_id)
+          begin
+            subscription = customer.subscriptions.retrieve(stripe_subscription_id)
+            subscription.delete
+            self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id)
+          rescue Stripe::InvalidRequestError
+            self.stripe_customer = customer
           end
+          save!
         end
       end
       transitions to: :exempted
     end
   end
 
+  def complete_all_guardians!
+    User.incomplete.where(family: self).each { |g| g.set_complete! if g.valid_incomplete? }
+  end
+
   def members
-   guardians + patients
+    guardians + patients
   end
 
   def primary_guardian
-    guardians.order('created_at ASC').first
+    User.where(family: self).order('created_at ASC').first
   end
 
   def stripe_customer=(stripe_customer)
+    stripe_customer ||= {}
+    stripe_customer = stripe_customer.to_hash
     limited_stripe_customer = parse_limited_stripe_customer(stripe_customer)
+    self.stripe_customer_id = limited_stripe_customer.try(:slice, :id)
     super limited_stripe_customer
-    self.stripe_customer_id = limited_stripe_customer[:id]
   end
 
   private
@@ -102,6 +114,7 @@ class Family < ActiveRecord::Base
   end
 
   def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
+    return unless primary_guardian
     if !stripe_customer_id && credit_card_token
       create_stripe_customer(credit_card_token)
     elsif credit_card_token
@@ -110,6 +123,7 @@ class Family < ActiveRecord::Base
       update_subscription_quantity
     end
     save!
+    stripe_customer
   end
 
   private
@@ -122,7 +136,14 @@ class Family < ActiveRecord::Base
       quantity: patients.count
     }
     customer_params = customer_params.except(:plan, :quantity) if exempted?
-    self.stripe_customer = Stripe::Customer.create(customer_params).to_hash
+
+    begin
+      self.stripe_customer = Stripe::Customer.create(customer_params).to_hash
+      PaymentsMailer.new_subscription_created(self) unless exempted?
+    rescue Stripe::CardError => e
+      expire_membership!
+      raise e
+    end
     renew_membership
   end
 
@@ -136,13 +157,19 @@ class Family < ActiveRecord::Base
 
   def update_subscription_quantity
     subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
+    return unless subscription
     subscription.quantity = patients.count
     subscription.save
+    self.delay(
+      queue: "invoice_payment",
+      owner: self,
+      run_at: Time.now
+    ).pay_invoice
     self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
     PaymentsMailer.subscription_updated self
   end
 
-  def set_up_conversation
-    Conversation.create(family_id: id, state: :closed) unless Conversation.find_by_family_id(id)
+  def pay_invoice
+    Stripe::Invoice.create(customer: stripe_customer_id).pay
   end
 end
