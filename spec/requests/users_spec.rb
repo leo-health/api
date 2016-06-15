@@ -132,7 +132,7 @@ describe Leo::V1::Users do
     it "should confirm the user's account" do
       do_request
       expect(response.status).to eq(301)
-      expect(response.header['Location']).to eq("http://localhost:8888/#/success")
+      expect(response.header['Location']).to eq("http://localhost:8888/success")
       expect(user.reload.confirmed_at).to eq(Time.now)
     end
   end

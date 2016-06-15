@@ -16,7 +16,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.unconfirmed_email || user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/complete_registration?token=#{token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration?onboarding_group=primary&token=#{token}",
       }
     )
   end
@@ -40,7 +40,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.unconfirmed_email || user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/changePassword?token=#{token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/changePassword?token=#{token}"
       }
     )
   end
@@ -51,7 +51,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "You've been invited to join Leo + Flatiron Pediatrics!",
       to: enrollment.email,
       vars: {
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/registration?token=#{enrollment.invitation_token}",
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration?onboarding_group=secondary&token=#{enrollment.invitation_token}",
         'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name,
         'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name
       }
@@ -174,7 +174,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "You have unread messages!",
       to: user.email,
       vars: {
-        'LINK':"#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation_id}",
+        'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation_id}",
         'STAFF_FULL_NAME': staff_message.sender.full_name,
         'GUARDIAN_FIRST_NAME': user.first_name
       }
@@ -191,7 +191,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
         'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
         'SECONDARY_GUARDIAN_EMAIL': "#{enrollment.email}",
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/#/acceptInvitation?token=#{enrollment.invitation_token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/acceptInvitation?token=#{enrollment.invitation_token}"
       }
     )
   end
