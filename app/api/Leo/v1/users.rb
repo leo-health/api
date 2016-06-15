@@ -47,9 +47,9 @@ module Leo
         get do
           if user = User.find_by(confirmation_token: params[:token])
             user.confirm
-            redirect "#{ENV['PROVIDER_APP_HOST']}/#/success", permanent: true
+            redirect "#{ENV['PROVIDER_APP_HOST']}/success", permanent: true
           else
-            redirect "#{ENV['PROVIDER_APP_HOST']}/#/404", permanent: true
+            redirect "#{ENV['PROVIDER_APP_HOST']}/404", permanent: true
           end
         end
       end
