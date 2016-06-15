@@ -134,7 +134,7 @@ class User < ActiveRecord::Base
 
   def invitation_token
     if invited_user? && !complete?
-      sessions.first.try(:authentication_token)
+      create_onboarding_session.authentication_token
     end
   end
 
@@ -159,6 +159,10 @@ class User < ActiveRecord::Base
     return true unless guardian?
     return true if primary_guardian?
     confirmed?
+  end
+
+  def create_onboarding_session(**session_params)
+    sessions.create(session_params.reverse_merge(onboarding_group: onboarding_group))
   end
 
   class << self
