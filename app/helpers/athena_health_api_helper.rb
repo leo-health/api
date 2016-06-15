@@ -160,7 +160,7 @@ module AthenaHealthApiHelper
     def reschedule_appointment(appointmentid: ,
       ignoreschedulablepermission: true, newappointmentid: , nopatientcase: false, patientid: ,
       reasonid: nil, reschedulereason: nil)
-
+ 
       endpoint = "appointments/#{appointmentid}/reschedule"
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       response = @connection.PUT(endpoint, params, common_headers)

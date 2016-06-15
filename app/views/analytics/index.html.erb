@@ -1,53 +1,102 @@
-<h1>Analytics</h1>
-<h3>App Active: used app in last 30 days, since <%=(Time.now-30.days).strftime('%Y/%m/%d')%></h3>
-<h3>Active Patients: visited practice in last 18 months, since <%=(Time.now-18.months).strftime('%Y/%m/%d')%></h3>
-<ul>
-  <h3>registration engagement</h3>
-  <% @analytics[:registration_engagement].each do |metric| %>
+<html>
+<head>
+  <!-- Date Range Picker prerequisites -->
+  <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+  <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />
+
+  <!-- Date Range Picker itself (by: http://www.daterangepicker.com) -->
+  <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+  <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+</head>
+<body>
+
+<div class="container">
+  <h1 style="float: left;">Analytics</h1>
+  <div style="float: left; margin: 30px 20px 5px 30px;">
+    For dates:
+    <%= text_field_tag(:stats_time_range, '', size: 24, style: 'text-align: center;') %>
+  </div>
+  <div class="clearfix"></div>
+  <hr style="margin-top: 0px;">
+
+  <h3>Leo</h3>
+  <ul>
+    <% @analytics.practice_engagement_single_value_stats do |metric, value| %>
       <li>
-        <%= metric.first %>:  <%= metric.last %>
+        <%= metric %>:
+        <span style="font-weight: bold;"><%= value %></span>
       </li>
+    <% end %>
+  </ul>
+
+  <% @analytics.single_value_stats.each do |stats_group_name, stats_values| %>
+    <h3><%= stats_group_name %></h3>
+    <ul>
+      <% stats_values.each do |metric, value| %>
+        <li>
+          <%= metric %>:
+          <span style="font-weight: bold;"><%= value %></span>
+        </li>
+      <% end %>
+    </ul>
   <% end %>
 
-  <h3>practice engagement</h3>
-  <% @analytics[:practice_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
+  <div style="margin-top: 30px; margin-bottom: 30px;">
+    <%= link_to 'Download as CSV',
+                analytics_path(format: :csv,
+                               begin_date: @stats_time_range.begin.strftime('%Y-%m-%d'),
+                               end_date: @stats_time_range.end.strftime('%Y-%m-%d')),
+                class: 'btn btn-primary' %>
+  </div>
+</div>
 
-  <h3>schedule engagement</h3>
-  <% @analytics[:scheduling_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
+<script type="text/javascript" charset="utf-8">
+  // Initialize the date range picker
+  $('#stats_time_range').daterangepicker({
+    'showDropdowns': true,
+    'autoApply': true,
+    'ranges': {
+      <% beginning_of_today = Time.zone.now.beginning_of_day %>
+      <% date_today_string = beginning_of_today.to_date.strftime('%m/%d/%Y') %>
+      <% beginning_of_time_string = '01/01/2015' %>
+      'Anytime': [
+        '<%= beginning_of_time_string %>',
+        '<%= date_today_string %>'
+      ],
+      'Today': [
+        '<%= date_today_string %>',
+        '<%= date_today_string %>'
+      ],
+      'Yesterday': [
+        '<%= (beginning_of_today - 1.day).strftime('%m/%d/%Y') %>',
+        '<%= (beginning_of_today - 1.day).strftime('%m/%d/%Y') %>'
+      ],
+      'Last 7 Days': [
+        '<%= (beginning_of_today - 7.days).strftime('%m/%d/%Y') %>',
+        '<%= date_today_string %>'
+      ],
+      'Last 30 Days': [
+        '<%= (beginning_of_today - 30.days).strftime('%m/%d/%Y') %>',
+        '<%= date_today_string %>'
+      ],
+      'This Month': [
+        '<%= (beginning_of_today.beginning_of_month).strftime('%m/%d/%Y') %>',
+        '<%= (beginning_of_today.end_of_month).strftime('%m/%d/%Y') %>'
+      ],
+      'Last Month': [
+        <% last_month = beginning_of_today.beginning_of_month.last_month %>
+        '<%= last_month.strftime('%m/%d/%Y') %>',
+        '<%= last_month.end_of_month.strftime('%m/%d/%Y') %>'
+      ]
+    },
+    'alwaysShowCalendars': true,
+    'startDate': '<%= @stats_time_range.try(:begin).try(:strftime, '%m/%d/%Y') || beginning_of_time_string %>',
+    'endDate': '<%= @stats_time_range.try(:end).try(:strftime, '%m/%d/%Y') || date_today_string %>'
+  }, function (start, end, label) {
+    window.location = '<%= analytics_url %>' + '?begin_date=' + start.format('YYYY-MM-DD') + '&end_date=' + end.format('YYYY-MM-DD');
+  });
+</script>
 
-  <h3>message engagement</h3>
-  <% @analytics[:messaging_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h3>response time metric</h3>
-  <% @analytics[:response_time_metrics].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h3>provider app engagement</h3>
-  <% @analytics[:provider_app_engagement].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-
-  <h3>appointment engagement</h3>
-  <% @analytics[:appointment_enagament].each do |metric| %>
-      <li>
-        <%= metric.first %>:  <%= metric.last %>
-      </li>
-  <% end %>
-</ul>
+</body>
+</html>
