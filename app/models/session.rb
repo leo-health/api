@@ -10,16 +10,14 @@ class Session < ActiveRecord::Base
   validates :device_type, :device_token, presence: true, if: :mobile?
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
 
+  EXPIRATION_PERIOD = 7.days
+
   def expired?
     expiration_date < Time.now
   end
 
   def expiration_date
-    created_at + self.class.expiration_period
-  end
-
-  def self.expiration_period
-    7.days
+    created_at + EXPIRATION_PERIOD
   end
 
   private

@@ -132,7 +132,9 @@ module Leo
           user = current_user
           user_params = declared(params)
           if user.update_attributes(user_params)
-            current_session.destroy! if current_session.onboarding_group
+            if onboarding_group = current_session.onboarding_group
+              current_session.destroy! if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+            end
             present :user, user, Leo::Entities::UserEntity
           else
             error!({error_code: 422, user_message: object.errors.full_messages.first }, 422)
