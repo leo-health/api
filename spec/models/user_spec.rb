@@ -207,7 +207,7 @@ describe User do
   end
 
   describe "#set_complete" do
-    it "should send a WelcomeToPractice email, email confirmation email, and create a conversation" do
+    it "should send a Leo - Welcome To Practice email, email confirmation email, and create a conversation" do
       user = create(:user, :guardian)
       expect(Delayed::Job.where(queue: "notification_email").count).to eq(1)
       expect(Delayed::Job.where(queue: "registration_email").count).to eq(1)
