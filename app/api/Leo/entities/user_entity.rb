@@ -7,7 +7,7 @@ module Leo
       expose :avatar do |instance, options|
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
-      expose :primary_guardian, :type, :membership_type, :stripe_customer_id, :vendor_id, :family_id, :phone, if: Proc.new{ |u| u.guardian? }
+      expose :primary_guardian, :type, :membership_type, :stripe_customer_id, :vendor_id, :family_id, :phone, :onboarding_group, if: Proc.new{ |u| u.guardian? }
       expose :credentials, unless: Proc.new{ |u| u.guardian? }
 
       private
