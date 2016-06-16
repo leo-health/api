@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160608201214) do
+ActiveRecord::Schema.define(version: 20160615172645) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -545,10 +545,12 @@ ActiveRecord::Schema.define(version: 20160608201214) do
     t.string   "device_height"
     t.string   "client_version"
     t.string   "client_platform"
+    t.integer  "onboarding_group_id"
   end
 
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree
   add_index "sessions", ["deleted_at"], name: "index_sessions_on_deleted_at", using: :btree
+  add_index "sessions", ["onboarding_group_id"], name: "index_sessions_on_onboarding_group_id", using: :btree
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", where: "(deleted_at IS NULL)", using: :btree
 
   create_table "slots", force: :cascade do |t|
