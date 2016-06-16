@@ -16,10 +16,10 @@ module Leo
 
           post do
             error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
-            onboarding_group = OnboardingGroup.find_by_group_name(:invited_secondary_guardian)
+            onboarding_group = OnboardingGroup.invited_secondary_guardian
             user = User.new(declared(params).merge(
               role: Role.guardian,
-              family_id: current_user.family_id,
+              family: current_user.family,
               vendor_id: GenericHelper.generate_vendor_id,
               onboarding_group: onboarding_group
             ))
