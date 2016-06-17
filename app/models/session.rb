@@ -3,11 +3,22 @@ class Session < ActiveRecord::Base
   acts_as_paranoid
 
   belongs_to :user
+  belongs_to :onboarding_group
 
   before_validation :ensure_authentication_token, on: [:create, :update]
   validates :user, presence: true
   validates :device_type, :device_token, presence: true, if: :mobile?
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
+
+  EXPIRATION_PERIOD = 7.days
+
+  def expired?
+    expiration_date < Time.now
+  end
+
+  def expiration_date
+    created_at + EXPIRATION_PERIOD
+  end
 
   private
 
