@@ -143,11 +143,8 @@ describe User do
 
     describe "after commit on create" do
       context "for secondary guardian" do
-        before do
-          secondary_guardian.set_incomplete!
-        end
-        it "should send a welcome to practice email and an internal invite email after confirming email" do
-          expect{ secondary_guardian.confirm_secondary_guardian }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(2)
+        it "should send a welcome to practice email" do
+          expect{ secondary_guardian.confirm_secondary_guardian }.to change{ Delayed::Job.where(queue: 'notification_email').count }.by(1)
         end
       end
     end
@@ -203,6 +200,15 @@ describe User do
 
     it "should return true if a user is being invited" do
       expect(invited_user.invited_user?).to eq(true)
+    end
+  end
+
+  describe "#set_complete" do
+    it "should send a Leo - Welcome To Practice email, email confirmation email, and create a conversation" do
+      user = create(:user, :guardian)
+      expect(Delayed::Job.where(queue: "notification_email").count).to eq(1)
+      expect(Delayed::Job.where(queue: "registration_email").count).to eq(1)
+      expect(user.family.conversation).not_to be(nil)
     end
   end
 end

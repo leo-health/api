@@ -13,9 +13,10 @@ namespace :load do
   task bush: :environment do
     family = Family.create!
     family.exempt_membership!
-    family.guardians.create!(
+    user = User.create!(
       first_name: "Jonathan",
       last_name: "Bush",
+      family: family,
       email: "adam+1997@leohealth.com",
       password: "password",
       role: Role.guardian,
@@ -23,8 +24,9 @@ namespace :load do
       phone: "9735172669",
       vendor_id: "bush_vendor_id"
     )
-    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.try(:destroy)
-    Delayed::Job.where(queue: "notification_email").order("created_at DESC").first.try(:destroy)
+    user.set_complete!
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy
+    Delayed::Job.where(queue: "notification_email").order("created_at DESC").first.destroy
     family.patients.create!(
       first_name: "Jeb",
       last_name: "Bush",
