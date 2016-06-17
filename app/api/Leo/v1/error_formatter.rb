@@ -6,7 +6,7 @@ module Leo
         unless message.respond_to?(:keys) && message[:user_message]
           nested_message = {
             debug_message: message,
-            user_message: "Something went wrong! Please contact us at info@leohealth.com if the problem persists",
+            user_message: "Something went wrong! Please contact us at support@leohealth.com if the problem persists",
             error_code: 500
           }
         end
