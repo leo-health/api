@@ -27,7 +27,6 @@ module Leo
         def update_or_create_subscription
           user = current_user
           family = user.family
-
           error_code = nil
           user_message = user_message_payments_default
           debug_message = ""
