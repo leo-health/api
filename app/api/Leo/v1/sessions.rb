@@ -22,7 +22,7 @@ module Leo
           end
 
           session_params = params.slice(:device_token, :device_type, :os_version, :platform)
-          
+          user.sessions.where.not(onboarding_group: nil).destroy_all
           session = user.sessions.create(session_params)
           if session.valid?
             present :user, user, with: Leo::Entities::UserEntity

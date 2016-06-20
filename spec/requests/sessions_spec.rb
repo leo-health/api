@@ -2,7 +2,8 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Sessions do
-  let!(:user){ create(:user, password: "password", password_confirmation: "password") }
+  let!(:user){ create(:user, password: "password", password_confirmation: "password", onboarding_group: OnboardingGroup.primary_guardian) }
+
   let(:serializer){ Leo::Entities::UserEntity }
 
   describe 'POST /api/v1/login' do
@@ -11,8 +12,14 @@ describe Leo::V1::Sessions do
     end
 
     context 'user has correct email and password' do
+      before do
+        user.create_onboarding_session
+      end
+
       it 'should create a session for the user and return the session infomation' do
-        expect{ do_request({ email: user.email, password: 'password' }) }.to change{ Session.count }.from(0).to(1)
+        do_request({ email: user.email, password: 'password' })
+        expect(Session.count).to be(1)
+        expect(Session.first.onboarding_group).to be_nil
         expect(response.status).to eq(201)
         body = JSON.parse( response.body, symbolize_names: true )
         expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
@@ -45,7 +52,7 @@ describe Leo::V1::Sessions do
     let!(:session){ user.sessions.create }
 
     def do_request
-      delete "/api/v1/logout", logout_params = { authentication_token: session.authentication_token }, format: :json
+      delete "/api/v1/logout", { authentication_token: session.authentication_token }, format: :json
     end
 
     it "should set the disabled at entry to soft delete the session" do

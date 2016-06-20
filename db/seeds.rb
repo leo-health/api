@@ -198,7 +198,8 @@ puts "Finished seeding #{insurance_plan_seed.count} InsurancePlan records"
 
 onboarding_group_seed = [
   { group_name: :invited_secondary_guardian },
-  { group_name: :generated_from_athena }
+  { group_name: :generated_from_athena },
+  { group_name: :primary_guardian }
 ]
 
 onboarding_group_seed.each do |param|
