@@ -57,22 +57,16 @@ module Leo
 
         post do
           error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
-
           declared_params = declared(params)
           session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
           session_params = declared_params.slice(*session_keys)
-
-          onboarding_group = OnboardingGroup.primary_guardian
           user_params = (declared_params.except(*session_keys) || {}).merge(
-            {
-              role: Role.guardian,
-              onboarding_group: onboarding_group
-            }
+            role: Role.guardian,
+            onboarding_group: OnboardingGroup.primary_guardian
           )
           user = User.new user_params
-
           if user.save
-            session = user.sessions.create_onboarding_session session_params
+            session = user.create_onboarding_session(session_params)
             present session: { authentication_token: session.authentication_token }
             present :user, session.user, with: Leo::Entities::UserEntity
           else

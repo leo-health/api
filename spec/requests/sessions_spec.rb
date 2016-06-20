@@ -24,10 +24,6 @@ describe Leo::V1::Sessions do
         body = JSON.parse( response.body, symbolize_names: true )
         expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
       end
-
-      after do
-        Session.destroy_all
-      end
     end
 
     context 'member has correct email and password' do
@@ -56,7 +52,7 @@ describe Leo::V1::Sessions do
     let!(:session){ user.sessions.create }
 
     def do_request
-      delete "/api/v1/logout", logout_params = { authentication_token: session.authentication_token }, format: :json
+      delete "/api/v1/logout", { authentication_token: session.authentication_token }, format: :json
     end
 
     it "should set the disabled at entry to soft delete the session" do
