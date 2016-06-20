@@ -198,7 +198,8 @@ puts "Finished seeding #{insurance_plan_seed.count} InsurancePlan records"
 
 onboarding_group_seed = [
   { group_name: :invited_secondary_guardian },
-  { group_name: :generated_from_athena }
+  { group_name: :generated_from_athena },
+  { group_name: :primary_guardian }
 ]
 
 onboarding_group_seed.each do |param|
@@ -602,7 +603,7 @@ providers.each do |attributes|
     user.update_attributes!(attributes.except(:password, :password_confirmation, :provider_schedule_attributes, :provider_attributes, :staff_profile_attributes, :avatar_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
-    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy if Rails.env.development?
+    user.set_complete!
   end
 
   if avatar = user.avatar
@@ -639,7 +640,7 @@ staff.each do |attributes|
     user.update_attributes!(attributes.except(:password, :password_confirmation, :avatar_attributes, :staff_profile_attributes))
   else
     user = User.create!(attributes.except(:avatar_attributes))
-    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy if Rails.env.development?
+    user.set_complete!
   end
 
   if avatar = user.avatar

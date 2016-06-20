@@ -134,7 +134,8 @@ class User < ActiveRecord::Base
 
   def invitation_token
     if invited_user? && !complete?
-      sessions.first.try(:authentication_token)
+      session = sessions.first || create_onboarding_session
+      session.authentication_token
     end
   end
 
@@ -150,15 +151,17 @@ class User < ActiveRecord::Base
     confirm
     set_complete
     self.type = family.primary_guardian.type
-    return false unless save
-    InternalInvitationEnrollmentNotificationJob.send(id)
-    true
+    save
   end
 
   def guardian_was_approved?
     return true unless guardian?
     return true if primary_guardian?
     confirmed?
+  end
+
+  def create_onboarding_session(session_params={})
+    sessions.create(session_params.reverse_merge(onboarding_group: onboarding_group))
   end
 
   class << self
@@ -206,6 +209,7 @@ class User < ActiveRecord::Base
   def guardian_was_completed_callback
     if complete?
       WelcomeToPracticeJob.send(id)
+      send_confirmation_instructions unless confirmed?
       Conversation.create(family_id: family.id, state: :closed) unless Conversation.find_by_family_id(family.id)
     end
   end
