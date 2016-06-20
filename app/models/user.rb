@@ -134,7 +134,8 @@ class User < ActiveRecord::Base
 
   def invitation_token
     if invited_user? && !complete?
-      create_onboarding_session.authentication_token
+      session = sessions.first || create_onboarding_session
+      session.authentication_token
     end
   end
 

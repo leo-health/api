@@ -107,7 +107,12 @@ module Leo
               user.family.exempt_membership!
             end
             if user.invited_user?
-              error!({error_code: 422, user_message: user.errors.full_messages.first}, 422) unless user.confirm_secondary_guardian
+              unless user.confirm_secondary_guardian
+                error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
+              else
+                user.sessions.destroy_all
+                return true
+              end
             end
             session = Session.find_by_authentication_token(params[:authentication_token])
             update_success session, session_params
@@ -129,13 +134,15 @@ module Leo
 
         put do
           authenticated
+          error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
           user = current_user
           user_params = declared(params)
           if user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
+              ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
               current_session.destroy! if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
             end
-            present :user, user, Leo::Entities::UserEntity
+            present :user, user, with: Leo::Entities::UserEntity
           else
             error!({error_code: 422, user_message: object.errors.full_messages.first }, 422)
           end
@@ -144,6 +151,30 @@ module Leo
         get do
           authenticated
           present :user, current_user, with: Leo::Entities::UserEntity
+        end
+
+        # Duplicated until front ends use the same endpoint
+        namespace "users/current" do
+          put do
+            authenticated
+            error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+            user = current_user
+            user_params = declared(params)
+            if user.update_attributes(user_params)
+              if onboarding_group = current_session.onboarding_group
+                ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
+                current_session.destroy! if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+              end
+              present :user, user, with: Leo::Entities::UserEntity
+            else
+              error!({error_code: 422, user_message: object.errors.full_messages.first }, 422)
+            end
+          end
+
+          get do
+            authenticated
+            present :user, current_user, with: Leo::Entities::UserEntity
+          end
         end
 
         route_param :id do
@@ -171,6 +202,13 @@ module Leo
             user_params = declared(params)
             update_success @user, user_params, "User"
           end
+        end
+      end
+
+      helpers do
+        def ask_primary_guardian_approval
+          primary_guardian = current_user.family.primary_guardian
+          PrimaryGuardianApproveInvitationJob.send(primary_guardian, current_user)
         end
       end
     end

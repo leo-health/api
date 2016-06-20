@@ -24,7 +24,6 @@ module Leo
               onboarding_group: onboarding_group
             ))
             if user.save
-              user.create_onboarding_session
               InviteParentJob.send(user, current_user)
               present :onboarding_group, user.onboarding_group.group_name
             else
@@ -89,13 +88,16 @@ module Leo
         end
 
         put :current do
+          authenticated
           error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
-          user_params = declared(params, include_missing: false).except(:authentication_token)
           user = current_user
-          if user.update_attributes user_params
-            present session: { authentication_token: params[:authentication_token] }
+          user_params = declared(params, include_missing: false).except(:authentication_token)
+          if user.update_attributes(user_params)
+            if onboarding_group = current_session.onboarding_group
+              ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
+              current_session.destroy! if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+            end
             present :user, user, with: Leo::Entities::UserEntity
-            ask_primary_guardian_approval if user.onboarding_group.try(:invited_secondary_guardian?)
           else
             error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
