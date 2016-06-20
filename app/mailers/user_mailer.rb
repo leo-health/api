@@ -16,7 +16,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.unconfirmed_email || user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration?onboarding_group=primary&token=#{token}",
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
       }
     )
   end
@@ -51,7 +51,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "You've been invited to join Leo + Flatiron Pediatrics!",
       to: enrollment.email,
       vars: {
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration?onboarding_group=secondary&token=#{enrollment.invitation_token}",
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=secondary&token=#{enrollment.invitation_token}",
         'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name,
         'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name
       }
@@ -191,7 +191,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
         'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
         'SECONDARY_GUARDIAN_EMAIL': "#{enrollment.email}",
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/acceptInvitation?token=#{enrollment.invitation_token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/acceptInvitation?token=#{enrollment.invitation_token}"
       }
     )
   end
