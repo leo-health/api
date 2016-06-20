@@ -111,7 +111,7 @@ module Leo
                 error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
               else
                 user.sessions.destroy_all
-                return true
+                return {session: nil}
               end
             end
             session = Session.find_by_authentication_token(params[:authentication_token])
@@ -140,7 +140,7 @@ module Leo
           if user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
               ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
-              current_session.destroy! if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+              current_session.destroy if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
             end
             present :user, user, with: Leo::Entities::UserEntity
           else
@@ -163,7 +163,7 @@ module Leo
             if user.update_attributes(user_params)
               if onboarding_group = current_session.onboarding_group
                 ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
-                current_session.destroy! if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+                current_session.destroy if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
               end
               present :user, user, with: Leo::Entities::UserEntity
             else

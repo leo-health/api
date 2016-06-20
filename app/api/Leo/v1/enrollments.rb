@@ -95,7 +95,7 @@ module Leo
           if user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
               ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
-              current_session.destroy! if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+              current_session.destroy if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
             end
             present :user, user, with: Leo::Entities::UserEntity
           else
