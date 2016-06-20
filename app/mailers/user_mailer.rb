@@ -16,7 +16,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: user.unconfirmed_email || user.email,
       vars: {
         'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration?onboarding_group=primary&token=#{token}",
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
       }
     )
   end
