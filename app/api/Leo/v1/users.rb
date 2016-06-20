@@ -94,7 +94,7 @@ module Leo
             # instead of post enrollments
             user = User.new user_params
             if user.save
-              session = user.sessions.create_onboarding_session(session_params)
+              session = user.create_onboarding_session(session_params)
               present :user, user, with: Leo::Entities::UserEntity
               present :session, session, with: Leo::Entities::SessionEntity
             else
