@@ -83,7 +83,13 @@ module Leo
           session_params = declared_params.slice(*session_keys) || {}
 
           # TODO: user_params (all params?) should be required in versions > "1.0.0"
-          user_params = (declared_params.except(*session_keys) || {}).merge({ role: Role.guardian })
+          onboarding_group = OnboardingGroup.primary_guardian
+          user_params = (declared_params.except(*session_keys) || {}).merge(
+            {
+              role: Role.guardian,
+              onboarding_group: onboarding_group
+            }
+          )
 
           if (params[:client_version] || "0") >= "1.0.1"
             # NOTE: in the newer version,
@@ -91,7 +97,7 @@ module Leo
             # instead of post enrollments
             user = User.new user_params
             if user.save
-              session = user.sessions.create(session_params)
+              session = user.sessions.create_onboarding_session(session_params)
               present :user, user, with: Leo::Entities::UserEntity
               present :session, session, with: Leo::Entities::SessionEntity
             else
