@@ -274,7 +274,7 @@ module AthenaHealthApiHelper
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients
-    def get_patients(departmentid:)
+    def get_patients(departmentid: , limit: nil)
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       start = Time.now
       entries = get_paged(
@@ -282,7 +282,8 @@ module AthenaHealthApiHelper
         params: params,
         headers: common_headers,
         field: :patients,
-        page_size: 100
+        page_size: 100,
+        limit: limit
       )
       puts "Request time: #{Time.now - start}"
       entries
