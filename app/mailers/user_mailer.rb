@@ -191,7 +191,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
         'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
         'SECONDARY_GUARDIAN_EMAIL': "#{enrollment.email}",
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/acceptInvitation?token=#{enrollment.invitation_token}"
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/acceptInvitation?token=#{enrollment.invitation_token}"
       }
     )
   end
