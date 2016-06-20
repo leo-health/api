@@ -237,7 +237,7 @@ class AnalyticsService
       },
       'Message Engagement' => {
         '# of guardians that sent a message' => guardians_who_sent_messages.size,
-        '# of total messages sent' => total_messages_sent.size
+        '# of total messages sent by guardians that sent messages' => total_messages_sent.size
       },
       'Response Time Metric' => {
         'Average Time to Case Close (minutes)' => average_case_time_in_minutes,
