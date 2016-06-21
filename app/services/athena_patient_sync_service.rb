@@ -22,7 +22,7 @@ class AthenaPatientSyncService < AthenaSyncService
     puts "Of which we already have #{existing_athena_ids.count} in Leo" if verbose
     puts "Will create #{athena_ids.count - existing_athena_ids.count} patients in Leo" if verbose
 
-    # byebug
+    byebug
 
 
     next_existing_athena_id = nil
