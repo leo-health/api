@@ -3,10 +3,6 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def invite_all_exempt_synced_users
     onboarding_group = OnboardingGroup.generated_from_athena
-
-    byebug
-
-
     onboarding_group.users.find_each do |guardian|
       invite_exempt_synced_user(guardian)
     end
