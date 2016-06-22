@@ -15,14 +15,14 @@ class UserMailer < MandrillMailer::TemplateMailer
   def invite_exempt_synced_user(user)
     session = user.sessions.first || user.create_onboarding_session
     token = session.authentication_token
-    delay(queue: 'exempt_registration_email', owner: user).mandrill_mail(
+    mandrill_mail(
       template: 'Leo - Exempt User Registration',
       subject: 'Leo - Thank you for joining Leo.',
       to: user.unconfirmed_email || user.email,
       vars: {
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
       }
-    )
+    ).delay(queue: 'exempt_registration_email', owner: user).deliver
   end
 
   def confirmation_instructions(user, token, opts={})
