@@ -13,7 +13,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     token = session.authentication_token
     mandrill_mail(
       template: 'Leo - Exempt User Registration',
-      subject: 'Leo - Thank you for joining Leo.',
+      subject: 'Leo + Flatiron Pediatrics - Get the app.',
       to: user.unconfirmed_email || user.email,
       vars: {
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
