@@ -1,12 +1,36 @@
 class AthenaPatientSyncService < AthenaSyncService
-  def sync_all_patients(practice, verbose: false)
+  def get_all_patients(practice, verbose: false)
     puts "Getting all patients with departmentid #{practice.athena_id}" if verbose
-    athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
-    puts "Athena returned #{athena_patients.count} patients" if verbose
+    all_athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
+    puts "Athena returned #{all_athena_patients.count} patients" if verbose
+
+    # only sync patients whose guardian is included in the list
+    guardian_emails = File.readlines('lib/assets/exempt_guardian_emails.txt').map(&:strip).map(&:downcase)
+    athena_patients = all_athena_patients.select do |patient|
+      should_select = guardian_emails.include? patient["guarantoremail"].try(:downcase)
+      should_select &&= dob_s = patient["dob"]
+      should_select &&= dob = Time.strptime(dob_s, "%m/%d/%Y")
+      should_select &&= (Time.now - dob) < 13.years
+    end
+
+    # athena_emails = all_athena_patients.map { |patient| {guarantoremail: patient["guarantoremail"].try(:downcase), patientemail: patient["email"].try(:downcase), lastemail: patient["lastemail"].try(:downcase) } }
+    # guarantoremails = athena_emails.map { |emails| emails[:guarantoremail] }.select(&:itself)
+    # guardian_emails_not_found = guardian_emails.reject { |email| guarantoremails.include? email }
+    # all_emails_for_missing_guarantoremail = athena_emails.select{ |emails| guardian_emails_not_found.include?(emails[:guarantoremail]) || guardian_emails_not_found.include?(emails[:patientemail]) || guardian_emails_not_found.include?(emails[:lastemail]) }
     athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
     existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id).to_enum
     puts "Of which we already have #{existing_athena_ids.count} in Leo" if verbose
     puts "Will create #{athena_ids.count - existing_athena_ids.count} patients in Leo" if verbose
+
+    {athena_patients: athena_patients, guardian_emails: guardian_emails, all_athena_patients: all_athena_patients}
+  end
+
+  def sync_all_patients(athena_patients, verbose: false)
+    athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
+    existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id).to_enum
+    puts "Of which we already have #{existing_athena_ids.count} in Leo" if verbose
+    puts "Will create #{athena_ids.count - existing_athena_ids.count} patients in Leo" if verbose
+
     next_existing_athena_id = nil
     patients = athena_patients.reduce([]) { |created_patients, athena_patient|
       begin
@@ -49,13 +73,7 @@ class AthenaPatientSyncService < AthenaSyncService
 
   def parse_athena_patient_json_to_guardian(athena_patient)
     {
-      first_name: athena_patient["guarantorfirstname"],
-      last_name: athena_patient["guarantorlastname"],
       email: athena_patient["guarantoremail"],
-      phone: athena_patient["contactmobilephone"] ||
-              athena_patient["homephone"] ||
-              athena_patient["employerphone"] ||
-              athena_patient["nextkinphone"],
       role: Role.guardian,
       vendor_id: GenericHelper.generate_vendor_id,
       onboarding_group: OnboardingGroup.generated_from_athena
