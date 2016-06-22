@@ -82,16 +82,18 @@ module Leo
           session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
           session_params = declared_params.slice(*session_keys) || {}
 
-          # TODO: user_params (all params?) should be required in versions > "1.0.0"
-          user_params = (declared_params.except(*session_keys) || {}).merge(
-            role: Role.guardian,
-            onboarding_group: OnboardingGroup.primary_guardian
-          )
+          user_params = declared_params.except(*session_keys) || {}
 
           if (params[:client_version] || "0") >= "1.0.1"
             # NOTE: in the newer version,
             # this endpoint is used to create an incomplete user
             # instead of post enrollments
+            # TODO: user_params (all params?) should be required in versions > "1.0.0"
+            user_params = user_params.merge(
+              role: Role.guardian,
+              onboarding_group: OnboardingGroup.primary_guardian
+            )
+
             user = User.new user_params
             if user.save
               session = user.create_onboarding_session(session_params)
@@ -137,17 +139,26 @@ module Leo
 
         put do
           authenticated
-          error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+          error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
           user = current_user
-          user_params = declared(params)
+          user_params = declared(params, include_missing: false).except(:authentication_token)
           if user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
-              ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
-              current_session.destroy if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+              if onboarding_group.invited_secondary_guardian?
+                ask_primary_guardian_approval
+                current_session.destroy
+              end
+
+              if onboarding_group.generated_from_athena?
+                user.set_complete!
+                current_session.destroy
+                session = user.create_onboarding_session
+                present :session, session, with: Leo::Entities::SessionEntity
+              end
             end
             present :user, user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, user_message: object.errors.full_messages.first }, 422)
+            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
         end
 
@@ -160,17 +171,26 @@ module Leo
         namespace "users/current" do
           put do
             authenticated
-            error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+            error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
             user = current_user
-            user_params = declared(params)
+            user_params = declared(params, include_missing: false).except(:authentication_token)
             if user.update_attributes(user_params)
               if onboarding_group = current_session.onboarding_group
-                ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
-                current_session.destroy if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+                if onboarding_group.invited_secondary_guardian?
+                  ask_primary_guardian_approval
+                  current_session.destroy
+                end
+
+                if onboarding_group.generated_from_athena?
+                  user.set_complete!
+                  current_session.destroy
+                  session = user.create_onboarding_session
+                  present :session, session, with: Leo::Entities::SessionEntity
+                end
               end
               present :user, user, with: Leo::Entities::UserEntity
             else
-              error!({error_code: 422, user_message: object.errors.full_messages.first }, 422)
+              error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
             end
           end
 

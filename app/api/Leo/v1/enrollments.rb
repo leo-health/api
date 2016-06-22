@@ -15,7 +15,7 @@ module Leo
           end
 
           post do
-            error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+            error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email])
             onboarding_group = OnboardingGroup.invited_secondary_guardian
             user = User.new(declared(params).merge(
               role: Role.guardian,
@@ -56,7 +56,7 @@ module Leo
         end
 
         post do
-          error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+          error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email])
           declared_params = declared(params)
           session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
           session_params = declared_params.slice(*session_keys)
@@ -90,13 +90,22 @@ module Leo
 
         put :current do
           authenticated
-          error!({error_code: 422, user_message: 'E-mail is not available.'}) if User.email_taken?(params[:email])
+          error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
           user = current_user
           user_params = declared(params, include_missing: false).except(:authentication_token)
           if user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
-              ask_primary_guardian_approval if onboarding_group.invited_secondary_guardian?
-              current_session.destroy if onboarding_group.invited_secondary_guardian? || onboarding_group.generated_from_athena?
+              if onboarding_group.invited_secondary_guardian?
+                ask_primary_guardian_approval
+                current_session.destroy
+              end
+
+              if onboarding_group.generated_from_athena?
+                user.set_complete!
+                current_session.destroy
+                session = user.create_onboarding_session
+                present :session, session, with: Leo::Entities::SessionEntity
+              end
             end
             present :user, user, with: Leo::Entities::UserEntity
           else

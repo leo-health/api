@@ -17,10 +17,9 @@ class UserMailer < MandrillMailer::TemplateMailer
     token = session.authentication_token
     delay(queue: 'exempt_registration_email', owner: user).mandrill_mail(
       template: 'Leo - Exempt User Registration',
-      subject: '',
+      subject: 'Leo - Thank you for joining Leo.',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'FIRST_NAME': user.first_name,
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
       }
     )
