@@ -55,7 +55,6 @@ module Leo
         end
 
         post do
-
           session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
           session_params = declared(params).slice(*session_keys)
           user_params = (declared(params).except(*session_keys) || {}).merge(
