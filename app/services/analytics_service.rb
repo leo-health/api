@@ -70,8 +70,7 @@ class AnalyticsService
     # @return [Enumerable<Message>]
     def total_messages_sent(time_range: nil)
       # @param [Range<Time>] time_range Only Guardian-s who sent Message-s within that time range will be retrieved
-      messages = Message.all
-      messages = messages.where("sender_id > ?", 11)     
+      messages = Message.includes(:sender).where(sender: {role_id: Role.guardian.id})
       messages = messages.where(created_at: time_range) if time_range.present?
       messages
     end
@@ -165,7 +164,7 @@ class AnalyticsService
 
   attr_reader :time_range
 
-  def initialize(time_range = nil)  
+  def initialize(time_range = nil)
     @time_range = time_range
   end
 
