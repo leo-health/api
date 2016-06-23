@@ -10,6 +10,11 @@ class Session < ActiveRecord::Base
   validates :device_type, :device_token, presence: true, if: :mobile?
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
 
+  scope :ios, ->{ where.not(client_version: nil) }
+  scope :testflight, ->{ where("created_at < ?", Time.new(2016,6,22)) }
+  scope :logins, ->{ where(onboarding_group: nil) }
+  scope :signups, ->{ where(onboarding_group: OnboardingGroup.primary_guardian) }
+
   EXPIRATION_PERIOD = 7.days
 
   def expired?
