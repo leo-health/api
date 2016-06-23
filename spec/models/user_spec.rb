@@ -118,6 +118,7 @@ describe User do
 
   describe "validations" do
     subject { build(:user, complete_status: :complete) }
+
     before do
       subject.validate
     end
@@ -150,6 +151,14 @@ describe User do
     context "if not guardian" do
       before { allow(subject).to receive(:guardian?).and_return(false)}
       it { should_not validate_presence_of(:vendor_id) }
+    end
+
+    context "if complete or in generated_from_athena onboarding group" do
+      subject { create(:user, complete_status: :complete, email: "dup@dup.com") }
+
+      it "should raise error if email is not unique for two completed user" do
+        expect { subject.dup.save! }.to raise_error(ActiveRecord::RecordInvalid)
+      end
     end
   end
 
