@@ -153,7 +153,8 @@ describe AthenaPatientSyncService do
     let!(:practice){ create(:practice, athena_id: 1) }
 
     def do_request
-      @service.sync_all_patients practice
+      results = @service.get_all_patients practice
+      @service.sync_all_patients(results[:athena_patients])
     end
 
     before do
