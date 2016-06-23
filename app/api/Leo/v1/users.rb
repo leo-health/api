@@ -106,16 +106,15 @@ module Leo
             authenticated
             # in the old version, this endpoint is used to
             # update an incomplete user after calling post enrollments
-            user = current_user
             ActiveRecord::Base.transaction do
-              update_success user, user_params, "User"
-              user.family.exempt_membership!
+              update_success current_user, user_params, "User"
+              current_user.family.exempt_membership!
             end
-            if user.invited_user?
-              unless user.confirm_secondary_guardian
-                error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
+            if current_user.invited_user?
+              unless current_user.confirm_secondary_guardian
+                error!({error_code: 422, user_message: current_user.errors.full_messages.first}, 422)
               else
-                user.sessions.destroy_all
+                current_user.sessions.destroy_all
                 return {session: nil}
               end
             end
@@ -125,24 +124,22 @@ module Leo
         end
 
         params do
+          requires :authentication_token, type: String, allow_blank: false
           optional :first_name, type: String
           optional :last_name, type: String
           optional :password, type: String
           optional :phone, type: String
+          optional :email, type: String
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
-          optional :middle_initial, type: String
           optional :title, type: String
-          optional :suffix, type: String
-          at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :middle_initial, :title, :suffix
+          at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :title
         end
 
         put do
           authenticated
-          error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
-          user = current_user
           user_params = declared(params, include_missing: false).except(:authentication_token)
-          if user.update_attributes(user_params)
+          if current_user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
               if onboarding_group.invited_secondary_guardian?
                 ask_primary_guardian_approval
@@ -150,15 +147,15 @@ module Leo
               end
 
               if onboarding_group.generated_from_athena?
-                user.set_complete!
+                current_user.set_complete!
                 current_session.destroy
-                session = user.create_onboarding_session
+                session = current_user.create_onboarding_session
                 present :session, session, with: Leo::Entities::SessionEntity
               end
             end
-            present :user, user, with: Leo::Entities::UserEntity
+            present :user, current_user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
+            error!({error_code: 422, user_message: current_user.errors.full_messages.first }, 422)
           end
         end
 
@@ -169,12 +166,24 @@ module Leo
 
         # Duplicated until front ends use the same endpoint
         namespace "users/current" do
+          params do
+            requires :authentication_token, type: String, allow_blank: false
+            optional :password, type: String
+            optional :first_name, type: String
+            optional :last_name, type: String
+            optional :email, type: String
+            optional :birth_date, type: Date
+            optional :sex, type: String, values: ['M', 'F']
+            optional :stripe_customer_id, type: String
+            optional :phone, type: String
+            optional :insurance_plan_id, type: Integer
+            at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :title
+          end
+
           put do
             authenticated
-            error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
-            user = current_user
             user_params = declared(params, include_missing: false).except(:authentication_token)
-            if user.update_attributes(user_params)
+            if current_user.update_attributes(user_params)
               if onboarding_group = current_session.onboarding_group
                 if onboarding_group.invited_secondary_guardian?
                   ask_primary_guardian_approval
@@ -182,15 +191,15 @@ module Leo
                 end
 
                 if onboarding_group.generated_from_athena?
-                  user.set_complete!
+                  current_user.set_complete!
                   current_session.destroy
                   session = user.create_onboarding_session
                   present :session, session, with: Leo::Entities::SessionEntity
                 end
               end
-              present :user, user, with: Leo::Entities::UserEntity
+              present :user, current_user, with: Leo::Entities::UserEntity
             else
-              error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
+              error!({error_code: 422, user_message: current_user.errors.full_messages.first }, 422)
             end
           end
 
