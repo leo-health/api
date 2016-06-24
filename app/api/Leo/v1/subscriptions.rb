@@ -21,13 +21,12 @@ module Leo
 
       helpers do
         def user_message_payments_default
-          "Sorry, there was an error processing your payment. Please try again later or contact us for help at info@leohealth.com"
+          "Sorry, there was an error processing your payment. Please try again later or contact us for help at support@leohealth.com"
         end
 
         def update_or_create_subscription
           user = current_user
           family = user.family
-
           error_code = nil
           user_message = user_message_payments_default
           debug_message = ""

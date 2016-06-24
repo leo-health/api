@@ -70,9 +70,7 @@ class AnalyticsService
     # @return [Enumerable<Message>]
     def total_messages_sent(time_range: nil)
       # @param [Range<Time>] time_range Only Guardian-s who sent Message-s within that time range will be retrieved
-      messages = Message.all
-      messages = messages.where.not(sender_id: 5)
-      messages = messages.where("sender_id > ?", 11) 
+      messages = Message.includes(:sender).where(sender: {role_id: Role.guardian.id})
       messages = messages.where(created_at: time_range) if time_range.present?
       messages
     end
@@ -191,7 +189,7 @@ class AnalyticsService
   def guardians_who_sent_messages
     @guardians_who_sent_messages ||= AnalyticsService.guardians_who_sent_messages(time_range: time_range)
   end
-  def total_messages_sent(time_range: nil)
+  def total_messages_sent
     AnalyticsService.total_messages_sent(time_range: time_range)
   end
   def cases_times_in_seconds
@@ -228,16 +226,15 @@ class AnalyticsService
   def single_value_stats
     @single_value_stats ||= {
       'Schedule Engagement' => {
-        '# of visits scheduled from app' => appointments_booked(role: Role.guardian).size,
-        '# of visits cancelled from app' => appointments_cancelled(role: Role.guardian).size - appointments_rescheduled(role: Role.guardian).size,
-        '# of visits rescheduled from app' => appointments_rescheduled(role: Role.guardian).size,
+        '# of visits scheduled' => appointments_booked(role: Role.guardian).size,
+        '# of visits rescheduled' => appointments_rescheduled(role: Role.guardian).size,
       },
       'Appointment Engagement' => {
-        '# of same day appointments from app' => appointments_booked(role: Role.guardian, same_day_only: true).size,
+        '# of same day appointments' => appointments_booked(role: Role.guardian, same_day_only: true).size,
       },
       'Message Engagement' => {
         '# of guardians that sent a message' => guardians_who_sent_messages.size,
-        '# of total messages sent' => total_messages_sent.size
+        '# of total messages sent by guardians that sent messages' => total_messages_sent.size
       },
       'Response Time Metric' => {
         'Average Time to Case Close (minutes)' => average_case_time_in_minutes,
@@ -253,12 +250,12 @@ class AnalyticsService
     }
   end
 
-  # @return [Hash<String, Hash<>>]
-  #def practice_engagement_monthly_stats
-   # @practice_engagement_monthly_stats ||= {
-    #  '# of new patients enrolled in practice monthly' => new_patients_enrolled_monthly
-    #}
-  #end
+ # @return [Hash<String, Hash<>>]
+  def practice_engagement_monthly_stats
+   @practice_engagement_monthly_stats ||= {
+     '# of new patients enrolled in practice monthly' => new_patients_enrolled_monthly
+    }
+  end
 
 
   ## Formatters
