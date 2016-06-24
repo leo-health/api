@@ -47,31 +47,48 @@ describe User do
   end
 
   describe "scopes" do
-    let!(:guardian){ create(:user) }
-    let!(:customer_service){ create(:user, :customer_service) }
-    let!(:clinical){ create(:user, :clinical) }
-
     context "guaridans" do
+      let!(:guardian){ create(:user) }
+
       it "should return all the guaridans" do
         expect(User.guardians).to match_array([guardian])
       end
     end
 
     context "staff" do
+      let!(:customer_service){ create(:user, :customer_service) }
+      let!(:clinical){ create(:user, :clinical) }
+
       it "should return all the staff" do
         expect(User.staff).to match_array([clinical, customer_service])
       end
     end
 
     context "clinical_staff" do
+      let!(:customer_service){ create(:user, :customer_service) }
+      let!(:clinical){ create(:user, :clinical) }
+
       it "should return all the clinical_staff" do
         expect(User.clinical_staff).to match_array([clinical, customer_service])
       end
     end
 
     context "provider" do
+      let!(:customer_service){ create(:user, :customer_service) }
+      let!(:clinical){ create(:user, :clinical) }
+
       it "should return all the providers" do
         expect(User.provider).to match_array([clinical])
+      end
+    end
+
+    context "completed_or_athena" do
+      let(:generated_from_athena){ create(:onboarding_group, :generated_from_athena) }
+      let!(:completed){ create(:user, complete_status: :complete) }
+      let!(:athena){ create(:user, onboarding_group: generated_from_athena) }
+
+      it "should return all the user with complete status and generated_from_athena onboarding group" do
+        expect(User.completed_or_athena).to match_array([athena, completed])
       end
     end
   end
@@ -101,6 +118,7 @@ describe User do
 
   describe "validations" do
     subject { build(:user, complete_status: :complete) }
+
     before do
       subject.validate
     end
@@ -133,6 +151,14 @@ describe User do
     context "if not guardian" do
       before { allow(subject).to receive(:guardian?).and_return(false)}
       it { should_not validate_presence_of(:vendor_id) }
+    end
+
+    context "if complete or in generated_from_athena onboarding group" do
+      subject { create(:user, complete_status: :complete, email: "dup@dup.com") }
+
+      it "should raise error if email is not unique for two completed user" do
+        expect { subject.dup.save! }.to raise_error(ActiveRecord::RecordInvalid)
+      end
     end
   end
 
