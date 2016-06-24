@@ -14,6 +14,8 @@ class Session < ActiveRecord::Base
   scope :testflight, ->{ where("created_at < ?", Time.new(2016,6,22)) }
   scope :logins, ->{ where(onboarding_group: nil) }
   scope :signups, ->{ where(onboarding_group: OnboardingGroup.primary_guardian) }
+  scope :invited_secondary, ->{ where(onboarding_group: OnboardingGroup.invited_secondary_guardian) }
+  scope :invited_exempt, ->{ where(onboarding_group: OnboardingGroup.generated_from_athena) }
 
   EXPIRATION_PERIOD = 7.days
 
