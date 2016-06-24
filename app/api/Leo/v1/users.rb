@@ -103,18 +103,18 @@ module Leo
               error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
             end
           else
+            #in the old version, this endpoint is used to update an incomplete user after calling post enrollments
             authenticated
-            # in the old version, this endpoint is used to
-            # update an incomplete user after calling post enrollments
+            user = current_user
             ActiveRecord::Base.transaction do
-              update_success current_user, user_params, "User"
-              current_user.family.exempt_membership!
+              update_success user, user_params, "User"
+              user.family.exempt_membership!
             end
-            if current_user.invited_user?
-              unless current_user.confirm_secondary_guardian
-                error!({error_code: 422, user_message: current_user.errors.full_messages.first}, 422)
+            if user.invited_user?
+              unless user.confirm_secondary_guardian
+                error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
               else
-                current_user.sessions.destroy_all
+                user.sessions.destroy_all
                 return {session: nil}
               end
             end
@@ -139,7 +139,7 @@ module Leo
         put do
           authenticated
           user_params = declared(params, include_missing: false).except(:authentication_token)
-          if current_user.update_attributes(user_params)
+          if user = current_user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
               if onboarding_group.invited_secondary_guardian?
                 ask_primary_guardian_approval
@@ -183,7 +183,8 @@ module Leo
           put do
             authenticated
             user_params = declared(params, include_missing: false).except(:authentication_token)
-            if current_user.update_attributes(user_params)
+            user = current_user
+            if user.update_attributes(user_params)
               if onboarding_group = current_session.onboarding_group
                 if onboarding_group.invited_secondary_guardian?
                   ask_primary_guardian_approval
@@ -191,15 +192,15 @@ module Leo
                 end
 
                 if onboarding_group.generated_from_athena?
-                  current_user.set_complete!
+                  user.set_complete!
                   current_session.destroy
                   session = user.create_onboarding_session
                   present :session, session, with: Leo::Entities::SessionEntity
                 end
               end
-              present :user, current_user, with: Leo::Entities::UserEntity
+              present :user, user, with: Leo::Entities::UserEntity
             else
-              error!({error_code: 422, user_message: current_user.errors.full_messages.first }, 422)
+              error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
             end
           end
 

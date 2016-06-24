@@ -70,6 +70,10 @@ class User < ActiveRecord::Base
     leo_bot
   end
 
+  def self.email_taken?(email)
+    completed_or_athena.where(email: email).count > 0
+  end
+
   aasm whiny_transitions: false, column: :complete_status do
     state :incomplete, initial: true
     state :valid_incomplete
