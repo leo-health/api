@@ -2,7 +2,7 @@ class Practice < ActiveRecord::Base
   belongs_to :appointments_sync_job, class_name: Delayed::Job
   has_many :staff, class_name: "StaffProfile"
   has_many :guardians, ->{ guardians }, class_name: "User"
-  has_many :providers, class_name: "Provider"
+  has_many :providers
   has_many :appointments, -> { where appointment_status: AppointmentStatus.booked }
   has_many :practice_schedules
 
