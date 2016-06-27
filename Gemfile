@@ -47,7 +47,6 @@ gem 'stripe'
 group :development, :test do
   gem 'parallel_tests'
   gem 'zeus-parallel_tests'
-  gem 'airborne'  # Allow easily testing json responses
   gem 'factory_girl_rails'
   gem 'byebug'
   gem 'quiet_assets'
@@ -63,6 +62,7 @@ group :development, :develop do
 end
 
 group :test do
+  gem 'airborne'
   gem 'stripe-ruby-mock'
   gem 'shoulda-callback-matchers', '~> 1.1.1'
   gem 'shoulda-matchers'
