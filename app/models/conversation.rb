@@ -67,11 +67,8 @@ class Conversation < ActiveRecord::Base
   MESSAGE_BODY = "Welcome to Flatiron Pediatrics! Use this messaging channel to connect with us here at the practice. Send us any questions, concerns or requests (you can even send pictures!) and we’ll do our very best to get back to you right away."
 
   def load_initial_message
-    sender = User.find_by_email('victoria@flatironpediatrics.com')
-    sender ||= User.leo_bot
-    if sender
-      messages.create(body: MESSAGE_BODY, sender: sender, type_name: :text)
-    end
+    sender = User.find_by_email('victoria@flatironpediatrics.com') || User.leo_bot
+    messages.create(body: MESSAGE_BODY, sender: sender, type_name: :text) if sender
   end
 
   def broadcast_conversation_by_state
