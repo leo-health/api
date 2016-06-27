@@ -139,7 +139,8 @@ module Leo
         put do
           authenticated
           user_params = declared(params, include_missing: false).except(:authentication_token)
-          if user = current_user.update_attributes(user_params)
+          user = current_user
+          if user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
               if onboarding_group.invited_secondary_guardian?
                 ask_primary_guardian_approval
@@ -147,15 +148,15 @@ module Leo
               end
 
               if onboarding_group.generated_from_athena?
-                current_user.set_complete!
+                user.set_complete!
                 current_session.destroy
-                session = current_user.create_onboarding_session
+                session = user.create_onboarding_session
                 present :session, session, with: Leo::Entities::SessionEntity
               end
             end
-            present :user, current_user, with: Leo::Entities::UserEntity
+            present :user, user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, user_message: current_user.errors.full_messages.first }, 422)
+            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
         end
 
