@@ -63,7 +63,7 @@ class Message < ActiveRecord::Base
   end
 
   def initial_welcome_message?
-    body == "Welcome! My name is Catherine and I run the office here at Flatiron Pediatrics. If you ever need to reach us with questions, concerns or requests, feel free to use this messaging channel and we'll get back to you right away."
+    body == "Welcome to Flatiron Pediatrics! Use this messaging channel to connect with us here at the practice. Send us any questions, concerns or requests (you can even send pictures!) and we’ll do our very best to get back to you right away."
   end
 
   def set_last_message_created_at
