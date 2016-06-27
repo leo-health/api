@@ -26,7 +26,7 @@ describe TwoDayAppointmentReminderJob do
     end
   end
 
-  context "incomplete and from atherna user" do
+  context "incomplete and from athena user" do
     let(:athena_group){ create(:onboarding_group, :generated_from_athena) }
     let(:incomplete_user){create(:user, :incomplete, onboarding_group: athena_group) }
     let(:appointment){ create(:appointment)}
