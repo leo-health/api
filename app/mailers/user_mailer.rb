@@ -71,31 +71,32 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def complete_user_two_day_appointment_reminder(user, appointment)
     appointment_time = appointment.start_datetime.in_time_zone.strftime("%I:%M %p")
+    appointment_day = appointment.start_datetime.in_time_zone.strftime("%A")
     mandrill_mail(
         template: 'Leo - 48 Hour Appt Reminder - Registered',
         subject: 'Leo - Appointment Reminder, see you soon!',
         from: 'info@leohealth.com',
         to: user.email,
         vars: {
-          'PRIMARY_GUARDIAN_FIRST_NAME': user.first_name,
           'CHILD_FIRST_NAME': appointment.patient.first_name,
           'APPOINTMENT_TIME': appointment_time,
-          'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=appointment&type_id=#{appointment.id}"
+          'APPOINTMENT_DAY_OF_WEEK': appointment_day
         }
     )
   end
 
   def incomplete_user_two_day_appointment_reminder(user, appointment)
     appointment_time = appointment.start_datetime.in_time_zone.strftime("%I:%M %p")
+    appointment_day = appointment.start_datetime.in_time_zone.strftime("%A")
     mandrill_mail(
         template: 'Leo - 48 Hour Appt Reminder - NOT registered',
         subject: 'Leo - Appointment Reminder, see you soon!',
         from: 'info@leohealth.com',
         to: user.email,
         vars: {
-            'CHILD_FIRST_NAME': appointment.patient.first_name,
-            'APPOINTMENT_TIME': appointment_time,
-            'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=appointment&type_id=#{appointment.id}"
+          'CHILD_FIRST_NAME': appointment.patient.first_name,
+          'APPOINTMENT_TIME': appointment_time,
+          'APPOINTMENT_DAY_OF_WEEK': appointment_day
         }
     )
   end
