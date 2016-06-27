@@ -43,19 +43,6 @@ describe UserMailer do
     end
   end
 
-  describe "#five_day_appointment_reminder" do
-    let(:appointment){ build :appointment }
-
-    it "should send the user an reminder of the appointment 5 days prior to the scheduled visit" do
-      UserMailer.five_day_appointment_reminder(user, appointment).deliver
-      email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Five Day Appointment Reminder' &&
-            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
-      end
-      expect(email).to_not be_nil
-    end
-  end
-
   describe "#welcome_to_practice" do
     it "should send the user a welcome email to practice" do
       UserMailer.welcome_to_pratice(user).deliver
@@ -67,14 +54,28 @@ describe UserMailer do
     end
   end
 
-  describe "#same_day_appointment_reminder" do
+  describe "#complete_user_two_day_appointment_reminder" do
     let(:appointment){ build :appointment }
 
     it "should send the user an reminder of the appointment on same day" do
-      UserMailer.same_day_appointment_reminder(user, appointment).deliver
+      UserMailer.complete_user_two_day_appointment_reminder(user, appointment).deliver
       email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Same Day Appointment Reminder' &&
-            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+        mail.template_name == 'Leo - 48 Hour Appt Reminder - Registered' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
+      end
+      expect(email).to_not be_nil
+    end
+  end
+
+  describe "#incomplete_user_two_day_appointment_reminder" do
+    let(:appointment){ build :appointment }
+    let(:user){ build :user, email: "test@leohealth.com", complete_status: nil }
+
+    it "should send the user an reminder of the appointment on same day" do
+      UserMailer.incomplete_user_two_day_appointment_reminder(user, appointment).deliver
+      email = MandrillMailer::deliveries.detect do |mail|
+        mail.template_name == 'Leo - 48 Hour Appt Reminder - NOT registered' &&
+          mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
       end
       expect(email).to_not be_nil
     end
