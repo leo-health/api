@@ -1,8 +1,8 @@
 namespace :notification do
   desc "send user a reminder for his appointment today"
-  task one_day_prior_appointment: :environment do
-    in_one_day = Time.now.utc..1.day.from_now.beginning_of_day.utc
-    Appointment.where.not(appointment_status: AppointmentStatus.cancelled).where(start_datetime: in_one_day)
+  task two_day_prior_appointment: :environment do
+    in_two_day = 1.day.from_now.utc..2.day.from_now.beginning_of_day.utc
+    Appointment.where.not(appointment_status: AppointmentStatus.cancelled).where(start_datetime: in_two_day)
         .includes(patient: { family: :guardians }).find_each do |appointment|
       appointment.patient.family.guardians.each do |guardian|
         created_job = SameDayAppointmentReminderJob.send(guardian.id, appointment.id)
