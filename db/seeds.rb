@@ -605,15 +605,15 @@ providers.each do |attributes|
     user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
     user.set_complete!
   end
-
-  if avatar = user.avatar
-    avatar.update_attributes!(attributes[:avatar_attributes])
-  else
-    begin
+  
+  begin
+    if avatar = user.avatar
+      avatar.update_attributes!(attributes[:avatar_attributes])
+    else
       Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-    rescue Seahorse::Client::NetworkingError => e
-      puts "Could not create Avatar: #{e}"
     end
+  rescue Seahorse::Client::NetworkingError => e
+    puts "Could not create/update Avatar: #{e}"
   end
 
   if attributes[:staff_profile_attributes] && user.staff_profile
@@ -643,14 +643,14 @@ staff.each do |attributes|
     user.set_complete!
   end
 
-  if avatar = user.avatar
-    avatar.update_attributes!(attributes[:avatar_attributes])
-  else
-    begin
+  begin
+    if avatar = user.avatar
+      avatar.update_attributes!(attributes[:avatar_attributes])
+    else
       Avatar.create!(attributes[:avatar_attributes].merge(owner: user))
-    rescue Seahorse::Client::NetworkingError => e
-      puts "Could not create Avatar: #{e}"
     end
+  rescue Seahorse::Client::NetworkingError => e
+    puts "Could not create/update Avatar: #{e}"
   end
 
   if attributes[:staff_profile_attributes] && user.staff_profile

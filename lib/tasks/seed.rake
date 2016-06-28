@@ -25,8 +25,8 @@ namespace :load do
       vendor_id: "bush_vendor_id"
     )
     user.set_complete!
-    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.destroy
-    Delayed::Job.where(queue: "notification_email").order("created_at DESC").first.destroy
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.try(:destroy)
+    Delayed::Job.where(queue: "notification_email").order("created_at DESC").first.try(:destroy)
     family.patients.create!(
       first_name: "Jeb",
       last_name: "Bush",
