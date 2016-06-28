@@ -27,7 +27,7 @@ describe Leo::V1::Families do
   describe "POST /api/v1/family/invite" do
     let!(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
-    let!(:onboarding_group){ create(:onboarding_group)}
+    let!(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian)}
 
     def do_request
       enrollment_params = { email: Faker::Internet::email, first_name: Faker::Name::first_name, last_name: Faker::Name::last_name }
