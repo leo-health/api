@@ -33,12 +33,6 @@ FactoryGirl.define do
       valid_incomplete true
     end
 
-    trait :incomplete do
-      after(:create) do |instance|
-        instance.set_incomplete!
-      end
-    end
-
     trait :member do
       sex					'M'
       association :role, factory: [:role, :guardian]
