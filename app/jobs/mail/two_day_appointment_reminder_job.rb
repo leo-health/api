@@ -8,8 +8,8 @@ class TwoDayAppointmentReminderJob < Struct.new(:user_id, :appointment_id)
     appointment = Appointment.find_by_id(appointment_id)
     if user.try(:complete?)
       UserMailer.complete_user_two_day_appointment_reminder(user, appointment).deliver if appointment
-    else
-      UserMailer.incomplete_user_two_day_appointment_reminder(user, appointment).deliver if user && appointment
+    elsif user.try(:incomplete?) && user.onboarding_group.try(:generated_from_athena?)
+      UserMailer.incomplete_user_two_day_appointment_reminder(user, appointment).deliver if appointment
     end
   end
 

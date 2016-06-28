@@ -20,13 +20,15 @@ describe TwoDayAppointmentReminderJob do
 
     describe "#send" do
       it "should send email to user via delayed_job" do
-        expect{ TwoDayAppointmentReminderJob.send(complete_user.id, appointment.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
+        expect{ TwoDayAppointmentReminderJob.send(complete_user.id, appointment.id) }
+          .to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
       end
     end
   end
 
-  context "incomplete user" do
-    let(:incomplete_user){create(:user, :incomplete) }
+  context "incomplete and from atherna user" do
+    let(:athena_group){ create(:onboarding_group, :generated_from_athena) }
+    let(:incomplete_user){create(:user, :incomplete, onboarding_group: athena_group) }
     let(:appointment){ create(:appointment)}
     let!(:two_day_appointment_reminder_job){TwoDayAppointmentReminderJob.new(incomplete_user.id, appointment.id)}
 
@@ -39,7 +41,8 @@ describe TwoDayAppointmentReminderJob do
 
     describe "#send" do
       it "should send email to user via delayed_job" do
-        expect{ TwoDayAppointmentReminderJob.send(incomplete_user.id, appointment.id) }.to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
+        expect{ TwoDayAppointmentReminderJob.send(incomplete_user.id, appointment.id) }
+          .to change(Delayed::Job.where(queue: 'notification_email'), :count).by(1)
       end
     end
   end
