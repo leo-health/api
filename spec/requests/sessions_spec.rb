@@ -1,10 +1,8 @@
-require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Sessions do
   let(:primary_guardian_onboarding_group){ create(:onboarding_group) }
   let!(:user){ create(:user, password: "password", password_confirmation: "password", onboarding_group: primary_guardian_onboarding_group) }
-
   let(:serializer){ Leo::Entities::UserEntity }
 
   describe 'POST /api/v1/login' do
