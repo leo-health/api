@@ -10,7 +10,7 @@ describe Leo::V1::Enrollments do
   describe "POST /api/v1/enrollments/invite" do
     let!(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
-    let!(:onboarding_group){ create(:onboarding_group)}
+    let!(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian)}
 
     def do_request
       enrollment_params = { email: "wuang@leohealth.com", first_name: "Yellow", last_name: "BigRiver" }
