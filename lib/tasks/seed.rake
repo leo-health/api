@@ -54,7 +54,8 @@ namespace :load do
     female_first_names = ['Ada', 'Dorothy', 'Grace', 'Marie', 'Rosalind', 'Mary', 'Katharine', 'Lynn', 'Jane', 'Sally', 'Jocelyn', 'Rita', 'Rachel', 'Irene', 'Agnes']
 
     last_names.each_with_index do |last_name, index|
-      family = Family.new
+      family = Family.create!
+      family.exempt_membership!
 
       if family.save
         print "*"
@@ -66,20 +67,21 @@ namespace :load do
 
       male_first_name = male_first_names[index]
 
-      guardian_male = family.guardians.create!(
+      guardian_male = User.create!(
         first_name: male_first_name,
-        middle_initial: "E",
         last_name: last_name,
         sex: "M",
+        family: family,
         password: "password",
         email: "#{male_first_name}@leo.com",
-        role: Role.find_by(name: :guardian),
+        role: Role.guardian,
         practice_id: 1,
         phone: '1234567890',
         vendor_id: "male_vendor_id#{index}"
       )
 
       if guardian_male.valid?
+        guardian_male.set_complete!
         print "*"
       else
         print "x"
@@ -90,20 +92,21 @@ namespace :load do
       sleep 1
 
       female_first_name = female_first_names[index]
-      guardian_female = family.guardians.create!(
+      guardian_female = User.create!(
         first_name: female_first_name,
-        middle_initial: "S",
         last_name: last_name,
         sex: "F",
+        family: family,
         password: "password",
         email: "#{female_first_name}@leo.com",
-        role: Role.find_by(name: :guardian),
+        role: Role.guardian,
         practice_id: 1,
         phone: '1234567890',
         vendor_id: "female_vendor_id#{index}"
       )
 
       if guardian_female.valid?
+        guardian_female.set_complete!
         print "*"
       else
         print "x"
