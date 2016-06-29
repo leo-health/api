@@ -38,7 +38,7 @@ Ensure that version 2.2.2 is selected as current (and default) using `rvm list`
 1. Prerequisites: rvm, git, rails (via rvm), postgres
 2. Clone repository from git
 3. Make sure redis is running, run `redis-server`
-4. Run `rake db:start`, then `rake db:migrate` and `rake db:seed` to populate the database with seeds (roles, etc.).
+4. Run `rake db:setup`, then `rake db:migrate` and `rake db:seed` to populate the database with seeds (roles, etc.).
 5. Run `rails s` to start the local server
 
 ## Troubleshooting
