@@ -5,15 +5,15 @@ class OnboardingGroup < ActiveRecord::Base
   validates :group_name, presence: true
 
   def self.primary_guardian
-    find_or_create_by group_name: :primary_guardian
+    find_by group_name: :primary_guardian
   end
 
   def self.invited_secondary_guardian
-    find_or_create_by group_name: :invited_secondary_guardian
+    find_by group_name: :invited_secondary_guardian
   end
 
   def self.generated_from_athena
-    find_or_create_by group_name: :generated_from_athena
+    find_by group_name: :generated_from_athena
   end
 
   def primary_guardian?

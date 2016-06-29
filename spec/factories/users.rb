@@ -14,8 +14,18 @@ FactoryGirl.define do
     association :role, factory: [:role, :guardian]
     practice
 
-    after(:create) do |instance|
-      instance.set_complete!
+    after(:create) do |instance, evaluator|
+      instance.set_complete! unless evaluator.incomplete
+    end
+
+    transient do
+      incomplete false
+    end
+
+    trait :incomplete do
+      first_name 	nil
+      last_name 	nil
+      incomplete true
     end
 
     trait :member do

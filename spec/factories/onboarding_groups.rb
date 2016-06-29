@@ -1,6 +1,13 @@
 FactoryGirl.define do
   factory :onboarding_group do
-    id    1
-    group_name :invited_secondary_guardian
+    group_name :primary_guardian
+
+    trait :generated_from_athena do
+      group_name :generated_from_athena
+    end
+
+    trait :invited_secondary_guardian do
+      group_name :invited_secondary_guardian
+    end
   end
 end
