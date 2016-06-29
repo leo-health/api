@@ -50,8 +50,8 @@ describe Leo::V1::Conversations do
   end
 
   describe "Put /api/v1/conversations/:id/close" do
-    let(:clinial_user){create(:user, :clinical)}
-    let!(:session){ clinial_user.sessions.create }
+    let(:clinical_user){create(:user, :clinical)}
+    let!(:session){ clinical_user.sessions.create }
     let(:conversation){ Conversation.find_by_family_id(user.family_id) }
 
     before do
@@ -72,7 +72,7 @@ describe Leo::V1::Conversations do
 
   describe "Put /api/v1/conversations/:id/escalate" do
     let(:conversation){ Conversation.find_by_family_id(user.family_id) }
-    let(:clinial_user){ create(:user, :clinical) }
+    let(:clinical_user){ create(:user, :clinical) }
     let(:session){ customer_service.sessions.create }
 
     before do
@@ -80,7 +80,7 @@ describe Leo::V1::Conversations do
     end
 
     def do_request
-      escalation_params = { note: "note", priority: 1, escalated_to_id: clinial_user.id, authentication_token: session.authentication_token }
+      escalation_params = { note: "note", priority: 1, escalated_to_id: clinical_user.id, authentication_token: session.authentication_token }
       put "/api/v1/conversations/#{conversation.id}/escalate", escalation_params
     end
 
@@ -93,8 +93,8 @@ describe Leo::V1::Conversations do
   end
 
   describe "Get /api/v1/conversations" do
-    let(:clinial_user){create(:user, :clinical) }
-    let!(:session){ clinial_user.sessions.create }
+    let(:clinical_user){create(:user, :clinical) }
+    let!(:session){ clinical_user.sessions.create }
     let!(:family ){ create(:family_with_members) }
     let!(:family_one ){ create(:family_with_members) }
     let!(:family_two ){ create(:family_with_members) }
