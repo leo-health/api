@@ -37,5 +37,9 @@ Ensure that version 2.2.2 is selected as current (and default) using `rvm list`
 ## Setting Up
 1. Prerequisites: rvm, git, rails (via rvm), postgres
 2. Clone repository from git
-3. Run `rake db:seed` to populate the database with seeds (roles, etc.)
-4. Run `rails s` to start the local server
+3. Make sure redis is running, run `redis-server`
+4. Run `rake db:start`, then `rake db:migrate` and `rake db:seed` to populate the database with seeds (roles, etc.).
+5. Run `rails s` to start the local server
+
+## Troubleshooting
+1. If you're getting a `HINT:  Must be superuser to create this extension.` error, you need to change your postgres user priveleges. Log into postgres and run these commands: `postgres=# \du #` to list all users, and then `postgres=# ALTER ROLE user CREATEROLE SUPERUSER;``ALTER ROLE #` to assign user the correct priveleges.
