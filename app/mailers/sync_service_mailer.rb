@@ -4,6 +4,7 @@ class SyncServiceMailer < MandrillMailer::TemplateMailer
   def error(subject, message)
     mandrill_mail(
       template: 'Leo - Failed Sync Notification',
+      inline_css: true,
       subject: subject,
       to: [ "sync@leohealth.com" ],
       vars: {
