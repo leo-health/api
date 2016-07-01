@@ -138,4 +138,20 @@ describe Leo::V1::Users do
       expect(user.reload.confirmed_at).to eq(Time.now)
     end
   end
+
+  describe "PUT /api/v1/users/confirm_secondary_guardian" do
+    let(:user){ create(:user, :valid_incomplete, onboarding_group: OnboardingGroup.invited_secondary_guardian) }
+    let!(:token){ user.invitation_token }
+
+    def do_request
+      put "/api/v1/users/confirm_secondary_guardian", { authentication_token: token }
+    end
+
+    it "should update secondary guardian to complete and destroy sessions" do
+      expect(user.complete_status).to eq("valid_incomplete")
+      expect{ do_request }.to change{ Session.count }.from(1).to(0)
+      expect(response.status).to eq(200)
+      expect(user.reload.complete_status).to eq("complete")
+    end
+  end
 end
