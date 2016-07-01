@@ -13,6 +13,7 @@ module Leo
       expose :email
       expose :time_zone
       expose :staff, with: Leo::Entities::UserEntity
+      expose :providers, with: Leo::Entities::UserEntity
       expose :active_schedule, with: Leo::Entities::PracticeScheduleEntity
       expose :schedule_exceptions, with: Leo::Entities::ProviderLeaveEntity
 

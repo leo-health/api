@@ -55,6 +55,27 @@ module Leo
         end
       end
 
+      desc "confirm secondary guardian account"
+      namespace "users/confirm_secondary_guardian" do
+        params do
+          requires :authentication_token, type: String
+        end
+
+        before do
+          authenticated
+        end
+
+        put do
+          user = current_user
+          if user.invited_user? && user.confirm_secondary_guardian
+            user.sessions.destroy_all
+            present :user, user, with: Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
+          end
+        end
+      end
+
       resource :users do
         desc '#create user'
         params do
