@@ -13,6 +13,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     token = session.authentication_token
     mandrill_mail(
       template: 'Leo - Exempt User Registration',
+      inline_css: true,
       subject: 'Leo + Flatiron Pediatrics - Get the app.',
       to: user.unconfirmed_email || user.email,
       vars: {
@@ -24,6 +25,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def confirmation_instructions(user, token, opts={})
     mandrill_mail(
       template: 'Leo - Sign Up Confirmation',
+      inline_css: true,
       subject: 'Leo - Please confirm your account!',
       to: user.unconfirmed_email || user.email,
       vars: {
@@ -36,6 +38,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def reset_password_instructions(user, token, opts={})
     mandrill_mail(
       template: 'Leo - Password Reset',
+      inline_css: true,
       subject: 'Leo - Password reset request.',
       to: user.unconfirmed_email || user.email,
       vars: {
@@ -48,6 +51,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def invite_secondary_parent(enrollment, current_user)
     mandrill_mail(
       template: 'Leo - Invite a Secondary Guardian',
+      inline_css: true,
       subject: "You've been invited to join Leo + Flatiron Pediatrics!",
       to: enrollment.email,
       vars: {
@@ -61,6 +65,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def welcome_to_pratice(user)
     mandrill_mail(
       template: 'Leo - Welcome to Practice',
+      inline_css: true,
       subject: 'Welcome to Leo + Flatiron Pediatrics!',
       to: user.email,
       vars: {
@@ -74,6 +79,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     appointment_day = appointment.start_datetime.in_time_zone.strftime("%A")
     mandrill_mail(
         template: 'Leo - 48 Hour Appt Reminder - Registered',
+        inline_css: true,
         subject: 'Leo - Appointment Reminder, see you soon!',
         from: 'info@leohealth.com',
         to: user.email,
@@ -90,6 +96,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     appointment_day = appointment.start_datetime.in_time_zone.strftime("%A")
     mandrill_mail(
         template: 'Leo - 48 Hour Appt Reminder - NOT registered',
+        inline_css: true,
         subject: 'Leo - Appointment Reminder, see you soon!',
         from: 'info@leohealth.com',
         to: user.email,
@@ -104,6 +111,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def patient_birthday(guardian, patient)
     mandrill_mail(
       template: 'Leo - Patient Birthday',
+      inline_css: true,
       subject: 'Happy Birthday!',
       to: guardian.email,
       vars: {
@@ -115,6 +123,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def account_confirmation_reminder(user)
     mandrill_mail(
       template: 'Leo - Account Confirmation Reminder',
+      inline_css: true,
       subject: 'Important - Please confirm your account with Leo!',
       to: user.email,
       vars: {
@@ -127,6 +136,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def password_change_confirmation(user)
     mandrill_mail(
       template: 'Leo - Password Changed Confirmation',
+      inline_css: true,
       subject: 'Leo - Your password has been successfully changed!',
       to: user.email,
       vars: {
@@ -139,6 +149,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def notify_escalated_conversation(user)
     mandrill_mail(
       template: 'Leo Provider - Case Assigned',
+      inline_css: true,
       subject: 'A conversation has been assigned to you!',
       to: user.email,
       vars: {
@@ -151,6 +162,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def unaddressed_conversations_digest(user, count)
     mandrill_mail(
       template: 'Leo Provider - Unresolved Assigned Cases',
+      inline_css: true,
       subject: "You have unresolved cases that have been assigned to you.",
       to: user.email,
       vars: {
@@ -165,6 +177,7 @@ class UserMailer < MandrillMailer::TemplateMailer
 
     mandrill_mail(
       template: 'Leo - Unread Message',
+      inline_css: true,
       subject: "You have unread messages!",
       to: user.email,
       vars: {
@@ -178,6 +191,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   def primary_guardian_approve_invitation(primary_guardian, enrollment)
     mandrill_mail(
       template: 'Leo - Secondary Guardian Confirmation',
+      inline_css: true,
       subject: "Leo - Please confirm #{enrollment.first_name}'s account!",
       to: primary_guardian.email,
       vars: {
