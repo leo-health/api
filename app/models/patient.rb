@@ -13,16 +13,16 @@ class Patient < ActiveRecord::Base
 
   belongs_to :family
   belongs_to :patient_enrollment
-  has_many :appointments, -> { Appointment.booked }
-  has_many :medications
-  has_many :allergies
-  has_many :photos
-  has_many :vaccines
-  has_many :vitals
-  has_many :insurances
-  has_many :avatars, as: :owner
-  has_many :user_generated_health_records
-  has_many :forms
+  has_many :appointments, -> { Appointment.booked }, dependent: :destroy
+  has_many :medications, dependent: :destroy
+  has_many :allergies, dependent: :destroy
+  has_many :photos, dependent: :destroy
+  has_many :vaccines, dependent: :destroy
+  has_many :vitals, dependent: :destroy
+  has_many :insurances, dependent: :destroy
+  has_many :avatars, as: :owner, dependent: :destroy
+  has_many :user_generated_health_records, dependent: :destroy
+  has_many :forms, dependent: :destroy
 
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
 

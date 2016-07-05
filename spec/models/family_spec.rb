@@ -7,6 +7,7 @@ describe Family, type: :model do
     StripeMock.create_test_helper.create_plan(STRIPE_PLAN_PARAMS_MOCK)
   end
 
+  let!(:bot){ create(:user, :bot) }
   let!(:user){ create(:user, :member) }
   let!(:family){ user.family }
   let!(:patient){ create(:patient, family: family) }
@@ -57,6 +58,27 @@ describe Family, type: :model do
           }
         }
       )
+    end
+  end
+
+  describe ".destroy" do
+    it "destroys patients, guardians, conversation, messages" do
+      family.reload
+      expect(Family.count).to eq(1)
+      expect(family.patients.count).to eq(2)
+      expect(Patient.count).to eq(2)
+      expect(family.guardians.count).to eq(1)
+      expect(User.count).to eq(3)
+      expect(Conversation.count).to eq(1)
+      expect(Message.count).to eq(1)
+      family.destroy!
+      expect(Family.count).to eq(0)
+      expect(family.patients.count).to eq(0)
+      expect(Patient.count).to eq(0)
+      expect(family.guardians.count).to eq(0)
+      expect(User.count).to eq(2)
+      expect(Conversation.count).to eq(0)
+      expect(Message.count).to eq(0)
     end
   end
 end
