@@ -164,4 +164,99 @@ namespace :load do
       print "Fail to seed messages, not conversation existing"
     end
   end
+
+  desc "Seed test patients for front end"
+  task seed_patients: :environment do
+    practice = Practice.find_or_create_by(name: :test_practice)
+    guardian_role = Role.find_or_create_by(name: :guardian)
+
+    primary_guardian = {
+      first_name: "Kung",
+      last_name: "Wong",
+      email: "kw@test.com",
+      password: "password",
+      role: guardian_role,
+      practice_id: practice,
+      phone: "3213212315",
+      vendor_id: "kw_vendor_id",
+      complete_status: "complete"
+    }
+
+    secondary_guardian = {
+      first_name: "Gigi",
+      last_name: "Wong",
+      email: "gigiw@test.com",
+      password: "password",
+      role: guardian_role,
+      practice_id: practice,
+      phone: "3213212312",
+      vendor_id: "gigi_vendor_id",
+      complete_status: "complete"
+    }
+
+    if (guardian = User.find_by(email: primary_guardian[:email])) && guardian.update_attributes(primary_guardian.except(:password))
+      puts "successfully updated primary guardian information"
+    else
+      guardian = User.create(primary_guardian)
+      if guardian.valid?
+        puts "successfully create primary guardian"
+      else
+        puts "failed to create primary guardian"
+      end
+    end
+
+    if guardian.family.try(:renew_membership)
+      if (second_guardian = User.find_by(email: secondary_guardian[:email])) && second_guardian.update_attributes(secondary_guardian.except(:password))
+        puts "successfully updated secondary guardian information"
+      else
+        second_guardian = User.create(secondary_guardian.merge(family: guardian.family))
+        if second_guardian.valid?
+          puts "successfully create secondary guardian"
+        else
+          puts "failed to create secondary guardian"
+        end
+      end
+    else
+      puts "failed to upgrade the family"
+    end
+
+    # last_names = {
+    #   '5_days' => Time.now - 5.days,
+    #   '2_week_wc' => Tine.now - 14.days,
+    #   '3_week_wc' => Tine.now - 21.days,
+    #   '1_month' => Time.now - 1.months,
+    #   '2_month' => Time.now - 2.months,
+    #   '4_month' => Time.now - 4.months,
+    #   '6_month' => Time.now - 6.months,
+    #   '9_month' => Time.now - 9.months,
+    #   '12_month' => Time.now - 12.months,
+    #   '15_month' => Time.now - 15.months,
+    #   '18_month' => Time.now - 18.months,
+    #   '2_years' => Time.now - 2.years,
+    #   '2_½_years' => Time.now - 30.months,
+    #   '3_years' => Time.now - 3.years,
+    #   '4_years' => Time.now - 4.years,
+    #   '5_years' => Time.now - 5.years,
+    #   '6_years' => Time.now - 6.years,
+    #   '7_years' => Time.now - 7.years,
+    #   '8_years' => Time.now - 8.years,
+    #   '9_years' => Time.now - 9.years,
+    #   '10_years' => Time.now - 10.years,
+    #   '11_years' => Time.now - 11.years,
+    #   '12_years' => Time.now - 12.years,
+    #   '13_years' => Time.now - 13.years,
+    #   '14_years' => Time.now - 14.years,
+    #   '15_years' => Time.now - 15.years,
+    #   '16_years' => Time.now - 16.years,
+    #   '17_years' => Time.now - 17.years,
+    #   '18_years' => Time.now - 18.years,
+    #   '19_years' => Time.now - 19.years,
+    #   '20_years' => Time.now - 20.years,
+    #   '21_years' => Time.now - 21.years
+    # }
+
+    # last_names.keys.each do |name|
+    #   Patient.where(first_name: "Bae", last_name: name, )
+    # end
+  end
 end
