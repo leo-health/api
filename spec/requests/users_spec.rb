@@ -140,7 +140,8 @@ describe Leo::V1::Users do
   end
 
   describe "PUT /api/v1/users/confirm_secondary_guardian" do
-    let(:user){ create(:user, :valid_incomplete, onboarding_group: OnboardingGroup.invited_secondary_guardian) }
+    let(:invited_secondary_guardian_group){ create(:onboarding_group, :invited_secondary_guardian)}
+    let(:user){ create(:user, :valid_incomplete, onboarding_group: invited_secondary_guardian_group) }
     let!(:token){ user.invitation_token }
 
     def do_request
