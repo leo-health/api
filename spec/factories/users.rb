@@ -17,7 +17,7 @@ FactoryGirl.define do
     after(:create) do |instance, evaluator|
       instance.set_complete! unless evaluator.incomplete || evaluator.valid_incomplete
     end
-
+    #Resolving conflicts
     transient do
       incomplete false
       valid_incomplete false
