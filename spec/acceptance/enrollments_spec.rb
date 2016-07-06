@@ -22,7 +22,7 @@ resource "Enrollments" do
     let(:first_name){ "Big" }
     let(:last_name){ "Tree" }
     let(:email){ "BigTree@yahoo.com" }
-    let!(:onboarding_group){ create(:onboarding_group)}
+    let!(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian)}
     let(:raw_post){ params.to_json }
 
     example "invite a secondary parent" do

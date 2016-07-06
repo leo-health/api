@@ -195,7 +195,7 @@ describe User do
   end
 
   describe "#invited_user?" do
-    let(:onboarding_group){ create(:onboarding_group) }
+    let(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian) }
     let(:invited_user){ create(:user, onboarding_group: onboarding_group) }
 
     it "should return true if a user is being invited" do
