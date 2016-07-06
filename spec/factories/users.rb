@@ -34,9 +34,9 @@ FactoryGirl.define do
     end
 
     trait :incomplete do
-      after(:create) do |instance|
-        instance.set_incomplete!
-      end
+      first_name 	nil
+      last_name 	nil
+      incomplete true
     end
 
     trait :member do
