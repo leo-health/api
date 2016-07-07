@@ -58,7 +58,7 @@ class User < ActiveRecord::Base
   before_create :skip_confirmation_task_if_needed_callback
 
   def self.customer_service_user
-    User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
+    User.where(roles: Role.customer_service).order("created_at ASC").first
   end
 
   def self.leo_bot
