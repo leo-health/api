@@ -164,4 +164,161 @@ namespace :load do
       print "Fail to seed messages, not conversation existing"
     end
   end
+
+  desc "Seed test patients for front end"
+  task :seed_patients, [:delete_twenty_percent, :transferred_patients] => :environment do |t, args|
+    practice = Practice.where(name: "Flatiron Pediatrics", id: 1).first_or_create
+    guardian_role = Role.find_or_create_by(name: :guardian)
+
+    primary_guardian = {
+      first_name: "Kung",
+      last_name: "Wong",
+      email: "kw@test.com",
+      password: "password",
+      role: guardian_role,
+      practice: practice,
+      phone: "3213212315",
+      vendor_id: "kw_vendor_id",
+      complete_status: "complete"
+    }
+
+    secondary_guardian = {
+      first_name: "Gigi",
+      last_name: "Wong",
+      email: "gigiw@test.com",
+      password: "password",
+      role: guardian_role,
+      practice: practice,
+      phone: "3213212312",
+      vendor_id: "gigi_vendor_id",
+      complete_status: "complete"
+    }
+
+    if (guardian = User.find_by(email: primary_guardian[:email])) && guardian.update_attributes(primary_guardian.except(:password))
+      puts "successfully updated primary guardian information"
+    else
+      guardian = User.create(primary_guardian)
+      if guardian.valid?
+        puts "successfully create primary guardian"
+      else
+        puts "failed to create primary guardian"
+        next
+      end
+    end
+
+    if guardian.family.try(:renew_membership)
+      if (second_guardian = User.find_by(email: secondary_guardian[:email])) && second_guardian.update_attributes(secondary_guardian.except(:password))
+        puts "successfully updated secondary guardian information"
+      else
+        second_guardian = User.create(secondary_guardian.merge(family: guardian.family))
+        if second_guardian.valid?
+          puts "successfully create secondary guardian"
+        else
+          puts "failed to create secondary guardian"
+          next
+        end
+      end
+    else
+      puts "failed to upgrade the family"
+      next
+    end
+
+    last_names = {
+      '5_age' => {age: 5.days, height: "52.99", weight: "4214.52"},
+      '2_week_wc' => {age: 14.days, height: "53.45", weight: "4723.34"},
+      '3_week_wc' => {age: 21.days, height: "55.87", weight: "5146.45"},
+      '1_month' => {age: 1.months, height: "57.93", weight: "5542.93"},
+      '2_month' => {age: 2.months, height: "61.72", weight: "6798.35"},
+      '4_month' => {age: 4.months, height: "67.31", weight: "8412.60"},
+      '6_month' => {age: 6.months, height: "71.14", weight: "9481.94"},
+      '9_month' => {age: 9.months, height: "75.66", weight: "1063.06"},
+      '12_month' => {age: 12.months, height: "79.66", weight: "11535.26"},
+      '15_month' => {age: 15.months, height: "83.31", weight: "12348.91"},
+      '18_month' => {age: 18.months, height: "86.69", weight: "13129.06"},
+      '2_years' => {age: 2.years, height: "92.84", weight: "14667.53"},
+      '2_½_years' => {age: 30.months, height: "96.65", weight: "16343.95"},
+      '3_years' => {age: 3.years, height: "101.04", weight: "17510.93"},
+      '4_years' => {age: 4.years, height: "105.78", weight: "20283.39"},
+      '5_years' => {age: 5.years, height: "112.23", weight: "23508.33"},
+      '6_years' => {age: 6.years, height: "118.65", weight: "27033.08"},
+      '7_years' => {age: 7.years, height: "125.83", weight: "30901.78"},
+      '8_years' => {age: 8.years, height: "131.54", weight: "35289.55"},
+      '9_years' => {age: 9.years, height: "137.09", weight: "40360.69"},
+      '10_years' => {age: 10.years, height: "142.65", weight: "46157.53"},
+      '11_years' => {age: 11.years, height: "149.66", weight: "52556.02"},
+      '12_years' => {age: 12.years, height: "157.49", weight: "59303.56"},
+      '13_years' => {age: 13.years, height: "166.21", weight: "66103.58"},
+      '14_years' => {age: 14.years, height: "171.22", weight: "72686.81"},
+      '15_years' => {age: 15.years, height: "174.29", weight: "78826.58"},
+      '16_years' => {age: 16.years, height: "176.33", weight: "84292.28"},
+      '17_years' => {age: 17.years, height: "178.87", weight: "88795.27"},
+      '18_years' => {age: 18.years, height: "179.26", weight: "92047.64"},
+      '19_years' => {age: 19.years, height: "180.02", weight: "93714.31"},
+      '20_years' => {age: 20.years, height: "180.98", weight: "94542.39"},
+      '21_years' => {age: 21.years, height: "181.28", weight: "95724.37"},
+    }
+
+    current_time = Time.now
+    guardian.family.patients.destroy_all
+    last_names.each_with_index do |(name, attributes), index|
+      patient = Patient.create(
+        first_name: "Baby",
+        last_name: name,
+        sex: "M",
+        family: guardian.family,
+        birth_date: current_time - attributes[:age]
+      )
+
+      if patient.valid? && patient.sync_status.update_attributes(should_attempt_sync: false)
+        puts "successfully create patient #{name}"
+        (index + 1).times do |i|
+          time_stamp = patient.birth_date + last_names[last_names.keys[i]][:age]
+          patient.vitals.create(
+            [
+             {
+               athena_id: 0,
+               taken_at: time_stamp,
+               measurement: "VITALS.HEIGHT",
+               value: last_names[last_names.keys[i]][:height]
+             },
+
+             {
+               athena_id: 0,
+               taken_at: time_stamp,
+               measurement: "VITALS.HEIGHT",
+               value: last_names[last_names.keys[i]][:weight]
+             }
+            ]
+          )
+        end
+
+        if patient.vitals.count == (index + 1) * 2
+          puts "successfully created height and weight records for patient #{name}"
+        else
+          puts "failed to created height and weight records for patient #{name}"
+        end
+      else
+        puts "failed to create patient #{name}"
+      end
+    end
+
+    if args.delete_twenty_percent
+      Patient.where(family: guardian.family).each do |patient|
+        if (count = patient.vitals.count/10) && count >= 0
+          count.times do
+            patient.vitals.where(taken_at: patient.vitals.sample.taken_at).destroy_all
+          end
+        end
+      end
+      puts "deleted 20% vital records of patients"
+    end
+
+    if args.transferred_patients
+      Patient.where(family: guardian.family).each do |patient|
+        half_life_span = (current_time.to_date - patient.birth_date).to_i/2
+        patient.vitals.where(taken_at: (current_time - half_life_span.days)..current_time).destroy_all
+      end
+      puts "deleted vital records from first life span"
+    end
+  end
 end

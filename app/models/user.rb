@@ -191,11 +191,11 @@ class User < ActiveRecord::Base
   private
 
   def skip_confirmation_task_if_needed_callback
-    skip_confirmation_notification! if !complete?
+    skip_confirmation_notification! unless complete?
   end
 
   def password_required?
-    return false if !complete?
+    return false unless complete?
     encrypted_password ? false : super
   end
 
