@@ -10,7 +10,7 @@ describe Leo::V1::Enrollments do
   describe "POST /api/v1/enrollments/invite" do
     let!(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
-    let!(:onboarding_group){ create(:onboarding_group)}
+    let!(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian)}
 
     def do_request
       enrollment_params = { email: "wuang@leohealth.com", first_name: "Yellow", last_name: "BigRiver" }
@@ -73,7 +73,7 @@ describe Leo::V1::Enrollments do
     end
 
     context "invited secodary guardian" do
-      let(:onboarding_group){ create(:onboarding_group) }
+      let(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian) }
       let(:primary_guardian){ create(:user, :guardian) }
       let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, family: primary_guardian.family) }
       let!(:secondary_guardian_session){ secondary_guardian.create_onboarding_session }

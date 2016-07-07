@@ -12,6 +12,7 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
     family.guardians.each do |user|
       delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - First Invoice',
+        inline_css: true,
         subject: 'Leo - Thank you for subscribing to Leo.',
         to: user.unconfirmed_email || user.email,
         vars: {
@@ -27,6 +28,7 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
     family.guardians.each do |user|
       delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - New Payment Method',
+        inline_css: true,
         subject: 'Leo - You have enrolled a new payment method.',
         to: user.unconfirmed_email || user.email,
         vars: {
@@ -40,6 +42,7 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
     family.guardians.each do |user|
       delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - Invalid Credit Card',
+        inline_css: true,
         subject: 'Leo - Your credit card is invalid, please call us.',
         to: user.unconfirmed_email || user.email,
         vars: {
@@ -56,6 +59,7 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
     family.guardians.each do |user|
       delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - Change in Plan',
+        inline_css: true,
         subject: 'Leo - Your plan has changed.',
         to: user.unconfirmed_email || user.email,
         vars: {
@@ -71,6 +75,7 @@ class PaymentsMailer < MandrillMailer::TemplateMailer
     family.guardians.each do |user|
       delay(queue: queue_name, owner: user).mandrill_mail(
         template: 'Leo - Unsubscribe Confirmation',
+        inline_css: true,
         subject: 'Leo - You have been unsubscribed from Leo.',
         to: user.unconfirmed_email || user.email,
         vars: {

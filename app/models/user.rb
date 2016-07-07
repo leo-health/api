@@ -68,6 +68,7 @@ class User < ActiveRecord::Base
     event :set_complete do
       after do
         guardian_was_completed_callback if guardian?
+        sessions.update_all(onboarding_group_id: nil)
       end
 
       transitions from: :valid_incomplete, to: :complete, guard: :guardian_was_approved?
