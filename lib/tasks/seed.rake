@@ -166,7 +166,7 @@ namespace :load do
   end
 
   desc "Seed test patients for front end"
-  task seed_patients: :environment do
+  task :seed_patients, [:delete_twenty_percent, :transferred_patients] => :environment do |t, args|
     practice = Practice.where(name: "Flatiron Pediatrics", id: 1).first_or_create
     guardian_role = Role.find_or_create_by(name: :guardian)
 
@@ -302,7 +302,7 @@ namespace :load do
       end
     end
 
-    if ENV['delete_twenty_percent']
+    if args.delete_twenty_percent
       Patient.where(family: guardian.family).each do |patient|
         if (count = patient.vitals.count/5) && count > 0
           count.times do
@@ -313,7 +313,7 @@ namespace :load do
       puts "deleted 20% vital records of patients"
     end
 
-    if ENV['transferred_patients']
+    if args.transferred_patients
       Patient.where(family: guardian.family).each do |patient|
         half_life_span = (current_time.to_date - patient.birth_date).to_i/2
         patient.vitals.where(taken_at: (current_time - half_life_span.days)..current_time).destroy_all
