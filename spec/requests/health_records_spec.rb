@@ -69,7 +69,8 @@ describe Leo::V1::HealthRecords do
     let!(:heights) {
       [
         create(:vital, :height, patient_id: patient.id, value: 27.9399),
-        create(:vital, :height, patient_id: patient.id, value: 33.0199),
+        create(:vital, :height, patient_id: patient.id, value: 30.4799),
+        create(:vital, :height, patient_id: patient.id, value: 33.0200),
         create(:vital, :height, patient_id: patient.id, value: 63.4999),
         create(:vital, :height, patient_id: patient.id, value: 63.8123)
       ]
@@ -88,21 +89,24 @@ describe Leo::V1::HealthRecords do
       expect(resp["data"].size).to eq(1)
 
       heights = resp["data"]["heights"].sort_by {|height| height["value"]}
-      expect(heights.size).to eq(4)
+      expect(heights.size).to eq(5)
 
       expect(heights[0]["formatted_value_with_units"]).to eq("11 inches")
-      expect(heights[1]["formatted_value_with_units"]).to eq("1 foot 1 inch")
-      expect(heights[2]["formatted_value_with_units"]).to eq("2 feet 1 inch")
-      expect(heights[3]["formatted_value_with_units"]).to eq("2 feet 1.12 inches")
+      expect(heights[1]["formatted_value_with_units"]).to eq("1 foot 0 inches")
+      expect(heights[2]["formatted_value_with_units"]).to eq("1 foot 1 inch")
+      expect(heights[3]["formatted_value_with_units"]).to eq("2 feet 1 inch")
+      expect(heights[4]["formatted_value_with_units"]).to eq("2 feet 1.12 inches")
     end
   end
 
   describe "GET /api/v1/patients/:id/vitals/weight" do
     let!(:weights) {
       [
-        create(:vital, :weight, patient_id: patient.id),
-        create(:vital, :weight, patient_id: patient.id),
-        create(:vital, :weight, patient_id: patient.id)
+        create(:vital, :weight, patient_id: patient.id, value: 6803.8936),
+        create(:vital, :weight, patient_id: patient.id, value: 7257.4865),
+        create(:vital, :weight, patient_id: patient.id, value: 7711.0794),
+        create(:vital, :weight, patient_id: patient.id, value: 7756.4387),
+        create(:vital, :weight, patient_id: patient.id, value: 15422.1589)
       ]
     }
 
@@ -116,7 +120,15 @@ describe Leo::V1::HealthRecords do
       resp = JSON.parse(response.body)
       expect(resp["status"]).to eq("ok")
       expect(resp["data"].size).to eq(1)
-      expect(resp["data"]["weights"].size).to eq(3)
+
+      weights = resp["data"]["weights"].sort_by {|weight| weight["value"]}
+      expect(weights.size).to eq(5)
+
+      expect(weights[0]["formatted_value_with_units"]).to eq("15 ounces")
+      expect(weights[1]["formatted_value_with_units"]).to eq("1 pound 0 ounces")
+      expect(weights[2]["formatted_value_with_units"]).to eq("1 pound 1 ounce")
+      expect(weights[3]["formatted_value_with_units"]).to eq("1 pound 1.1 ounces")
+      expect(weights[4]["formatted_value_with_units"]).to eq("2 pounds 2 ounces")
     end
   end
 

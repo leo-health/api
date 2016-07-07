@@ -14,6 +14,8 @@ module Leo
       def formatted_value_with_units
         if object[:measurement] == Vital::MEASUREMENT_HEIGHT
           format_inches_to_feet_and_inches(object[:value])
+        elsif object[:measurement] == Vital::MEASUREMENT_WEIGHT
+          format_pounds_to_pounds_and_ounces(object[:value])
         else
           "#{object[:value]} #{object[:unit]}".strip
         end
@@ -31,6 +33,21 @@ module Leo
         else
           feet_plurality = if feet == 1 then "foot" else "feet" end
           "#{feet} #{feet_plurality} #{inches_format}"
+        end
+      end
+
+      def format_pounds_to_pounds_and_ounces(total_pounds)
+        whole_pounds = total_pounds.floor
+        partial_ounces = total_pounds - whole_pounds
+        pounds = whole_pounds / 16
+        ounces = whole_pounds % 16 + partial_ounces
+        ounces_plurality = if ounces == 1 then "ounce" else "ounces" end
+        ounces_format = "#{"#{ounces.round(2)}".chomp(".0")} #{ounces_plurality}"
+        if pounds == 0
+          ounces_format
+        else
+          pounds_plurality = if pounds == 1 then "pound" else "pounds" end
+          "#{pounds} #{pounds_plurality} #{ounces_format}"
         end
       end
     end
