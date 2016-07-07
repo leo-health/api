@@ -262,14 +262,14 @@ namespace :load do
     guardian.family.patients.destroy_all
     last_names.each_with_index do |(name, attributes), index|
       patient = Patient.create(
-          first_name: "Baby",
-          last_name: name,
-          sex: "M",
-          family: guardian.family,
-          birth_date: current_time - attributes[:age]
+        first_name: "Baby",
+        last_name: name,
+        sex: "M",
+        family: guardian.family,
+        birth_date: current_time - attributes[:age]
       )
 
-      if patient.valid?
+      if patient.valid? && patient.sync_status.update_attributes(should_attempt_sync: false)
         puts "successfully create patient #{name}"
         (index + 1).times do |i|
           time_stamp = patient.birth_date + last_names[last_names.keys[i]][:age]
@@ -304,9 +304,9 @@ namespace :load do
 
     if args.delete_twenty_percent
       Patient.where(family: guardian.family).each do |patient|
-        if (count = patient.vitals.count/5) && count > 0
+        if (count = patient.vitals.count/10) && count >= 0
           count.times do
-            patient.vitals.sample.destroy
+            patient.vitals.where(taken_at: patient.vitals.sample.taken_at).destroy_all
           end
         end
       end
