@@ -123,7 +123,7 @@ describe Leo::V1::HealthRecords do
 
       weights = resp["data"]["weights"].sort_by {|weight| weight["value"]}
       expect(weights.size).to eq(5)
-      byebug
+
       expect(weights[0]["formatted_value_with_units"]).to eq("15 ounces")
       expect(weights[1]["formatted_value_with_units"]).to eq("1 pound 0 ounces")
       expect(weights[2]["formatted_value_with_units"]).to eq("23 pounds 4.5 ounces")
