@@ -102,11 +102,11 @@ describe Leo::V1::HealthRecords do
   describe "GET /api/v1/patients/:id/vitals/weight" do
     let!(:weights) {
       [
-        create(:vital, :weight, patient_id: patient.id, value: 6803.8936),
-        create(:vital, :weight, patient_id: patient.id, value: 7257.4865),
-        create(:vital, :weight, patient_id: patient.id, value: 7711.0794),
-        create(:vital, :weight, patient_id: patient.id, value: 7756.4387),
-        create(:vital, :weight, patient_id: patient.id, value: 15422.1589)
+        create(:vital, :weight, patient_id: patient.id, value: 424.771),
+        create(:vital, :weight, patient_id: patient.id, value: 453.5929),
+        create(:vital, :weight, patient_id: patient.id, value: 10560),
+        create(:vital, :weight, patient_id: patient.id, value: 11113.02),
+        create(:vital, :weight, patient_id: patient.id, value: 11821.7649)
       ]
     }
 
@@ -123,12 +123,12 @@ describe Leo::V1::HealthRecords do
 
       weights = resp["data"]["weights"].sort_by {|weight| weight["value"]}
       expect(weights.size).to eq(5)
-
+      byebug
       expect(weights[0]["formatted_value_with_units"]).to eq("15 ounces")
       expect(weights[1]["formatted_value_with_units"]).to eq("1 pound 0 ounces")
-      expect(weights[2]["formatted_value_with_units"]).to eq("1 pound 1 ounce")
-      expect(weights[3]["formatted_value_with_units"]).to eq("1 pound 1.1 ounces")
-      expect(weights[4]["formatted_value_with_units"]).to eq("2 pounds 2 ounces")
+      expect(weights[2]["formatted_value_with_units"]).to eq("23 pounds 4.5 ounces")
+      expect(weights[3]["formatted_value_with_units"]).to eq("24 pounds 8 ounces")
+      expect(weights[4]["formatted_value_with_units"]).to eq("26 pounds 1 ounce")
     end
   end
 

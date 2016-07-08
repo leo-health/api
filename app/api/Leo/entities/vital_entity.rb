@@ -38,16 +38,15 @@ module Leo
 
       def format_pounds_to_pounds_and_ounces(total_pounds)
         whole_pounds = total_pounds.floor
-        partial_ounces = total_pounds - whole_pounds
-        pounds = whole_pounds / 16
-        ounces = whole_pounds % 16 + partial_ounces
+        ounces = ((total_pounds % 1) * 16).round(1)
         ounces_plurality = if ounces == 1 then "ounce" else "ounces" end
-        ounces_format = "#{"#{ounces.round(2)}".chomp(".0")} #{ounces_plurality}"
-        if pounds == 0
+        ounces_format = "#{"#{ounces}".chomp(".0")} #{ounces_plurality}"
+
+        if whole_pounds == 0
           ounces_format
         else
-          pounds_plurality = if pounds == 1 then "pound" else "pounds" end
-          "#{pounds} #{pounds_plurality} #{ounces_format}"
+          pounds_plurality = if whole_pounds == 1 then "pound" else "pounds" end
+          "#{whole_pounds} #{pounds_plurality} #{ounces_format}"
         end
       end
     end
