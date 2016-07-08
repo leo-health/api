@@ -18,7 +18,8 @@ class User < ActiveRecord::Base
   scope :staff, -> { where(role: Role.staff_roles, complete_status: :complete) }
   scope :clinical_staff, -> { where(role: Role.clinical_staff_roles, complete_status: :complete) }
   scope :provider, -> { where(role: Role.provider_roles, complete_status: :complete) }
-
+  scope :completed_or_athena, ->{ self.joins('LEFT OUTER JOIN onboarding_groups on users.onboarding_group_id = onboarding_groups.id')
+                                      .where('complete_status=? OR onboarding_groups.group_name=?', 'complete', 'generated_from_athena') }
   belongs_to :family
   belongs_to :role
   belongs_to :practice
@@ -42,23 +43,36 @@ class User < ActiveRecord::Base
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
-
   before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
-
-  validates_presence_of   :email
-  validates_uniqueness_of :email, allow_blank: true, if: :email_changed?, conditions: -> { complete.where(deleted_at: nil) }
-  validates_format_of     :email, with: Devise.email_regexp, allow_blank: true, if: :email_changed?
-  validates_presence_of     :password, if: :password_required?
+  validates_presence_of :email
+  validates_uniqueness_of :email, conditions: -> { completed_or_athena }
+  validates_format_of :email, with: Devise.email_regexp
+  validates_presence_of :password, if: :password_required?
   validates_confirmation_of :password
-  validates_length_of       :password, within: Devise.password_length, allow_blank: true
-
+  validates_length_of :password, within: Devise.password_length, allow_blank: true
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true, if: :should_validate_for_completion?
   validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.should_validate_for_completion? }
   validates :provider, presence: true, if: :clinical?
   validates_uniqueness_of :vendor_id, allow_blank: true
-
   before_save :set_completion_state_by_validation, unless: :complete?
   before_create :skip_confirmation_task_if_needed_callback
+
+  def self.customer_service_user
+    User.where(role: Role.customer_service).order("created_at ASC").first
+  end
+
+  def self.leo_bot
+    leo_bot_id = $redis.get "leo_bot_id"
+    leo_bot = self.find_by(id: leo_bot_id) || self.unscoped.find_by_email("leo_bot@leohealth.com")
+    if leo_bot
+      $redis.set("leo_bot_id", leo_bot.id)
+    end
+    leo_bot
+  end
+
+  def self.email_taken?(email)
+    completed_or_athena.where(email: email).count > 0
+  end
 
   aasm whiny_transitions: false, column: :complete_status do
     state :incomplete, initial: true
@@ -163,29 +177,6 @@ class User < ActiveRecord::Base
 
   def create_onboarding_session(session_params={})
     sessions.create(session_params.reverse_merge(onboarding_group: onboarding_group))
-  end
-
-  class << self
-    def customer_service_user
-      User.joins(:role).where(roles: { name: "customer_service" }).order("created_at ASC").first
-    end
-
-    def leo_bot
-      leo_bot_id = $redis.get "leo_bot_id"
-      leo_bot = self.find_by(id: leo_bot_id) || self.unscoped.find_by_email("leo_bot@leohealth.com")
-      if leo_bot
-        $redis.set("leo_bot_id", leo_bot.id)
-      end
-      leo_bot
-    end
-
-    def email_taken?(email)
-      return true if User.complete.find_by(email: email)
-      return true if User.where(email: email)
-        .includes(:onboarding_group)
-        .where(onboarding_group: { group_name: "generated_from_athena" })
-        .first
-    end
   end
 
   private
