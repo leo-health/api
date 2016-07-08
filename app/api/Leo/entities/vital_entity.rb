@@ -46,7 +46,7 @@ module Leo
           ounces_format
         else
           pounds_plurality = if whole_pounds == 1 then "pound" else "pounds" end
-          "#{whole_pounds} #{pounds_plurality} #{ounces_format}"
+          "#{whole_pounds} #{pounds_plurality}%s" % (" #{ounces_format}" unless ounces == 0)
         end
       end
     end

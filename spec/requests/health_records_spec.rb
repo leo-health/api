@@ -125,7 +125,7 @@ describe Leo::V1::HealthRecords do
       expect(weights.size).to eq(5)
 
       expect(weights[0]["formatted_value_with_units"]).to eq("15 ounces")
-      expect(weights[1]["formatted_value_with_units"]).to eq("1 pound 0 ounces")
+      expect(weights[1]["formatted_value_with_units"]).to eq("1 pound")
       expect(weights[2]["formatted_value_with_units"]).to eq("23 pounds 4.5 ounces")
       expect(weights[3]["formatted_value_with_units"]).to eq("24 pounds 8 ounces")
       expect(weights[4]["formatted_value_with_units"]).to eq("26 pounds 1 ounce")
