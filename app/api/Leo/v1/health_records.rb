@@ -27,6 +27,7 @@ module Leo
 
             weight_vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).order(:taken_at).collect() {
               |vital| {
+                measurement: vital.measurement,
                 taken_at: vital.taken_at,
                 value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2),
                 unit: "lbs",
@@ -102,6 +103,7 @@ module Leo
               end_date = Date.strptime(params[:end_date], "%m/%d/%Y")
               vitals = Vital.where(patient: @patient, measurement: Vital::MEASUREMENT_WEIGHT).where(taken_at: start_date..end_date.end_of_day).order(:taken_at).collect() {
                 |vital| {
+                  measurement: vital.measurement,
                   taken_at: vital.taken_at,
                   value: GrowthCurvesHelper.g_to_lbs(vital.value.to_f).round(2),
                   unit: "lbs",
