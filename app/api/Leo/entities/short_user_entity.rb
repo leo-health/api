@@ -1,7 +1,7 @@
 module Leo
   module Entities
     class ShortUserEntity < Grape::Entity
-      expose :id, :title, :first_name, :last_name, :family_id, :email
+      expose :id, :title, :first_name, :last_name, :family_id, :email, :phone
       expose :role, with: Leo::Entities::RoleEntity
       expose :credentials, unless: Proc.new{ |u| u.guardian? }
       expose :vendor_id, if: Proc.new{ |u| u.guardian? }

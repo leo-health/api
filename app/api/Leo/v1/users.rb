@@ -124,9 +124,8 @@ module Leo
               error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
             end
           else
+            #in the old version, this endpoint is used to update an incomplete user after calling post enrollments
             authenticated
-            # in the old version, this endpoint is used to
-            # update an incomplete user after calling post enrollments
             user = current_user
             ActiveRecord::Base.transaction do
               update_success user, user_params, "User"
@@ -146,23 +145,22 @@ module Leo
         end
 
         params do
+          requires :authentication_token, type: String, allow_blank: false
           optional :first_name, type: String
           optional :last_name, type: String
           optional :password, type: String
           optional :phone, type: String
+          optional :email, type: String
           optional :birth_date, type: Date
           optional :sex, type: String, values: ['M', 'F']
-          optional :middle_initial, type: String
           optional :title, type: String
-          optional :suffix, type: String
-          at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :middle_initial, :title, :suffix
+          at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :title
         end
 
         put do
           authenticated
-          error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
-          user = current_user
           user_params = declared(params, include_missing: false).except(:authentication_token)
+          user = current_user
           if user.update_attributes(user_params)
             if onboarding_group = current_session.onboarding_group
               if onboarding_group.invited_secondary_guardian?
@@ -189,12 +187,24 @@ module Leo
         end
 
         # Duplicated until front ends use the same endpoint
-        namespace "users/current" do
+        namespace "current" do
+          params do
+            optional :first_name, type: String
+            optional :last_name, type: String
+            optional :password, type: String
+            optional :phone, type: String
+            optional :birth_date, type: Date
+            optional :sex, type: String, values: ['M', 'F']
+            optional :middle_initial, type: String
+            optional :title, type: String
+            optional :suffix, type: String
+            at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :middle_initial, :title, :suffix
+          end
+
           put do
             authenticated
-            error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
-            user = current_user
             user_params = declared(params, include_missing: false).except(:authentication_token)
+            user = current_user
             if user.update_attributes(user_params)
               if onboarding_group = current_session.onboarding_group
                 if onboarding_group.invited_secondary_guardian?

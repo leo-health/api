@@ -30,6 +30,16 @@ describe UserMailer do
     end
   end
 
+  describe "#reinvite_exempt_synced_user" do
+    let(:athena_onboarding_group) {create(:onboarding_group, :generated_from_athena)}
+    let(:exempt_incomplete_user){create(:user, :incomplete, onboarding_group: athena_onboarding_group, email: "test+exempt@leohealth.com")}
+
+    it "should send a sign up e-mail to exempt users synced from athena" do
+      UserMailer.reinvite_exempt_synced_user(exempt_incomplete_user)
+      expect(Delayed::Job.where(queue: "exempt_registration_email").count).to be(1)
+    end
+  end
+
   describe "#invite_secondary_parent" do
     let(:secondary_guardian){ build(:user, family: user.family) }
 
