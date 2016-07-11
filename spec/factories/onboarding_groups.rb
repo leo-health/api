@@ -10,4 +10,12 @@ FactoryGirl.define do
       group_name :invited_secondary_guardian
     end
   end
+
+  trait :generated_from_athena do
+    group_name :generated_from_athena
+  end
+
+  trait :primary_guardian do
+    group_name :primary_guardian
+  end
 end
