@@ -30,7 +30,8 @@ class UserMailer < MandrillMailer::TemplateMailer
   end
 
   def reinvite_exempt_synced_user(user)
-    session = user.sessions.first || user.create_onboarding_session
+    user.sessions.destroy_all
+    session =  user.create_onboarding_session
     token = session.authentication_token
     mandrill_mail(
       template: 'Leo - Exempt User Registration Reminder',
