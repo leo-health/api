@@ -102,13 +102,10 @@ module Leo
           declared_params = declared params, include_missing: false
           session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
           session_params = declared_params.slice(*session_keys) || {}
-
           user_params = declared_params.except(*session_keys) || {}
 
           if (params[:client_version] || "0") >= "1.0.1"
-            # NOTE: in the newer version,
-            # this endpoint is used to create an incomplete user
-            # instead of post enrollments
+            # NOTE: in the newer version, this endpoint is used to create an incomplete user instead of post enrollments
             # TODO: user_params (all params?) should be required in versions > "1.0.0"
             user_params = user_params.merge(
               role: Role.guardian,
@@ -162,7 +159,7 @@ module Leo
           user_params = declared(params, include_missing: false).except(:authentication_token)
           user = current_user
           if user.update_attributes(user_params)
-            if onboarding_group = current_session.onboarding_group
+            if onboarding_group = user.onboarding_group
               if onboarding_group.invited_secondary_guardian?
                 ask_primary_guardian_approval
                 current_session.destroy
@@ -207,7 +204,7 @@ module Leo
             user_params = declared(params, include_missing: false).except(:authentication_token)
             user = current_user
             if user.update_attributes(user_params)
-              if onboarding_group = current_session.onboarding_group
+              if onboarding_group = user.onboarding_group
                 if onboarding_group.invited_secondary_guardian?
                   ask_primary_guardian_approval
                   current_session.destroy

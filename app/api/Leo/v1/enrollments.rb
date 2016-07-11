@@ -16,12 +16,11 @@ module Leo
 
           post do
             error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email])
-            onboarding_group = OnboardingGroup.invited_secondary_guardian
             user = User.new(declared(params).merge(
               role: Role.guardian,
               family: current_user.family,
               vendor_id: GenericHelper.generate_vendor_id,
-              onboarding_group: onboarding_group
+              onboarding_group: OnboardingGroup.invited_secondary_guardian
             ))
             if user.save
               InviteParentJob.send(user, current_user)
@@ -63,7 +62,7 @@ module Leo
           )
           user = User.new user_params
           if user.save
-            session = user.create_onboarding_session(session_params)
+            session = user.sessions.create(session_params)
             present session: { authentication_token: session.authentication_token }
             present :user, session.user, with: Leo::Entities::UserEntity
           else
@@ -91,7 +90,7 @@ module Leo
           user = current_user
           user_params = declared(params, include_missing: false).except(:authentication_token)
           if user.update_attributes(user_params)
-            if onboarding_group = current_session.onboarding_group
+            if onboarding_group = user.onboarding_group
               if onboarding_group.invited_secondary_guardian?
                 ask_primary_guardian_approval
                 current_session.destroy

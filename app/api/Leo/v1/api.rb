@@ -31,13 +31,11 @@ module Leo
 
       helpers do
         def authenticated
-          session = current_session
-          error!('401 Unauthorized', 401) unless session
-
-          if session.onboarding_group && session.expired?
-            user_message = if session.onboarding_group.invited_secondary_guardian?
+          error!('401 Unauthorized', 401) unless current_session
+          if onboarding_group = @session.user.onboarding_group && @session.expired?
+            user_message = if onboarding_group.invited_secondary_guardian?
               "For security reasons you have been logged out. Please ask the primary guardian to invite you again. You can also contact us for support at support@leohealth.com"
-            elsif session.onboarding_group.generated_from_athena?
+            elsif onboarding_group.generated_from_athena?
               "For security reasons you have been logged out. Please contact us for support at support@leohealth.com"
             end
             error!({ error_code: 400, user_message: user_message }, 400)
@@ -69,7 +67,6 @@ module Leo
           present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
         end
 
-        # ????: Why is the device_type being returned here?
         def update_success object, update_params, entity_name=nil, device_type=session_device_type
           if object.update_attributes(update_params)
             entity_name ||=  object.class.name
