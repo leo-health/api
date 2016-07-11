@@ -5,8 +5,6 @@ describe Leo::V1::Families do
   let!(:customer_service){ create(:user, :customer_service) }
   let(:user){ create(:user, :guardian) }
   let(:session){ user.sessions.create }
-  let(:patient){ create(:patient, family: user.family) }
-  let!(:patient_avatar){create(:avatar, owner: patient)}
   let(:serializer){ Leo::Entities::FamilyEntity }
 
   describe "Get /api/v1/family" do
@@ -41,6 +39,54 @@ describe Leo::V1::Families do
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data][:onboarding_group].to_sym).to eq(:invited_secondary_guardian)
       expect(user.family.reload.guardians.count).to be(1)
+    end
+  end
+
+  describe "POST /api/v1/family/patients" do
+    let(:patient_params1){
+      {
+        first_name: "patient_first_name1",
+        last_name: "patient_last_name1",
+        birth_date: 5.years.ago,
+        sex: "M"
+      }
+    }
+    let(:patient_params2){
+      {
+        first_name: "patient_first_name2",
+        last_name: "patient_last_name2",
+        birth_date: 5.years.ago,
+        sex: "F"
+      }
+    }
+
+    let(:user){ create(:user, :guardian) }
+    let!(:session){ user.sessions.create }
+    let(:authentication_token){ session.authentication_token }
+    let(:patient_serializer){ Leo::Entities::PatientEntity }
+
+    def do_request
+      post("/api/v1/family/patients", {authentication_token: authentication_token, patients: [patient_params1, patient_params2]})
+    end
+
+    context "when patients don't exist" do
+      it "creates patients" do
+        expect{ do_request }.to change{ Patient.count }.by(2)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data][:patients]).to include(*patient_serializer.represent(user.family.patients).as_json)
+      end
+    end
+
+    context "when a patient already exists" do
+      before do
+        user.family.patients.create(patient_params1)
+      end
+
+      it "updates the existing patient and creates one new patient" do
+        expect{ do_request }.to change{ Patient.count }.by(1)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data][:patients]).to include(*patient_serializer.represent(user.family.patients).as_json)
+      end
     end
   end
 end

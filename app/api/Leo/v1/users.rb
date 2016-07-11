@@ -187,19 +187,18 @@ module Leo
         end
 
         # Duplicated until front ends use the same endpoint
-        namespace "users/current" do
+        namespace "current" do
           params do
-            requires :authentication_token, type: String, allow_blank: false
-            optional :password, type: String
             optional :first_name, type: String
             optional :last_name, type: String
-            optional :email, type: String
+            optional :password, type: String
+            optional :phone, type: String
             optional :birth_date, type: Date
             optional :sex, type: String, values: ['M', 'F']
-            optional :stripe_customer_id, type: String
-            optional :phone, type: String
-            optional :insurance_plan_id, type: Integer
-            at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :title
+            optional :middle_initial, type: String
+            optional :title, type: String
+            optional :suffix, type: String
+            at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :middle_initial, :title, :suffix
           end
 
           put do
