@@ -24,7 +24,7 @@ resource "Families" do
     parameter :authentication_token, 'Authentication Token', required: true
     parameter :patients, 'Patients array', required: true
 
-    let!(:patient_params1){
+    let(:patient_params1){
       {
         first_name: "patient_first_name1",
         last_name: "patient_last_name1",
@@ -32,7 +32,7 @@ resource "Families" do
         sex: "M"
       }
     }
-    let!(:patient_params2){
+    let(:patient_params2){
       {
         first_name: "patient_first_name2",
         last_name: "patient_last_name2",

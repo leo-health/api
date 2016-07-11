@@ -73,7 +73,7 @@ describe Leo::V1::Families do
       it "creates patients" do
         expect{ do_request }.to change{ Patient.count }.by(2)
         body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data][:patients]).to eq(patient_serializer.represent(user.family.patients).as_json)
+        expect(body[:data][:patients]).to include(*patient_serializer.represent(user.family.patients).as_json)
       end
     end
 
@@ -85,7 +85,7 @@ describe Leo::V1::Families do
       it "updates the existing patient and creates one new patient" do
         expect{ do_request }.to change{ Patient.count }.by(1)
         body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data][:patients]).to eq(patient_serializer.represent(user.family.patients).as_json)
+        expect(body[:data][:patients]).to include(*patient_serializer.represent(user.family.patients).as_json)
       end
     end
   end
