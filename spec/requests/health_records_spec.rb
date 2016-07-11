@@ -92,10 +92,20 @@ describe Leo::V1::HealthRecords do
       expect(heights.size).to eq(5)
 
       expect(heights[0]["formatted_value_with_units"]).to eq("11 inches")
+      expect(heights[0]["formatted_values"]).to eq(["11"])
+      expect(heights[0]["formatted_units"]).to eq(["inches"])
       expect(heights[1]["formatted_value_with_units"]).to eq("1 foot 0 inches")
+      expect(heights[1]["formatted_values"]).to eq(["1", "0"])
+      expect(heights[1]["formatted_units"]).to eq(["foot", "inches"])
       expect(heights[2]["formatted_value_with_units"]).to eq("1 foot 1 inch")
+      expect(heights[2]["formatted_values"]).to eq(["1", "1"])
+      expect(heights[2]["formatted_units"]).to eq(["foot", "inch"])
       expect(heights[3]["formatted_value_with_units"]).to eq("2 feet 1 inch")
+      expect(heights[3]["formatted_values"]).to eq(["2", "1"])
+      expect(heights[3]["formatted_units"]).to eq(["feet", "inch"])
       expect(heights[4]["formatted_value_with_units"]).to eq("2 feet 1.12 inches")
+      expect(heights[4]["formatted_values"]).to eq(["2", "1.12"])
+      expect(heights[4]["formatted_units"]).to eq(["feet", "inches"])
     end
   end
 
@@ -125,10 +135,20 @@ describe Leo::V1::HealthRecords do
       expect(weights.size).to eq(5)
 
       expect(weights[0]["formatted_value_with_units"]).to eq("15 ounces")
+      expect(weights[0]["formatted_values"]).to eq(["15"])
+      expect(weights[0]["formatted_units"]).to eq(["ounces"])
       expect(weights[1]["formatted_value_with_units"]).to eq("1 pound")
+      expect(weights[1]["formatted_values"]).to eq(["1"])
+      expect(weights[1]["formatted_units"]).to eq(["pound"])
       expect(weights[2]["formatted_value_with_units"]).to eq("23 pounds 4.5 ounces")
+      expect(weights[2]["formatted_values"]).to eq(["23", "4.5"])
+      expect(weights[2]["formatted_units"]).to eq(["pounds", "ounces"])
       expect(weights[3]["formatted_value_with_units"]).to eq("24 pounds 8 ounces")
+      expect(weights[3]["formatted_values"]).to eq(["24", "8"])
+      expect(weights[3]["formatted_units"]).to eq(["pounds", "ounces"])
       expect(weights[4]["formatted_value_with_units"]).to eq("26 pounds 1 ounce")
+      expect(weights[4]["formatted_values"]).to eq(["26", "1"])
+      expect(weights[4]["formatted_units"]).to eq(["pounds", "ounce"])
     end
   end
 
