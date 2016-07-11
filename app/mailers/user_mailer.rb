@@ -9,8 +9,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   end
 
   def reinvite_all_exempt_synced_users
-    onboarding_group = OnboardingGroup.generated_from_athena
-    onboarding_group.users.where("complete_status": "incomplete").find_each do |guardian|
+    OnboardingGroup.generated_from_athena.users.incomplete.find_each do |guardian|
         reinvite_exempt_synced_user(guardian)
     end
   end
