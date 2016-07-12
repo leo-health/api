@@ -16,7 +16,8 @@ describe Leo::V1::Sessions do
       end
 
       it 'should create a session for the user and return the session infomation' do
-        expect{ do_request({ email: user.email, password: 'password' }) }.to change(Session.count).from(0).to(1)
+        do_request({ email: user.email, password: 'password' })
+        expect(Session.count).to be(1)
         expect(response.status).to eq(201)
         body = JSON.parse( response.body, symbolize_names: true )
         expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
