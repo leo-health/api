@@ -5,6 +5,7 @@ require 'mandrill_mailer/offline'
 require 'codeclimate-test-reporter'
 require 'rspec_api_documentation'
 
+
 CodeClimate::TestReporter.start
 
 Spork.prefork do
@@ -16,10 +17,6 @@ Spork.prefork do
 
     config.mock_with :rspec do |mocks|
       mocks.verify_partial_doubles = true
-    end
-
-    config.before(:each) do
-      FakeSms.messages = []
     end
   end
 end
