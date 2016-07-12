@@ -49,15 +49,21 @@ describe Leo::V1::Users do
 
   describe "POST /api/v1/users - create user from enrollment" do
     let!(:guardian_role){create(:role, :guardian)}
-    let(:enrollment_user){ create(:user, email: "bigtree@gmail.com", password: "password")}
-    let(:enrollment_session){ enrollment_user.sessions.create }
     let(:serializer){ Leo::Entities::UserEntity }
     let(:user_params){{ first_name: "first_name",
                         last_name: "last_name",
-                        phone: "1234445555" }}
+                        phone: "1234445555",
+                        sex: 'M',
+                        email: 'abcd@test.com',
+                        password: 'password',
+                        vendor_id: '123143123',
+                        device_type: 'phone',
+                        os_version: 'yosimite',
+                        client_platform: 'mac'
+                      }}
 
     def do_request
-      post "/api/v1/users", user_params.merge!(authentication_token: enrollment_session.authentication_token), format: :json
+      post "/api/v1/users", user_params, format: :json
     end
 
     it "should create the user with a role, and return created user along with authentication_token" do

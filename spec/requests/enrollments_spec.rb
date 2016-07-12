@@ -76,7 +76,7 @@ describe Leo::V1::Enrollments do
       let(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian) }
       let(:primary_guardian){ create(:user, :guardian) }
       let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, family: primary_guardian.family) }
-      let!(:secondary_guardian_session){ secondary_guardian.create_onboarding_session }
+      let!(:secondary_guardian_session){ secondary_guardian.sessions.create }
 
       it "should update attributes, reset enrollment authentication and notify primary guardian" do
         expect{ do_request secondary_guardian_session.authentication_token }.to change{ Delayed::Job.count }.by(1)

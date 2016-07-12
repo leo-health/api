@@ -94,12 +94,10 @@ module Leo
               if onboarding_group.invited_secondary_guardian?
                 ask_primary_guardian_approval
                 current_session.destroy
-              end
-
-              if onboarding_group.generated_from_athena?
+              elsif onboarding_group.generated_from_athena?
                 user.set_complete!
                 current_session.destroy
-                session = user.create_onboarding_session
+                session = user.sessions.create
                 present :session, session, with: Leo::Entities::SessionEntity
               end
             end

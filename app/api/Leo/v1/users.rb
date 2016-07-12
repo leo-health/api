@@ -79,65 +79,39 @@ module Leo
       resource :users do
         desc '#create user'
         params do
-          optional :email, type: String
-          optional :password, type: String
-          optional :vendor_id, type: String
-          optional :first_name, type: String
-          optional :last_name, type: String
-          optional :phone, type: String
+          requires :email, type: String
+          requires :password, type: String
+          requires :vendor_id, type: String
+          requires :first_name, type: String
+          requires :last_name, type: String
+          requires :phone, type: String
+          requires :sex, type: String, values: ['M', 'F']
+          requires :device_type, type: String
+          requires :os_version, type: String
+          requires :client_platform, type: String
+          optional :client_version, type: String
           optional :birth_date, type: Date
-          optional :sex, type: String, values: ['M', 'F']
           optional :middle_initial, type: String
           optional :title, type: String
           optional :suffix, type: String
-
           optional :device_token, type: String
-          optional :device_type, type: String
-          optional :os_version, type: String
-          optional :client_platform, type: String
-          optional :client_version, type: String
         end
 
         post do
           declared_params = declared params, include_missing: false
           session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
-          session_params = declared_params.slice(*session_keys) || {}
-          user_params = declared_params.except(*session_keys) || {}
+          user_params = declared_params.except(*session_keys)
+          user_params = user_params.merge(
+            role: Role.guardian,
+            onboarding_group: OnboardingGroup.primary_guardian
+          )
 
-          if (params[:client_version] || "0") >= "1.0.1"
-            # NOTE: in the newer version, this endpoint is used to create an incomplete user instead of post enrollments
-            # TODO: user_params (all params?) should be required in versions > "1.0.0"
-            user_params = user_params.merge(
-              role: Role.guardian,
-              onboarding_group: OnboardingGroup.primary_guardian
-            )
-
-            user = User.new user_params
-            if user.save
-              session = user.create_onboarding_session(session_params)
-              present :user, user, with: Leo::Entities::UserEntity
-              present :session, session, with: Leo::Entities::SessionEntity
-            else
-              error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
-            end
+          if (user = User.create user_params) && user.valid?
+            session = user.sessions.create(declared_params.slice(*session_keys))
+            present :user, user, with: Leo::Entities::UserEntity
+            present :session, session, with: Leo::Entities::SessionEntity
           else
-            #in the old version, this endpoint is used to update an incomplete user after calling post enrollments
-            authenticated
-            user = current_user
-            ActiveRecord::Base.transaction do
-              update_success user, user_params, "User"
-              user.family.exempt_membership!
-            end
-            if user.invited_user?
-              unless user.confirm_secondary_guardian
-                error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
-              else
-                user.sessions.destroy_all
-                return {session: nil}
-              end
-            end
-            session = Session.find_by_authentication_token(params[:authentication_token])
-            update_success session, session_params
+            error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
           end
         end
 
@@ -213,7 +187,7 @@ module Leo
                 if onboarding_group.generated_from_athena?
                   user.set_complete!
                   current_session.destroy
-                  session = user.create_onboarding_session
+                  session = user.sessions.create
                   present :session, session, with: Leo::Entities::SessionEntity
                 end
               end

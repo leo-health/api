@@ -12,7 +12,7 @@ describe Leo::V1::Sessions do
 
     context 'user has correct email and password' do
       before do
-        user.create_onboarding_session
+        user.sessions.create
       end
 
       it 'should create a session for the user and return the session infomation' do
