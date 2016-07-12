@@ -9,8 +9,13 @@ module Leo
       end
       expose :primary_guardian, :type, :membership_type, :stripe_customer_id, :vendor_id, :family_id, :phone, :onboarding_group, if: Proc.new{ |u| u.guardian? }
       expose :credentials, unless: Proc.new{ |u| u.guardian? }
+      expose :onboarding_group
 
       private
+
+      def onboarding_group
+        object.try(:onboarding_group)
+      end
 
       def membership_type
         object.try(:membership_type)

@@ -174,10 +174,6 @@ class User < ActiveRecord::Base
     confirmed?
   end
 
-  # def create_onboarding_session(session_params={})
-  #   sessions.create(session_params.reverse_merge(onboarding_group: onboarding_group))
-  # end
-
   private
 
   def skip_confirmation_task_if_needed_callback

@@ -142,7 +142,7 @@ module Leo
               if onboarding_group.generated_from_athena?
                 user.set_complete!
                 current_session.destroy
-                session = user.create_onboarding_session
+                session = user.sessions.create
                 present :session, session, with: Leo::Entities::SessionEntity
               end
             end
