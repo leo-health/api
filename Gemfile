@@ -72,6 +72,7 @@ group :test do
   gem 'codeclimate-test-reporter'
   gem 'fakeredis'
   gem 'timecop'
+  gem 'whenever-test'
 end
 
 group :production do
