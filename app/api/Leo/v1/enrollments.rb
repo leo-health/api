@@ -16,18 +16,18 @@ module Leo
 
           post do
             error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email])
-            user = User.new(declared(params).merge(
+            user_to_invite = User.new(declared(params).merge(
               role: Role.guardian,
               family: current_user.family,
               invitation_token: GenericHelper.generate_token(:invitation_token),
               vendor_id: GenericHelper.generate_token(:vendor_id),
               onboarding_group: OnboardingGroup.invited_secondary_guardian
             ))
-            if user.save
-              InviteParentJob.send(user, current_user)
+            if user_to_invite.save
+              InviteParentJob.send(user_to_invite.id, current_user.id)
               present :onboarding_group, user.onboarding_group.group_name
             else
-              error!({ error_code: 422, user_message: user.errors.full_messages.first }, 422)
+              error!({ error_code: 422, user_message: user_to_invite.errors.full_messages.first }, 422)
             end
           end
         end
