@@ -54,6 +54,7 @@ class User < ActiveRecord::Base
   validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.should_validate_for_completion? }
   validates :provider, presence: true, if: :clinical?
   validates_uniqueness_of :vendor_id, allow_blank: true
+  validates_uniqueness_of :invitation_token, allow_nil: true
   before_save :set_completion_state_by_validation, unless: :complete?
   before_create :skip_confirmation_task_if_needed_callback
 

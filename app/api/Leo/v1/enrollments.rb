@@ -19,7 +19,8 @@ module Leo
             user = User.new(declared(params).merge(
               role: Role.guardian,
               family: current_user.family,
-              vendor_id: GenericHelper.generate_vendor_id,
+              invitation_token: GenericHelper.generate_token(:invitation_token),
+              vendor_id: GenericHelper.generate_token(:vendor_id),
               onboarding_group: OnboardingGroup.invited_secondary_guardian
             ))
             if user.save

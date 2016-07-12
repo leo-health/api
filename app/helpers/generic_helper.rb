@@ -11,10 +11,10 @@ module GenericHelper
     result + left + right
   end
 
-  def self.generate_vendor_id
+  def self.generate_token(token_name)
     loop do
       random_token = SecureRandom.urlsafe_base64(nil, false)
-      break random_token unless Enrollment.exists?(vendor_id: random_token)
+      break random_token unless User.exists?(Hash[token_name, random_token])
     end
   end
 
