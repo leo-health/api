@@ -5,7 +5,6 @@ require 'mandrill_mailer/offline'
 require 'codeclimate-test-reporter'
 require 'rspec_api_documentation'
 
-
 CodeClimate::TestReporter.start
 
 Spork.prefork do
