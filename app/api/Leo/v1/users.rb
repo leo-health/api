@@ -82,13 +82,13 @@ module Leo
           requires :email, type: String
           requires :password, type: String
           requires :vendor_id, type: String
-          requires :first_name, type: String
-          requires :last_name, type: String
-          requires :phone, type: String
-          requires :sex, type: String, values: ['M', 'F']
-          requires :device_type, type: String
-          requires :os_version, type: String
-          requires :client_platform, type: String
+          optional :first_name, type: String
+          optional :last_name, type: String
+          optional :phone, type: String
+          optional :sex, type: String, values: ['M', 'F']
+          optional :device_type, type: String
+          optional :os_version, type: String
+          optional :platform, type: String
           optional :client_version, type: String
           optional :birth_date, type: Date
           optional :middle_initial, type: String
@@ -99,7 +99,7 @@ module Leo
 
         post do
           declared_params = declared params, include_missing: false
-          session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
+          session_keys = [:device_token, :device_type, :os_version, :platform, :client_version]
           user_params = declared_params.except(*session_keys)
           user_params = user_params.merge(
             role: Role.guardian,

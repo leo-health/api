@@ -49,12 +49,12 @@ module Leo
           requires :vendor_id, type: String
           optional :device_token, type: String
           optional :device_type, type: String
-          optional :client_platform, type: String
+          optional :platform, type: String
           optional :client_version, type: String
         end
 
         post do
-          session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
+          session_keys = [:device_token, :device_type, :os_version, :platform, :client_version]
           session_params = declared(params).slice(*session_keys)
           user_params = (declared(params).except(*session_keys) || {}).merge(
             role: Role.guardian,

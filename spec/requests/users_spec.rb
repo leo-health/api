@@ -59,7 +59,7 @@ describe Leo::V1::Users do
                         vendor_id: '123143123',
                         device_type: 'phone',
                         os_version: 'yosimite',
-                        client_platform: 'mac'
+                        platform: 'mac'
                       }}
 
     def do_request
