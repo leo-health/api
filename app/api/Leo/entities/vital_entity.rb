@@ -8,9 +8,34 @@ module Leo
       expose :value
       expose :unit
       expose :percentile
+      expose :measurement_type
       expose :formatted_value_with_units
+      expose :formatted_values
+      expose :formatted_units
 
       private
+
+      def measurement_type
+        measurement = object[:measurement]
+        if measurement == Vital::MEASUREMENT_HEIGHT
+          "height"
+        elsif measurement == Vital::MEASUREMENT_WEIGHT
+          "weight"
+        else
+          measurement
+        end        
+      end
+
+      def formatted_values
+        i = 0
+        formatted_value_with_units.split.select{ |x| i+=1; i.odd? }
+      end
+
+      def formatted_units
+        i = 0
+        formatted_value_with_units.split.select{ |x| i+=1; i.even? }
+      end
+
       def formatted_value_with_units
         if object[:measurement] == Vital::MEASUREMENT_HEIGHT
           format_inches_to_feet_and_inches(object[:value])
