@@ -11,25 +11,7 @@ describe Leo::V1::Sessions do
     end
 
     context 'user has correct email and password' do
-      before do
-        user.sessions.create
-      end
-
       it 'should create a session for the user and return the session infomation' do
-        do_request({ email: user.email, password: 'password' })
-        expect(Session.count).to be(1)
-        expect(response.status).to eq(201)
-        body = JSON.parse( response.body, symbolize_names: true )
-        expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
-      end
-    end
-
-    context 'member has correct email and password' do
-      before do
-        user.upgrade!
-      end
-
-      it 'should return a member if user is upgraded to member' do
         expect{ do_request({email: user.email, password: 'password' }) }.to change{Session.count}.from(0).to(1)
         expect(response.status).to eq(201)
         body = JSON.parse( response.body, symbolize_names: true )

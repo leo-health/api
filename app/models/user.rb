@@ -147,7 +147,7 @@ class User < ActiveRecord::Base
     "#{first_name} #{last_name}"
   end
 
-  def upgrade!
+  def upgrade
     update_attributes(type: :Member) if guardian?
   end
 

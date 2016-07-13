@@ -42,7 +42,7 @@ RSpec.describe Patient, type: :model do
 
   describe 'callbacks' do
     describe "after_commit" do
-      it { is_expected.to callback(:upgrade_guardian!).after(:commit).on(:create) }
+      it { is_expected.to callback(:upgrade_guardian).after(:commit).on(:create) }
     end
   end
 

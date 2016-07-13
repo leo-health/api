@@ -15,8 +15,8 @@ describe Leo::V1::Enrollments do
     def do_request
       enrollment_params = {
         email: "wuang@leohealth.com",
-        first_name: "Yellow",
-        last_name: "BigRiver",
+        first_name: Faker::Name::first_name,
+        last_name: Faker::Name::last_name,
         authentication_token: session.authentication_token
       }
 
@@ -28,6 +28,7 @@ describe Leo::V1::Enrollments do
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data][:email]).to eq("wuang@leohealth.com")
+      expect(body[:data][:onboarding_group].as_json.to_json).to eq(onboarding_group.as_json.to_json)
     end
   end
 

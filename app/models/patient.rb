@@ -25,10 +25,8 @@ class Patient < ActiveRecord::Base
   has_many :forms
 
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
-
-  after_commit :upgrade_guardian!, on: :create
+  after_commit :upgrade_guardian, on: :create
   after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
-
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, if: :did_successfully_sync?
 
@@ -70,7 +68,7 @@ class Patient < ActiveRecord::Base
 
   private
 
-  def upgrade_guardian!
-    family.primary_guardian.try(:upgrade!)
+  def upgrade_guardian
+    family.primary_guardian.try(:upgrade)
   end
 end

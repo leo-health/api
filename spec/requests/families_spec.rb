@@ -28,8 +28,13 @@ describe Leo::V1::Families do
     let!(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian)}
 
     def do_request
-      enrollment_params = { email: Faker::Internet::email, first_name: Faker::Name::first_name, last_name: Faker::Name::last_name }
-      enrollment_params.merge!(authentication_token: session.authentication_token)
+      enrollment_params = {
+        email: 'wuang@leohealth.com',
+        first_name: Faker::Name::first_name,
+        last_name: Faker::Name::last_name,
+        authentication_token: session.authentication_token
+      }
+
       post "/api/v1/family/invite", enrollment_params
     end
 
@@ -37,8 +42,8 @@ describe Leo::V1::Families do
       expect{ do_request }.to change{ Delayed::Job.count }.by(1)
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:onboarding_group].to_sym).to eq(:invited_secondary_guardian)
-      expect(user.family.reload.guardians.count).to be(1)
+      expect(body[:data][:email]).to eq('wuang@leohealth.com')
+      expect(body[:data][:onboarding_group].as_json.to_json).to eq(onboarding_group.as_json.to_json)
     end
   end
 

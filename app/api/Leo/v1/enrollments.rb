@@ -15,7 +15,6 @@ module Leo
           end
 
           post do
-            error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email])
             user_to_invite = User.new(declared(params).merge(
               role: Role.guardian,
               family: current_user.family,
