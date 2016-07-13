@@ -167,7 +167,7 @@ namespace :load do
 
   desc "Seed test patients for front end"
   task :seed_patients, [:delete_twenty_percent, :transferred_patients] => :environment do |t, args|
-    practice = Practice.where(name: "Flatiron Pediatrics", id: 1).first_or_create
+    practice = Practice.first
     guardian_role = Role.find_or_create_by(name: :guardian)
 
     primary_guardian = {
