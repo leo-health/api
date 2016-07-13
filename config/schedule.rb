@@ -13,3 +13,7 @@ end
 every 1.day, :at => '12:00pm' do
   rake 'notification:escalated_conversation_email_digest'
 end
+
+every 1.minute do
+  rake 'notification:complete_user_two_day_prior_appointment'
+end
