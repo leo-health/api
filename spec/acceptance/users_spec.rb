@@ -12,6 +12,26 @@ resource "Users" do
   let(:id){ user.id }
   let(:authentication_token){ session.authentication_token }
 
+  get "/api/v1/users/current" do
+    parameter :authentication_token, "Authentication Token", required: true
+
+    let(:raw_post){ params.to_json }
+    example "get the logged in user" do
+      do_request
+      expect(response_status).to eq(200)
+    end
+  end
+
+  get "/api/v1/users" do
+    parameter :authentication_token, "Authentication Token", required: true
+
+    let(:raw_post){ params.to_json }
+    example "get the logged in user" do
+      do_request
+      expect(response_status).to eq(200)
+    end
+  end
+
   get "/api/v1/staff" do
     parameter :authentication_token, "Authentication Token", required: true
 

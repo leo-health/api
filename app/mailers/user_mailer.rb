@@ -1,20 +1,6 @@
 class UserMailer < MandrillMailer::TemplateMailer
   default from: 'info@leohealth.com'
 
-  def invite_exempt_synced_user(user)
-    session = user.sessions.first || user.sessions.create
-    token = session.authentication_token
-    mandrill_mail(
-      template: 'Leo - Exempt User Registration',
-      inline_css: true,
-      subject: 'Leo + Flatiron Pediatrics - Get the app.',
-      to: user.unconfirmed_email || user.email,
-      vars: {
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
-      }
-    ).delay(queue: 'exempt_registration_email', owner: user).deliver
-  end
-
   def confirmation_instructions(user, token, opts={})
     mandrill_mail(
       template: 'Leo - Sign Up Confirmation',

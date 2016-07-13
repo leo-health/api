@@ -13,6 +13,38 @@ describe Leo::V1::Users do
   let!(:default_practice) { create(:practice) }
   let(:serializer){ Leo::Entities::UserEntity }
 
+  describe "Get /api/v1/users/current" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
+
+    def do_request
+      get "/api/v1/users/current", { authentication_token: session.authentication_token }
+    end
+
+    it "should return the staff users" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:user]).to eq(serializer.represent(guardian).as_json)
+    end
+  end
+
+  describe "Get /api/v1/users" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
+
+    def do_request
+      get "/api/v1/users", { authentication_token: session.authentication_token }
+    end
+
+    it "should return the staff users" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:user]).to eq(serializer.represent(guardian).as_json)
+    end
+  end
+
   describe "Get /api/v1/staff" do
     let(:guardian){ create(:user, :guardian) }
     let(:session){ guardian.sessions.create }

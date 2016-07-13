@@ -8,7 +8,6 @@ end
 
 every 1.day, :at => '7:00am' do
   rake 'notification:escalated_covnersation_email_digest'
-  rake 'notification:open_conversation_email_digest'
 end
 
 every 1.day, :at => '12:00pm' do
