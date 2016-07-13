@@ -258,7 +258,10 @@ namespace :load do
     }
 
     current_time = Time.now
+
+    Vital.where(patient_id: guardian.family.patients.pluck(:id)).destroy_all
     guardian.family.patients.destroy_all
+
     last_names.each_with_index do |(name, attributes), index|
       patient = Patient.create(
         first_name: name,
