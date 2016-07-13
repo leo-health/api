@@ -70,50 +70,6 @@ module Leo
             error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
         end
-
-        desc "update an enrollment"
-        params do
-          requires :authentication_token, type: String, allow_blank: false
-          optional :password, type: String
-          optional :first_name, type: String
-          optional :last_name, type: String
-          optional :email, type: String
-          optional :birth_date, type: Date
-          optional :sex, type: String, values: ['M', 'F']
-          optional :stripe_customer_id, type: String
-          optional :phone, type: String
-          optional :insurance_plan_id, type: Integer
-        end
-
-        put :current do
-          authenticated
-          error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
-          user = current_user
-          user_params = declared(params, include_missing: false).except(:authentication_token)
-          if user.update_attributes(user_params)
-            if onboarding_group = user.onboarding_group
-              if onboarding_group.invited_secondary_guardian?
-                ask_primary_guardian_approval
-                current_session.destroy
-              elsif onboarding_group.generated_from_athena?
-                user.set_complete!
-                current_session.destroy
-                session = user.sessions.create
-                present :session, session, with: Leo::Entities::SessionEntity
-              end
-            end
-            present :user, user, with: Leo::Entities::UserEntity
-          else
-            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
-          end
-        end
-      end
-
-      helpers do
-        def ask_primary_guardian_approval
-          primary_guardian = current_user.family.primary_guardian
-          PrimaryGuardianApproveInvitationJob.send(primary_guardian, current_user)
-        end
       end
     end
   end
