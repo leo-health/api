@@ -261,8 +261,8 @@ namespace :load do
     guardian.family.patients.destroy_all
     last_names.each_with_index do |(name, attributes), index|
       patient = Patient.create(
-        first_name: "Baby",
-        last_name: name,
+        first_name: name,
+        last_name: Baby,
         sex: "M",
         family: guardian.family,
         birth_date: current_time - attributes[:age]
@@ -284,7 +284,7 @@ namespace :load do
              {
                athena_id: 0,
                taken_at: time_stamp,
-               measurement: "VITALS.HEIGHT",
+               measurement: "VITALS.WEIGHT",
                value: last_names[last_names.keys[i]][:weight]
              }
             ]
