@@ -262,7 +262,7 @@ namespace :load do
     last_names.each_with_index do |(name, attributes), index|
       patient = Patient.create(
         first_name: name,
-        last_name: Baby,
+        last_name: "Baby",
         sex: "M",
         family: guardian.family,
         birth_date: current_time - attributes[:age]
