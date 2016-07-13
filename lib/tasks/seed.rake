@@ -167,6 +167,7 @@ namespace :load do
 
   desc "Seed test patients for front end"
   task :seed_patients, [:delete_twenty_percent, :transferred_patients] => :environment do |t, args|
+    debugger
     practice = Practice.where(name: "Flatiron Pediatrics", id: 1).first_or_create
     guardian_role = Role.find_or_create_by(name: :guardian)
 
@@ -223,7 +224,7 @@ namespace :load do
     end
 
     last_names = {
-      '5_age' => {age: 5.days, height: "52.99", weight: "4214.52"},
+      '5_days' => {age: 5.days, height: "52.99", weight: "4214.52"},
       '2_week_wc' => {age: 14.days, height: "53.45", weight: "4723.34"},
       '3_week_wc' => {age: 21.days, height: "55.87", weight: "5146.45"},
       '1_month' => {age: 1.months, height: "57.93", weight: "5542.93"},
@@ -304,7 +305,7 @@ namespace :load do
       end
     end
 
-    if args.delete_twenty_percent
+    if args.delete_twenty_percent == "true"
       Patient.where(family: guardian.family).each do |patient|
         if (count = patient.vitals.count/10) && count >= 0
           count.times do
@@ -315,7 +316,7 @@ namespace :load do
       puts "deleted 20% vital records of patients"
     end
 
-    if args.transferred_patients
+    if args.transferred_patients == "true"
       Patient.where(family: guardian.family).each do |patient|
         half_life_span = (current_time.to_date - patient.birth_date).to_i/2
         patient.vitals.where(taken_at: (current_time - half_life_span.days)..current_time).destroy_all
