@@ -1,5 +1,3 @@
-#set :output, {:error => 'log/cron.log', :standard => 'log/cron.log'}	#Misha, obsolete
-
 every 1.day, :at => '0:00 am' do
   rake 'notification:complete_user_two_day_prior_appointment'
   rake 'notification:patient_birthday'
