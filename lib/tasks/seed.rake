@@ -203,7 +203,7 @@ namespace :load do
         next
       end
     end
-    byebug
+
     if guardian.family.try(:exempt_membership!)
       if (second_guardian = User.find_by(email: secondary_guardian[:email])) && second_guardian.update_attributes(secondary_guardian.except(:password))
         puts "successfully updated the secondary guardian's information"
