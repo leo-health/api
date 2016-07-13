@@ -1,7 +1,7 @@
 namespace :notification do
   desc "send user a reminder for his appointment in two days"
   task complete_user_two_day_prior_appointment: :environment do
-    in_two_day = 1.day.from_now.utc..2.day.from_now.beginning_of_day.utc
+    in_two_day = 1.day.from_now.utc..2.day.from_now.utc
     Appointment.where(appointment_status: AppointmentStatus.future, start_datetime: in_two_day)
       .includes(patient: { family: :all_guardians }).find_each do |appointment|
         if family = appointment.patient.try(:family)
