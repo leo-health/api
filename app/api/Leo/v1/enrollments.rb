@@ -23,9 +23,10 @@ module Leo
               vendor_id: GenericHelper.generate_token(:vendor_id),
               onboarding_group: OnboardingGroup.invited_secondary_guardian
             ))
+
             if user_to_invite.save
               InviteParentJob.send(user_to_invite.id, current_user.id)
-              present :onboarding_group, user.onboarding_group.group_name
+              present user_to_invite, with: Leo::Entities::UserEntity
             else
               error!({ error_code: 422, user_message: user_to_invite.errors.full_messages.first }, 422)
             end

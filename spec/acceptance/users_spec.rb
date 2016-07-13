@@ -25,29 +25,25 @@ resource "Users" do
   end
 
   post "/api/v1/users" do
-    parameter :authentication_token, "Enrollment Token", required: true
-    parameter :first_name, "First Name", required: true
-    parameter :last_name, "Last Name", required: true
-    parameter :phone, "Phone", required: true
-    parameter :birth_date
-    parameter :sex
-    parameter :family_id
-    parameter :middle_initial
-    parameter :title
-    parameter :suffix
+    parameter :email, "Email", required: true
+    parameter :password, "Password", required: true
+    parameter :vendor_id, "Vendor Id", required: true
+    parameter :first_name, "First Name"
+    parameter :last_name, "Last Name"
+    parameter :phone, "Phone"
+    parameter :sex, "Sex"
+    parameter :device_type, "Device Type"
+    parameter :os_version, "Os Version"
+    parameter :platform, "Platform"
+    parameter :client_version, "Client Version"
+    parameter :device_token, "Device Token"
 
-    let(:enrollment_user){create(:user, email: "bigtree@gmail.com", password: "password")}
-
-    let(:first_name){ "Big" }
-    let(:last_name){ "Tree" }
-    let(:email){ "BigTree@yahoo.com" }
+    let(:email){ "bigtree@yahoo.com" }
     let(:password){ "password" }
-    let(:phone){ "1234567890" }
-    let(:session){ enrollment_user.sessions.create }
-    let(:authentication_token){ session.authentication_token }
+    let(:vendor_id){ "12345" }
     let(:raw_post) { params.to_json }
 
-    example "create a user from enrollment record" do
+    example "create a user" do
       do_request
       expect(response_status).to eq(201)
     end

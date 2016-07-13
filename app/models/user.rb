@@ -147,13 +147,6 @@ class User < ActiveRecord::Base
     "#{first_name} #{last_name}"
   end
 
-  def invitation_token
-    if invited_user? && !complete?
-      session = sessions.first || sessions.create
-      session.authentication_token
-    end
-  end
-
   def upgrade!
     update_attributes(type: :Member) if guardian?
   end

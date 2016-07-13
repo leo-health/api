@@ -90,10 +90,6 @@ module Leo
           optional :os_version, type: String
           optional :platform, type: String
           optional :client_version, type: String
-          optional :birth_date, type: Date
-          optional :middle_initial, type: String
-          optional :title, type: String
-          optional :suffix, type: String
           optional :device_token, type: String
         end
 
