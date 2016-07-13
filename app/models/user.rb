@@ -168,6 +168,10 @@ class User < ActiveRecord::Base
     confirmed?
   end
 
+  def reset_invitation_token
+    update_attributes(invitation_token: GenericHelper.generate_token(:invitation_token)) if guardian?
+  end
+
   private
 
   def skip_confirmation_task_if_needed_callback
