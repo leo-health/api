@@ -420,6 +420,8 @@ GEM
       rack (>= 1.0)
     whenever (0.9.4)
       chronic (>= 0.6.3)
+    whenever-test (1.0.0)
+      whenever
     zeus (0.15.4)
       method_source (>= 0.6.7)
     zeus-parallel_tests (0.3.1)
@@ -496,6 +498,7 @@ DEPENDENCIES
   unicorn
   useragent
   whenever
+  whenever-test
   zeus-parallel_tests
 
 BUNDLED WITH
