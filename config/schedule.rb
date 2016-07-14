@@ -1,4 +1,5 @@
-#set :output, {:error => 'log/cron.log', :standard => 'log/cron.log'}	#Misha, obsolete
+env :PATH, '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
+set :output, nil
 
 every 1.day, :at => '0:00 am' do
   rake 'notification:complete_user_two_day_prior_appointment'
@@ -7,7 +8,7 @@ every 1.day, :at => '0:00 am' do
 end
 
 every 1.day, :at => '7:00am' do
-  rake 'notification:escalated_covnersation_email_digest'
+  rake 'notification:escalated_conversation_email_digest'
 end
 
 every 1.day, :at => '12:00pm' do
