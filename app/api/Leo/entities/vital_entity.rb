@@ -8,14 +8,14 @@ module Leo
       expose :value
       expose :unit
       expose :percentile
-      expose :measurement_type
+      expose :type_name
       expose :formatted_value_with_units
       expose :formatted_values
       expose :formatted_units
 
       private
 
-      def measurement_type
+      def type_name
         measurement = object[:measurement]
         if measurement == Vital::MEASUREMENT_HEIGHT
           "height"
@@ -23,7 +23,7 @@ module Leo
           "weight"
         else
           measurement
-        end        
+        end
       end
 
       def formatted_values
