@@ -167,9 +167,19 @@ namespace :load do
 
   desc "Seed test patients for front end"
   task :seed_patients, [:delete_twenty_percent, :transferred_patients] => :environment do |t, args|
-    practice = Practice.where(name: "Flatiron Pediatrics", id: 1).first_or_create
-    guardian_role = Role.find_or_create_by(name: :guardian)
+    practice = Practice.where({
+      athena_id: 1,
+      name: "Flatiron Pediatrics",
+      address_line_1: "27 E 22nd St",
+      city: "New York",
+      state: "NY",
+      zip: "10011",
+      phone: "212-460-5600",
+      email: "info@leohealth.com",
+      time_zone: "Eastern Time (US & Canada)"
+    }).first_or_create
 
+    guardian_role = Role.find_or_create_by(name: :guardian)
     primary_guardian = {
       first_name: "Primary",
       last_name: "Guardian",
@@ -280,6 +290,7 @@ namespace :load do
              {
                athena_id: 0,
                taken_at: time_stamp,
+               created_at: time_stamp,
                measurement: "VITALS.HEIGHT",
                value: last_names[last_names.keys[i]][:height]
              },
@@ -287,6 +298,7 @@ namespace :load do
              {
                athena_id: 0,
                taken_at: time_stamp,
+               created_at: time_stamp,
                measurement: "VITALS.WEIGHT",
                value: last_names[last_names.keys[i]][:weight]
              }
@@ -318,7 +330,7 @@ namespace :load do
     if args.transferred_patients == "true"
       Patient.where(family: guardian.family).each do |patient|
         half_life_span = (current_time.to_date - patient.birth_date).to_i/2
-        patient.vitals.where(taken_at: (current_time - half_life_span.days)..current_time).destroy_all
+        patient.vitals.where(taken_at: patient.birth_date..(current_time - half_life_span.days)).destroy_all
       end
       puts "deleted vital records for transferred patients"
     end
