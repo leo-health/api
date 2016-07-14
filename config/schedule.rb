@@ -1,3 +1,4 @@
+env :PATH, '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
 set :output, nil
 
 every 1.day, :at => '0:00 am' do
