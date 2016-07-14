@@ -171,48 +171,47 @@ namespace :load do
     guardian_role = Role.find_or_create_by(name: :guardian)
 
     primary_guardian = {
-      first_name: "Kung",
-      last_name: "Wong",
-      email: "kw@test.com",
+      first_name: "Primary",
+      last_name: "Guardian",
+      email: "primary@leohealth.com",
       password: "password",
       role: guardian_role,
       practice: practice,
       phone: "3213212315",
-      vendor_id: "kw_vendor_id",
-      complete_status: "complete"
+      vendor_id: "p_vendor_id"
     }
 
     secondary_guardian = {
-      first_name: "Gigi",
-      last_name: "Wong",
-      email: "gigiw@test.com",
+      first_name: "Secondary",
+      last_name: "Guardian",
+      email: "secondary@leohealth.com",
       password: "password",
       role: guardian_role,
       practice: practice,
       phone: "3213212312",
-      vendor_id: "gigi_vendor_id",
-      complete_status: "complete"
+      vendor_id: "s_vendor_id"
     }
 
     if (guardian = User.find_by(email: primary_guardian[:email])) && guardian.update_attributes(primary_guardian.except(:password))
-      puts "successfully updated primary guardian information"
+      puts "successfully updated the primary guardian's information"
     else
       guardian = User.create(primary_guardian)
       if guardian.valid?
-        puts "successfully create primary guardian"
+        puts "successfully created the primary guardian"
       else
         puts "failed to create primary guardian"
         next
       end
     end
 
-    if guardian.family.try(:renew_membership)
+    if guardian.family.try(:exempt_membership!)
       if (second_guardian = User.find_by(email: secondary_guardian[:email])) && second_guardian.update_attributes(secondary_guardian.except(:password))
-        puts "successfully updated secondary guardian information"
+        puts "successfully updated the secondary guardian's information"
       else
         second_guardian = User.create(secondary_guardian.merge(family: guardian.family))
+        second_guardian.confirm_secondary_guardian
         if second_guardian.valid?
-          puts "successfully create secondary guardian"
+          puts "successfully created the secondary guardian"
         else
           puts "failed to create secondary guardian"
           next
@@ -224,7 +223,7 @@ namespace :load do
     end
 
     last_names = {
-      '5_age' => {age: 5.days, height: "52.99", weight: "4214.52"},
+      '5_days' => {age: 5.days, height: "52.99", weight: "4214.52"},
       '2_week_wc' => {age: 14.days, height: "53.45", weight: "4723.34"},
       '3_week_wc' => {age: 21.days, height: "55.87", weight: "5146.45"},
       '1_month' => {age: 1.months, height: "57.93", weight: "5542.93"},
@@ -259,18 +258,21 @@ namespace :load do
     }
 
     current_time = Time.now
+
+    Vital.where(patient_id: guardian.family.patients.pluck(:id)).destroy_all
     guardian.family.patients.destroy_all
+
     last_names.each_with_index do |(name, attributes), index|
       patient = Patient.create(
-        first_name: "Baby",
-        last_name: name,
+        first_name: name,
+        last_name: "Baby",
         sex: "M",
         family: guardian.family,
         birth_date: current_time - attributes[:age]
       )
 
       if patient.valid? && patient.sync_status.update_attributes(should_attempt_sync: false)
-        puts "successfully create patient #{name}"
+        puts "successfully created the patient #{name}"
         (index + 1).times do |i|
           time_stamp = patient.birth_date + last_names[last_names.keys[i]][:age]
           patient.vitals.create(
@@ -285,7 +287,7 @@ namespace :load do
              {
                athena_id: 0,
                taken_at: time_stamp,
-               measurement: "VITALS.HEIGHT",
+               measurement: "VITALS.WEIGHT",
                value: last_names[last_names.keys[i]][:weight]
              }
             ]
@@ -295,14 +297,14 @@ namespace :load do
         if patient.vitals.count == (index + 1) * 2
           puts "successfully created height and weight records for patient #{name}"
         else
-          puts "failed to created height and weight records for patient #{name}"
+          puts "failed to create height and weight records for patient #{name}"
         end
       else
         puts "failed to create patient #{name}"
       end
     end
 
-    if args.delete_twenty_percent
+    if args.delete_twenty_percent == "true"
       Patient.where(family: guardian.family).each do |patient|
         if (count = patient.vitals.count/10) && count >= 0
           count.times do
@@ -313,12 +315,12 @@ namespace :load do
       puts "deleted 20% vital records of patients"
     end
 
-    if args.transferred_patients
+    if args.transferred_patients == "true"
       Patient.where(family: guardian.family).each do |patient|
         half_life_span = (current_time.to_date - patient.birth_date).to_i/2
         patient.vitals.where(taken_at: (current_time - half_life_span.days)..current_time).destroy_all
       end
-      puts "deleted vital records from first life span"
+      puts "deleted vital records for transferred patients"
     end
   end
 end
