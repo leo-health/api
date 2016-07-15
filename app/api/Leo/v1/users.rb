@@ -3,7 +3,7 @@ module Leo
     class Users < Grape::API
       include Grape::Kaminari
 
-      desc '#return all the staff'
+      desc 'return all the staff'
       namespace :staff do
         before do
           authenticated
@@ -36,6 +36,33 @@ module Leo
           present :guardians, guardians, with: Leo::Entities::ShortUserEntity
           present :staff, staff, with: Leo::Entities::ShortUserEntity
           present :patients, patients, with: Leo::Entities::ShortPatientEntity
+        end
+      end
+
+      desc 'convert invited or exempted user to complete'
+      namespace :convert_user do
+        params do
+          optional :first_name, type: String
+          optional :last_name, type: String
+          optional :password, type: String
+          optional :phone, type: String
+          optional :email, type: String
+          at_least_one_of :first_name, :last_name, :password, :phone
+        end
+
+        put do
+          authenticate_user_with_invitation_token
+          user = User.find_by(invitation_token: params[:invitation_token])
+          if user.update_attributes(user_params)
+            if user.onboarding_group.try(:invited_secondary_guardian?)
+              ask_primary_guardian_approval
+            elsif user.onboarding_group.try(:generated_from_athena?)
+              user.set_complete!
+            end
+            present :user, user, with: Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
+          end
         end
       end
 
@@ -77,7 +104,7 @@ module Leo
           end
         end
 
-        desc '#create user'
+        desc 'create user'
         params do
           requires :email, type: String
           requires :password, type: String
@@ -111,7 +138,7 @@ module Leo
           end
         end
 
-        desc '#update user(DEPRECATED: only for ios backward-compatability)'
+        desc 'update user(DEPRECATED: only for ios backward-compatability)'
         params do
           optional :first_name, type: String
           optional :last_name, type: String
@@ -132,17 +159,23 @@ module Leo
         namespace "current" do
           desc 'update current user'
           params do
-            optional :authentication_token, type: String
-            optional :invitation_token, type: String
-            mutually_exclusive :invitation_token, :authentication_token
-            at_least_one_of :invitation_token, :authentication_token
+            optional :first_name, type: String
+            optional :last_name, type: String
+            optional :phone, type: String
+            optional :sex, type: String, values: ['M', 'F']
+            at_least_one_of :first_name, :last_name, :phone, :sex
           end
 
           put do
-
+            authenticated
+            if user = current_user && user.update_attributes(declared(params, include_missing: false))
+              present :user, user, with: Leo::Entities::UserEntity
+            else
+              error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
+            end
           end
 
-          desc 'fetch current user(gurdian, invited, exempted)'
+          desc 'fetch current user(guardian, invited, exempted)'
           params do
             optional :authentication_token, type: String
             optional :invitation_token, type: String
@@ -190,9 +223,10 @@ module Leo
       end
 
       helpers do
-        def ask_primary_guardian_approval
-          primary_guardian = current_user.family.primary_guardian
-          PrimaryGuardianApproveInvitationJob.send(primary_guardian, current_user)
+        def ask_primary_guardian_approval(invited_guardian)
+          if primary_guardian = invited_guardian.family.try(:primary_guardian)
+            PrimaryGuardianApproveInvitationJob.send(primary_guardian.id, current_user.id)
+          end
         end
       end
     end
