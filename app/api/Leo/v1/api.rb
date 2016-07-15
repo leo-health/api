@@ -38,8 +38,9 @@ module Leo
           error!('401 Unauthorized', 401) unless current_user.try(:complete?)
         end
 
-        def authenticate_user_with_invitation_token
-          error!('401 Unauthorized', 401) unless User.find_by(invitation_token: params[:invitation_token])
+        def find_user_by_invitation_token
+          error!('401 Unauthorized', 401) unless user = User.find_by(invitation_token: params[:invitation_token])
+          user
         end
 
         def current_user

@@ -39,7 +39,7 @@ module Leo
         end
       end
 
-      desc 'convert invited or exempted user to complete'
+      desc 'convert invited or exempted guardian to completed guardian'
       namespace :convert_user do
         params do
           optional :first_name, type: String
@@ -51,9 +51,8 @@ module Leo
         end
 
         put do
-          authenticate_user_with_invitation_token
-          user = User.find_by(invitation_token: params[:invitation_token])
-          if user.update_attributes(user_params)
+          user = find_user_by_invitation_token
+          if user.update_attributes(declared params, include_missing: false)
             if user.onboarding_group.try(:invited_secondary_guardian?)
               ask_primary_guardian_approval(user)
             elsif user.onboarding_group.try(:generated_from_athena?)
@@ -88,17 +87,12 @@ module Leo
           requires :invitation_token, type: String
         end
 
-        before do
-          authenticated
-        end
-
         put do
-          invited_user = current_user
-          if user.invited_user? && user.confirm_secondary_guardian
-            user.sessions.destroy_all
-            present :user, user, with: Leo::Entities::UserEntity
+          invited_user = find_user_by_invitation_token
+          if invited_user.invited_user? && invited_user.confirm_secondary_guardian
+            present :user, invited_user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
+            error!({error_code: 422, user_message: invited_user.errors.full_messages.first}, 422)
           end
         end
       end
@@ -225,7 +219,7 @@ module Leo
       helpers do
         def ask_primary_guardian_approval(invited_guardian)
           if primary_guardian = invited_guardian.family.try(:primary_guardian)
-            PrimaryGuardianApproveInvitationJob.send(primary_guardian.id, current_user.id)
+            PrimaryGuardianApproveInvitationJob.send(primary_guardian.id, invited_guardian.id)
           end
         end
       end

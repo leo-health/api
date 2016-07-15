@@ -192,11 +192,9 @@ class User < ActiveRecord::Base
   end
 
   def guardian_was_completed_callback
-    if complete?
-      WelcomeToPracticeJob.send(id)
-      send_confirmation_instructions unless confirmed?
-      Conversation.create(family_id: family.id, state: :closed) unless Conversation.find_by_family_id(family.id)
-    end
+    WelcomeToPracticeJob.send(id)
+    send_confirmation_instructions unless confirmed?
+    Conversation.create(family: family) unless Conversation.find_by_family_id(family.id)
   end
 
   def format_phone_number
