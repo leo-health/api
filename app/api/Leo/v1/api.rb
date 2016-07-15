@@ -31,28 +31,20 @@ module Leo
 
       helpers do
         def authenticated
-          error!('401 Unauthorized', 401) unless current_session
-          if onboarding_group = @session.user.onboarding_group && @session.expired?
-            user_message = if onboarding_group.invited_secondary_guardian?
-              "For security reasons you have been logged out. Please ask the primary guardian to invite you again. You can also contact us for support at support@leohealth.com"
-            elsif onboarding_group.generated_from_athena?
-              "For security reasons you have been logged out. Please contact us for support at support@leohealth.com"
-            end
-            error!({ error_code: 400, user_message: user_message }, 400)
-          end
+          error!('401 Unauthorized', 401) unless current_user
         end
 
         def authenticated_and_complete
           error!('401 Unauthorized', 401) unless current_user.try(:complete?)
         end
 
-        def current_session
-          return unless params[:authentication_token]
-          @session = Session.find_by_authentication_token(params[:authentication_token])
+        def authenticate_user_with_invitation_token
+          error!('401 Unauthorized', 401) unless User.find_by(invitation_token: params[:invitation_token])
         end
 
         def current_user
-          current_session.try(:user)
+          @session = Session.find_by_authentication_token(params[:authentication_token])
+          @session.try(:user)
         end
 
         def create_success object, device_type=nil

@@ -190,8 +190,20 @@ module Leo
           end
 
           desc 'fetch current user'
+          params do
+            optional :authentication_token, type: String
+            optional :invitation_token, type: String
+            mutually_exclusive :invitation_token, :authentication_token
+            at_least_one_of :invitation_token, :authentication_token
+          end
+
           get do
-            authenticated
+            if params[:authentication_token]
+              authenticated
+            else
+              authenticate_user_with_invitation_token
+              current_user = User.find_by(invitation_token: params[:invitation_token])
+            end
             present :user, current_user, with: Leo::Entities::UserEntity
           end
         end
