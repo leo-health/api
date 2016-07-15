@@ -58,7 +58,7 @@ module Leo
       desc "confirm secondary guardian account"
       namespace "users/confirm_secondary_guardian" do
         params do
-          requires :authentication_token, type: String
+          requires :invitation_token, type: String
         end
 
         before do
@@ -66,7 +66,7 @@ module Leo
         end
 
         put do
-          user = current_user
+          invited_user = current_user
           if user.invited_user? && user.confirm_secondary_guardian
             user.sessions.destroy_all
             present :user, user, with: Leo::Entities::UserEntity
@@ -111,6 +111,7 @@ module Leo
           end
         end
 
+        desc '#update user(including invited and exempted)'
         params do
           requires :authentication_token, type: String, allow_blank: false
           optional :first_name, type: String
@@ -125,36 +126,33 @@ module Leo
         end
 
         put do
-          authenticated
-          user_params = declared(params, include_missing: false).except(:authentication_token)
-          user = current_user
-          if user.update_attributes(user_params)
-            if onboarding_group = user.onboarding_group
-              if onboarding_group.invited_secondary_guardian?
-                ask_primary_guardian_approval
-                current_session.destroy
-              end
+          # authenticated
+          # user_params = declared(params, include_missing: false).except(:authentication_token)
+          # user = current_user
+          # if user.update_attributes(user_params)
+          #   if onboarding_group = user.onboarding_group
+          #     if onboarding_group.invited_secondary_guardian?
+          #       ask_primary_guardian_approval
+          #       current_session.destroy
+          #     end
+          #
+          #     if onboarding_group.generated_from_athena?
+          #       user.set_complete!
+          #       current_session.destroy
+          #       session = user.sessions.create
+          #       present :session, session, with: Leo::Entities::SessionEntity
+          #     end
+          #   end
+          #   present :user, user, with: Leo::Entities::UserEntity
+          # else
+          #   error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
+          # end
 
-              if onboarding_group.generated_from_athena?
-                user.set_complete!
-                current_session.destroy
-                session = user.sessions.create
-                present :session, session, with: Leo::Entities::SessionEntity
-              end
-            end
-            present :user, user, with: Leo::Entities::UserEntity
-          else
-            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
-          end
-        end
-
-        get do
-          authenticated
-          present :user, current_user, with: Leo::Entities::UserEntity
         end
 
         # Duplicated until front ends use the same endpoint
         namespace "current" do
+          desc 'update current user'
           params do
             optional :first_name, type: String
             optional :last_name, type: String
@@ -176,7 +174,6 @@ module Leo
               if onboarding_group = user.onboarding_group
                 if onboarding_group.invited_secondary_guardian?
                   ask_primary_guardian_approval
-                  current_session.destroy
                 end
 
                 if onboarding_group.generated_from_athena?
@@ -192,6 +189,7 @@ module Leo
             end
           end
 
+          desc 'fetch current user'
           get do
             authenticated
             present :user, current_user, with: Leo::Entities::UserEntity

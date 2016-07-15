@@ -8,7 +8,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Please confirm your account!',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'GUARDIAN_FIRST_NAME': user.first_name,
+        'GUARDIAN_FIRST_NAME': user.first_name.capitalize,
         'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{token}"
       }
     )
@@ -21,7 +21,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Password reset request.',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'FIRST_NAME': user.first_name,
+        'FIRST_NAME': user.first_name.capitalize,
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/changePassword?token=#{token}"
       }
     )
@@ -35,8 +35,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: enrollment.email,
       vars: {
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=secondary&token=#{enrollment.invitation_token}",
-        'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name,
-        'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name
+        'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name.capitalize,
+        'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name.capitalize
       }
     )
   end
@@ -48,7 +48,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Welcome to Leo + Flatiron Pediatrics!',
       to: user.email,
       vars: {
-        'GUARDIAN_FIRST_NAME': user.first_name
+        'GUARDIAN_FIRST_NAME': user.first_name.capitalize
       }
     )
   end
@@ -63,7 +63,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         from: 'info@leohealth.com',
         to: user.email,
         vars: {
-          'CHILD_FIRST_NAME': appointment.patient.first_name,
+          'CHILD_FIRST_NAME': appointment.patient.first_name.capitalize,
           'APPOINTMENT_TIME': appointment_time,
           'APPOINTMENT_DAY_OF_WEEK': appointment_day
         }
@@ -80,7 +80,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         from: 'info@leohealth.com',
         to: user.email,
         vars: {
-          'CHILD_FIRST_NAME': appointment.patient.first_name,
+          'CHILD_FIRST_NAME': appointment.patient.first_name.capitalize,
           'APPOINTMENT_TIME': appointment_time,
           'APPOINTMENT_DAY_OF_WEEK': appointment_day
         }
@@ -94,7 +94,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Happy Birthday!',
       to: guardian.email,
       vars: {
-        'PATIENT_FIRST_NAME': patient.first_name
+        'PATIENT_FIRST_NAME': patient.first_name.capitalize
       }
     )
   end
@@ -106,7 +106,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Important - Please confirm your account with Leo!',
       to: user.email,
       vars: {
-        'FIRST_NAME': user.first_name,
+        'FIRST_NAME': user.first_name.capitalize,
         'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{user.confirmation_token}"
       }
     )
@@ -119,7 +119,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Your password has been successfully changed!',
       to: user.email,
       vars: {
-        'FIRST_NAME': user.first_name
+        'FIRST_NAME': user.first_name.capitalize
       }
     )
   end
@@ -132,7 +132,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'A conversation has been assigned to you!',
       to: user.email,
       vars: {
-        'STAFF_FIRST_NAME': user.first_name,
+        'STAFF_FIRST_NAME': user.first_name.capitalize,
         'LINK': "#{ENV['PROVIDER_APP_HOST']}"
       }
     )
@@ -145,7 +145,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "You have unresolved cases that have been assigned to you.",
       to: user.email,
       vars: {
-        'STAFF_FIRST_NAME': user.first_name,
+        'STAFF_FIRST_NAME': user.first_name.capitalize,
         'COUNT': count
       }
     )
@@ -162,7 +162,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       vars: {
         'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation_id}",
         'STAFF_FULL_NAME': staff_message.sender.full_name,
-        'GUARDIAN_FIRST_NAME': user.first_name
+        'GUARDIAN_FIRST_NAME': user.first_name.capitalize
       }
     )
   end
@@ -174,9 +174,9 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "Leo - Please confirm #{enrollment.first_name}'s account!",
       to: primary_guardian.email,
       vars: {
-        'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
-        'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
-        'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
+        'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name.capitalize,
+        'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name.capitalize} #{enrollment.last_name.capitalize}",
+        'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name.capitalize}",
         'SECONDARY_GUARDIAN_EMAIL': "#{enrollment.email}",
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/acceptInvitation?token=#{enrollment.invitation_token}"
       }
