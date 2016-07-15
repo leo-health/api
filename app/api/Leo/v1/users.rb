@@ -55,7 +55,7 @@ module Leo
           user = User.find_by(invitation_token: params[:invitation_token])
           if user.update_attributes(user_params)
             if user.onboarding_group.try(:invited_secondary_guardian?)
-              ask_primary_guardian_approval
+              ask_primary_guardian_approval(user)
             elsif user.onboarding_group.try(:generated_from_athena?)
               user.set_complete!
             end
@@ -66,44 +66,44 @@ module Leo
         end
       end
 
+      desc "confirm user's email address"
+      namespace :confirm_email do
+        params do
+          requires :token, type: String
+        end
+
+        get do
+          if user = User.find_by(confirmation_token: params[:token])
+            user.confirm
+            redirect "#{ENV['PROVIDER_APP_HOST']}/email/success", permanent: true
+          else
+            redirect "#{ENV['PROVIDER_APP_HOST']}/404", permanent: true
+          end
+        end
+      end
+
+      desc "confirm secondary guardian account"
+      namespace :confirm_secondary_guardian do
+        params do
+          requires :invitation_token, type: String
+        end
+
+        before do
+          authenticated
+        end
+
+        put do
+          invited_user = current_user
+          if user.invited_user? && user.confirm_secondary_guardian
+            user.sessions.destroy_all
+            present :user, user, with: Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
+          end
+        end
+      end
+
       resource :users do
-        desc "confirm user's email address"
-        namespace :confirm_email do
-          params do
-            requires :token, type: String
-          end
-
-          get do
-            if user = User.find_by(confirmation_token: params[:token])
-              user.confirm
-              redirect "#{ENV['PROVIDER_APP_HOST']}/email/success", permanent: true
-            else
-              redirect "#{ENV['PROVIDER_APP_HOST']}/404", permanent: true
-            end
-          end
-        end
-
-        desc "confirm secondary guardian account"
-        namespace :confirm_secondary_guardian do
-          params do
-            requires :invitation_token, type: String
-          end
-
-          before do
-            authenticated
-          end
-
-          put do
-            invited_user = current_user
-            if user.invited_user? && user.confirm_secondary_guardian
-              user.sessions.destroy_all
-              present :user, user, with: Leo::Entities::UserEntity
-            else
-              error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
-            end
-          end
-        end
-
         desc 'create user'
         params do
           requires :email, type: String
