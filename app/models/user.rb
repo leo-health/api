@@ -16,7 +16,6 @@ class User < ActiveRecord::Base
   scope :complete, -> { where(complete_status: :complete) }
   scope :guardians, -> { where(role: Role.guardian_roles, complete_status: :complete) }
   scope :staff, -> { where(role: Role.staff_roles, complete_status: :complete) }
-  scope :clinical_staff, -> { where(role: Role.clinical_staff_roles, complete_status: :complete) }
   scope :provider, -> { where(role: Role.provider_roles, complete_status: :complete) }
   scope :completed_or_athena, ->{ self.joins('LEFT OUTER JOIN onboarding_groups on users.onboarding_group_id = onboarding_groups.id')
                                       .where('complete_status=? OR onboarding_groups.group_name=?', 'complete', 'generated_from_athena') }
@@ -42,6 +41,8 @@ class User < ActiveRecord::Base
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
+
+  before_validation :format_phone_number
   before_validation :set_up_guardian, if: :guardian?
   validates_presence_of :email
   validates_uniqueness_of :email, conditions: -> { completed_or_athena }
@@ -50,7 +51,6 @@ class User < ActiveRecord::Base
   validates_confirmation_of :password
   validates_length_of :password, within: Devise.password_length, allow_blank: true
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true, if: :should_validate_for_completion?
-  validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.should_validate_for_completion? }
   validates :provider, presence: true, if: :clinical?
   validates_uniqueness_of :invitation_token, :vendor_id, allow_nil: true
   before_save :set_completion_state_by_validation, unless: :complete?
@@ -161,7 +161,6 @@ class User < ActiveRecord::Base
   def set_up_guardian
     add_default_practice_to_guardian
     add_family_to_guardian
-    format_phone_number
     add_vendor_id
     ensure_invitation_token
   end

@@ -13,8 +13,8 @@ describe User do
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
     it{ is_expected.to have_one(:provider) }
 
-    it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:forms) }
+    it{ is_expected.to have_many(:user_conversations) }
     it{ is_expected.to have_many(:conversations).through(:user_conversations) }
     it{ is_expected.to have_many(:read_receipts).with_foreign_key('reader_id') }
     it{ is_expected.to have_many(:escalation_notes).class_name('EscalationNote').with_foreign_key('escalated_to_id') }
@@ -57,15 +57,6 @@ describe User do
       end
     end
 
-    context "clinical_staff" do
-      let!(:customer_service){ create(:user, :customer_service) }
-      let!(:clinical){ create(:user, :clinical) }
-
-      it "should return all the clinical_staff" do
-        expect(User.clinical_staff).to match_array([clinical, customer_service])
-      end
-    end
-
     context "provider" do
       let!(:customer_service){ create(:user, :customer_service) }
       let!(:clinical){ create(:user, :clinical) }
@@ -91,21 +82,48 @@ describe User do
     let!(:guardian){ create(:user, :guardian, phone: "+1(123)234-9848") }
     let(:customer_service_practice){ customer_service.practice }
 
-    it "should add default practice to guardian" do
-      expect(guardian.practice).not_to eq(nil)
-    end
-
-    it "should add family to guardian if not has one" do
-      expect(guardian.family).not_to eq(nil)
-    end
-
-    it "should not add default practice or default family to staff" do
-      expect(customer_service.family).to eq(nil)
-      expect(customer_service.practice).to eq(customer_service_practice)
-    end
-
     it "should format phone numbers to number only, exclude all symbols" do
       expect( guardian.phone ).to eq("1232349848")
+    end
+
+    context "when user is a guardian" do
+      it "should add default practice" do
+        expect(guardian.practice).not_to eq(nil)
+      end
+
+      it "should add family if not has one" do
+        expect(guardian.family).not_to eq(nil)
+      end
+
+      it "should add vendor_id" do
+        expect(guardian.vendor_id).not_to eq(nil)
+      end
+    end
+
+    context "when user is an invited or exempted guardian" do
+      let(:invited_onboarding_group){ create :onboarding_group, :invited_secondary_guardian}
+
+      before do
+        guardian.update_attributes(onboarding_group: invited_onboarding_group)
+      end
+
+      it "should add invitation token" do
+        expect(guardian.invitation_token).not_to eq(nil)
+      end
+    end
+
+    context "when user is not a guardian" do
+      it "should not add default practice" do
+        expect(customer_service.practice).to eq(customer_service_practice)
+      end
+
+      it "should not add family" do
+        expect(customer_service.family).to eq(nil)
+      end
+
+      it "should not add vendor_id" do
+        expect(customer_service.vendor_id).to eq(nil)
+      end
     end
   end
 
@@ -123,6 +141,7 @@ describe User do
     it { is_expected.to validate_presence_of(:email) }
     it { is_expected.to validate_presence_of(:phone) }
     it { is_expected.to validate_uniqueness_of(:email) }
+    it { is_expected.to validate_uniqueness_of(:invitation_token).allow_nil }
     it { is_expected.to validate_uniqueness_of(:vendor_id).allow_nil }
 
     context "if provider" do
@@ -133,17 +152,6 @@ describe User do
     context "if not provider" do
       before { allow(subject).to receive(:clinical?).and_return(false)}
       it { should_not validate_presence_of(:provider) }
-    end
-
-    context "if guardian" do
-      before { allow(subject).to receive(:guardian?).and_return(true)}
-
-      it { should validate_presence_of(:vendor_id) }
-    end
-
-    context "if not guardian" do
-      before { allow(subject).to receive(:guardian?).and_return(false)}
-      it { should_not validate_presence_of(:vendor_id) }
     end
 
     context "if complete or in generated_from_athena onboarding group" do
@@ -219,6 +227,15 @@ describe User do
 
     it "should return true if a user is being invited" do
       expect(invited_user.invited_user?).to eq(true)
+    end
+  end
+
+  describe "#exempted_user?" do
+    let(:onboarding_group){ create(:onboarding_group, :generated_from_athena) }
+    let(:exempted_user){ create(:user, onboarding_group: onboarding_group) }
+
+    it "should return true if a user is being invited" do
+      expect(exempted_user.exempted_user?).to eq(true)
     end
   end
 
