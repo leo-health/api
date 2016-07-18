@@ -69,7 +69,7 @@ describe Leo::V1::Users do
       let!(:exempted_user){ create(:user, :valid_incomplete, invitation_token: "token", onboarding_group: exempted_onboarding_group)}
 
       def do_request
-        put "/api/v1/convert_user", { invitation_token: exempted_user.invitation_token, first_name: "modified" }
+        put "/api/v1/convert_user", { invitation_token: exempted_user.invitation_token, first_name: "modified", password: "password" }
       end
 
       it "should convert the exempted guardian to completed guardian" do

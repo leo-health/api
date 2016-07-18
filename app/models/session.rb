@@ -6,18 +6,6 @@ class Session < ActiveRecord::Base
   validates :user, presence: true
   validates :device_type, :device_token, presence: true, if: :mobile?
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
-  scope :ios, ->{ where.not(client_version: nil) }
-  scope :testflight, ->{ where("created_at < ?", Time.new(2016,6,22)) }
-
-  EXPIRATION_PERIOD = 7.days
-
-  def expired?
-    expiration_date < Time.now
-  end
-
-  def expiration_date
-    created_at + EXPIRATION_PERIOD
-  end
 
   private
 

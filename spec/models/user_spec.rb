@@ -33,12 +33,6 @@ describe User do
     it{ is_expected.to have_many(:booked_appointments).class_name('Appointment').with_foreign_key('booked_by_id') }
     it{ is_expected.to have_many(:user_generated_health_records) }
 
-    describe "has many provider appointments" do
-      it "should return provider appointments" do
-        expect(Appointment.booked.where(provider: provider).sort).to eq([checked_in_appointment, charge_entered_appointment].sort)
-      end
-    end
-
     describe "has many booked appointments" do
       it "should return booked appointments" do
         expect(guardian.booked_appointments.sort).to eq([checked_in_appointment, charge_entered_appointment].sort)

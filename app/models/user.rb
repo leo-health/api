@@ -25,7 +25,6 @@ class User < ActiveRecord::Base
   belongs_to :practice
   belongs_to :onboarding_group
   belongs_to :insurance_plan
-  belongs_to :enrollment
   has_one :avatar, as: :owner
   has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff
   accepts_nested_attributes_for :staff_profile
@@ -70,10 +69,6 @@ class User < ActiveRecord::Base
     leo_bot
   end
 
-  def self.email_taken?(email)
-    completed_or_athena.where(email: email).count > 0
-  end
-
   aasm whiny_transitions: false, column: :complete_status do
     state :incomplete, initial: true
     state :valid_incomplete
@@ -113,16 +108,6 @@ class User < ActiveRecord::Base
     complete_status
   end
 
-  def prevalidate_for_completion
-    return true if complete?
-    old_complete_status = complete_status
-    # test validity without callbacks
-    self.complete_status = :valid_incomplete
-    valid_for_completion = valid?
-    self.complete_status = old_complete_status
-    valid_for_completion
-  end
-
   def invited_user?
     onboarding_group.try(:invited_secondary_guardian?)
   end
@@ -134,16 +119,6 @@ class User < ActiveRecord::Base
   def primary_guardian?
     return false unless guardian?
     User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
-  end
-
-  def find_conversation_by_status(status)
-    return if guardian?
-    conversations.where(status: status)
-  end
-
-  def unread_conversations
-    return if guardian?
-    Conversation.includes(:user_conversations).where(id: user_conversations.where(read: false).pluck(:conversation_id)).order( updated_at: :desc)
   end
 
   def full_name
@@ -172,6 +147,16 @@ class User < ActiveRecord::Base
   end
 
   private
+
+  def prevalidate_for_completion
+    return true if complete?
+    old_complete_status = complete_status
+    # test validity without callbacks
+    self.complete_status = :valid_incomplete
+    valid_for_completion = valid?
+    self.complete_status = old_complete_status
+    valid_for_completion
+  end
 
   def set_up_guardian
     add_default_practice_to_guardian
