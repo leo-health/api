@@ -3,7 +3,7 @@ module Leo
     class Users < Grape::API
       include Grape::Kaminari
 
-      desc 'return all the staff'
+      desc 'return all the staff(Get /api/v1/staff)'
       namespace :staff do
         before do
           authenticated
@@ -16,7 +16,7 @@ module Leo
         end
       end
 
-      desc 'return users with matched names'
+      desc 'return users with matched names(Get /api/v1/search_user)'
       namespace :search_user do
         before do
           authenticated
@@ -39,7 +39,7 @@ module Leo
         end
       end
 
-      desc 'convert invited or exempted guardian to completed guardian'
+      desc 'convert invited or exempted guardian to completed guardian(Put /api/v1/convert_user)'
       namespace :convert_user do
         params do
           optional :first_name, type: String
@@ -65,7 +65,7 @@ module Leo
         end
       end
 
-      desc "confirm user's email address"
+      desc "confirm user's email address(GET /api/v1/confirm_email)"
       namespace :confirm_email do
         params do
           requires :token, type: String
@@ -81,7 +81,7 @@ module Leo
         end
       end
 
-      desc "confirm secondary guardian account"
+      desc "confirm secondary guardian account(PUT /api/v1/confirm_secondary_guardian)"
       namespace :confirm_secondary_guardian do
         params do
           requires :invitation_token, type: String
@@ -98,7 +98,7 @@ module Leo
       end
 
       resource :users do
-        desc 'create user'
+        desc 'create user(POST /api/v1/users)'
         params do
           requires :email, type: String
           requires :password, type: String
@@ -132,7 +132,7 @@ module Leo
           end
         end
 
-        desc 'update user(DEPRECATED: only for ios backward-compatability)'
+        desc 'update user(DEPRECATED: only for ios backward-compatability, Put /api/v1/users)'
         params do
           optional :first_name, type: String
           optional :last_name, type: String
@@ -143,15 +143,16 @@ module Leo
 
         put do
           authenticated
-          if user = current_user && user.update_attributes(declared(params, include_missing: false))
+          user = current_user
+          if user.update_attributes(declared(params, include_missing: false))
             present :user, user, with: Leo::Entities::UserEntity
           else
             error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
         end
 
-        namespace "current" do
-          desc 'update current user'
+        namespace :current do
+          desc 'update current user(Put /api/v1/users/current)'
           params do
             optional :first_name, type: String
             optional :last_name, type: String
@@ -162,14 +163,15 @@ module Leo
 
           put do
             authenticated
-            if user = current_user && user.update_attributes(declared(params, include_missing: false))
+            user = current_user
+            if user.update_attributes(declared(params, include_missing: false))
               present :user, user, with: Leo::Entities::UserEntity
             else
               error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
             end
           end
 
-          desc 'fetch current user(guardian, invited, exempted)'
+          desc 'fetch current user(includes guardian, invited, exempted, Get /api/v1/users/current)'
           params do
             optional :authentication_token, type: String
             optional :invitation_token, type: String
@@ -180,38 +182,11 @@ module Leo
           get do
             if params[:authentication_token]
               authenticated
+              user = current_user
             else
-              authenticate_user_with_invitation_token
-              current_user = User.find_by(invitation_token: params[:invitation_token])
+              user = find_user_by_invitation_token
             end
-            present :user, current_user, with: Leo::Entities::UserEntity
-          end
-        end
-
-        route_param :id do
-          before do
-            authenticated
-          end
-
-          after_validation do
-            @user = User.find(params[:id])
-          end
-
-          desc "#show get an individual user"
-          get do
-            authorize! :show, @user
-            present :user, @user, with: Leo::Entities::UserEntity
-          end
-
-          desc "#put update individual user"
-          params do
-            requires :email, type: String, allow_blank: false
-          end
-
-          put do
-            authorize! :update, @user
-            user_params = declared(params)
-            update_success @user, user_params, "User"
+            present :user, user, with: Leo::Entities::UserEntity
           end
         end
       end

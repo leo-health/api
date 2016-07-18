@@ -47,7 +47,7 @@ describe Leo::V1::Users do
     end
   end
 
-  describe "Get /api/v1/convert_user" do
+  describe "Put /api/v1/convert_user" do
     def do_request
       put "/api/v1/convert_user", { invitation_token: user.invitation_token, first_name: "modified" }
     end
@@ -73,8 +73,10 @@ describe Leo::V1::Users do
       end
 
       it "should convert the exempted guardian to completed guardian" do
+        expect(exempted_user.complete_status).to eq("valid_incomplete")
         do_request
         expect(response.status).to eq(200)
+        expect(exempted_user.reload.complete_status).to eq("complete")
       end
     end
   end
@@ -120,23 +122,7 @@ describe Leo::V1::Users do
     end
   end
 
-  describe "Get /api/v1/users/current" do
-    let(:guardian){ create(:user, :guardian) }
-    let(:session){ guardian.sessions.create }
-
-    def do_request
-      get "/api/v1/users/current", { authentication_token: session.authentication_token }
-    end
-
-    it "should return the requested user" do
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:user]).to eq(serializer.represent(guardian).as_json)
-    end
-  end
-
-  describe "POST /api/v1/users - create user from enrollment" do
+  describe "POST /api/v1/users" do
     let!(:guardian_role){create(:role, :guardian)}
     let(:serializer){ Leo::Entities::UserEntity }
     let(:user_params){{ first_name: "first_name",
@@ -149,7 +135,7 @@ describe Leo::V1::Users do
                         device_type: 'phone',
                         os_version: 'yosimite',
                         platform: 'mac'
-                      }}
+    }}
 
     def do_request
       post "/api/v1/users", user_params, format: :json
@@ -163,50 +149,53 @@ describe Leo::V1::Users do
     end
   end
 
-  describe "GET /api/v1/users/id" do
-    let(:user){create(:user)}
-    let!(:session){user.sessions.create}
+  describe "DEPRECATED Put /api/v1/users" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
 
     def do_request
-      get "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token}, format: :json
+      put "/api/v1/users", { authentication_token: session.authentication_token, first_name: "modified" }
     end
 
-    it "should show the requested user" do
+    it "should return the requested user" do
       do_request
       expect(response.status).to eq(200)
-      expect_json('data.user.id', user.id)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(guardian.reload.first_name).to eq('modified')
+      expect(body[:data][:user]).to eq(serializer.represent(guardian).as_json)
     end
   end
 
-  describe "GET /api/v1/users/id" do
-    let(:user){create(:user)}
-    let!(:session){user.sessions.create}
+  describe "Put /api/v1/users/current" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
 
     def do_request
-      get "/api/v1/users", {authentication_token: session.authentication_token}, format: :json
+      put "/api/v1/users/current", { authentication_token: session.authentication_token, first_name: "modified" }
     end
 
-    it "should show the requested user" do
+    it "should return the requested user" do
       do_request
       expect(response.status).to eq(200)
-      expect_json('data.user.id', user.id)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(guardian.reload.first_name).to eq('modified')
+      expect(body[:data][:user]).to eq(serializer.represent(guardian).as_json)
     end
   end
 
-  describe "PUT /api/v1/users/id" do
-    let(:user){create(:user)}
-    let!(:session){user.sessions.create}
-    let!(:email){'new_email@leohealth.com'}
+  describe "Get /api/v1/users/current" do
+    let(:guardian){ create(:user, :guardian) }
+    let(:session){ guardian.sessions.create }
 
     def do_request
-      put "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token, email: email}, format: :json
+      get "/api/v1/users/current", { authentication_token: session.authentication_token }
     end
 
-    it "should update the user info, email only, for authenticated users" do
-      original_email = user.email
+    it "should return the requested user" do
       do_request
       expect(response.status).to eq(200)
-      expect{user.reload.confirm}.to change{user.email}.from(original_email).to(email)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:user]).to eq(serializer.represent(guardian).as_json)
     end
   end
 end
