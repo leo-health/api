@@ -3,7 +3,7 @@ class RemoveEnrollmentTable < ActiveRecord::Migration
     drop_table :enrollments
   end
 
-  def up
+  def down
     create_table :enrollments do |t|
       t.string :title
       t.string :first_name
@@ -22,10 +22,10 @@ class RemoveEnrollmentTable < ActiveRecord::Migration
       t.string :avatar_url
       t.integer :onboarding_group_id
       t.string :authentication_token
-      t.boolean :invited_user, default: flase
+      t.boolean :invited_user, default: false
       t.integer :insurance_plan_id
       t.string :phone
-      t.string :vendor_id
+      t.string :vendor_id, null: false
       t.timestamps null: false
     end
     add_index :enrollments, :authentication_token
