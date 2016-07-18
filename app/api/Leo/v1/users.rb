@@ -52,6 +52,7 @@ module Leo
         put do
           user = find_user_by_invitation_token
           if user.update_attributes(declared params, include_missing: false)
+            user.reset_invitation_token
             if user.invited_user?
               ask_primary_guardian_approval(user)
             elsif user.exempted_user?

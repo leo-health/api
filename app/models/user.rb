@@ -146,6 +146,11 @@ class User < ActiveRecord::Base
     confirmed?
   end
 
+  def reset_invitation_token
+    self.invitation_token = GenericHelper.generate_token(:invitation_token)
+    save
+  end
+
   private
 
   def prevalidate_for_completion
@@ -195,14 +200,8 @@ class User < ActiveRecord::Base
   end
 
   def guardian_was_completed_callback
-    reset_invitation_token if (invited_user? || exempted_user?)
     WelcomeToPracticeJob.send(id)
     send_confirmation_instructions unless confirmed?
     Conversation.create(family: family) unless Conversation.find_by_family_id(family.id)
-  end
-
-  def reset_invitation_token
-    self.invitation_token = GenericHelper.generate_token(:invitation_token)
-    save
   end
 end
