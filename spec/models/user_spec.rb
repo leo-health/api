@@ -3,19 +3,11 @@ require 'mandrill_mailer/offline'
 
 describe User do
   describe "relations" do
-    let(:guardian){ create(:user, :guardian) }
-    let(:provider){ create(:provider) }
-    let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
-    let!(:checked_in_appointment){ create(:appointment, :checked_in, booked_by: guardian, provider: provider, start_datetime: 2.minutes.ago) }
-    let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
-    let!(:open_appointmet){ create(:appointment, :open, booked_by: guardian, provider: provider) }
-
     it{ is_expected.to belong_to(:family) }
     it{ is_expected.to belong_to(:role) }
     it{ is_expected.to belong_to(:practice) }
     it{ is_expected.to belong_to(:onboarding_group) }
     it{ is_expected.to belong_to(:insurance_plan) }
-    it{ is_expected.to belong_to(:enrollment) }
 
     it{ is_expected.to have_one(:avatar) }
     it{ is_expected.to have_one(:staff_profile).with_foreign_key('staff_id') }
@@ -34,6 +26,13 @@ describe User do
     it{ is_expected.to have_many(:user_generated_health_records) }
 
     describe "has many booked appointments" do
+      let(:guardian){ create(:user, :guardian) }
+      let(:provider){ create(:provider) }
+      let!(:cancelled_appointment){ create(:appointment, :cancelled, booked_by: guardian, provider: provider, start_datetime: 1.minutes.ago) }
+      let!(:checked_in_appointment){ create(:appointment, :checked_in, booked_by: guardian, provider: provider, start_datetime: 2.minutes.ago) }
+      let!(:charge_entered_appointment){ create(:appointment, :charge_entered, booked_by: guardian, provider: provider, start_datetime: 3.minutes.ago) }
+      let!(:open_appointmet){ create(:appointment, :open, booked_by: guardian, provider: provider) }
+
       it "should return booked appointments" do
         expect(guardian.booked_appointments.sort).to eq([checked_in_appointment, charge_entered_appointment].sort)
       end

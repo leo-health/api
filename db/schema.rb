@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160718191146) do
+ActiveRecord::Schema.define(version: 20160718194114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -305,23 +305,6 @@ ActiveRecord::Schema.define(version: 20160718191146) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-
-  create_table "patient_enrollments", force: :cascade do |t|
-    t.integer  "guardian_enrollment_id", null: false
-    t.string   "email"
-    t.string   "title"
-    t.string   "first_name",             null: false
-    t.string   "middle_initial"
-    t.string   "last_name",              null: false
-    t.string   "suffix"
-    t.datetime "birth_date",             null: false
-    t.string   "sex",                    null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.integer  "athena_id"
-  end
-
-  add_index "patient_enrollments", ["guardian_enrollment_id"], name: "index_patient_enrollments_on_guardian_enrollment_id", using: :btree
 
   create_table "patients", force: :cascade do |t|
     t.string   "title"
