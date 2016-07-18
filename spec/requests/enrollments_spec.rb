@@ -1,3 +1,4 @@
+require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Enrollments do

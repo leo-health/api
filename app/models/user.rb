@@ -43,7 +43,7 @@ class User < ActiveRecord::Base
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
   has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
   has_many :user_generated_health_records
-  before_validation :add_default_practice_to_guardian, :add_family_to_guardian, :format_phone_number, if: :guardian?
+  before_validation :set_up_guardian, if: :guardian?
   validates_presence_of :email
   validates_uniqueness_of :email, conditions: -> { completed_or_athena }
   validates_format_of :email, with: Devise.email_regexp
@@ -53,8 +53,7 @@ class User < ActiveRecord::Base
   validates :first_name, :last_name, :role, :phone, :encrypted_password, :practice, presence: true, if: :should_validate_for_completion?
   validates :family, :vendor_id, presence: true, if: Proc.new { |u| u.guardian? && u.should_validate_for_completion? }
   validates :provider, presence: true, if: :clinical?
-  validates_uniqueness_of :vendor_id, allow_blank: true
-  validates_uniqueness_of :invitation_token, allow_nil: true
+  validates_uniqueness_of :invitation_token, :vendor_id, allow_nil: true
   before_save :set_completion_state_by_validation, unless: :complete?
   before_create :skip_confirmation_task_if_needed_callback
 
@@ -128,6 +127,10 @@ class User < ActiveRecord::Base
     onboarding_group.try(:invited_secondary_guardian?)
   end
 
+  def exempted_user?
+    onboarding_group.try(:generated_from_athena?)
+  end
+
   def primary_guardian?
     return false unless guardian?
     User.where('family_id = ? AND created_at < ?', family_id, created_at).count < 1
@@ -168,11 +171,35 @@ class User < ActiveRecord::Base
     confirmed?
   end
 
-  def reset_invitation_token
-    update_attributes(invitation_token: GenericHelper.generate_token(:invitation_token)) if guardian?
+  private
+
+  def set_up_guardian
+    add_default_practice_to_guardian
+    add_family_to_guardian
+    format_phone_number
+    add_vendor_id
+    ensure_invitation_token
   end
 
-  private
+  def add_default_practice_to_guardian
+    self.practice ||= Practice.first
+  end
+
+  def add_family_to_guardian
+    self.family ||= Family.create if primary_guardian?
+  end
+
+  def format_phone_number
+    self.phone = phone.scan(/\d+/).join[-10..-1] if phone
+  end
+
+  def add_vendor_id
+    self.vendor_id ||= GenericHelper.generate_token(:vendor_id)
+  end
+
+  def ensure_invitation_token
+    self.invitation_token ||= GenericHelper.generate_token(:invitation_token) if (invited_user? || exempted_user?)
+  end
 
   def skip_confirmation_task_if_needed_callback
     skip_confirmation_notification! unless complete?
@@ -183,21 +210,15 @@ class User < ActiveRecord::Base
     encrypted_password ? false : super
   end
 
-  def add_family_to_guardian
-    self.family ||= Family.create if primary_guardian?
-  end
-
-  def add_default_practice_to_guardian
-    self.practice ||= Practice.first
-  end
-
   def guardian_was_completed_callback
+    reset_invitation_token if (invited_user? || exempted_user?)
     WelcomeToPracticeJob.send(id)
     send_confirmation_instructions unless confirmed?
     Conversation.create(family: family) unless Conversation.find_by_family_id(family.id)
   end
 
-  def format_phone_number
-    self.phone = phone.scan(/\d+/).join[-10..-1] if phone
+  def reset_invitation_token
+    self.invitation_token = GenericHelper.generate_token(:invitation_token)
+    save
   end
 end

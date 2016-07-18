@@ -57,8 +57,6 @@ module Leo
             user_to_invite = User.new(declared(params).merge(
               role: Role.guardian,
               family: current_user.family,
-              invitation_token: GenericHelper.generate_token(:invitation_token),
-              vendor_id: GenericHelper.generate_token(:vendor_id),
               onboarding_group: OnboardingGroup.invited_secondary_guardian
             ))
 
