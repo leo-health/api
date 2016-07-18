@@ -49,7 +49,7 @@ describe Leo::V1::Users do
 
   describe "Put /api/v1/convert_user" do
     def do_request
-      put "/api/v1/convert_user", { invitation_token: user.invitation_token, first_name: "modified" }
+      put "/api/v1/convert_user", { invitation_token: user.invitation_token, password: "password", first_name: "modified" }
     end
 
     context "convert a invited guardian" do

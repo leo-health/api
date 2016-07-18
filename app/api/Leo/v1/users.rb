@@ -42,12 +42,11 @@ module Leo
       desc 'convert invited or exempted guardian to completed guardian(Put /api/v1/convert_user)'
       namespace :convert_user do
         params do
+          requires :password, type: String
           optional :first_name, type: String
           optional :last_name, type: String
-          optional :password, type: String
           optional :phone, type: String
-          optional :email, type: String
-          at_least_one_of :first_name, :last_name, :password, :phone
+          at_least_one_of :first_name, :last_name, :phone
         end
 
         put do
@@ -137,8 +136,7 @@ module Leo
           optional :first_name, type: String
           optional :last_name, type: String
           optional :phone, type: String
-          optional :sex, type: String, values: ['M', 'F']
-          at_least_one_of :first_name, :last_name, :phone, :sex
+          at_least_one_of :first_name, :last_name, :phone
         end
 
         put do
@@ -157,8 +155,7 @@ module Leo
             optional :first_name, type: String
             optional :last_name, type: String
             optional :phone, type: String
-            optional :sex, type: String, values: ['M', 'F']
-            at_least_one_of :first_name, :last_name, :phone, :sex
+            at_least_one_of :first_name, :last_name, :phone
           end
 
           put do
