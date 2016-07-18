@@ -1,7 +1,7 @@
 env :PATH, '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
 set :output, nil
 
-every 1.day, :at => '11:59pm' do
+every 1.day, :at => '12:01am' do
   rake 'notification:complete_user_two_day_prior_appointment'
   rake 'notification:patient_birthday'
   rake 'notification:account_confirmation_reminder'
