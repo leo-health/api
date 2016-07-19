@@ -40,12 +40,6 @@ RSpec.describe Patient, type: :model do
     it { is_expected.to validate_presence_of(:family) }
   end
 
-  describe 'callbacks' do
-    describe "after_commit" do
-      it { is_expected.to callback(:upgrade_guardian).after(:commit).on(:create) }
-    end
-  end
-
   describe '#current_avatar' do
     let(:patient) { create(:patient) }
     let!(:old_avatar){ create(:avatar, owner: patient)}
@@ -57,7 +51,6 @@ RSpec.describe Patient, type: :model do
   end
 
   describe "sync jobs" do
-
     let!(:patient) { create(:patient) }
 
     before do

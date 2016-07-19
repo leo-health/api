@@ -125,10 +125,6 @@ class User < ActiveRecord::Base
     "#{first_name.capitalize} #{last_name.capitalize}"
   end
 
-  def upgrade
-    update_attributes(type: :Member) if guardian?
-  end
-
   def collect_device_tokens
     sessions.map{|session| session.device_token}.compact.uniq
   end
@@ -136,7 +132,6 @@ class User < ActiveRecord::Base
   def confirm_secondary_guardian
     confirm
     set_complete
-    self.type = family.primary_guardian.type
     save
   end
 

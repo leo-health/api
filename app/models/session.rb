@@ -12,8 +12,4 @@ class Session < ActiveRecord::Base
   def mobile?
     [:ios, :android].include?(platform.try(:to_sym))
   end
-
-  def guardian?
-    user.has_role? :guardian
-  end
 end
