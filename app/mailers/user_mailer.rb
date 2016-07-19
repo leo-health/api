@@ -213,7 +213,7 @@ class UserMailer < MandrillMailer::TemplateMailer
     mandrill_mail(
       template: 'Leo - Secondary Guardian Confirmation',
       inline_css: true,
-      subject: "Leo - Please confirm #{invited_guardian.first_name}'s account!",
+      subject: "Leo - Please confirm #{invited_guardian.first_name.capitalize}'s account!",
       to: primary_guardian.email,
       vars: {
         'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name.capitalize,
