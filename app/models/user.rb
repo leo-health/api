@@ -56,6 +56,8 @@ class User < ActiveRecord::Base
   before_save :set_completion_state_by_validation, unless: :complete?
   before_create :skip_confirmation_task_if_needed_callback
 
+  EXPIRATION_PERIOD = 7.days
+
   def self.customer_service_user
     User.where(role: Role.customer_service).order("created_at ASC").first
   end
@@ -144,6 +146,10 @@ class User < ActiveRecord::Base
   def reset_invitation_token
     self.invitation_token = GenericHelper.generate_token(:invitation_token)
     save
+  end
+
+  def invitation_token_expired?
+    Time.now - EXPIRATION_PERIOD < invitation_sent_at
   end
 
   private

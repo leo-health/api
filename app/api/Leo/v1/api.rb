@@ -40,6 +40,9 @@ module Leo
 
         def find_user_by_invitation_token
           error!('401 Unauthorized', 401) unless user = User.find_by(invitation_token: params[:invitation_token])
+          if user.invitation_token_expired?
+            error!({error_code: 422, user_message: 'Your invitation has expired, please request another invite.' }, 422)
+          end
           user
         end
 
