@@ -23,6 +23,7 @@ module Leo
 
             if user_to_invite.save
               InviteParentJob.send(user_to_invite.id, current_user.id)
+              user_to_invite.update_attributes(invitation_sent_at: Time.now)
               present user_to_invite, with: Leo::Entities::UserEntity
             else
               error!({ error_code: 422, user_message: user_to_invite.errors.full_messages.first }, 422)
