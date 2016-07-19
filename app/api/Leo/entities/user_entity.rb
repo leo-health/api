@@ -7,18 +7,19 @@ module Leo
       expose :avatar do |instance, options|
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
-      expose :primary_guardian, :membership_type, :stripe_customer_id, :vendor_id, :family_id, :phone, :onboarding_group, if: Proc.new{ |u| u.guardian? }
+      expose :primary_guardian, :stripe_customer_id, :vendor_id, :family_id, :phone, :onboarding_group, if: Proc.new{ |u| u.guardian? }
       expose :credentials, unless: Proc.new{ |u| u.guardian? }
-      expose :onboarding_group
+      expose :onboarding_group, safe: true
+      expose :membership_type, safe: true
 
       private
 
       def onboarding_group
-        object.try(:onboarding_group)
+        object.onboarding_group
       end
 
       def membership_type
-        object.try(:membership_type)
+        object.membership_type
       end
 
       def device_type
