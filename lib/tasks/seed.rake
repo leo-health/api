@@ -167,7 +167,7 @@ namespace :load do
 
   desc "Seed test patients for front end"
   task :seed_patients, [:delete_twenty_percent, :transferred_patients] => :environment do |t, args|
-    practice = Practice.where({
+    practice = Practice.first || Practice.create(
       athena_id: 1,
       name: "Flatiron Pediatrics",
       address_line_1: "27 E 22nd St",
@@ -177,7 +177,7 @@ namespace :load do
       phone: "212-460-5600",
       email: "info@leohealth.com",
       time_zone: "Eastern Time (US & Canada)"
-    }).first_or_create
+    )
 
     guardian_role = Role.find_or_create_by(name: :guardian)
     primary_guardian = {

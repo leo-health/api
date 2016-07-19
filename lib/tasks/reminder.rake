@@ -35,7 +35,7 @@ namespace :notification do
   desc "send guardian account confirmation reminder one day before expiration"
   task account_confirmation_reminder: :environment do
     in_five_days = Time.now.utc - 6.days..Time.now.utc - 5.days
-    User.joins(:role).where(roles: { name: "guardian" }, confirmed_at: nil, confirmation_sent_at: in_five_days).find_each do |user|
+    User.complete.where(role: Role.guardian, confirmed_at: nil, confirmation_sent_at: in_five_days).find_each do |user|
       created_job = AccountConfirmationReminderJob.send(user.id)
       if created_job.valid?
         print "*"
