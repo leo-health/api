@@ -55,8 +55,8 @@ module Leo
             user.reset_invitation_token
             if user.invited_user?
               ask_primary_guardian_approval(user)
-            elsif user.exempted_user?
-              user.set_complete!
+            elsif user.exempted_user? && user.set_complete!
+              present :session,  user.sessions.create, with: Leo::Entities::SessionEntity
             end
             present :user, user, with: Leo::Entities::UserEntity
           else
