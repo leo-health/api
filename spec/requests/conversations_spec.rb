@@ -116,7 +116,7 @@ describe Leo::V1::Conversations do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true)
-      expect(body[:data][:conversations].as_json.to_json).to eq( short_serializer.represent([@new_conversation, @conversation, @old_conversation ] ).as_json.to_json)
+      expect(body[:data][:conversations].as_json.to_json).to include(*short_serializer.represent([@new_conversation, @conversation, @old_conversation ] ).as_json.to_json)
     end
   end
 
