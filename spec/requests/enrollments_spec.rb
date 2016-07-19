@@ -30,7 +30,7 @@ describe Leo::V1::Enrollments do
     it "should send a invite to the user and set invitation_sent_at" do
       expect{ do_request }.to change{ Delayed::Job.count }.by(1)
       expect(response.status).to eq(201)
-      expect(User.find_by(email: enrollment_params[:email]).invitation_sent_at.utc).to eq(Time.now.utc)
+      expect(User.find_by(email: enrollment_params[:email]).invitation_sent_at.utc.to_s).to eq(Time.now.utc.to_s)
       body = JSON.parse(response.body, symbolize_names: true )
       expect(body[:data][:email]).to eq(enrollment_params[:email])
       expect(body[:data][:onboarding_group].as_json.to_json).to eq(onboarding_group.as_json.to_json)
