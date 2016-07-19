@@ -251,8 +251,8 @@ describe User do
   describe "#invitation_token_expired?" do
     let(:user){ create(:user, invitation_sent_at: Time.now - (User::EXPIRATION_PERIOD + 1.day)) }
 
-    it "should return false if the invitation token is expired" do
-      expect(user.invitation_token_expired?).to eq(false)
+    it "should return true if the invitation token is expired" do
+      expect(user.invitation_token_expired?).to eq(true)
     end
   end
 end

@@ -149,7 +149,7 @@ class User < ActiveRecord::Base
   end
 
   def invitation_token_expired?
-    invitation_sent_at ? (Time.now - EXPIRATION_PERIOD) < invitation_sent_at : false
+    invitation_sent_at ? (Time.now - EXPIRATION_PERIOD) > invitation_sent_at : false
   end
 
   private
