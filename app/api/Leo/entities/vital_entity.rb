@@ -8,14 +8,14 @@ module Leo
       expose :value
       expose :unit
       expose :percentile
-      expose :measurement_type
+      expose :type_name
       expose :formatted_value_with_units
       expose :formatted_values
       expose :formatted_units
 
       private
 
-      def measurement_type
+      def type_name
         measurement = object[:measurement]
         if measurement == Vital::MEASUREMENT_HEIGHT
           "height"
@@ -23,12 +23,13 @@ module Leo
           "weight"
         else
           measurement
-        end        
+        end
       end
 
       def formatted_values
         i = 0
         formatted_value_with_units.split.select{ |x| i+=1; i.odd? }
+        .map { |s| s.to_i }
       end
 
       def formatted_units
@@ -51,27 +52,24 @@ module Leo
         fractional_inches = total_inches - whole_inches
         feet = whole_inches / 12
         inches = whole_inches % 12 + fractional_inches
-        inches_plurality = if inches == 1 then "inch" else "inches" end
-        inches_format = "#{"#{inches.round(2)}".chomp(".0")} #{inches_plurality}"
+        inches_format = "#{"#{inches.round}".chomp(".0")} in"
         if feet == 0
           inches_format
         else
-          feet_plurality = if feet == 1 then "foot" else "feet" end
-          "#{feet} #{feet_plurality} #{inches_format}"
+          "#{feet} ft #{inches_format}"
         end
       end
 
       def format_pounds_to_pounds_and_ounces(total_pounds)
         whole_pounds = total_pounds.floor
         ounces = ((total_pounds % 1) * 16).round(1)
-        ounces_plurality = if ounces == 1 then "ounce" else "ounces" end
-        ounces_format = "#{"#{ounces}".chomp(".0")} #{ounces_plurality}"
+        ounces_format = "#{"#{ounces.round}".chomp(".0")} oz"
 
         if whole_pounds == 0
           ounces_format
         else
-          pounds_plurality = if whole_pounds == 1 then "pound" else "pounds" end
-          "#{whole_pounds} #{pounds_plurality}%s" % (" #{ounces_format}" unless ounces == 0)
+          pounds_plurality = if whole_pounds == 1 then "lb" else "lbs" end
+          "#{whole_pounds} #{pounds_plurality} #{ounces_format}"
         end
       end
     end
