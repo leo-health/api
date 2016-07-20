@@ -3,7 +3,7 @@ module Leo
     class Users < Grape::API
       include Grape::Kaminari
 
-      desc '#return all the staff'
+      desc 'return all the staff(Get /api/v1/staff)'
       namespace :staff do
         before do
           authenticated
@@ -16,7 +16,7 @@ module Leo
         end
       end
 
-      desc 'return users with matched names'
+      desc 'return users with matched names(Get /api/v1/search_user)'
       namespace :search_user do
         before do
           authenticated
@@ -39,8 +39,34 @@ module Leo
         end
       end
 
-      desc "confirm user's email address"
-      namespace "users/confirm_email" do
+      desc 'convert invited or exempted guardian to completed guardian(Put /api/v1/convert_user)'
+      namespace :convert_user do
+        params do
+          requires :password, type: String
+          optional :first_name, type: String
+          optional :last_name, type: String
+          optional :phone, type: String
+          at_least_one_of :first_name, :last_name, :phone
+        end
+
+        put do
+          user = find_user_by_invitation_token
+          if user.update_attributes(declared params, include_missing: false)
+            user.reset_invitation_token
+            if user.invited_user?
+              ask_primary_guardian_approval(user)
+            elsif user.exempted_user? && user.set_complete!
+              present :session,  user.sessions.create, with: Leo::Entities::SessionEntity
+            end
+            present :user, user, with: Leo::Entities::UserEntity
+          else
+            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
+          end
+        end
+      end
+
+      desc "confirm user's email address(GET /api/v1/confirm_email)"
+      namespace :confirm_email do
         params do
           requires :token, type: String
         end
@@ -55,214 +81,118 @@ module Leo
         end
       end
 
-      desc "confirm secondary guardian account"
-      namespace "users/confirm_secondary_guardian" do
+      desc "confirm secondary guardian account(PUT /api/v1/confirm_secondary_guardian)"
+      namespace :confirm_secondary_guardian do
         params do
-          requires :authentication_token, type: String
-        end
-
-        before do
-          authenticated
+          requires :invitation_token, type: String
         end
 
         put do
-          user = current_user
-          if user.invited_user? && user.confirm_secondary_guardian
-            user.sessions.destroy_all
-            present :user, user, with: Leo::Entities::UserEntity
+          invited_user = find_user_by_invitation_token
+          if invited_user.invited_user? && invited_user.confirm_secondary_guardian
+            present :user, invited_user, with: Leo::Entities::UserEntity
           else
-            error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
+            error!({error_code: 422, user_message: invited_user.errors.full_messages.first}, 422)
           end
         end
       end
 
       resource :users do
-        desc '#create user'
+        desc 'create user(POST /api/v1/users)'
         params do
-          optional :email, type: String
-          optional :password, type: String
+          requires :email, type: String
+          requires :password, type: String
           optional :vendor_id, type: String
           optional :first_name, type: String
           optional :last_name, type: String
           optional :phone, type: String
-          optional :birth_date, type: Date
-          optional :sex, type: String, values: ['M', 'F']
-          optional :middle_initial, type: String
-          optional :title, type: String
-          optional :suffix, type: String
-
-          optional :device_token, type: String
           optional :device_type, type: String
           optional :os_version, type: String
-          optional :client_platform, type: String
+          optional :platform, type: String
           optional :client_version, type: String
+          optional :device_token, type: String
         end
 
         post do
           declared_params = declared params, include_missing: false
-          session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
-          session_params = declared_params.slice(*session_keys) || {}
+          session_keys = [:device_token, :device_type, :os_version, :platform, :client_version]
+          user_params = declared_params.except(*session_keys)
+          user_params = user_params.merge(
+            role: Role.guardian,
+            onboarding_group: OnboardingGroup.primary_guardian
+          )
 
-          user_params = declared_params.except(*session_keys) || {}
-
-          if (params[:client_version] || "0") >= "1.0.1"
-            # NOTE: in the newer version,
-            # this endpoint is used to create an incomplete user
-            # instead of post enrollments
-            # TODO: user_params (all params?) should be required in versions > "1.0.0"
-            user_params = user_params.merge(
-              role: Role.guardian,
-              onboarding_group: OnboardingGroup.primary_guardian
-            )
-
-            user = User.new user_params
-            if user.save
-              session = user.create_onboarding_session(session_params)
-              present :user, user, with: Leo::Entities::UserEntity
-              present :session, session, with: Leo::Entities::SessionEntity
-            else
-              error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
-            end
+          if (user = User.create user_params) && user.valid?
+            session = user.sessions.create(declared_params.slice(*session_keys))
+            present :user, user, with: Leo::Entities::UserEntity
+            present :session, session, with: Leo::Entities::SessionEntity
           else
-            #in the old version, this endpoint is used to update an incomplete user after calling post enrollments
-            authenticated
-            user = current_user
-            ActiveRecord::Base.transaction do
-              update_success user, user_params, "User"
-              user.family.exempt_membership!
-            end
-            if user.invited_user?
-              unless user.confirm_secondary_guardian
-                error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
-              else
-                user.sessions.destroy_all
-                return {session: nil}
-              end
-            end
-            session = Session.find_by_authentication_token(params[:authentication_token])
-            update_success session, session_params
+            error!({error_code: 422, user_message: user.errors.full_messages.first}, 422)
           end
         end
 
+        desc 'update user(DEPRECATED: only for ios backward-compatability, Put /api/v1/users)'
         params do
-          requires :authentication_token, type: String, allow_blank: false
           optional :first_name, type: String
           optional :last_name, type: String
-          optional :password, type: String
           optional :phone, type: String
-          optional :email, type: String
-          optional :birth_date, type: Date
-          optional :sex, type: String, values: ['M', 'F']
-          optional :title, type: String
-          at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :title
+          at_least_one_of :first_name, :last_name, :phone
         end
 
         put do
           authenticated
-          user_params = declared(params, include_missing: false).except(:authentication_token)
           user = current_user
-          if user.update_attributes(user_params)
-            if onboarding_group = current_session.onboarding_group
-              if onboarding_group.invited_secondary_guardian?
-                ask_primary_guardian_approval
-                current_session.destroy
-              end
-
-              if onboarding_group.generated_from_athena?
-                user.set_complete!
-                current_session.destroy
-                session = user.create_onboarding_session
-                present :session, session, with: Leo::Entities::SessionEntity
-              end
-            end
+          if user.update_attributes(declared(params, include_missing: false))
             present :user, user, with: Leo::Entities::UserEntity
           else
             error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
         end
 
-        get do
-          authenticated
-          present :user, current_user, with: Leo::Entities::UserEntity
-        end
-
-        # Duplicated until front ends use the same endpoint
-        namespace "current" do
+        namespace :current do
+          desc 'update current user(Put /api/v1/users/current)'
           params do
             optional :first_name, type: String
             optional :last_name, type: String
-            optional :password, type: String
             optional :phone, type: String
-            optional :birth_date, type: Date
-            optional :sex, type: String, values: ['M', 'F']
-            optional :middle_initial, type: String
-            optional :title, type: String
-            optional :suffix, type: String
-            at_least_one_of :first_name, :last_name, :password, :phone, :birth_date, :sex, :middle_initial, :title, :suffix
+            at_least_one_of :first_name, :last_name, :phone
           end
 
           put do
             authenticated
-            user_params = declared(params, include_missing: false).except(:authentication_token)
             user = current_user
-            if user.update_attributes(user_params)
-              if onboarding_group = current_session.onboarding_group
-                if onboarding_group.invited_secondary_guardian?
-                  ask_primary_guardian_approval
-                  current_session.destroy
-                end
-
-                if onboarding_group.generated_from_athena?
-                  user.set_complete!
-                  current_session.destroy
-                  session = user.create_onboarding_session
-                  present :session, session, with: Leo::Entities::SessionEntity
-                end
-              end
+            if user.update_attributes(declared(params, include_missing: false))
               present :user, user, with: Leo::Entities::UserEntity
             else
               error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
             end
           end
 
-          get do
-            authenticated
-            present :user, current_user, with: Leo::Entities::UserEntity
-          end
-        end
-
-        route_param :id do
-          before do
-            authenticated
-          end
-
-          after_validation do
-            @user = User.find(params[:id])
-          end
-
-          desc "#show get an individual user"
-          get do
-            authorize! :show, @user
-            present :user, @user, with: Leo::Entities::UserEntity
-          end
-
-          desc "#put update individual user"
+          desc 'fetch current user(includes guardian, invited, exempted, Get /api/v1/users/current)'
           params do
-            requires :email, type: String, allow_blank: false
+            optional :authentication_token, type: String
+            optional :invitation_token, type: String
+            mutually_exclusive :invitation_token, :authentication_token
+            at_least_one_of :invitation_token, :authentication_token
           end
 
-          put do
-            authorize! :update, @user
-            user_params = declared(params)
-            update_success @user, user_params, "User"
+          get do
+            if params[:authentication_token]
+              authenticated
+              user = current_user
+            else
+              user = find_user_by_invitation_token
+            end
+            present :user, user, with: Leo::Entities::UserEntity
           end
         end
       end
 
       helpers do
-        def ask_primary_guardian_approval
-          primary_guardian = current_user.family.primary_guardian
-          PrimaryGuardianApproveInvitationJob.send(primary_guardian, current_user)
+        def ask_primary_guardian_approval(invited_guardian)
+          if primary_guardian = invited_guardian.family.try(:primary_guardian)
+            PrimaryGuardianApproveInvitationJob.send(primary_guardian.id, invited_guardian.id)
+          end
         end
       end
     end

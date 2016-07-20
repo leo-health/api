@@ -75,7 +75,6 @@ class AthenaPatientSyncService < AthenaSyncService
     {
       email: athena_patient["guarantoremail"],
       role: Role.guardian,
-      vendor_id: GenericHelper.generate_vendor_id,
       onboarding_group: OnboardingGroup.generated_from_athena
     }
   end

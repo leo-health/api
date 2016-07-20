@@ -4,7 +4,7 @@ require 'mandrill_mailer/offline'
 describe InviteParentJob do
   let!(:user){create(:user)}
   let!(:secondary_guardian){create(:user, family: user.family)}
-  let(:invite_parent_job){InviteParentJob.new(secondary_guardian, user)}
+  let(:invite_parent_job){InviteParentJob.new(secondary_guardian.id, user.id)}
 
   describe "#perform" do
     it "should send the email via mandrill mailer" do
@@ -14,7 +14,7 @@ describe InviteParentJob do
 
   describe ".send" do
     it "should send email to user via delayed_job" do
-      expect{ InviteParentJob.send(secondary_guardian, user) }.to change(Delayed::Job.where(queue: 'registration_email'), :count).by(1)
+      expect{ InviteParentJob.send(secondary_guardian.id, user.id) }.to change(Delayed::Job.where(queue: 'registration_email'), :count).by(1)
     end
   end
 end

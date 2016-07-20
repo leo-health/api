@@ -2,36 +2,46 @@ require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Enrollments do
-  let!(:role){create(:role, :guardian)}
   let(:serializer){ Leo::Entities::UserEntity }
-  let!(:enrollment_user){ create(:user, :guardian)}
-  let!(:enrollment_session){ enrollment_user.sessions.create }
+  let!(:user){ create(:user, :guardian)}
+  let!(:session){ user.sessions.create }
 
   describe "POST /api/v1/enrollments/invite" do
-    let!(:user){ create(:user, :guardian) }
-    let(:session){ user.sessions.create }
     let!(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian)}
+    let(:enrollment_params){{
+      email: Faker::Internet.email,
+      first_name: Faker::Name::first_name,
+      last_name: Faker::Name::last_name,
+      authentication_token: session.authentication_token
+    }}
 
     def do_request
-      enrollment_params = { email: "wuang@leohealth.com", first_name: "Yellow", last_name: "BigRiver" }
-      enrollment_params.merge!(authentication_token: session.authentication_token)
       post "/api/v1/enrollments/invite", enrollment_params
     end
 
-    it "should send a invite to the user" do
+    before do
+      Timecop.freeze(Time.now)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it "should send a invite to the user and set invitation_sent_at" do
       expect{ do_request }.to change{ Delayed::Job.count }.by(1)
       expect(response.status).to eq(201)
+      expect(User.find_by(email: enrollment_params[:email]).invitation_sent_at.utc.to_s).to eq(Time.now.utc.to_s)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:onboarding_group].to_sym).to eq(:invited_secondary_guardian)
-      expect(user.family.reload.guardians.count).to be(1)
+      expect(body[:data][:email]).to eq(enrollment_params[:email])
+      expect(body[:data][:onboarding_group].as_json.to_json).to eq(onboarding_group.as_json.to_json)
     end
   end
 
   describe "POST /api/v1/enrollments" do
     def do_request
       enrollment_params = {
-        email: "wuang@leohealth.com",
-        password: "password",
+        email: Faker::Internet.email,
+        password: Faker::Internet.password(8),
         vendor_id: "vendor_id"
       }
 
@@ -46,44 +56,14 @@ describe Leo::V1::Enrollments do
 
   describe "GET /api/v1/enrollments/current" do
     def do_request
-      get "/api/v1/enrollments/current", { authentication_token: enrollment_session.authentication_token }
+      get "/api/v1/enrollments/current", { authentication_token: session.authentication_token }
     end
 
     it "should show the requested enrollment" do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:user]).to eq(serializer.represent(enrollment_user.reload).as_json)
-    end
-  end
-
-  describe "Put /api/v1/enrollments/current" do
-    def do_request(authentication_token)
-      enrollment_params = {first_name: "Jack", last_name: "Cash", authentication_token: authentication_token }
-      put "/api/v1/enrollments/current", enrollment_params
-    end
-
-    context "regular user/primary guardian" do
-      it "should update the requested enrollment" do
-        expect{ do_request enrollment_session.authentication_token }.to change{ Delayed::Job.count }.by(0)
-        expect(response.status).to eq(200)
-        body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data][:user].as_json.to_json).to eq(serializer.represent(enrollment_user.reload).as_json.to_json)
-      end
-    end
-
-    context "invited secodary guardian" do
-      let(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian) }
-      let(:primary_guardian){ create(:user, :guardian) }
-      let!(:secondary_guardian){ create(:user, onboarding_group: onboarding_group, family: primary_guardian.family) }
-      let!(:secondary_guardian_session){ secondary_guardian.create_onboarding_session }
-
-      it "should update attributes, reset enrollment authentication and notify primary guardian" do
-        expect{ do_request secondary_guardian_session.authentication_token }.to change{ Delayed::Job.count }.by(1)
-        expect(response.status).to eq(200)
-        body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data][:user].as_json.to_json).to eq(serializer.represent(secondary_guardian.reload).as_json.to_json)
-      end
+      expect(body[:data][:user]).to eq(serializer.represent(user.reload).as_json)
     end
   end
 end

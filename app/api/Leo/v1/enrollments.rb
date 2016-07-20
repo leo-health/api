@@ -15,19 +15,18 @@ module Leo
           end
 
           post do
-            error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email])
-            onboarding_group = OnboardingGroup.invited_secondary_guardian
-            user = User.new(declared(params).merge(
+            user_to_invite = User.new(declared(params).merge(
               role: Role.guardian,
               family: current_user.family,
-              vendor_id: GenericHelper.generate_vendor_id,
-              onboarding_group: onboarding_group
+              onboarding_group: OnboardingGroup.invited_secondary_guardian
             ))
-            if user.save
-              InviteParentJob.send(user, current_user)
-              present :onboarding_group, user.onboarding_group.group_name
+
+            if user_to_invite.save
+              InviteParentJob.send(user_to_invite.id, current_user.id)
+              user_to_invite.update_attributes(invitation_sent_at: Time.now)
+              present user_to_invite, with: Leo::Entities::UserEntity
             else
-              error!({ error_code: 422, user_message: user.errors.full_messages.first }, 422)
+              error!({ error_code: 422, user_message: user_to_invite.errors.full_messages.first }, 422)
             end
           end
         end
@@ -50,12 +49,12 @@ module Leo
           requires :vendor_id, type: String
           optional :device_token, type: String
           optional :device_type, type: String
-          optional :client_platform, type: String
+          optional :platform, type: String
           optional :client_version, type: String
         end
 
         post do
-          session_keys = [:device_token, :device_type, :os_version, :client_platform, :client_version]
+          session_keys = [:device_token, :device_type, :os_version, :platform, :client_version]
           session_params = declared(params).slice(*session_keys)
           user_params = (declared(params).except(*session_keys) || {}).merge(
             role: Role.guardian,
@@ -63,58 +62,12 @@ module Leo
           )
           user = User.new user_params
           if user.save
-            session = user.create_onboarding_session(session_params)
+            session = user.sessions.create(session_params)
             present session: { authentication_token: session.authentication_token }
             present :user, session.user, with: Leo::Entities::UserEntity
           else
             error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
           end
-        end
-
-        desc "update an enrollment"
-        params do
-          requires :authentication_token, type: String, allow_blank: false
-          optional :password, type: String
-          optional :first_name, type: String
-          optional :last_name, type: String
-          optional :email, type: String
-          optional :birth_date, type: Date
-          optional :sex, type: String, values: ['M', 'F']
-          optional :stripe_customer_id, type: String
-          optional :phone, type: String
-          optional :insurance_plan_id, type: Integer
-        end
-
-        put :current do
-          authenticated
-          error!({error_code: 422, user_message: 'E-mail is not available.'}, 422) if User.email_taken?(params[:email]) && current_user.email != params[:email]
-          user = current_user
-          user_params = declared(params, include_missing: false).except(:authentication_token)
-          if user.update_attributes(user_params)
-            if onboarding_group = current_session.onboarding_group
-              if onboarding_group.invited_secondary_guardian?
-                ask_primary_guardian_approval
-                current_session.destroy
-              end
-
-              if onboarding_group.generated_from_athena?
-                user.set_complete!
-                current_session.destroy
-                session = user.create_onboarding_session
-                present :session, session, with: Leo::Entities::SessionEntity
-              end
-            end
-            present :user, user, with: Leo::Entities::UserEntity
-          else
-            error!({error_code: 422, user_message: user.errors.full_messages.first }, 422)
-          end
-        end
-      end
-
-      helpers do
-        def ask_primary_guardian_approval
-          primary_guardian = current_user.family.primary_guardian
-          PrimaryGuardianApproveInvitationJob.send(primary_guardian, current_user)
         end
       end
     end
