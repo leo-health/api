@@ -106,7 +106,6 @@ module Leo
           optional :first_name, type: String
           optional :last_name, type: String
           optional :phone, type: String
-          optional :sex, type: String, values: ['M', 'F']
           optional :device_type, type: String
           optional :os_version, type: String
           optional :platform, type: String

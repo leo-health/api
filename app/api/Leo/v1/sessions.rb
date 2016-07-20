@@ -8,7 +8,7 @@ module Leo
         params do
           requires :email, type: String, allow_blank: false
           requires :password, type: String, allow_blank: false
-          optional :platform, type: String,  values: ['web', 'ios', 'android']
+          optional :platform, type: String
           optional :device_type, type: String
           optional :device_token, type: String
           optional :os_version, type: String
@@ -49,6 +49,9 @@ module Leo
         params do
           requires :email, type: String, allow_blank: false
           requires :password, type: String, allow_blank: false
+          optional :platform, type: String
+          optional :device_type, type: String
+          optional :os_version, type: String
         end
 
         post do
@@ -57,7 +60,7 @@ module Leo
             error!({error_code: 403, user_message: "Invalid Email or Password."}, 422)
           end
 
-          session = user.sessions.create
+          session = user.sessions.create(params.slice(:device_type, :os_version, :platform))
           if session.valid?
             present :user, user, with: Leo::Entities::UserEntity
             present :session, session, with: Leo::Entities::SessionEntity
