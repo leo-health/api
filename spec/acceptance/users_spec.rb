@@ -91,7 +91,7 @@ resource "Users" do
   post "/api/v1/users" do
     parameter :email, "Email", required: true
     parameter :password, "Password", required: true
-    parameter :vendor_id, "Vendor Id", required: true
+    parameter :vendor_id, "Vendor Id"
     parameter :first_name, "First Name"
     parameter :last_name, "Last Name"
     parameter :phone, "Phone"
@@ -104,7 +104,6 @@ resource "Users" do
 
     let(:email){ "bigtree@yahoo.com" }
     let(:password){ "password" }
-    let(:vendor_id){ "12345" }
     let(:raw_post) { params.to_json }
 
     example "create a user" do

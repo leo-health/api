@@ -131,7 +131,6 @@ describe Leo::V1::Users do
                         sex: 'M',
                         email: 'abcd@test.com',
                         password: 'password',
-                        vendor_id: '123143123',
                         device_type: 'phone',
                         os_version: 'yosimite',
                         platform: 'mac'

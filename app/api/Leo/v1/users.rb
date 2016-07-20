@@ -102,7 +102,7 @@ module Leo
         params do
           requires :email, type: String
           requires :password, type: String
-          requires :vendor_id, type: String
+          optional :vendor_id, type: String
           optional :first_name, type: String
           optional :last_name, type: String
           optional :phone, type: String
