@@ -8,11 +8,9 @@ RSpec.describe Session, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:user) }
 
-    context "if on web platform" do
+    context "if on mobile platform" do
       before { allow(subject).to receive(:mobile?).and_return(true) }
-
       it { is_expected.to validate_presence_of(:device_type) }
-      it { is_expected.to validate_presence_of(:device_token) }
     end
   end
 end
