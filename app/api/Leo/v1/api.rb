@@ -31,30 +31,24 @@ module Leo
 
       helpers do
         def authenticated
-          session = current_session
-          error!('401 Unauthorized', 401) unless session
-
-          if session.onboarding_group && session.expired?
-            user_message = if session.onboarding_group.invited_secondary_guardian?
-              "For security reasons you have been logged out. Please ask the primary guardian to invite you again. You can also contact us for support at support@leohealth.com"
-            elsif session.onboarding_group.generated_from_athena?
-              "For security reasons you have been logged out. Please contact us for support at support@leohealth.com"
-            end
-            error!({ error_code: 400, user_message: user_message }, 400)
-          end
+          error!('401 Unauthorized', 401) unless current_user
         end
 
         def authenticated_and_complete
           error!('401 Unauthorized', 401) unless current_user.try(:complete?)
         end
 
-        def current_session
-          return unless params[:authentication_token]
-          @session = Session.find_by_authentication_token(params[:authentication_token])
+        def find_user_by_invitation_token
+          error!('401 Unauthorized', 401) unless user = User.find_by(invitation_token: params[:invitation_token])
+          if user.invitation_token_expired?
+            error!({error_code: 422, user_message: 'Your invitation has expired, please request another invite.' }, 422)
+          end
+          user
         end
 
         def current_user
-          current_session.try(:user)
+          @session = Session.find_by_authentication_token(params[:authentication_token])
+          @session.try(:user)
         end
 
         def create_success object, device_type=nil
@@ -69,7 +63,6 @@ module Leo
           present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
         end
 
-        # ????: Why is the device_type being returned here?
         def update_success object, update_params, entity_name=nil, device_type=session_device_type
           if object.update_attributes(update_params)
             entity_name ||=  object.class.name

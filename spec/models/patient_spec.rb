@@ -40,12 +40,6 @@ RSpec.describe Patient, type: :model do
     it { is_expected.to validate_presence_of(:family) }
   end
 
-  describe 'callbacks' do
-    describe "after_commit" do
-      it { is_expected.to callback(:upgrade_guardian!).after(:commit).on(:create) }
-    end
-  end
-
   describe '#current_avatar' do
     let(:patient) { create(:patient) }
     let!(:old_avatar){ create(:avatar, owner: patient)}
@@ -57,7 +51,6 @@ RSpec.describe Patient, type: :model do
   end
 
   describe "sync jobs" do
-
     let!(:patient) { create(:patient) }
 
     before do
@@ -113,26 +106,6 @@ RSpec.describe Patient, type: :model do
           @patient.subscribe_to_athena
           expect(Delayed::Job.where(queue: SyncPatientJob.queue_name).count).to be(1)
         end
-      end
-    end
-  end
-
-  describe ".create_with_patient_enrollment" do
-    let(:guardian_enrollment){ create(:enrollment) }
-    let(:patient_enrollment){ create(:patient_enrollment, guardian_enrollment: guardian_enrollment) }
-    context "guardian exists" do
-      let!(:guardian){ create(:user, :guardian, enrollment: guardian_enrollment) }
-      it "creates a patient associated with the family" do
-        Patient.create_with_patient_enrollment!(patient_enrollment)
-        expect(Patient.count).to be(1)
-        expect(Patient.first.family).to eq(guardian.family)
-      end
-    end
-
-    context "guardian enrollment does not exist" do
-      it "does not create a patient" do
-        expect{ Patient.create_with_patient_enrollment!(patient_enrollment) }.to raise_error ActiveRecord::RecordInvalid
-        expect(Patient.count).to be(0)
       end
     end
   end

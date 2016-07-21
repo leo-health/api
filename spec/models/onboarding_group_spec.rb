@@ -6,7 +6,6 @@ RSpec.describe OnboardingGroup, type: :model do
   let(:athena_onboarding_group){ create(:onboarding_group, :generated_from_athena) }
 
   describe "relations" do
-    it{ is_expected.to have_many(:enrollments) }
     it{ is_expected.to have_many(:users) }
   end
 
