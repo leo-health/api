@@ -6,6 +6,21 @@ module Leo
           authenticated
         end
 
+        namespace :validate_coupon do
+          params do
+            requires :coupon_id, type: String
+          end
+
+          get do
+            begin
+              coupon = Stripe::Coupon.retrieve(params[:coupon_id])
+            rescue Stripe::InvalidRequestError => e
+              coupon = nil
+            end
+            present :coupon, coupon
+          end
+        end
+
         params do
           requires :credit_card_token, type: String
         end

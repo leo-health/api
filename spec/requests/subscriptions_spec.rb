@@ -121,15 +121,35 @@ describe Leo::V1::Subscriptions do
         do_request
         expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
-        expect(body[:data]).to eq({
-          id: "test_cus_3",
-        })
+        expect(body[:data]).to eq({ id: "test_cus_3", })
         fam = user.family.reload
         expect(fam.membership_type).to eq("exempted")
         expect(Delayed::Job.where(queue: PaymentsMailer.queue_name, owner: user).count).to be(0)
         expect(fam.stripe_customer).not_to eq({})
         expect(fam.stripe_subscription_id).to be_nil
       end
+    end
+  end
+
+  describe "Get /api/v1/subscriptions/validate_coupon" do
+    let!(:coupon){ Stripe::Coupon.create(:percent_off => 25, :duration => 'once', :id => 'coupon')}
+
+    def do_request
+      get "/api/v1/subscriptions/validate_coupon", { authentication_token: session.authentication_token,
+                                                     coupon_id: 'coupon' }
+    end
+
+    it "should return the coupon if the coupon code is valid" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body)
+      expect(body['data']['coupon']).to eq(coupon.as_json)
+    end
+
+    it "should return nil if the coupon code is invalid" do
+      do_request
+      expect(response.status).to eq(200)
+      expect(body['data']['coupon']).to eq(nil)
     end
   end
 end
