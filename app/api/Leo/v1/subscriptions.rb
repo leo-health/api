@@ -15,7 +15,7 @@ module Leo
             begin
               coupon = Stripe::Coupon.retrieve(params[:coupon_id])
             rescue Stripe::InvalidRequestError => e
-              error!({ error_code: 422, user_message: 'no such coupon'}, 422)
+              error!({ error_code: 422, user_message: "#{params[:coupon_id]} is not a valid promo code"}, 422)
             end
             present :coupon, coupon
           end
