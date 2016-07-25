@@ -114,10 +114,10 @@ class Family < ActiveRecord::Base
     )
   end
 
-  def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil)
+  def update_or_create_stripe_subscription_if_needed!(credit_card_token=nil, coupon=nil)
     return unless primary_guardian
     if !stripe_customer_id && credit_card_token
-      create_stripe_customer(credit_card_token)
+      create_stripe_customer(credit_card_token, coupon)
     elsif credit_card_token
       update_stripe_customer_payment_method(credit_card_token)
     elsif stripe_subscription_id
@@ -129,15 +129,15 @@ class Family < ActiveRecord::Base
 
   private
 
-  def create_stripe_customer(credit_card_token)
+  def create_stripe_customer(credit_card_token, coupon)
     customer_params = {
       email: primary_guardian.email,
       source: credit_card_token,
       plan: STRIPE_PLAN,
-      quantity: patients.count
+      quantity: patients.count,
+      coupon: coupon
     }
     customer_params = customer_params.except(:plan, :quantity) if exempted?
-
     begin
       self.stripe_customer = Stripe::Customer.create(customer_params).to_hash
       PaymentsMailer.new_subscription_created(self) unless exempted?

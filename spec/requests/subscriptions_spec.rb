@@ -145,11 +145,5 @@ describe Leo::V1::Subscriptions do
       body = JSON.parse(response.body)
       expect(body['data']['coupon']).to eq(coupon.as_json)
     end
-
-    it "should return nil if the coupon code is invalid" do
-      do_request
-      expect(response.status).to eq(200)
-      expect(body['data']['coupon']).to eq(nil)
-    end
   end
 end
