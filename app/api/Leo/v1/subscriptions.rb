@@ -15,7 +15,7 @@ module Leo
             begin
               coupon = Stripe::Coupon.retrieve(params[:coupon_id])
             rescue Stripe::InvalidRequestError => e
-              coupon = nil
+              error!({ error_code: 422, user_message: 'no such coupon'}, 422)
             end
             present :coupon, coupon
           end
@@ -23,6 +23,7 @@ module Leo
 
         params do
           requires :credit_card_token, type: String
+          optional :coupon, type: String
         end
 
         post do
@@ -51,7 +52,7 @@ module Leo
             error_code = 422
           else
             begin
-              unless family.update_or_create_stripe_subscription_if_needed!(params[:credit_card_token])
+              unless family.update_or_create_stripe_subscription_if_needed!(params[:credit_card_token], params[:coupon])
                 debug_message = family.errors.full_messages.to_s
                 error_code = 500
               end
