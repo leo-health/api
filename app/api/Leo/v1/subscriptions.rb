@@ -17,7 +17,9 @@ module Leo
             rescue Stripe::InvalidRequestError => e
               error!({ error_code: 422, user_message: "#{params[:coupon_id]} is not a valid promo code"}, 422)
             end
+
             present :coupon, coupon
+            present :text, "Your first #{coupon.duration_in_months} months are on us!"
           end
         end
 
