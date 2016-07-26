@@ -26,19 +26,32 @@ describe Leo::V1::Families do
     let!(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
     let!(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian)}
+    let(:enrollment_params){{
+        email: Faker::Internet.email,
+        first_name: Faker::Name::first_name,
+        last_name: Faker::Name::last_name,
+        authentication_token: session.authentication_token
+    }}
 
     def do_request
-      enrollment_params = { email: Faker::Internet::email, first_name: Faker::Name::first_name, last_name: Faker::Name::last_name }
-      enrollment_params.merge!(authentication_token: session.authentication_token)
       post "/api/v1/family/invite", enrollment_params
     end
 
-    it "should send a invite to the user" do
+    before do
+      Timecop.freeze(Time.now)
+    end
+
+    after do
+      Timecop.return
+    end
+
+    it "should send a invite to the user and set invitation_sent_at" do
       expect{ do_request }.to change{ Delayed::Job.count }.by(1)
       expect(response.status).to eq(201)
+      expect(User.find_by(email: enrollment_params[:email]).invitation_sent_at.utc.to_s).to eq(Time.now.utc.to_s)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data][:onboarding_group].to_sym).to eq(:invited_secondary_guardian)
-      expect(user.family.reload.guardians.count).to be(1)
+      expect(body[:data][:email]).to eq(enrollment_params[:email])
+      expect(body[:data][:onboarding_group].as_json.to_json).to eq(onboarding_group.as_json.to_json)
     end
   end
 

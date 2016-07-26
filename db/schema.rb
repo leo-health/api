@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160615172645) do
+ActiveRecord::Schema.define(version: 20160721151714) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -154,35 +154,6 @@ ActiveRecord::Schema.define(version: 20160615172645) do
   add_index "delayed_jobs", ["owner_type", "owner_id"], name: "index_delayed_jobs_on_owner_type_and_owner_id", using: :btree
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
   add_index "delayed_jobs", ["queue"], name: "index_delayed_jobs_on_queue", using: :btree
-
-  create_table "enrollments", force: :cascade do |t|
-    t.string   "title"
-    t.string   "first_name"
-    t.string   "middle_initial"
-    t.string   "last_name"
-    t.string   "suffix"
-    t.string   "sex"
-    t.integer  "practice_id"
-    t.string   "email"
-    t.string   "encrypted_password"
-    t.integer  "family_id"
-    t.string   "stripe_customer_id"
-    t.integer  "role_id"
-    t.datetime "deleted_at"
-    t.date     "birth_date"
-    t.string   "avatar_url"
-    t.integer  "onboarding_group_id"
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
-    t.string   "authentication_token"
-    t.boolean  "invited_user",         default: false
-    t.integer  "insurance_plan_id"
-    t.string   "phone"
-    t.string   "vendor_id",                            null: false
-  end
-
-  add_index "enrollments", ["authentication_token"], name: "index_enrollments_on_authentication_token", using: :btree
-  add_index "enrollments", ["vendor_id"], name: "index_enrollments_on_vendor_id", unique: true, using: :btree
 
   create_table "escalation_notes", force: :cascade do |t|
     t.integer  "escalated_by_id",             null: false
@@ -334,23 +305,6 @@ ActiveRecord::Schema.define(version: 20160615172645) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-
-  create_table "patient_enrollments", force: :cascade do |t|
-    t.integer  "guardian_enrollment_id", null: false
-    t.string   "email"
-    t.string   "title"
-    t.string   "first_name",             null: false
-    t.string   "middle_initial"
-    t.string   "last_name",              null: false
-    t.string   "suffix"
-    t.datetime "birth_date",             null: false
-    t.string   "sex",                    null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.integer  "athena_id"
-  end
-
-  add_index "patient_enrollments", ["guardian_enrollment_id"], name: "index_patient_enrollments_on_guardian_enrollment_id", using: :btree
 
   create_table "patients", force: :cascade do |t|
     t.string   "title"
@@ -540,17 +494,11 @@ ActiveRecord::Schema.define(version: 20160615172645) do
     t.datetime "updated_at",           null: false
     t.string   "device_token"
     t.string   "device_type"
-    t.string   "device_identifier"
-    t.string   "device_width"
-    t.string   "device_height"
     t.string   "client_version"
-    t.string   "client_platform"
-    t.integer  "onboarding_group_id"
   end
 
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree
   add_index "sessions", ["deleted_at"], name: "index_sessions_on_deleted_at", using: :btree
-  add_index "sessions", ["onboarding_group_id"], name: "index_sessions_on_onboarding_group_id", using: :btree
   add_index "sessions", ["user_id"], name: "index_sessions_on_user_id", where: "(deleted_at IS NULL)", using: :btree
 
   create_table "slots", force: :cascade do |t|
@@ -648,18 +596,17 @@ ActiveRecord::Schema.define(version: 20160615172645) do
     t.date     "birth_date"
     t.string   "avatar_url"
     t.string   "phone"
-    t.string   "type"
     t.integer  "onboarding_group_id"
     t.integer  "insurance_plan_id"
     t.string   "vendor_id"
-    t.integer  "enrollment_id"
     t.string   "complete_status"
+    t.string   "invitation_token"
+    t.datetime "invitation_sent_at"
   end
 
   add_index "users", ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
   add_index "users", ["deleted_at"], name: "index_users_on_deleted_at", using: :btree
   add_index "users", ["email"], name: "index_users_on_email", using: :btree
-  add_index "users", ["enrollment_id"], name: "index_users_on_enrollment_id", unique: true, using: :btree
   add_index "users", ["first_name", "last_name"], name: "index_users_on_first_name_and_last_name", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree

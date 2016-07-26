@@ -57,26 +57,4 @@ resource "Enrollments" do
       expect(response_status).to eq(200)
     end
   end
-
-  put "/api/v1/enrollments/current" do
-    parameter :authentication_token, "Enrollment Token", required: true
-    parameter :password
-    parameter :first_name
-    parameter :last_name
-    parameter :email
-    parameter :phone
-    parameter :birth_date
-    parameter :sex
-    parameter :stripe_customer_id
-    parameter :insurance_plan_id
-
-    let(:first_name){ "little" }
-    let(:raw_post){ params.to_json }
-
-    example "update an enrollment" do
-      explanation "update the enrollment found by authentication token(enrollment token)"
-      do_request
-      expect(response_status).to eq(200)
-    end
-  end
 end

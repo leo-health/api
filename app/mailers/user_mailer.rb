@@ -10,13 +10,12 @@ class UserMailer < MandrillMailer::TemplateMailer
 
   def reinvite_all_exempt_synced_users
     OnboardingGroup.generated_from_athena.users.incomplete.find_each do |guardian|
-        reinvite_exempt_synced_user(guardian)
+      reinvite_exempt_synced_user(guardian)
     end
   end
 
   def invite_exempt_synced_user(user)
-    session = user.sessions.first || user.create_onboarding_session
-    token = session.authentication_token
+    token = user.invitation_token
     mandrill_mail(
       template: 'Leo - Exempt User Registration',
       inline_css: true,
@@ -29,9 +28,7 @@ class UserMailer < MandrillMailer::TemplateMailer
   end
 
   def reinvite_exempt_synced_user(user)
-    user.sessions.destroy_all
-    session =  user.create_onboarding_session
-    token = session.authentication_token
+    token = user.invitation_token
     mandrill_mail(
       template: 'Leo - Exempt User Registration Reminder',
       inline_css: true,
@@ -41,7 +38,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
       }
     ).delay(queue: 'exempt_registration_email', owner: user).deliver
-  end
+   end
 
   def confirmation_instructions(user, token, opts={})
     mandrill_mail(
@@ -50,8 +47,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Please confirm your account!',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'GUARDIAN_FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{token}"
+        'GUARDIAN_FIRST_NAME': user.first_name.capitalize,
+        'LINK': "#{ENV['API_HOST']}/api/v1/confirm_email?token=#{token}"
       }
     )
   end
@@ -63,7 +60,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Password reset request.',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'FIRST_NAME': user.first_name,
+        'FIRST_NAME': user.first_name.capitalize,
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/changePassword?token=#{token}"
       }
     )
@@ -77,8 +74,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       to: enrollment.email,
       vars: {
         'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=secondary&token=#{enrollment.invitation_token}",
-        'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name,
-        'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name
+        'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name.capitalize,
+        'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name.capitalize
       }
     )
   end
@@ -90,7 +87,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Welcome to Leo + Flatiron Pediatrics!',
       to: user.email,
       vars: {
-        'GUARDIAN_FIRST_NAME': user.first_name
+        'GUARDIAN_FIRST_NAME': user.first_name.capitalize
       }
     )
   end
@@ -105,7 +102,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         from: 'info@leohealth.com',
         to: user.email,
         vars: {
-          'CHILD_FIRST_NAME': appointment.patient.first_name,
+          'CHILD_FIRST_NAME': appointment.patient.first_name.capitalize,
           'APPOINTMENT_TIME': appointment_time,
           'APPOINTMENT_DAY_OF_WEEK': appointment_day
         }
@@ -122,7 +119,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         from: 'info@leohealth.com',
         to: user.email,
         vars: {
-          'CHILD_FIRST_NAME': appointment.patient.first_name,
+          'CHILD_FIRST_NAME': appointment.patient.first_name.capitalize,
           'APPOINTMENT_TIME': appointment_time,
           'APPOINTMENT_DAY_OF_WEEK': appointment_day
         }
@@ -136,7 +133,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Happy Birthday!',
       to: guardian.email,
       vars: {
-        'PATIENT_FIRST_NAME': patient.first_name
+        'PATIENT_FIRST_NAME': patient.first_name.capitalize
       }
     )
   end
@@ -148,8 +145,8 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Important - Please confirm your account with Leo!',
       to: user.email,
       vars: {
-        'FIRST_NAME': user.first_name,
-        'LINK': "#{ENV['API_HOST']}/api/v1/users/confirm_email?token=#{user.confirmation_token}"
+        'FIRST_NAME': user.first_name.capitalize,
+        'LINK': "#{ENV['API_HOST']}/api/v1/confirm_email?token=#{user.confirmation_token}"
       }
     )
   end
@@ -161,7 +158,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo - Your password has been successfully changed!',
       to: user.email,
       vars: {
-        'FIRST_NAME': user.first_name
+        'FIRST_NAME': user.first_name.capitalize
       }
     )
   end
@@ -174,7 +171,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'A conversation has been assigned to you!',
       to: user.email,
       vars: {
-        'STAFF_FIRST_NAME': user.first_name,
+        'STAFF_FIRST_NAME': user.first_name.capitalize,
         'LINK': "#{ENV['PROVIDER_APP_HOST']}"
       }
     )
@@ -187,7 +184,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: "You have unresolved cases that have been assigned to you.",
       to: user.email,
       vars: {
-        'STAFF_FIRST_NAME': user.first_name,
+        'STAFF_FIRST_NAME': user.first_name.capitalize,
         'COUNT': count
       }
     )
@@ -204,23 +201,23 @@ class UserMailer < MandrillMailer::TemplateMailer
       vars: {
         'LINK': "#{ENV['API_HOST']}/api/v1/deep_link?type=conversation&type_id=#{conversation_id}",
         'STAFF_FULL_NAME': staff_message.sender.full_name,
-        'GUARDIAN_FIRST_NAME': user.first_name
+        'GUARDIAN_FIRST_NAME': user.first_name.capitalize
       }
     )
   end
 
-  def primary_guardian_approve_invitation(primary_guardian, enrollment)
+  def primary_guardian_approve_invitation(primary_guardian, invited_guardian)
     mandrill_mail(
       template: 'Leo - Secondary Guardian Confirmation',
       inline_css: true,
-      subject: "Leo - Please confirm #{enrollment.first_name}'s account!",
+      subject: "Leo - Please confirm #{invited_guardian.first_name.capitalize}'s account!",
       to: primary_guardian.email,
       vars: {
-        'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name,
-        'SECONDARY_GUARDIAN_FULL_NAME': "#{enrollment.first_name} #{enrollment.last_name}",
-        'SECONDARY_GUARDIAN_FIRST_NAME': "#{enrollment.first_name}",
-        'SECONDARY_GUARDIAN_EMAIL': "#{enrollment.email}",
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/acceptInvitation?token=#{enrollment.invitation_token}"
+        'PRIMARY_GUARDIAN_FIRST_NAME': primary_guardian.first_name.capitalize,
+        'SECONDARY_GUARDIAN_FULL_NAME': invited_guardian.full_name,
+        'SECONDARY_GUARDIAN_FIRST_NAME': invited_guardian.first_name.capitalize,
+        'SECONDARY_GUARDIAN_EMAIL': invited_guardian.email,
+        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/acceptInvitation?token=#{invited_guardian.invitation_token}"
       }
     )
   end
