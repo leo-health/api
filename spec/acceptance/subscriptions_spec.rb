@@ -24,6 +24,7 @@ resource "Subscriptions" do
   post "/api/v1/subscriptions" do
     parameter :authentication_token, "Authentication Token", required: true
     parameter :credit_card_token, "Credit Card Token", required: true
+    parameter :coupon_id, "Promo Code"
 
     let(:credit_card_token){ stripe_helper.generate_card_token }
     let(:authentication_token){ session.authentication_token }

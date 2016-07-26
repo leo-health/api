@@ -25,7 +25,7 @@ module Leo
 
         params do
           requires :credit_card_token, type: String
-          optional :coupon, type: String
+          optional :coupon_id, type: String
         end
 
         post do
@@ -54,7 +54,7 @@ module Leo
             error_code = 422
           else
             begin
-              unless family.update_or_create_stripe_subscription_if_needed!(params[:credit_card_token], params[:coupon])
+              unless family.update_or_create_stripe_subscription_if_needed!(params[:credit_card_token], params[:coupon_id])
                 debug_message = family.errors.full_messages.to_s
                 error_code = 500
               end
