@@ -197,4 +197,19 @@ describe Leo::V1::Users do
       expect(body[:data][:user]).to eq(serializer.represent(guardian).as_json)
     end
   end
+
+  describe "DEPRECATED: GET /api/v1/users/id" do
+    let(:user){create(:user)}
+    let!(:session){user.sessions.create}
+
+    def do_request
+      get "/api/v1/users/#{user.id}", {authentication_token: session.authentication_token}, format: :json
+    end
+
+    it "should show the requested user" do
+      do_request
+      expect(response.status).to eq(200)
+      expect_json('data.user.id', user.id)
+    end
+  end
 end

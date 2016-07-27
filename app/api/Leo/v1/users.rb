@@ -186,6 +186,22 @@ module Leo
             present :user, user, with: Leo::Entities::UserEntity
           end
         end
+
+        route_param :id do
+          before do
+            authenticated
+          end
+
+          after_validation do
+            @user = User.find(params[:id])
+          end
+
+          desc "#get user(DEPRECATED: only for ios backward-compatability, Get /api/v1/users/:id)"
+          get do
+            authorize! :show, @user
+            present :user, @user, with: Leo::Entities::UserEntity
+          end
+        end
       end
 
       helpers do
