@@ -4,7 +4,6 @@ module GrowthCurvesHelper
   def self.z_percentile
     [
       { z: 0, p: 50 },
-      { z: Float::MIN, p: 50 },
       { z: 0.025, p: 49 },
       { z: 0.050, p: 48 },
       { z: 0.075, p: 47 },
