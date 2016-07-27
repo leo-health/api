@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160721151714) do
+ActiveRecord::Schema.define(version: 20160727195945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -519,10 +519,10 @@ ActiveRecord::Schema.define(version: 20160721151714) do
 
   create_table "staff_profiles", force: :cascade do |t|
     t.integer  "staff_id"
-    t.string   "specialties",                 array: true
-    t.string   "credentials",                 array: true
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.string   "specialties",                                array: true
+    t.string   "credentials",                                array: true
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.integer  "provider_id"
     t.integer  "practice_id"
     t.integer  "athena_id"
@@ -535,6 +535,7 @@ ActiveRecord::Schema.define(version: 20160721151714) do
     t.string   "email"
     t.string   "type"
     t.integer  "avatar_id"
+    t.boolean  "notification",   default: true
   end
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
