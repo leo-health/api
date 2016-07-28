@@ -16,6 +16,7 @@ module Leo
       expose :providers, with: Leo::Entities::UserEntity
       expose :active_schedule, with: Leo::Entities::PracticeScheduleEntity
       expose :schedule_exceptions, with: Leo::Entities::ProviderLeaveEntity
+      expose :in_office_hour?
 
       private
 
@@ -30,6 +31,10 @@ module Leo
 
       def schedule_exceptions
         ProviderLeave.where(description: "Seeded holiday").select("start_datetime, end_datetime").uniq(:start_datetime)
+      end
+
+      def in_office_hour?
+        object.in_office_hour?
       end
     end
   end

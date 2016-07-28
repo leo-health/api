@@ -1,7 +1,6 @@
 module Leo
   module V1
     class Practices < Grape::API
-
       resource :practices do
         before do
           authenticated
