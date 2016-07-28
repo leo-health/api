@@ -643,6 +643,8 @@ staff.each do |attributes|
     user.set_complete!
   end
 
+  user.create_staff_profile! unless user.staff_profile
+
   begin
     if avatar = user.avatar
       avatar.update_attributes!(attributes[:avatar_attributes])

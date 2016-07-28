@@ -8,13 +8,13 @@ module Leo
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
       expose :primary_guardian, :stripe_customer_id, :vendor_id, :family_id, :phone, :onboarding_group, if: Proc.new{ |u| u.guardian? }
-      expose :credentials, unless: Proc.new{ |u| u.guardian? }
+      expose :credentials, :is_oncall, unless: Proc.new{ |u| u.guardian? }
       expose :onboarding_group, :membership_type, safe: true
 
       private
 
       def is_oncall
-
+        object.staff_profile.try(:is_oncall)
       end
 
       def device_type
