@@ -132,11 +132,11 @@ describe Leo::V1::Subscriptions do
   end
 
   describe "Get /api/v1/subscriptions/validate_coupon" do
-    let!(:coupon){ Stripe::Coupon.create(:percent_off => 25, :duration => 'once', :id => 'coupon')}
+    let!(:coupon){ Stripe::Coupon.create(:percent_off => 25, :duration => 'once', :id => 'NEWPARENT16')}
 
     def do_request
       get "/api/v1/subscriptions/validate_coupon", { authentication_token: session.authentication_token,
-                                                     coupon_id: 'coupon' }
+                                                     coupon_id: 'NEWPARENT16' }
     end
 
     it "should return the coupon if the coupon code is valid" do
@@ -144,6 +144,7 @@ describe Leo::V1::Subscriptions do
       expect(response.status).to eq(200)
       body = JSON.parse(response.body)
       expect(body['data']['coupon']).to eq(coupon.as_json)
+      expect(body['data']['text']).to eq('Your first month of membership is on us!')
     end
   end
 end

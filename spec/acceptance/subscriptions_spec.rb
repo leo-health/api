@@ -41,11 +41,11 @@ resource "Subscriptions" do
     parameter :coupon_id, "Promo Code", required: true
 
     let(:authentication_token){ session.authentication_token }
-    let(:coupon_id){ 'newwomen'}
+    let(:coupon_id){ 'NEWPARENT16'}
     let(:raw_post){ params.to_json }
 
     before do
-      Stripe::Coupon.create(:percent_off => 100, :duration => 'once', :id => 'newwomen')
+      Stripe::Coupon.create(:percent_off => 100, :duration => 'once', :id => 'NEWPARENT16')
     end
 
     example "validate a stripe promo code" do

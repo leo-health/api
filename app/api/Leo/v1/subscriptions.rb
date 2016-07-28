@@ -18,8 +18,17 @@ module Leo
               error!({ error_code: 422, user_message: "#{params[:coupon_id]} is not a valid promo code"}, 422)
             end
 
+            text = case coupon.duration
+            when 'forever'
+              'Your membership is free forever'
+            when 'once'
+              'Your first month of membership is on us!'
+            when 'repeating'
+              "Your first #{coupon.duration_in_months} months are on us!"
+            end
+
             present :coupon, coupon
-            present :text, "Your first #{coupon.duration_in_months} months are on us!"
+            present :text, text
           end
         end
 
