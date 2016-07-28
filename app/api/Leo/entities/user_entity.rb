@@ -13,6 +13,10 @@ module Leo
 
       private
 
+      def is_oncall
+
+      end
+
       def device_type
         options[:device_type]
       end
