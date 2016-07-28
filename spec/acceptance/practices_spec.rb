@@ -38,4 +38,14 @@ resource "Practices" do
       expect(response_status).to eq(200)
     end
   end
+
+  get "/api/v1/practices/current" do
+    parameter :authentication_token, "Authentication Token", required: true
+    let(:raw_post){ params.to_json }
+
+    example "get the practice that current user belongs to" do
+      do_request
+      expect(response_status).to eq(200)
+    end
+  end
 end

@@ -11,9 +11,9 @@ module Leo
           present :practices, Practice.all, with: Leo::Entities::PracticeEntity
         end
 
-        desc "Return an individual practice"
-        get ":id" do
-          present :practice, Practice.find(params[:id]), with: Leo::Entities::PracticeEntity
+        desc "Return the practice of current user"
+        get ":current" do
+          present :practice, current_user.practice, with: Leo::Entities::PracticeEntity
         end
       end
     end
