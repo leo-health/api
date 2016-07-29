@@ -14,7 +14,7 @@ module Leo
       private
 
       def is_oncall
-        object.staff_profile.try(:is_oncall)
+        object.try(:staff_profile).try(:is_oncall)
       end
 
       def primary_guardian

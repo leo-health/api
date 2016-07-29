@@ -5,9 +5,7 @@ class Practice < ActiveRecord::Base
   has_many :providers
   has_many :appointments, -> { where appointment_status: AppointmentStatus.booked }
   has_many :practice_schedules
-
   validates :name, presence: true
-
   after_commit :subscribe_to_athena, on: :create
 
   def self.flatiron_pediatrics
@@ -19,7 +17,6 @@ class Practice < ActiveRecord::Base
     (start_time..end_time).cover?(Time.current)
   end
 
-
   def subscribe_to_athena
     SyncPracticeJob.new(self).subscribe_if_needed run_at: Time.now
   end
@@ -29,12 +26,12 @@ class Practice < ActiveRecord::Base
   end
 
   def available?
-    oncall_providers.count > 0 || in_office_hours?
+    oncall_providers.count > 0
   end
 
-  def broadcast_practice_availability(availability)
+  def broadcast_practice_availability
     begin
-      Pusher.trigger("practice#{id}", :availability, { available: availability })
+      Pusher.trigger("practice", :availability_changed, { practice_id: id })
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end
@@ -42,6 +39,18 @@ class Practice < ActiveRecord::Base
 
   def active_schedule
     practice_schedules.where(active: true).first
+  end
+
+  def start_after_office_hours
+    if StaffProfile.where(staff: staff).update_all(sms_enabled: true, on_call: false) > 0
+      broadcast_practice_availability
+    end
+  end
+
+  def start_in_office_hours
+    if StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: true) > 0
+      broadcast_practice_availability
+    end
   end
 
   private

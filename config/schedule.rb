@@ -16,5 +16,5 @@ every 1.day, :at => '12:00pm' do
 end
 
 every 1.day, :at => '4:00am' do
-  rake 'notification:broadcast_practice_availability'
+  rake 'notification:practice_availability_change'
 end

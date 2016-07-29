@@ -16,6 +16,6 @@ describe 'Whenever Schedule' do
     assert Rake::Task.task_defined?('notification:patient_birthday')
     assert Rake::Task.task_defined?('notification:escalated_conversation_email_digest')
     assert Rake::Task.task_defined?('notification:account_confirmation_reminder')
-    assert Rake::Task.task_defined?('notification:broadcast_practice_availability')
+    assert Rake::Task.task_defined?('notification:practice_availability_change')
   end
 end

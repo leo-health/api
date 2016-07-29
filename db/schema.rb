@@ -535,7 +535,7 @@ ActiveRecord::Schema.define(version: 20160728172020) do
     t.string   "email"
     t.string   "type"
     t.integer  "avatar_id"
-    t.boolean  "notification",   default: true
+    t.boolean  "sms_enabled",    default: false
     t.boolean  "on_call",        default: false
   end
 

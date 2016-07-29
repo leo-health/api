@@ -18,9 +18,14 @@ class StaffProfile < ActiveRecord::Base
     })
   end
 
+  private
+
   def check_on_call_status
-    if on_call_changed? && staff && !staff.practice.in_office_hours?
-      staff.practice.broadcast_practice_availability(staff.practice.available?)
+    return unless on_call_changed? && staff && staff.practice.oncall_providers.count < 1
+    if on_call_changed?(from: true, to: false) && staff.practice.oncall_providers.count == 1
+      staff.practice.broadcast_practice_availability
+    elsif on_call_changed?(from: false, to: true) && staff.practice.oncall_providers.count == 0
+      staff.practice.broadcast_practice_availability
     end
   end
 end
