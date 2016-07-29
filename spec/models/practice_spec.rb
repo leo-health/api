@@ -12,7 +12,7 @@ RSpec.describe Practice, type: :model do
     it { is_expected.to validate_presence_of(:name) }
   end
 
-  describe "in_office_hour?" do
+  describe "in_office_hours?" do
     let(:practice){ create(:practice) }
     let!(:practice_schedule){ create(:practice_schedule, practice: practice) }
 
@@ -26,7 +26,7 @@ RSpec.describe Practice, type: :model do
       end
 
       it "should return true" do
-        expect(practice.in_office_hour?).to eq(true)
+        expect(practice.in_office_hours?).to eq(true)
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe Practice, type: :model do
       end
 
       it "should return false" do
-        expect(practice.in_office_hour?).to eq(false)
+        expect(practice.in_office_hours?).to eq(false)
       end
     end
   end

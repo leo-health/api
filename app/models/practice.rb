@@ -14,7 +14,7 @@ class Practice < ActiveRecord::Base
     self.find_by(athena_id: 1)
   end
 
-  def in_office_hour?
+  def in_office_hours?
     start_time, end_time = convert_time
     (start_time..end_time).cover?(Time.current)
   end
@@ -29,7 +29,7 @@ class Practice < ActiveRecord::Base
   end
 
   def available?
-    oncall_providers.count > 0 || in_office_hour?
+    oncall_providers.count > 0 || in_office_hours?
   end
 
   def broadcast_practice_availability(availability)

@@ -19,7 +19,7 @@ class StaffProfile < ActiveRecord::Base
   end
 
   def check_on_call_status
-    if on_call_changed? && staff && !staff.practice.in_office_hour?
+    if on_call_changed? && staff && !staff.practice.in_office_hours?
       staff.practice.broadcast_practice_availability(staff.practice.available?)
     end
   end
