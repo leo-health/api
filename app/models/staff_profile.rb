@@ -2,10 +2,8 @@ class StaffProfile < ActiveRecord::Base
   include RoleCheckable
   belongs_to :staff, ->{ staff }, class_name: "User"
   belongs_to :provider
-  belongs_to :practice
   belongs_to :avatar
-  scope :staff, -> { where(role: Role.staff_roles, complete_status: :complete) }
-  scope :provider, -> { where(role: Role.provider_roles, complete_status: :complete) }
+  after_update :check_on_call_status
 
   def role
     staff.try(:role) || provider.try(:role)
@@ -18,5 +16,11 @@ class StaffProfile < ActiveRecord::Base
       end
       memo
     })
+  end
+
+  def check_on_call_status
+    if on_call_changed? && staff && !staff.practice.in_office_hour?
+      staff.practice.broadcast_practice_availability(staff.practice.available?)
+    end
   end
 end

@@ -29,7 +29,15 @@ class Practice < ActiveRecord::Base
   end
 
   def available?
-    oncall_providers.count > 0
+    oncall_providers.count > 0 || in_office_hour?
+  end
+
+  def broadcast_practice_availability(availability)
+    begin
+      Pusher.trigger("practice#{id}", :availability, { available: availability })
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
+    end
   end
 
   private
