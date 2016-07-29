@@ -1,7 +1,7 @@
 class Practice < ActiveRecord::Base
   belongs_to :appointments_sync_job, class_name: Delayed::Job
-  has_many :staff, class_name: "StaffProfile"
   has_many :guardians, ->{ guardians }, class_name: "User"
+  has_many :staff, ->{ staff }, class_name: "User"
   has_many :providers
   has_many :appointments, -> { where appointment_status: AppointmentStatus.booked }
   has_many :practice_schedules
@@ -22,6 +22,14 @@ class Practice < ActiveRecord::Base
 
   def subscribe_to_athena
     SyncPracticeJob.new(self).subscribe_if_needed run_at: Time.now
+  end
+
+  def oncall_providers
+    staff.joins(:staff_profile).where(staff_profile: { on_call: true })
+  end
+
+  def available?
+    oncall_providers.count > 0
   end
 
   private

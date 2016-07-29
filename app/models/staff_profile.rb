@@ -1,12 +1,12 @@
 class StaffProfile < ActiveRecord::Base
   include RoleCheckable
-
   belongs_to :staff, ->{ staff }, class_name: "User"
   belongs_to :provider
   belongs_to :practice
-
-  # Eventually role, avatar, etc should delegate to a Person
   belongs_to :avatar
+  scope :staff, -> { where(role: Role.staff_roles, complete_status: :complete) }
+  scope :provider, -> { where(role: Role.provider_roles, complete_status: :complete) }
+
   def role
     staff.try(:role) || provider.try(:role)
   end
