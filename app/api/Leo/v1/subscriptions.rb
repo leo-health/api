@@ -13,7 +13,7 @@ module Leo
 
           get do
             begin
-              coupon = Stripe::Coupon.retrieve(params[:coupon_id])
+              coupon = Stripe::Coupon.retrieve(params[:coupon_id].try(:upcase))
             rescue Stripe::InvalidRequestError => e
               error!({ error_code: 422, user_message: "#{params[:coupon_id]} is not a valid promo code"}, 422)
             end
@@ -28,6 +28,7 @@ module Leo
             end
 
             present :coupon, coupon
+            present :coupon_id, coupon.try(:id)
             present :text, text
           end
         end
