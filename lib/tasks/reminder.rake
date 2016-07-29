@@ -61,4 +61,12 @@ namespace :notification do
       end
     end
   end
+
+  desc "send pusher message to notify practice availabilty at open and close time of a practice"
+  task broadcast_practice_availability: :environment do
+    Practice.all.each do |practice|
+      schedule = practice.active_schedule
+
+    end
+  end
 end

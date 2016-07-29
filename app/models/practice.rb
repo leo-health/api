@@ -40,6 +40,10 @@ class Practice < ActiveRecord::Base
     end
   end
 
+  def active_schedule
+    object.practice_schedules.where(active: true).first
+  end
+
   private
 
   def convert_time

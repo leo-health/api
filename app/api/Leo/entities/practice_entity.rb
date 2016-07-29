@@ -25,7 +25,7 @@ module Leo
       end
 
       def active_schedule
-        object.practice_schedules.where(active: true).first
+        object.active_schedule
       end
 
       def schedule_exceptions

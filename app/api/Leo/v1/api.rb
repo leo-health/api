@@ -6,7 +6,7 @@ module Leo
 
       include Grape::Kaminari
 
-      ENTITIES = %w(image provider avatar role insurance_plan insurer user escalation_note system appointment_status
+      ENTITIES = %w(image avatar role provider insurance_plan insurer user escalation_note system appointment_status
                     appointment_type message short_user full_message patient conversation practice_schedule
                     provider_leave practice appointment short_patient short_conversation card family session
                     vital allergy medication vaccine user_generated_health_record form patient_insurance phr

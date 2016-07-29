@@ -14,3 +14,7 @@ end
 every 1.day, :at => '12:00pm' do
   rake 'notification:escalated_conversation_email_digest'
 end
+
+every 1.day, :at => '4:00am' do
+  rake 'notification:broadcast_practice_availability'
+end
