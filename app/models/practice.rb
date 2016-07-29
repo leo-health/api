@@ -41,7 +41,7 @@ class Practice < ActiveRecord::Base
   end
 
   def active_schedule
-    object.practice_schedules.where(active: true).first
+    practice_schedules.where(active: true).first
   end
 
   private
