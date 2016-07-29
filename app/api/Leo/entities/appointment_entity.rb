@@ -8,7 +8,7 @@ module Leo
       expose :appointment_type, with: Leo::Entities::AppointmentTypeEntity
       expose :notes
       expose :booked_by, with: Leo::Entities::UserEntity
-      expose :provider, with: Leo::Entities::UserEntity
+      expose :provider, with: Leo::Entities::ProviderEntity
       expose :patient, with: Leo::Entities::PatientEntity
       expose :practice, with: Leo::Entities::PracticeEntity
     end
