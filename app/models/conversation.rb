@@ -36,7 +36,6 @@ class Conversation < ActiveRecord::Base
     event :open do
       after do
         broadcast_conversation_by_state
-        sms_staff
       end
 
       transitions from: :closed, to: :open
@@ -70,16 +69,6 @@ class Conversation < ActiveRecord::Base
   def load_initial_message
     sender = User.find_by_email('victoria@flatironpediatrics.com') || User.leo_bot
     messages.create(body: MESSAGE_BODY, sender: sender, type_name: :text) if sender
-  end
-
-  def sms_staff
-    if practice = Practice.find_by(name: 'Flatiron Pediatrics')
-      practice.staff.each do |staff_profile|
-        if staff_profile.notification && staff_profile.staff.try(:phone)
-
-        end
-      end
-    end
   end
 
   def broadcast_conversation_by_state
