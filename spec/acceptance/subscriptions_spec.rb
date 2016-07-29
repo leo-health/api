@@ -9,6 +9,7 @@ resource "Subscriptions" do
   let!(:user){ create(:user) }
   let!(:session){ user.sessions.create }
   let!(:patient){ create(:patient, family: user.family) }
+  let(:stripe_helper) { StripeMock.create_test_helper }
 
   before do
     Stripe.api_key="test_key"
@@ -23,8 +24,8 @@ resource "Subscriptions" do
   post "/api/v1/subscriptions" do
     parameter :authentication_token, "Authentication Token", required: true
     parameter :credit_card_token, "Credit Card Token", required: true
+    parameter :coupon_id, "Promo Code"
 
-    let(:stripe_helper) { StripeMock.create_test_helper }
     let(:credit_card_token){ stripe_helper.generate_card_token }
     let(:authentication_token){ session.authentication_token }
     let(:raw_post){ params.to_json }
@@ -32,6 +33,24 @@ resource "Subscriptions" do
     example "create a stripe subscription for enrollment" do
       do_request
       expect(response_status).to eq(201)
+    end
+  end
+
+  get "/api/v1/subscriptions/validate_coupon" do
+    parameter :authentication_token, "Authentication Token", required: true
+    parameter :coupon_id, "Promo Code", required: true
+
+    let(:authentication_token){ session.authentication_token }
+    let(:coupon_id){ 'NEWPARENT16'}
+    let(:raw_post){ params.to_json }
+
+    before do
+      Stripe::Coupon.create(:percent_off => 100, :duration => 'once', :id => 'NEWPARENT16')
+    end
+
+    example "validate a stripe promo code" do
+      do_request
+      expect(response_status).to eq(200)
     end
   end
 end
