@@ -45,7 +45,7 @@ RSpec.describe Practice, type: :model do
     end
   end
 
-  describe "sync jobs" do
+  describe "#subscribe_to_athena" do
     let(:practice){create(:practice)}
     before do
       @practice = practice
@@ -75,6 +75,48 @@ RSpec.describe Practice, type: :model do
           expect(Delayed::Job.where(queue: SyncPracticeJob.queue_name, owner:@practice).count).to be(1)
         end
       end
+    end
+  end
+
+  describe "on call" do
+    let(:practice){create(:practice)}
+    let(:oncall_provider){ create(:user, :clinical, practice: practice) }
+    let!(:staff_profile){ create(:staff_profile, staff: oncall_provider, sms_enabled: false, on_call: true) }
+
+    describe "#oncall_providers" do
+      it "should return oncall providers of the pratice" do
+        expect(practice.oncall_providers).to eq([oncall_provider])
+      end
+    end
+
+    describe "#available?" do
+      it "should return true or false on any provider is oncall" do
+        expect(practice.available?).to eq(true)
+      end
+    end
+
+    describe "#start_after_office_hours" do
+      it "should update sms_enabled to true and on_call to false, then broadcast the changes" do
+        expect(practice).to receive(:broadcast_practice_availability)
+        practice.start_after_office_hours
+      end
+    end
+
+    describe "#start_in_office_hours" do
+      it "should update sms_enabled to false and on_call to true, then broadcast the changes" do
+        expect(practice).to receive(:broadcast_practice_availability)
+        practice.start_in_office_hours
+      end
+    end
+  end
+
+  describe "office hours" do
+    describe "#start_after_office_hours" do
+
+    end
+
+    describe "#start_in_office_hours" do
+
     end
   end
 end

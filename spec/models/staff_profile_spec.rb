@@ -8,6 +8,21 @@ RSpec.describe StaffProfile, type: :model do
   end
 
   describe "callbacks" do
-    describe "after_update"
+    let(:staff_profile){ create(:staff_profile) }
+    let(:practice){ create(:practice) }
+    let(:staff){ staff_profile.staff}
+
+    context "after_update" do
+      describe 'check_on_call_status' do
+        before do
+          staff.update_attributes(practice: practice)
+        end
+
+        it "should broadcast practice availability change based on staff on_call status change" do
+          expect(staff.practice).to receive(:broadcast_practice_availability)
+          staff_profile.update_attributes(on_call: true)
+        end
+      end
+    end
   end
 end
