@@ -31,7 +31,7 @@ class Practice < ActiveRecord::Base
 
   def broadcast_practice_availability
     begin
-      Pusher.trigger("practice", :availability_changed, { practice_id: id })
+      Pusher.trigger("private-practice", :availability_changed, { practice_id: id })
     rescue Pusher::Error => e
       Rails.logger.error "Pusher error: #{e.message}"
     end
