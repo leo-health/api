@@ -423,6 +423,25 @@ if should_seed_flatiron
     },
 
     {
+      first_name: "An",
+      last_name: "Le",
+      sex: "F",
+      email: "an.le07004@gmail.com",
+      password: "password",
+      password_confirmation: "password",
+      role: Role.find_by(name: :clinical_support),
+      practice_id: 1,
+      phone: '+17819645918',
+      staff_profile_attributes: {
+        specialties: "",
+        credentials: ["RN"]
+      },
+      avatar_attributes: {
+        avatar: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'An-Shoulder.png'))
+      }
+    },
+
+    {
       first_name: "Catherine",
       last_name: "Franco",
       sex: "F",
@@ -605,7 +624,7 @@ providers.each do |attributes|
     user = User.create!(attributes.except(:avatar_attributes, :provider_schedule_attributes))
     user.set_complete!
   end
-  
+
   begin
     if avatar = user.avatar
       avatar.update_attributes!(attributes[:avatar_attributes])
