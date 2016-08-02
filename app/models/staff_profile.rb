@@ -4,6 +4,7 @@ class StaffProfile < ActiveRecord::Base
   belongs_to :provider
   belongs_to :avatar
   after_update :check_on_call_status
+  validates_uniqueness_of :staff_id
 
   def role
     staff.try(:role) || provider.try(:role)
