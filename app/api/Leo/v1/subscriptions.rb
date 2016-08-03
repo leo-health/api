@@ -6,8 +6,36 @@ module Leo
           authenticated
         end
 
+        namespace :validate_coupon do
+          params do
+            requires :coupon_id, type: String
+          end
+
+          get do
+            begin
+              coupon = Stripe::Coupon.retrieve(params[:coupon_id].try(:upcase))
+            rescue Stripe::InvalidRequestError => e
+              error!({ error_code: 422, user_message: "#{params[:coupon_id]} is not a valid promo code"}, 422)
+            end
+
+            text = case coupon.duration
+            when 'forever'
+              'Your membership is free forever'
+            when 'once'
+              'Your first month of membership is on us!'
+            when 'repeating'
+              "Your first #{coupon.duration_in_months} months are on us!"
+            end
+
+            present :coupon, coupon
+            present :coupon_id, coupon.try(:id)
+            present :text, text
+          end
+        end
+
         params do
           requires :credit_card_token, type: String
+          optional :coupon_id, type: String
         end
 
         post do
@@ -36,7 +64,7 @@ module Leo
             error_code = 422
           else
             begin
-              unless family.update_or_create_stripe_subscription_if_needed!(params[:credit_card_token])
+              unless family.update_or_create_stripe_subscription_if_needed!(params[:credit_card_token], params[:coupon_id])
                 debug_message = family.errors.full_messages.to_s
                 error_code = 500
               end
