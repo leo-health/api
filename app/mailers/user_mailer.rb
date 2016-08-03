@@ -21,7 +21,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo + Flatiron Pediatrics - Get the app.',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'LINK': user.invitation_url,
+        'LINK': user.invitation_url
       }
     ).delay(queue: 'exempt_registration_email', owner: user).deliver
   end
@@ -33,7 +33,7 @@ class UserMailer < MandrillMailer::TemplateMailer
       subject: 'Leo + Flatiron Pediatrics Membership for Free - Register Now',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'LINK': user.invitation_url,
+        'LINK': user.invitation_url
       }
     ).delay(queue: 'exempt_registration_email', owner: user).deliver
    end
