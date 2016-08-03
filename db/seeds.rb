@@ -431,7 +431,7 @@ if should_seed_flatiron
       password_confirmation: "password",
       role: Role.find_by(name: :clinical_support),
       practice_id: 1,
-      phone: '+17819645918',
+      phone: '+12032335131',
       staff_profile_attributes: {
         specialties: "",
         credentials: ["RN"]
