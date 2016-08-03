@@ -19,7 +19,7 @@ module Leo
         put :current do
           declared_params = declared params, include_missing: false
           if (staff_profile = current_user.staff_profile) && staff_profile.update_attributes(declared_params)
-            present :staff_profile, staff_profile
+            present :user, staff_profile.staff, with: Leo::Entities::UserEntity
           else
             error!({error_code: 422, user_message: staff_profile.errors.full_messages.first }, 422)
           end
