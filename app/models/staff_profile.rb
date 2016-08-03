@@ -22,11 +22,13 @@ class StaffProfile < ActiveRecord::Base
   private
 
   def check_on_call_status
-    return unless on_call_changed? && staff && staff.practice.oncall_providers.count <= 1
-    if on_call_changed?(from: true, to: false) && staff.practice.oncall_providers.count == 0
-      staff.practice.broadcast_practice_availability
-    elsif on_call_changed?(from: false, to: true) && staff.practice.oncall_providers.count >= 1
-      staff.practice.broadcast_practice_availability
+    return unless (staff || staff.complete?)
+    if on_call_changed?(from: true, to: false)
+      update_columns(sms_enabled: false)
+      staff.practice.broadcast_practice_availability if staff.practice.oncall_providers.count == 0
+    elsif on_call_changed?(from: false, to: true)
+      update_columns(sms_enabled: true)
+      staff.practice.broadcast_practice_availability if staff.practice.oncall_providers.count == 1
     end
   end
 end

@@ -10,7 +10,7 @@ RSpec.describe StaffProfile, type: :model do
   describe "callbacks" do
     let(:staff_profile){ create(:staff_profile) }
     let(:practice){ create(:practice) }
-    let(:staff){ staff_profile.staff}
+    let(:staff){ staff_profile.staff }
 
     context "after_update" do
       describe 'check_on_call_status' do
