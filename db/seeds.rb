@@ -754,4 +754,15 @@ end
 
 puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
 
+DeepLinkCard.create(
+  :title => "Sharing is caring!",
+  :body => "Invite your friends to a private consult at Flatiron Pediatrics",
+  :tint_color_hex => "#FF5F40",
+  :tinted_header_text => "REFER",
+  :dismiss_button_text => "DISMISS",
+  :deep_link_button_text => "REFER A FRIEND",
+  :deep_link => "referral"
+)
+
+
 puts "Finished seeding all data"

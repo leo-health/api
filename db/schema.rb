@@ -118,10 +118,10 @@ ActiveRecord::Schema.define(version: 20160804211022) do
   add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
   add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
 
-  create_table "card_notification", force: :cascade do |t|
+  create_table "card_notifications", force: :cascade do |t|
     t.integer  "user_id"
-    t.string   "card_type"
     t.integer  "card_id"
+    t.string   "card_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -143,7 +143,7 @@ ActiveRecord::Schema.define(version: 20160804211022) do
     t.string   "state",                   default: "closed"
   end
 
-  create_table "deep_link_card", force: :cascade do |t|
+  create_table "deep_link_cards", force: :cascade do |t|
     t.string   "title"
     t.string   "body"
     t.string   "icon_url"
@@ -151,6 +151,7 @@ ActiveRecord::Schema.define(version: 20160804211022) do
     t.string   "tinted_header_text"
     t.string   "dismiss_button_text"
     t.string   "deep_link_button_text"
+    t.string   "deep_link"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -539,10 +540,10 @@ ActiveRecord::Schema.define(version: 20160804211022) do
 
   create_table "staff_profiles", force: :cascade do |t|
     t.integer  "staff_id"
-    t.string   "specialties",                                 array: true
-    t.string   "credentials",                                 array: true
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.string   "specialties",                 array: true
+    t.string   "credentials",                 array: true
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
     t.integer  "provider_id"
     t.integer  "practice_id"
     t.integer  "athena_id"
@@ -555,8 +556,6 @@ ActiveRecord::Schema.define(version: 20160804211022) do
     t.string   "email"
     t.string   "type"
     t.integer  "avatar_id"
-    t.boolean  "sms_enabled",    default: false
-    t.boolean  "on_call",        default: false
   end
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree

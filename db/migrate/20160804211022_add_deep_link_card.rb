@@ -1,6 +1,6 @@
 class AddDeepLinkCard < ActiveRecord::Migration
   def change
-    create_table(:deep_link_card) do |t|
+    create_table(:deep_link_cards) do |t|
       t.string :title
       t.string :body
       t.string :icon_url
@@ -8,13 +8,13 @@ class AddDeepLinkCard < ActiveRecord::Migration
       t.string :tinted_header_text
       t.string :dismiss_button_text
       t.string :deep_link_button_text
+      t.string :deep_link
       t.timestamps
     end
 
-    create_table(:card_notification) do |t|
+    create_table(:card_notifications) do |t|
       t.belongs_to :user
-      t.string :card_type
-      t.integer :card_id
+      t.references :card, polymorphic: true
       t.timestamps
     end
   end
