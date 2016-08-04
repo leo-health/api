@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MessageUploader < CarrierWave::Uploader::Base
+class ImageUploader < CarrierWave::Uploader::Base
 
   # Include RMagick or MiniMagick support:
   # include CarrierWave::RMagick
@@ -13,14 +13,10 @@ class MessageUploader < CarrierWave::Uploader::Base
   end
 
   version :primary_3x do
-    process resize_to_fit: [900, 900]
+    process resize_to_fit: [300, 300]
   end
 
   version :primary_2x do
-    process resize_to_fit: [600, 600]
-  end
-
-  version :primary_1x do
     process resize_to_fit: [200, 200]
   end
 

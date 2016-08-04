@@ -5,6 +5,7 @@ module Leo
       expose :parameters
       expose :full_size_image_url
       expose :web_app_image_url
+      expose :non_clinical
 
       private
 
