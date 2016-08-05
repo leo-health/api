@@ -1,6 +1,7 @@
 module Leo
   module Entities
     class CardEntity < Grape::Entity
+      expose :id, safe: true
       expose :priority
       expose :type, as: :type_name
       expose :type_id
