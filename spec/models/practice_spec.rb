@@ -109,14 +109,4 @@ RSpec.describe Practice, type: :model do
       end
     end
   end
-
-  describe "office hours" do
-    describe "#start_after_office_hours" do
-
-    end
-
-    describe "#start_in_office_hours" do
-
-    end
-  end
 end
