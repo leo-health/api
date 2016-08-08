@@ -15,27 +15,25 @@ class UserMailer < MandrillMailer::TemplateMailer
   end
 
   def invite_exempt_synced_user(user)
-    token = user.invitation_token
     mandrill_mail(
       template: 'Leo - Exempt User Registration',
       inline_css: true,
       subject: 'Leo + Flatiron Pediatrics - Get the app.',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
+        'LINK': user.invitation_url,
       }
     ).delay(queue: 'exempt_registration_email', owner: user).deliver
   end
 
   def reinvite_exempt_synced_user(user)
-    token = user.invitation_token
     mandrill_mail(
       template: 'Leo - Exempt User Registration Reminder',
       inline_css: true,
       subject: 'Leo + Flatiron Pediatrics Membership for Free - Register Now',
       to: user.unconfirmed_email || user.email,
       vars: {
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=primary&token=#{token}",
+        'LINK': user.invitation_url,
       }
     ).delay(queue: 'exempt_registration_email', owner: user).deliver
    end
@@ -66,15 +64,15 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def invite_secondary_parent(enrollment, current_user)
+  def invite_secondary_parent(secondary_user, current_user)
     mandrill_mail(
       template: 'Leo - Invite a Secondary Guardian',
       inline_css: true,
       subject: "You've been invited to join Leo + Flatiron Pediatrics!",
-      to: enrollment.email,
+      to: secondary_user.email,
       vars: {
-        'LINK': "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=secondary&token=#{enrollment.invitation_token}",
-        'SECONDARY_GUARDIAN_FIRST_NAME': enrollment.first_name.capitalize,
+        'LINK': secondary_user.invitation_url,
+        'SECONDARY_GUARDIAN_FIRST_NAME': secondary_user.first_name.capitalize,
         'PRIMARY_GUARDIAN_FIRST_NAME': current_user.first_name.capitalize
       }
     )
