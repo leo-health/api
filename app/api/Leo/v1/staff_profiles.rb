@@ -1,9 +1,6 @@
 module Leo
   module V1
     class StaffProfiles < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
-
       resources :staff_profiles do
         before do
           authenticated
