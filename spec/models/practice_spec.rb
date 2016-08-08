@@ -83,9 +83,9 @@ RSpec.describe Practice, type: :model do
     let(:oncall_provider){ create(:user, :clinical, practice: practice) }
     let!(:staff_profile){ create(:staff_profile, staff: oncall_provider, sms_enabled: false, on_call: true) }
 
-    describe "#oncall_providers" do
+    describe "#on_call_providers" do
       it "should return oncall providers of the pratice" do
-        expect(practice.oncall_providers).to eq([oncall_provider])
+        expect(practice.on_call_providers).to eq([oncall_provider])
       end
     end
 

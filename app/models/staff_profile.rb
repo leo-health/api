@@ -25,10 +25,10 @@ class StaffProfile < ActiveRecord::Base
     return unless (staff || staff.complete?)
     if on_call_changed?(from: true, to: false)
       update_columns(sms_enabled: false)
-      staff.practice.broadcast_practice_availability if staff.practice.oncall_providers.count == 0
+      staff.practice.broadcast_practice_availability if staff.practice.on_call_providers.count == 0
     elsif on_call_changed?(from: false, to: true)
       update_columns(sms_enabled: true)
-      staff.practice.broadcast_practice_availability if staff.practice.oncall_providers.count == 1
+      staff.practice.broadcast_practice_availability if staff.practice.on_call_providers.count == 1
     end
   end
 end

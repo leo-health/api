@@ -21,12 +21,12 @@ class Practice < ActiveRecord::Base
     SyncPracticeJob.new(self).subscribe_if_needed run_at: Time.now
   end
 
-  def oncall_providers
+  def on_call_providers
     staff.joins(:staff_profile).where(staff_profile: { on_call: true })
   end
 
   def available?
-    oncall_providers.count > 0
+    on_call_providers.count > 0
   end
 
   def broadcast_practice_availability
