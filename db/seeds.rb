@@ -761,7 +761,8 @@ DeepLinkCard.create(
   :tinted_header_text => "REFER",
   :dismiss_button_text => "DISMISS",
   :deep_link_button_text => "REFER A FRIEND",
-  :deep_link => "referral"
+  :deep_link => "referral",
+  :icon => Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
 )
 
 

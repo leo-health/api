@@ -146,7 +146,7 @@ ActiveRecord::Schema.define(version: 20160804211022) do
   create_table "deep_link_cards", force: :cascade do |t|
     t.string   "title"
     t.string   "body"
-    t.string   "icon_url"
+    t.string   "icon"
     t.string   "tint_color_hex"
     t.string   "tinted_header_text"
     t.string   "dismiss_button_text"

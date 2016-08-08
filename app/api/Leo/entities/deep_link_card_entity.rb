@@ -3,7 +3,7 @@ module Leo
     class DeepLinkCardEntity < Grape::Entity
       expose :title
       expose :body
-      expose :icon_url
+      expose :icon
       expose :deep_link
       expose :tint_color_hex
       expose :tinted_header_text
@@ -12,6 +12,17 @@ module Leo
 
       def deep_link
         "#{ENV['DEEPLINK_SCHEME']}://#{object.deep_link}"
+      end
+
+      private
+
+      def icon
+        # icon will never be nil
+        # https://github.com/carrierwaveuploader/carrierwave
+        # Note: u.avatar will never return nil, even if there is no photo associated to it.
+        if object.icon.url
+          Leo::Entities::ImageEntity.represent(object.icon, options)
+        end
       end
     end
   end
