@@ -8,7 +8,7 @@ module Leo
         Leo::Entities::AvatarEntity.represent instance.avatar, options
       end
       expose :primary_guardian, :stripe_customer_id, :vendor_id, :family_id, :phone, :onboarding_group, if: Proc.new{ |u| u.guardian? }
-      expose :credentials, :is_oncall, :is_practice_open, :is_sms, unless: Proc.new{ |u| u.guardian? }
+      expose :credentials, :is_oncall, :is_practice_open, :sms_enabled, unless: Proc.new{ |u| u.guardian? }
       expose :onboarding_group, :membership_type, safe: true
 
       private
@@ -17,7 +17,7 @@ module Leo
         object.try(:staff_profile).try(:on_call)
       end
 
-      def is_sms
+      def sms_enabled
         object.try(:staff_profile).try(:sms_enabled)
       end
 

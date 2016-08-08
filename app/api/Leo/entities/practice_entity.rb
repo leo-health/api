@@ -17,6 +17,7 @@ module Leo
       expose :providers, with: Leo::Entities::ProviderEntity
       expose :active_schedule, with: Leo::Entities::PracticeScheduleEntity
       expose :schedule_exceptions, with: Leo::Entities::ProviderLeaveEntity
+      expose :oncall_providers, with: Leo::Entities::UserEntity
 
       private
 

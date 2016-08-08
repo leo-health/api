@@ -4,10 +4,9 @@ describe Leo::V1::Practices do
   let(:practice){ create(:practice) }
   let(:user){ create(:user, :guardian, practice: practice) }
   let!(:session){ user.sessions.create }
+  let(:serializer){ Leo::Entities::PracticeEntity }
 
   describe "GET /api/v1/practices" do
-    let(:serializer){ Leo::Entities::PracticeEntity }
-
     def do_request
       get "/api/v1/practices", { authentication_token: session.authentication_token }
     end
@@ -21,8 +20,6 @@ describe Leo::V1::Practices do
   end
 
   describe "GET /api/v1/practices/:id" do
-    let(:serializer){ Leo::Entities::ShortPracticeEntity }
-
     def do_request
       get "/api/v1/practices/#{practice.id}", { authentication_token: session.authentication_token }
     end

@@ -14,7 +14,7 @@ module Leo
         desc "Return the practice by id"
         get ":id" do
           practice = Practice.find_by(id: params[:id])
-          present :practice, practice, with: Leo::Entities::ShortPracticeEntity
+          present :practice, practice, with: Leo::Entities::PracticeEntity
         end
       end
     end
