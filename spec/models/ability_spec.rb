@@ -218,5 +218,13 @@ describe "User" do
         it{should be_able_to(:read, Session.new)}
       end
     end
+
+    context "when user has the role operational" do
+      let!(:user){build(:user, :operational)}
+
+      describe "ability for Sessions" do
+        it{should be_able_to(:read, Session.new)}
+      end
+    end
   end
 end
