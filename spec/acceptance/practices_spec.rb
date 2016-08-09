@@ -8,10 +8,7 @@ resource "Practices" do
   let(:user){ create(:user) }
   let(:session){ user.sessions.create }
   let(:authentication_token){ session.authentication_token }
-
-  let(:practice){
-    create(:practice, time_zone: Time.zone.name)
-  }
+  let(:practice){ create(:practice, time_zone: Time.zone.name) }
 
   let!(:staff) {
     [
@@ -34,6 +31,18 @@ resource "Practices" do
     let(:raw_post){ params.to_json }
 
     example "get all practices" do
+      do_request
+      expect(response_status).to eq(200)
+    end
+  end
+
+  get "/api/v1/practices/:id" do
+    parameter :authentication_token, "Authentication Token", required: true
+
+    let(:id){ practice.id }
+    let(:raw_post){ params.to_json }
+
+    example "get a practice with id" do
       do_request
       expect(response_status).to eq(200)
     end

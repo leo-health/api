@@ -1,4 +1,3 @@
-require 'airborne'
 require 'rails_helper'
 
 describe Leo::V1::Practices do
@@ -6,13 +5,9 @@ describe Leo::V1::Practices do
   let(:user){ create(:user, :guardian, practice: practice) }
   let!(:session){ user.sessions.create }
 
-  describe "create a practice" do
-    it "should create a delayed job practice sync" do
-      expect(Delayed::Job.where(owner: practice).count).to be(1)
-    end
-  end
-
   describe "GET /api/v1/practices" do
+    let(:serializer){ Leo::Entities::PracticeEntity }
+
     def do_request
       get "/api/v1/practices", { authentication_token: session.authentication_token }
     end
@@ -20,11 +15,14 @@ describe Leo::V1::Practices do
     it "should return all practices" do
       do_request
       expect(response.status).to eq(200)
-      expect_json_sizes("data.practices", 1)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:practices].as_json.to_json).to eq(serializer.represent([practice]).as_json.to_json)
     end
   end
 
   describe "GET /api/v1/practices/:id" do
+    let(:serializer){ Leo::Entities::ShortPracticeEntity }
+
     def do_request
       get "/api/v1/practices/#{practice.id}", { authentication_token: session.authentication_token }
     end
@@ -32,7 +30,8 @@ describe Leo::V1::Practices do
     it "should return the individual practice" do
       do_request
       expect(response.status).to eq(200)
-      expect_json("data.practice.id", practice.id)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:practice].as_json.to_json).to eq(serializer.represent(Practice.find_by(id: practice.id)).as_json.to_json)
     end
   end
 end

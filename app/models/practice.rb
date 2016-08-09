@@ -1,27 +1,56 @@
 class Practice < ActiveRecord::Base
   belongs_to :appointments_sync_job, class_name: Delayed::Job
-  has_many :staff, class_name: "StaffProfile"
   has_many :guardians, ->{ guardians }, class_name: "User"
+  has_many :staff, ->{ staff }, class_name: "User"
   has_many :providers
   has_many :appointments, -> { where appointment_status: AppointmentStatus.booked }
   has_many :practice_schedules
-
   validates :name, presence: true
-
   after_commit :subscribe_to_athena, on: :create
 
   def self.flatiron_pediatrics
     self.find_by(athena_id: 1)
   end
 
-  def in_office_hour?
+  def in_office_hours?
     start_time, end_time = convert_time
     (start_time..end_time).cover?(Time.current)
   end
 
-
   def subscribe_to_athena
     SyncPracticeJob.new(self).subscribe_if_needed run_at: Time.now
+  end
+
+  def oncall_providers
+    staff.joins(:staff_profile).where(staff_profile: { on_call: true })
+  end
+
+  def available?
+    oncall_providers.count > 0
+  end
+
+  def broadcast_practice_availability
+    begin
+      Pusher.trigger("private-practice", :availability_changed, { practice_id: id })
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
+    end
+  end
+
+  def active_schedule
+    practice_schedules.where(active: true).first
+  end
+
+  def start_after_office_hours
+    if StaffProfile.where(staff: staff).update_all(sms_enabled: true, on_call: false) > 0
+      broadcast_practice_availability
+    end
+  end
+
+  def start_in_office_hours
+    if StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: true) > 0
+      broadcast_practice_availability
+    end
   end
 
   private

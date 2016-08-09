@@ -12,20 +12,21 @@ module Leo
       expose :phone
       expose :email
       expose :time_zone
+      expose :available
       expose :staff, with: Leo::Entities::UserEntity
-      expose :providers, with: Leo::Entities::UserEntity
+      expose :providers, with: Leo::Entities::ProviderEntity
       expose :active_schedule, with: Leo::Entities::PracticeScheduleEntity
       expose :schedule_exceptions, with: Leo::Entities::ProviderLeaveEntity
 
       private
 
+      def available
+        object.available?
+      end
+
       def time_zone
         #This request should be based on the device requesting the data
         ActiveSupport::TimeZone.find_tzinfo(object.time_zone).name
-      end
-
-      def active_schedule
-        object.practice_schedules.where(active: true).first
       end
 
       def schedule_exceptions
