@@ -24,7 +24,11 @@ module Leo
             when 'once'
               'Your first month of membership is on us!'
             when 'repeating'
-              "Your first #{coupon.duration_in_months} months are on us!"
+              if coupon.duration_in_months == 1
+                "Your first month of membership is on us!"
+              else
+                "Your first #{coupon.duration_in_months} months are on us!"
+              end
             end
 
             present :coupon, coupon
