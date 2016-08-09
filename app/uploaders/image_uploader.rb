@@ -32,6 +32,10 @@ class ImageUploader < CarrierWave::Uploader::Base
     "#{secure_token}.#{file.extension}" if original_filename.present?
   end
 
+  def non_clinical
+    false
+  end
+
   protected
 
   def secure_token
