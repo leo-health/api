@@ -75,8 +75,10 @@ module Leo
         end
 
         get do
-          if  session = Session.find_by(authentication_token: params[:authentication_token])
+          if session = Session.find_by(authentication_token: params[:authentication_token])
             authorize! :read, session
+          else
+            error!('401 Unauthorized', 401)
           end
         end
       end
