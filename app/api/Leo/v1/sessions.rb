@@ -1,8 +1,7 @@
 module Leo
   module V1
     class Sessions < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
+      resource :sessions
 
       namespace :login do
         params do
@@ -66,6 +65,20 @@ module Leo
             present :session, session, with: Leo::Entities::SessionEntity
           else
             error!({error_code: 422, user_message: session.errors.full_messages.first }, 422)
+          end
+        end
+      end
+
+      namespace :staff_validation do
+        params do
+          requires :authentication_token, type: String
+        end
+
+        get do
+          if session = Session.find_by(authentication_token: params[:authentication_token])
+            authorize! :read, session
+          else
+            error!('401 Unauthorized', 401)
           end
         end
       end
