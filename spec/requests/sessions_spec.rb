@@ -66,7 +66,7 @@ describe Leo::V1::Sessions do
       let(:user){ create(:user) }
       let(:session){ user.sessions.create }
 
-      it "should return validatino error" do
+      it "should return validation error" do
         do_request({ authentication_token: session.authentication_token })
         expect(response.status).to eq(401)
       end
