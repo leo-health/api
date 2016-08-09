@@ -21,6 +21,10 @@ describe "User" do
         it{should be_able_to(:destroy, family_member)}
       end
 
+      describe "ability for Sessions" do
+        it{should_not be_able_to(:read, Session.new)}
+      end
+
       describe "ability for avatars" do
         let(:other_patient){create(:patient, family: other_user.family)}
         let!(:avatar){build(:avatar, owner: patient)}
@@ -102,6 +106,10 @@ describe "User" do
       describe "ability for Appointments" do
         it{should be_able_to(:read, Appointment.new)}
       end
+
+      describe "ability for Sessions" do
+        it{should be_able_to(:read, Session.new)}
+      end
     end
 
     context "when user has the role clinical" do
@@ -138,6 +146,10 @@ describe "User" do
         it{should be_able_to(:update, Form.new)}
         it{should be_able_to(:destroy, Form.new)}
       end
+
+      describe "ability for Sessions" do
+        it{should be_able_to(:read, Session.new)}
+      end
     end
 
     context "when user has the role clinical_support" do
@@ -171,6 +183,10 @@ describe "User" do
         it{should be_able_to(:update, Form.new)}
         it{should be_able_to(:destroy, Form.new)}
       end
+
+      describe "ability for Sessions" do
+        it{should be_able_to(:read, Session.new)}
+      end
     end
 
     context "when user has the role customer_service" do
@@ -196,6 +212,18 @@ describe "User" do
 
       describe "ability for Forms" do
         it{should be_able_to(:read, Form.new)}
+      end
+
+      describe "ability for Sessions" do
+        it{should be_able_to(:read, Session.new)}
+      end
+    end
+
+    context "when user has the role operational" do
+      let!(:user){build(:user, :operational)}
+
+      describe "ability for Sessions" do
+        it{should be_able_to(:read, Session.new)}
       end
     end
   end
