@@ -69,6 +69,17 @@ module Leo
           end
         end
       end
+
+      namespace :staff_validation do
+        params do
+          requires :authentication_token, type: String
+        end
+
+        post do
+          session = Session.find_by(authentication_token: params[:authentication_token])
+          error!('401 Unauthorized', 401) unless session && !session.user.guardian?
+        end
+      end
     end
   end
 end

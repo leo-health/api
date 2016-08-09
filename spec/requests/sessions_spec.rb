@@ -56,4 +56,30 @@ describe Leo::V1::Sessions do
       expect( body[:data][:user].as_json.to_json ).to eq( serializer.represent(user).as_json.to_json )
     end
   end
+
+  describe "POST /api/v1/staff_validation" do
+    def do_request(params)
+      post "/api/v1/staff_validation", params, format: :json
+    end
+
+    context "user is a guardian" do
+      let(:user){ create(:user) }
+      let(:session){ user.sessions.create }
+
+      it "should return validatino error" do
+        do_request({ authentication_token: session.authentication_token })
+        expect(response.status).to eq(401)
+      end
+    end
+
+    context "user is not a guardian" do
+      let(:user){ create(:user, :clinical) }
+      let(:session){ user.sessions.create }
+
+      it "should allow a provider to login" do
+        do_request({ authentication_token: session.authentication_token })
+        expect(response.status).to eq(201)
+      end
+    end
+  end
 end
