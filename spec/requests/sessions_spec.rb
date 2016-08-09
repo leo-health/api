@@ -57,9 +57,9 @@ describe Leo::V1::Sessions do
     end
   end
 
-  describe "POST /api/v1/staff_validation" do
+  describe "GET /api/v1/staff_validation" do
     def do_request(params)
-      post "/api/v1/staff_validation", params, format: :json
+      get "/api/v1/staff_validation", params, format: :json
     end
 
     context "user is a guardian" do
@@ -68,7 +68,7 @@ describe Leo::V1::Sessions do
 
       it "should return validation error" do
         do_request({ authentication_token: session.authentication_token })
-        expect(response.status).to eq(401)
+        expect(response.status).to eq(403)
       end
     end
 
@@ -78,7 +78,7 @@ describe Leo::V1::Sessions do
 
       it "should allow a provider to login" do
         do_request({ authentication_token: session.authentication_token })
-        expect(response.status).to eq(201)
+        expect(response.status).to eq(200)
       end
     end
   end

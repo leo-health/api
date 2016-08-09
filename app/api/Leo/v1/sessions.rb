@@ -1,8 +1,7 @@
 module Leo
   module V1
     class Sessions < Grape::API
-      version 'v1', using: :path, vendor: 'leo-health'
-      format :json
+      resource :sessions
 
       namespace :login do
         params do
@@ -75,9 +74,10 @@ module Leo
           requires :authentication_token, type: String
         end
 
-        post do
-          session = Session.find_by(authentication_token: params[:authentication_token])
-          error!('401 Unauthorized', 401) unless session && !session.user.guardian?
+        get do
+          if  session = Session.find_by(authentication_token: params[:authentication_token])
+            authorize! :read, session
+          end
         end
       end
     end
