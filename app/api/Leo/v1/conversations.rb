@@ -17,8 +17,12 @@ module Leo
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
-            close_params = {closed_by: current_user, note: params[:note], closure_reason_id: params[:reasonId]}
-            if conversation.close!(close_params)
+            hasNote = params[:hasNote]
+            note = params[:note]
+            close_params = {closed_by: current_user, note: note], closure_reason_id: params[:reasonId]}
+            if (hasNote && note.blank?) || (!hasNote && !note.blank?)
+              error!({error_code: 422, user_message: "can't close the conversation" }, 422)
+            elsif conversation.close!(close_params)
               close_params[:conversation_id] = conversation.id
               closure_note = ClosureNote.where(close_params).order('created_at DESC').first
               present :conversation_id, closure_note.conversation_id
