@@ -152,6 +152,15 @@ class User < ActiveRecord::Base
     invitation_sent_at ? (Time.now - EXPIRATION_PERIOD) > invitation_sent_at : false
   end
 
+  def invitation_url
+    onboarding_group_string = if onboarding_group.try(:invited_user?)
+      "secondary"
+    else
+      "primary"
+    end
+    "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=#{onboarding_group_string}&token=#{invitation_token}"
+  end
+
   private
 
   def prevalidate_for_completion
