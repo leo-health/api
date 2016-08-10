@@ -6,7 +6,8 @@ module Leo
 
       include Grape::Kaminari
 
-      ENTITIES = %w(image avatar role provider insurance_plan insurer user escalation_note system appointment_status
+      ENTITIES = %w(image avatar role provider insurance_plan insurer user
+                    escalation_note system appointment_status closure_reason
                     appointment_type message short_user full_message patient conversation practice_schedule
                     provider_leave practice appointment short_patient short_conversation deep_link_card card family session
                     vital allergy medication vaccine user_generated_health_record form patient_insurance phr)
@@ -61,6 +62,7 @@ module Leo
         def render_success object, device_type=session_device_type
           present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type
         end
+
 
         def update_success object, update_params, entity_name=nil, device_type=session_device_type
           if object.update_attributes(update_params)

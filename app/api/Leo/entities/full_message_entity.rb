@@ -7,6 +7,7 @@ module Leo
       expose :message_type
       expose :note
       expose :escalated_to, with: Leo::Entities::ShortUserEntity
+      expose :closure_reason, with: Leo::Entities::ClosureReasonEntity
       expose :created_by, with: Leo::Entities::ShortUserEntity
       expose :created_at
       expose :conversation_id, unless: Proc.new {|g|g.class.name == 'Message'}
@@ -26,6 +27,10 @@ module Leo
         when ClosureNote
           object.closed_by
         end
+      end
+
+      def closure_reason
+        object.closure_reason if object.class == ClosureNote
       end
 
       def body

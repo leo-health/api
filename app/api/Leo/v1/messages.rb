@@ -57,7 +57,7 @@ module Leo
                 truncated_date = message_to_truncate.created_at.iso8601.to_datetime
                 if truncated_date <= start_datetime
                   messages = messages.where.not id:messages.last.id
-                end                
+                end
               end
             end
 

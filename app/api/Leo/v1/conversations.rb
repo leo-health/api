@@ -17,18 +17,32 @@ module Leo
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
-            close_params = {closed_by: current_user, note: params[:note]}
+            close_params = {closed_by: current_user, note: params[:note], closure_reason_id: params[:reasonId]}
             if conversation.close!(close_params)
               close_params[:conversation_id] = conversation.id
               closure_note = ClosureNote.where(close_params).order('created_at DESC').first
               present :conversation_id, closure_note.conversation_id
               present :created_by, current_user
+              present :closure_reason_id, params[:reasonId]
               present :note, closure_note.note
               present :message_type, :close
               present :id, closure_note.id
             else
               error!({error_code: 422, user_message: "can't close the conversation" }, 422)
             end
+          end
+        end
+
+        desc 'return all closure reasons (Get /api/v1/closure_reasons)'
+        namespace :closure_reasons do
+          before do
+            authenticated
+          end
+
+          get do
+            reasons = ClosureReason.all
+            authorize! :read, User
+            present :reasons, reasons, with: Leo::Entities::ClosureReasonEntity
           end
         end
 
