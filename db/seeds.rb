@@ -662,6 +662,8 @@ staff.each do |attributes|
     user.set_complete!
   end
 
+  user.create_staff_profile!(practice_id: Practice.first) unless user.staff_profile
+
   begin
     if avatar = user.avatar
       avatar.update_attributes!(attributes[:avatar_attributes])
@@ -753,5 +755,17 @@ Provider.all.each do |provider|
 end
 
 puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
+
+DeepLinkCard.create(
+  :title => "Sharing is caring!",
+  :body => "Invite your friends to a private consult at Flatiron Pediatrics",
+  :tint_color_hex => "#FF5F40",
+  :tinted_header_text => "REFER",
+  :dismiss_button_text => "DISMISS",
+  :deep_link_button_text => "REFER A FRIEND",
+  :deep_link => "referral",
+  :icon => Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
+)
+
 
 puts "Finished seeding all data"

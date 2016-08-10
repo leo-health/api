@@ -1,7 +1,6 @@
 module Leo
   module V1
     class Practices < Grape::API
-
       resource :practices do
         before do
           authenticated
@@ -12,9 +11,10 @@ module Leo
           present :practices, Practice.all, with: Leo::Entities::PracticeEntity
         end
 
-        desc "Return an individual practice"
+        desc "Return the practice by id"
         get ":id" do
-          present :practice, Practice.find(params[:id]), with: Leo::Entities::PracticeEntity
+          practice = Practice.find_by(id: params[:id])
+          present :practice, practice, with: Leo::Entities::PracticeEntity
         end
       end
     end

@@ -1,19 +1,11 @@
-class SendSmsJob < Struct.new(:receiver_id, :sender_id, :sms_type, :run_at)
-
-  COOL_DOWN_PERIOD = 2.minutes
-
-  def self.send(receiver_id, sender_id, sms_type, run_at)
-    @run_at = Time.parse(run_at)
-    Delayed::Job.enqueue new(receiver_id, sender_id, sms_type, run_at), run_at: @run_at
+class SendSmsJob < Struct.new(:receiver_id)
+  def self.send(receiver_id)
+    Delayed::Job.enqueue new(receiver_id)
   end
 
   def perform
     receiver = User.find_by_id(receiver_id)
-    body = message_body(sender_id, run_at)
-    sms_user(receiver.phone, body) if receiver
-    return if sms_type == :escalation
-    set_next_cool_down_period(receiver_id, COOL_DOWN_PERIOD)
-    unpause_schedule_sms_jobs(receiver_id)
+    sms_user(receiver.phone, "You have a new message from a Leo Member.") if receiver
   end
 
   def queue_name
@@ -22,20 +14,12 @@ class SendSmsJob < Struct.new(:receiver_id, :sender_id, :sms_type, :run_at)
 
   private
 
-  def message_body(sender_id, run_at)
-    if sms_type == :batched
-      end_time = Time.parse(run_at)
-      Message.compile_sms_message(end_time - COOL_DOWN_PERIOD, end_time)
-    elsif sms_type == :single
-      return unless sender = User.find_by_id(sender_id)
-      "#{sender.full_name} sent you 1 message!"
-    elsif sms_type == :escalation
-      "A conversation has been escalated to you by #{sender.full_name}!"
-    end
-  end
-
   def sms_user(phone, body)
-    TWILIO.messages.create(from: TWILIO_PHONE_NUMBER, to: phone, body: body)
+    unless Rails.env.production?
+      TWILIO.messages.create(from: TWILIO_PHONE_NUMBER, to: '2035223374', body: body)
+    else
+      TWILIO.messages.create(from: TWILIO_PHONE_NUMBER, to: phone, body: body)
+    end
   end
 
   def unpause_schedule_sms_jobs(receiver_id)

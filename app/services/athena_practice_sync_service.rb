@@ -14,20 +14,12 @@ class AthenaPracticeSyncService < AthenaSyncService
 
   def sync_providers(practice) # NOTE: Providers are not associated with a Department!
     athena_providers = @connector.get_providers.sort_by(&method(:get_athena_id))
-
-
-
     # For the sake of simple and quick testing, only sync the first 3 providers
     athena_providers = athena_providers[0...3]
-
-
-
     existing_providers = Provider.where(athena_id: athena_providers.map(&method(:get_athena_id))).order(:athena_id).to_enum
-
     existing_provider = nil
     athena_providers.map { |athena_provider|
       leo_provider = nil
-
       begin
         existing_provider ||= existing_providers.next
       rescue StopIteration

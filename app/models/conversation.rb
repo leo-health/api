@@ -36,6 +36,7 @@ class Conversation < ActiveRecord::Base
     event :open do
       after do
         broadcast_conversation_by_state
+        sms_staff
       end
 
       transitions from: :closed, to: :open
@@ -65,6 +66,12 @@ class Conversation < ActiveRecord::Base
   private
 
   MESSAGE_BODY = "Welcome to Flatiron Pediatrics! Use this messaging channel to connect with us here at the practice. Send us any questions, concerns or requests (you can even send pictures!) and we’ll do our very best to get back to you right away."
+
+  def sms_staff
+    User.staff.includes(:staff_profile).where(staff_profile: {sms_enabled: true}).each do |staff|
+      SendSmsJob.send(staff.id)
+    end
+  end
 
   def load_initial_message
     sender = User.find_by_email('victoria@flatironpediatrics.com') || User.leo_bot
