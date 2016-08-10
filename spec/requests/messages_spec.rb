@@ -84,6 +84,10 @@ describe Leo::V1::Messages do
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
+    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: 10.days.ago)}
+    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: 5.days.ago)}
+    let!(:third_message){create(:message, conversation: conversation, sender: user, created_at: 0.days.ago)}
+
     before do
       Timecop.freeze
     end
@@ -91,10 +95,6 @@ describe Leo::V1::Messages do
     after do
       Timecop.return
     end
-
-    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: 10.days.ago)}
-    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: 5.days.ago)}
-    let!(:third_message){create(:message, conversation: conversation, sender: user, created_at: 0.days.ago)}
 
     def do_request(params = {})
       get "/api/v1/conversations/#{conversation.id}/messages?per_page=3&page=1", { authentication_token: session.authentication_token }.merge(params)
