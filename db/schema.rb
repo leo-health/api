@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160728172020) do
+ActiveRecord::Schema.define(version: 20160804211022) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -118,6 +118,14 @@ ActiveRecord::Schema.define(version: 20160728172020) do
   add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
   add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
 
+  create_table "card_notifications", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "card_id"
+    t.string   "card_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "closure_notes", force: :cascade do |t|
     t.integer  "conversation_id", null: false
     t.integer  "closed_by_id",    null: false
@@ -133,6 +141,19 @@ ActiveRecord::Schema.define(version: 20160728172020) do
     t.datetime "last_message_created_at"
     t.datetime "deleted_at"
     t.string   "state",                   default: "closed"
+  end
+
+  create_table "deep_link_cards", force: :cascade do |t|
+    t.string   "title"
+    t.string   "body"
+    t.string   "icon"
+    t.string   "tint_color_hex"
+    t.string   "tinted_header_text"
+    t.string   "dismiss_button_text"
+    t.string   "deep_link_button_text"
+    t.string   "deep_link"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
