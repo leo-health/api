@@ -15,7 +15,11 @@ class SendSmsJob < Struct.new(:receiver_id)
   private
 
   def sms_user(phone, body)
-    TWILIO.messages.create(from: TWILIO_PHONE_NUMBER, to: phone, body: body)
+    unless Rails.env.production?
+      TWILIO.messages.create(from: TWILIO_PHONE_NUMBER, to: '2035223374', body: body)
+    else
+      TWILIO.messages.create(from: TWILIO_PHONE_NUMBER, to: phone, body: body)
+    end
   end
 
   def unpause_schedule_sms_jobs(receiver_id)
