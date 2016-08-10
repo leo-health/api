@@ -8,7 +8,7 @@ describe 'Whenever Schedule' do
   end
 
   it 'makes sure `runner` statements exist' do
-    expect(schedule.jobs[:rake].count).to eq(5)
+    expect(schedule.jobs[:rake].count).to eq(6)
   end
 
   it 'makes sure `rake` statements exist' do
@@ -16,5 +16,6 @@ describe 'Whenever Schedule' do
     assert Rake::Task.task_defined?('notification:patient_birthday')
     assert Rake::Task.task_defined?('notification:escalated_conversation_email_digest')
     assert Rake::Task.task_defined?('notification:account_confirmation_reminder')
+    assert Rake::Task.task_defined?('notification:practice_availability_change')
   end
 end
