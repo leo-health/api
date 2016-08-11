@@ -5,6 +5,7 @@ describe Leo::V1::Messages do
   let(:user){create(:user, :guardian)}
   let!(:session){ user.sessions.create }
   let!(:conversation){ user.family.conversation }
+  let(:customer_service){ create(:user, :customer_service) }
   let(:serializer){ Leo::Entities::MessageEntity }
 
   before do
@@ -15,6 +16,46 @@ describe Leo::V1::Messages do
 
   after do
     Timecop.return
+  end
+
+  describe "Get /api/v1/messages/:id" do
+    let(:message){ create(:message, conversation: conversation) }
+
+    def do_request
+      get "/api/v1/messages/#{message.id}", { authentication_token: session.authentication_token }
+    end
+
+    context "when guardian" do
+      context "belongs to message" do
+        it 'should return a single message' do
+          do_request
+          expect(response.status).to eq(200)
+          body = JSON.parse(response.body, symbolize_names: true )
+          expect(body[:data].as_json.to_json).to eq(serializer.represent(message).as_json.to_json)
+        end
+      end
+
+      context "not belongs to message" do
+        let(:guardian){ create(:user) }
+        let(:session){ guardian.sessions.create }
+
+        it "should not return message" do
+          do_request
+          expect(response.status).to eq(403)
+        end
+      end
+    end
+
+    context "when staff" do
+      let(:session){ customer_service.sessions.create }
+
+      it 'should return a single message' do
+        do_request
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect(body[:data].as_json.to_json).to eq(serializer.represent(message).as_json.to_json)
+      end
+    end
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages/full" do
@@ -33,15 +74,29 @@ describe Leo::V1::Messages do
       get "/api/v1/conversations/#{conversation.id}/messages/full", { authentication_token: session.authentication_token }
     end
 
-    it "should return message with system messages(close/escaltion actions)" do
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect( (body[:data][:messages].sort_by {|m| m["id"]}).as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
+    context 'for staff' do
+      let!(:session){ customer_service.sessions.create }
+
+      it "should return message with system messages(close/escaltion actions)" do
+        do_request
+        expect(response.status).to eq(200)
+        body = JSON.parse(response.body, symbolize_names: true )
+        expect( (body[:data][:messages].sort_by {|m| m["id"]}).as_json.to_json).to eq( serializer.represent([EscalationNote.first, second_message, first_message]).as_json.to_json )
+      end
+    end
+
+    context 'for guardian users' do
+      it "should not return messages" do
+        do_request
+        expect(response.status).to eq(403)
+      end
     end
   end
 
   describe "Get /api/v1/conversations/:conversation_id/messages" do
+    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: 10.days.ago)}
+    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: 5.days.ago)}
+    let!(:third_message){create(:message, conversation: conversation, sender: user, created_at: 0.days.ago)}
 
     before do
       Timecop.freeze
@@ -50,10 +105,6 @@ describe Leo::V1::Messages do
     after do
       Timecop.return
     end
-
-    let!(:first_message){create(:message, conversation: conversation, sender: user, created_at: 10.days.ago)}
-    let!(:second_message){create(:message, conversation: conversation, sender: user, created_at: 5.days.ago)}
-    let!(:third_message){create(:message, conversation: conversation, sender: user, created_at: 0.days.ago)}
 
     def do_request(params = {})
       get "/api/v1/conversations/#{conversation.id}/messages?per_page=3&page=1", { authentication_token: session.authentication_token }.merge(params)
@@ -94,20 +145,15 @@ describe Leo::V1::Messages do
         expect(body[:data].as_json.to_json).to eq(serializer.represent([second_message]).as_json.to_json)
       end
     end
-  end
 
-  describe "Get /api/v1/messages/:id" do
-    let(:message){ create(:message, conversation: conversation) }
+    context "when request message not belong to own conversaiton" do
+      let(:conversation){ create( :conversation ) }
+      let!(:message){create(:message, conversation: conversation)}
 
-    def do_request
-      get "/api/v1/messages/#{message.id}", { authentication_token: session.authentication_token }
-    end
-
-    it 'should return a single message' do
-      do_request
-      expect(response.status).to eq(200)
-      body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent(message).as_json.to_json)
+      it "should not return the message" do
+        do_request
+        expect(response.status).to eq(403)
+      end
     end
   end
 

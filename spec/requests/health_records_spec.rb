@@ -8,6 +8,19 @@ describe Leo::V1::HealthRecords do
   let!(:session){ user.sessions.create }
   let!(:patient){ create(:patient, family: user.family) }
 
+  describe "requesting not own child" do
+    let!(:patient){ create(:patient) }
+
+    def do_request
+      get "/api/v1/patients/#{patient.id}/phr", { authentication_token: session.authentication_token }
+    end
+
+    it "should not return phr" do
+      do_request
+      expect(response.status).to eq(403)
+    end
+  end
+
   describe "GET /api/v1/patients/:id/phr" do
     let(:authentication_token) { session.authentication_token }
     let(:id) { patient.id }

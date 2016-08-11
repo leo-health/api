@@ -1,6 +1,7 @@
 module Leo
   module V1
     class Conversations < Grape::API
+      authorize_routes!
       include Grape::Kaminari
 
       resource :conversations do
@@ -14,9 +15,8 @@ module Leo
             requires :note, type: String
           end
 
-          put do
+          put authorize: [:update, Conversation] do
             conversation = Conversation.find(params[:id])
-            authorize! :update, conversation
             close_params = {closed_by: current_user, note: params[:note]}
             if conversation.close!(close_params)
               close_params[:conversation_id] = conversation.id
@@ -40,9 +40,8 @@ module Leo
             optional :note, type: String
           end
 
-          put do
+          put authorize: [:update, Conversation] do
             conversation = Conversation.find(params[:id])
-            authorize! :update, conversation
             escalated_to = User.find(params[:escalated_to_id])
             escalate_params = {escalated_to: escalated_to, note: params[:note], priority: params[:priority], escalated_by: current_user}
             if conversation.escalate!(escalate_params)
@@ -68,9 +67,9 @@ module Leo
         end
 
         get do
+          error!('403 Forbidden', 403) if current_user.guardian?
           conversations = params[:state] ? Conversation.where(state: params[:state]).order('updated_at desc') : Conversation.order("updated_at desc")
           max_page = (conversations.count / 10.to_f).ceil
-          authorize! :read, Conversation
           present :max_page, max_page
           present :conversations, paginate(Kaminari.paginate_array(conversations)), with: Leo::Entities::ShortConversationEntity
         end
@@ -92,8 +91,9 @@ module Leo
           optional :state, type: String
         end
 
-        desc "Return all relevant conversations of a user"
+        desc "Return all relevant conversations of a staff"
         get do
+          error!('403 Forbidden', 403) if current_user.guardian?
           if params[:state].try(:to_sym) == :escalated
             conversations = EscalationNote.includes(:conversation).where(escalated_to_id: params[:staff_id]).reduce([]) do |conversations, escalation_note|
               if escalation_note.active? && escalation_note.conversation.escalation_notes.order('created_at desc').first == escalation_note
@@ -104,20 +104,21 @@ module Leo
           else
             conversations = User.find(params[:staff_id]).try(:conversations)
           end
-
           present :conversations, conversations, with: Leo::Entities::ShortConversationEntity
         end
       end
 
+      desc "Return conversation associated with the family"
       namespace 'families/:family_id/conversation' do
         before do
           authenticated
         end
 
-        desc "Return conversation associated with the family"
-        get do
+        get authorize: [:read, Conversation] do
           family = Family.find(params[:family_id])
-          present :conversation, family.conversation, with: Leo::Entities::ShortConversationEntity
+          conversation = family.conversation
+          authorize! :read, conversation
+          present :conversation, conversation, with: Leo::Entities::ShortConversationEntity
         end
       end
     end

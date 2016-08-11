@@ -10,7 +10,6 @@ class Ability
       can [:read, :create, :update, :destroy], User, family_id: user.family_id
       can [:create, :read, :update, :destroy], Patient, family_id: user.family_id
       can :read, Conversation, family_id: user.family_id
-      can :read, Message, conversation_id: Conversation.find_by_family_id(user.family_id).try(:id)
       can [:read, :create], Message, conversation_id: Conversation.find_by_family_id(user.family_id).try(:id)
       can [:create, :read, :destroy], Appointment, patient: {family_id: user.family_id}
       can :create, Avatar, owner_type: "Patient", owner_id: patient_ids(user)
@@ -59,6 +58,7 @@ class Ability
       can :read, Session
     elsif user.has_role? :operational
       can :read, Session
+      can [:read, :update], Conversation
     end
   end
 
