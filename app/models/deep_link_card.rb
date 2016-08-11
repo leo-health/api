@@ -1,4 +1,6 @@
 class DeepLinkCard < ActiveRecord::Base
+  acts_as_paranoid
+  
   has_many :card_notifications, as: :card
   has_many :users, through: :card_notifications
 
