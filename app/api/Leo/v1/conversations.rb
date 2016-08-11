@@ -19,7 +19,7 @@ module Leo
             authorize! :update, conversation
             hasNote = params[:hasNote]
             note = params[:note]
-            close_params = {closed_by: current_user, note: note], closure_reason_id: params[:reasonId]}
+            close_params = {closed_by: current_user, note: note, closure_reason_id: params[:reasonId]}
             if (hasNote && note.blank?) || (!hasNote && !note.blank?)
               error!({error_code: 422, user_message: "can't close the conversation" }, 422)
             elsif conversation.close!(close_params)
