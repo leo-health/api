@@ -229,7 +229,7 @@ describe Leo::V1::Conversations do
       let(:guardian_of_other_family){create(:user) }
       let!(:session){ guardian_of_other_family.sessions.create }
 
-      it "should return the conversation of the requested family" do
+      it "should not return" do
         do_request
         expect(response.status).to eq(403)
       end
