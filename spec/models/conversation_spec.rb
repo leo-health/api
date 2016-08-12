@@ -57,8 +57,9 @@ describe Conversation, type: :model do
 
     describe "#close" do
       let(:note){ 'close the conversation'}
+      let(:closure_reason_id){ 1 }
       let(:clinical){ create(:user, :clinical) }
-      let(:close_params){ {closed_by: customer_service, note: note} }
+      let(:close_params){ {closed_by: customer_service, note: note, closure_reason_id: closure_reason_id} }
 
       context 'open_conversation' do
         it "should change conversation status to false" do
@@ -103,8 +104,9 @@ describe Conversation, type: :model do
   describe '#close_conversation' do
     let(:open_conversation){ create(:conversation, state: :open) }
     let(:note){ 'close the conversation'}
+    let(:closure_reason_id){ 1 }
     let(:clinical){ create(:user, :clinical) }
-    let(:close_params){{closed_by: customer_service, note: note}}
+    let(:close_params){ {closed_by: customer_service, note: note, closure_reason_id: closure_reason_id} }
 
     before do
       escalation_params = { escalated_to: clinical, note: note, escalated_by: customer_service }

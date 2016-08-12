@@ -6,6 +6,7 @@ RSpec.describe ClosureNote, type: :model do
 
   it { is_expected.to validate_presence_of(:closed_by) }
   it { is_expected.to validate_presence_of(:conversation) }
+  it { is_expected.to validate_presence_of(:closure_reason_id) }
 
   describe "callbacks" do
     let(:closure_note){ create(:closure_note) }
