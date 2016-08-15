@@ -1,6 +1,6 @@
 module Leo
   module Entities
-    class DeepLinkCardEntity < Grape::Entity
+    class LinkPreviewEntity < Grape::Entity
       expose :title
       expose :body
       expose :icon
@@ -12,7 +12,7 @@ module Leo
       expose :category
 
       def deep_link
-        "#{ENV['DEEPLINK_SCHEME']}://#{object.deep_link}"
+        object.external_link || "#{ENV['DEEPLINK_SCHEME']}://#{object.deep_link}"
       end
 
       private

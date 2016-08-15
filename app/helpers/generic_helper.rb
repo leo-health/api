@@ -11,6 +11,25 @@ module GenericHelper
     result + left + right
   end
 
+  def self.closest_item(value, array)
+
+    return array.first if array.count <= 1
+    return nil if value == nil
+
+    left = array[0...array.count/2]
+    right = array[array.count/2...array.count]
+
+    if left.last && value < left.last
+      closest_item(value,left)
+    elsif right.first && value > right.first
+      closest_item(value,right)
+    else
+      distanceFromLeft = (value - left.last).abs
+      distanceFromRight = (value - right.first).abs
+      return distanceFromLeft < distanceFromRight ? left.last : right.first
+    end
+  end
+
   def self.generate_token(token_name)
     loop do
       random_token = SecureRandom.urlsafe_base64(nil, false)
