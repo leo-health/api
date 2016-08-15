@@ -9,8 +9,8 @@ RSpec.describe AppointmentType, type: :model do
       @follow_up_visit = create(:appointment_type, :follow_up_visit)
       @immunization_visit = create(:appointment_type, :immunization_visit)
       @consult = create(:appointment_type, :consult)
-      @other = create(:appointment_type, :other)
       @mappable_well_visit_ids = [9, 21, 41, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105]
+      @other_block_id = 61
     end
 
     def do_request(athena_id)

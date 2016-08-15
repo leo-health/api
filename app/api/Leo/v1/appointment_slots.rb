@@ -30,7 +30,7 @@ module Leo
           provider_ids.map do |provider_id|
             slots_json = []
             if provider = Provider.find_by(id: provider_id)
-              slots = Slot.free.where(provider: provider).start_datetime_between(start_date, end_date.end_of_day).order(:start_datetime)
+              slots = Slot.free.where(provider: provider).start_date_time_between(start_date, end_date.end_of_day).order(:start_datetime)
 
               # Allow rescheduling for the same time if the current_user owns the appointment
               if existing_appointment = Appointment.find_by_id(params[:appointment_id])

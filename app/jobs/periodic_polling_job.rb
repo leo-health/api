@@ -5,14 +5,22 @@ class PeriodicPollingJob < LeoDelayedJob
   MEDIUM_PRIORITY = 10
   LOW_PRIORITY = 15
 
-  def initialize(interval: 0, owner: nil, priority: IMMEDIATE_PRIORITY)
+  def initialize(
+    interval: nil,
+    owner: nil,
+    priority: IMMEDIATE_PRIORITY,
+    scheduler_proc: nil) # overrides interval
+
     @interval = interval
     @owner = owner
     @priority = priority
+    @scheduler_proc = scheduler_proc
   end
 
   def subscribe(**args)
-    self.start(**args.reverse_merge(run_at: @interval.from_now, owner: @owner, priority: @priority))
+    if run_at = @scheduler_proc.try(:call) || @interval.try(:from_now) || args[:run_at]
+      self.start(**args.reverse_merge(run_at: run_at, owner: @owner, priority: @priority))
+    end
   end
 
   def subscribe_if_needed(**args)

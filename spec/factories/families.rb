@@ -10,7 +10,8 @@ FactoryGirl.define do
 		factory :family_with_members do
 			after(:create) do |instance|
 				create(:user, :guardian, family: instance)
-				create(:user, :guardian, family: instance)
+				secondary_guardian = create(:user, :guardian, family: instance)
+				secondary_guardian.confirm_secondary_guardian
 				create(:patient, family: instance)
 				create(:patient, family: instance)
 				create(:patient, family: instance)

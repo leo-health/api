@@ -27,6 +27,7 @@ class Patient < ActiveRecord::Base
   after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, if: :did_successfully_sync?
+  after_commit :enqueue_milestone_content_delivery_job, on: :create
 
   def did_successfully_sync?
     attribute = :athena_id
@@ -48,7 +49,38 @@ class Patient < ActiveRecord::Base
     end
   end
 
+  def last_milestone_link
+    ages = LinkPreview::AGES_FOR_MILESTONE_CONTENT
+    age = age_in_months
+
+    closest_milestone_age = GenericHelper.closest_item(age, ages)
+    i = ages.index(closest_milestone_age) #closest milestone
+    i -= closest_milestone_age > age ? 2 : 1 # last milestone
+    return nil if i < 0 # haven't yet reached a milestone
+
+    LinkPreview.where(
+      age_of_patient_in_months: ages[i],
+      category: :milestone_content
+    ).first
+  end
+
+  def enqueue_milestone_content_delivery_job
+    MilestoneContentJob.new(
+      patient: self,
+      milestone_content: last_milestone_link
+    ).subscribe_if_needed(run_at: Time.now)
+  end
+
   def current_avatar
     avatars.order("created_at DESC").first
+  end
+
+  # Modified from original solution: http://stackoverflow.com/questions/819263/get-persons-age-in-ruby
+  def age_in_months
+    dob = birth_date
+    now = Time.zone.now.to_date
+    months = now.month - dob.month - ((now.day >= dob.day) ? 0 : 1)
+    years = now.year - dob.year - ((now.month > dob.month || (now.month == dob.month && now.day >= dob.day)) ? 0 : 1)
+    years * 12 + months
   end
 end
