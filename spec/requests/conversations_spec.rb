@@ -59,7 +59,7 @@ describe Leo::V1::Conversations do
     end
 
     def do_request
-      put "/api/v1/conversations/#{conversation.id}/close", {authentication_token: session.authentication_token, note: "close conversation"}
+      put "/api/v1/conversations/#{conversation.id}/close", {authentication_token: session.authentication_token, hasNote: true, note: "close conversation", reasonId: 1}
     end
 
     it "should update the specific conversation" do

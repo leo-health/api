@@ -411,8 +411,7 @@ describe AnalyticsService do
                                              created_at: conversation_6.created_at) }
     let!(:message_1b_conversation_6) { create(:message,
                                              conversation: conversation_6,
-                                             created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6 - 1.minute,
-                                             closure_reason_id: 1)}
+                                             created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6 - 1.minute)}
     let!(:closure_note_1_conversation_6) { create(:closure_note,
                                                   conversation: conversation_6,
                                                   created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6,
