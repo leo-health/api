@@ -308,17 +308,17 @@ describe AnalyticsService do
     let!(:closure_note_1_conversation_1) { create(:closure_note,
                                                  conversation: conversation_1,
                                                  created_at: message_1_conversation_1.created_at + case_time_1_conversation_1,
-                                                 closure_reason_id: 1 )}
+                                                 closure_reason_id: 1 ) }
     let!(:message_2_conversation_1) { create(:message,
                                              conversation: conversation_1,
-                                             created_at: closure_note_1_conversation_1.created_at + 3.days)}
+                                             created_at: closure_note_1_conversation_1.created_at + 3.days) }
     let!(:closure_note_2_conversation_1) { create(:closure_note,
                                                  conversation: conversation_1,
                                                  created_at: message_2_conversation_1.created_at + case_time_2_conversation_1,
-                                                 closure_reason_id: 1)}
+                                                 closure_reason_id: 1) }
     let!(:message_3_conversation_1) { create(:message,
                                              conversation: conversation_1,
-                                             created_at: closure_note_2_conversation_1.created_at + 5.days)}
+                                             created_at: closure_note_2_conversation_1.created_at + 5.days) }
 
     # Conversation 2: started before time_range, has a case within the range
     let!(:conversation_2) { create(:conversation, created_at: time_range.begin - 2.weeks) }
@@ -327,18 +327,18 @@ describe AnalyticsService do
 
     let!(:message_1_conversation_2) { create(:message,
                                              conversation: conversation_2,
-                                             created_at: conversation_2.created_at)}
+                                             created_at: conversation_2.created_at) }
     let!(:closure_note_1_conversation_2) { create(:closure_note,
                                                  conversation: conversation_2,
                                                  created_at: message_1_conversation_2.created_at + case_time_1_conversation_2,
-                                                 closure_reason_id: 1)}
+                                                 closure_reason_id: 1) }
     let!(:message_2_conversation_2) { create(:message,
                                              conversation: conversation_2,
-                                             created_at: time_range.begin + 10.minutes)}
+                                             created_at: time_range.begin + 10.minutes) }
     let!(:closure_note_2_conversation_2) { create(:closure_note,
                                                  conversation: conversation_2,
                                                  created_at: message_2_conversation_2.created_at + case_time_2_conversation_2,
-                                                 closure_reason_id: 1)}
+                                                 closure_reason_id: 1) }
 
     # Conversation 3: within time_range
     let!(:conversation_3) { create(:conversation, created_at: time_range.begin + 2.hours) }
@@ -351,14 +351,14 @@ describe AnalyticsService do
     let!(:closure_note_1_conversation_3) { create(:closure_note,
                                                  conversation: conversation_3,
                                                  created_at: message_1_conversation_3.created_at + case_time_1_conversation_3,
-                                                 closure_reason_id: 1)}
+                                                 closure_reason_id: 1) }
     let!(:message_2_conversation_3) { create(:message,
                                              conversation: conversation_3,
                                              created_at: closure_note_1_conversation_3.created_at + 1.hour) }
     let!(:closure_note_2_conversation_3) { create(:closure_note,
                                                  conversation: conversation_3,
                                                  created_at: message_2_conversation_3.created_at + case_time_2_conversation_3,
-                                                 closure_reason_id: 1)}
+                                                 closure_reason_id: 1) }
 
     # Conversation 4: started within time_range, has cases after the range
     let!(:conversation_4) { create(:conversation, created_at: time_range.end - 1.day) }
@@ -371,14 +371,14 @@ describe AnalyticsService do
     let!(:closure_note_1_conversation_4) { create(:closure_note,
                                                  conversation: conversation_4,
                                                  created_at: message_1_conversation_4.created_at + case_time_1_conversation_4,
-                                                 closure_reason_id: 1)}
+                                                 closure_reason_id: 1) }
     let!(:message_2_conversation_4) { create(:message,
                                              conversation: conversation_4,
                                              created_at: time_range.end + 1.hour) }
     let!(:closure_note_2_conversation_4) { create(:closure_note,
                                                  conversation: conversation_4,
                                                  created_at: message_2_conversation_4.created_at + case_time_2_conversation_4,
-                                                 closure_reason_id: 1)}
+                                                 closure_reason_id: 1) }
 
     # Conversation 5: after time_range
     let!(:conversation_5) { create(:conversation, created_at: time_range.end + 4.weeks) }
@@ -391,14 +391,14 @@ describe AnalyticsService do
     let!(:closure_note_1_conversation_5) { create(:closure_note,
                                                   conversation: conversation_5,
                                                   created_at: message_1_conversation_5.created_at + case_time_1_conversation_5,
-                                                  closure_reason_id: 1)}
+                                                  closure_reason_id: 1) }
     let!(:message_2_conversation_5) { create(:message,
                                              conversation: conversation_5,
                                              created_at: conversation_5.created_at + 2.weeks) }
     let!(:closure_note_2_conversation_5) { create(:closure_note,
                                                   conversation: conversation_5,
                                                   created_at: message_2_conversation_5.created_at + case_time_2_conversation_5,
-                                                  closure_reason_id: 1)}
+                                                  closure_reason_id: 1) }
 
     # Conversation 6: has cases that are partially within time_range
     let!(:conversation_6) { create(:conversation, created_at: time_range.begin - 6.minutes) }
@@ -411,25 +411,25 @@ describe AnalyticsService do
                                              created_at: conversation_6.created_at) }
     let!(:message_1b_conversation_6) { create(:message,
                                              conversation: conversation_6,
-                                             created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6 - 1.minute)}
+                                             created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6 - 1.minute) }
     let!(:closure_note_1_conversation_6) { create(:closure_note,
                                                   conversation: conversation_6,
                                                   created_at: message_1a_conversation_6.created_at + case_time_1_conversation_6,
-                                                  closure_reason_id: 1)}
+                                                  closure_reason_id: 1) }
     let!(:message_2_conversation_6) { create(:message,
                                              conversation: conversation_6,
                                              created_at: time_range.begin + 6.hours) }
     let!(:closure_note_2_conversation_6) { create(:closure_note,
                                                   conversation: conversation_6,
                                                   created_at: message_2_conversation_6.created_at + case_time_2_conversation_6,
-                                                  closure_reason_id: 1)}
+                                                  closure_reason_id: 1) }
     let!(:message_3_conversation_6) { create(:message,
                                              conversation: conversation_6,
                                              created_at: time_range.end - 8.minutes) }
     let!(:closure_note_3_conversation_6) { create(:closure_note,
                                                   conversation: conversation_6,
                                                   created_at: message_3_conversation_6.created_at + case_time_3_conversation_6,
-                                                  closure_reason_id: 1)}
+                                                  closure_reason_id: 1) }
 
     context 'without time range provided' do
       subject(:cases_times_in_seconds) { AnalyticsService.cases_times_in_seconds }
