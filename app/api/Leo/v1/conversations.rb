@@ -68,7 +68,13 @@ module Leo
         end
 
         get do
-          conversations = params[:state] ? Conversation.where(state: params[:state]).order('updated_at desc') : Conversation.order("updated_at desc")
+          if params[:state].blank?
+            conversations = Conversations.order("updated_at desc")
+          elsif params[:state] === "escalated" || params[:state] === "open"
+            conversations = Conversation.where("state = ? OR state = ?", "escalated", "open").order('updated_at desc')
+          else
+            conversations = Conversation.where(state: 'closed').order('updated_at desc')
+          end
           max_page = (conversations.count / 10.to_f).ceil
           authorize! :read, Conversation
           present :max_page, max_page
