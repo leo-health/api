@@ -17,10 +17,10 @@ module Leo
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
-            hasNote = (params[:hasNote] === "true")
+            userInput = (params[:userInput] == "true")
             note = params[:note]
             close_params = {closed_by: current_user, note: note, closure_reason_id: params[:reasonId]}
-            if ((hasNote && note.blank?) || (!hasNote && !note.blank?))
+            if ((userInput && note.blank?) || (!userInput && !note.blank?))
               error!({error_code: 422, user_message: "can't close the conversation due to invalid input" }, 422)
             elsif conversation.close!(close_params)
               close_params[:conversation_id] = conversation.id
@@ -45,8 +45,8 @@ module Leo
 
           get do
             reasons = ClosureReason.all
-            authorize! :read, User
-            present :reasons, reasons, with: Leo::Entities::ClosureReasonEntity
+            error!('403 Forbidden', 403) if current_user.guardian?
+            present :reasons, reasons.order('reason_order ASC'), with: Leo::Entities::ClosureReasonEntity
           end
         end
 

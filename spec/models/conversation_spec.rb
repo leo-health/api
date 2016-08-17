@@ -57,9 +57,8 @@ describe Conversation, type: :model do
 
     describe "#close" do
       let(:note){ 'close the conversation'}
-      let(:closure_reason_id){ 1 }
       let(:clinical){ create(:user, :clinical) }
-      let(:close_params){ {closed_by: customer_service, note: note, closure_reason_id: closure_reason_id} }
+      let(:close_params){ {closed_by: customer_service, note: note, closure_reason_id: 1} }
 
       context 'open_conversation' do
         it "should change conversation status to false" do
