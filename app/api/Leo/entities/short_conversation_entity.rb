@@ -30,7 +30,7 @@ module Leo
 
       def escalated_to
         if object.state == "escalated"
-          staff_id = EscalationNote.where(conversation_id: object.id).last.escalated_to_id
+          staff_id = EscalationNote.where(conversation_id: object.id)[0].escalated_to_id
           User.find(staff_id)
         end
       end

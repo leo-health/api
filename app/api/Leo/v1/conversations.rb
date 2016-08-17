@@ -69,7 +69,7 @@ module Leo
 
         get do
           if params[:state].blank?
-            conversations = Conversations.order("updated_at desc")
+            conversations = Conversation.order("updated_at desc")
           elsif params[:state] === "escalated" || params[:state] === "open"
             conversations = Conversation.where("state = ? OR state = ?", "escalated", "open").order('updated_at desc')
           else
