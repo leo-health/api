@@ -8,7 +8,7 @@ module Leo
       expose :last_message_created_at
       expose :state
       expose :last_message
-      expose :escalated_to, with: Leo::Entities::ShortUserEntity
+      expose :escalated_to, with: Leo::Entities::ShortUserEntity, if: Proc.new{ |c| c.escalated? }
 
       private
 
@@ -29,10 +29,7 @@ module Leo
       end
 
       def escalated_to
-        if object.state == "escalated"
-          staff_id = EscalationNote.where(conversation_id: object.id)[0].escalated_to_id
-          User.find(staff_id)
-        end
+        EscalationNote.where(conversation: object).order('created_at ASC').last.try(:escalated_to)
       end
     end
   end
