@@ -11,6 +11,10 @@ module Leo
       expose :provider, with: Leo::Entities::ProviderEntity
       expose :patient, with: Leo::Entities::PatientEntity
       expose :practice, with: Leo::Entities::PracticeEntity
+
+      def appointment_type
+        object.appointment_type.user_facing_appointment_type || object.appointment_type
+      end
     end
   end
 end

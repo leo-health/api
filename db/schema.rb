@@ -54,14 +54,15 @@ ActiveRecord::Schema.define(version: 20160908151023) do
   end
 
   create_table "appointment_types", force: :cascade do |t|
-    t.integer  "athena_id",         default: 0,     null: false
-    t.integer  "duration",                          null: false
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.integer  "athena_id",                       default: 0,     null: false
+    t.integer  "duration",                                        null: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.string   "short_description"
     t.string   "long_description"
-    t.string   "name",                              null: false
-    t.boolean  "hidden",            default: false
+    t.string   "name",                                            null: false
+    t.boolean  "hidden",                          default: false
+    t.integer  "user_facing_appointment_type_id"
   end
 
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
