@@ -61,5 +61,14 @@ FactoryGirl.define do
       long_description "Block"
       hidden true
     end
+
+    trait :other do
+      athena_id 0
+      name "Other"
+      duration 0
+      short_description "Other"
+      long_description "Other"
+      hidden true
+    end
   end
 end
