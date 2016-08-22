@@ -44,6 +44,7 @@ gem 'useragent'
 gem "delayed_job_web"
 gem 'stripe'
 gem 'grape-erb'
+gem 'wicked_pdf'
 
 group :development, :test do
   gem 'parallel_tests'
