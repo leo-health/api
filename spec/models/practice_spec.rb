@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Practice, type: :model do
   describe "relations" do
-    it{ is_expected.to have_many(:staff).class_name('StaffProfile') }
+    it{ is_expected.to have_many(:staff).class_name('User') }
     it{ is_expected.to have_many(:guardians).class_name('User') }
     it{ is_expected.to have_many(:appointments) }
     it{ is_expected.to have_many(:practice_schedules) }
@@ -12,7 +12,7 @@ RSpec.describe Practice, type: :model do
     it { is_expected.to validate_presence_of(:name) }
   end
 
-  describe "in_office_hour?" do
+  describe "in_office_hours?" do
     let(:practice){ create(:practice) }
     let!(:practice_schedule){ create(:practice_schedule, practice: practice) }
 
@@ -26,7 +26,7 @@ RSpec.describe Practice, type: :model do
       end
 
       it "should return true" do
-        expect(practice.in_office_hour?).to eq(true)
+        expect(practice.in_office_hours?).to eq(true)
       end
     end
 
@@ -40,12 +40,12 @@ RSpec.describe Practice, type: :model do
       end
 
       it "should return false" do
-        expect(practice.in_office_hour?).to eq(false)
+        expect(practice.in_office_hours?).to eq(false)
       end
     end
   end
 
-  describe "sync jobs" do
+  describe "#subscribe_to_athena" do
     let(:practice){create(:practice)}
     before do
       @practice = practice
@@ -74,6 +74,38 @@ RSpec.describe Practice, type: :model do
           @practice.subscribe_to_athena
           expect(Delayed::Job.where(queue: SyncPracticeJob.queue_name, owner:@practice).count).to be(1)
         end
+      end
+    end
+  end
+
+  describe "on call" do
+    let(:practice){create(:practice)}
+    let(:oncall_provider){ create(:user, :clinical, practice: practice) }
+    let!(:staff_profile){ create(:staff_profile, staff: oncall_provider, sms_enabled: false, on_call: true) }
+
+    describe "#on_call_providers" do
+      it "should return oncall providers of the pratice" do
+        expect(practice.on_call_providers).to eq([oncall_provider])
+      end
+    end
+
+    describe "#available?" do
+      it "should return true or false on any provider is oncall" do
+        expect(practice.available?).to eq(true)
+      end
+    end
+
+    describe "#start_after_office_hours" do
+      it "should update sms_enabled to true and on_call to false, then broadcast the changes" do
+        expect(practice).to receive(:broadcast_practice_availability)
+        practice.start_after_office_hours
+      end
+    end
+
+    describe "#start_in_office_hours" do
+      it "should update sms_enabled to false and on_call to true, then broadcast the changes" do
+        expect(practice).to receive(:broadcast_practice_availability)
+        practice.start_in_office_hours
       end
     end
   end
