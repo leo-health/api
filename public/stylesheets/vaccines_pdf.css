@@ -1,0 +1,147 @@
+header {
+    background-color: rgb(255, 95, 64);
+    padding: 0 4% 0 4%;
+    color: white;
+}
+
+.name {
+    font-family: AvenirNext-Medium;
+    float: right
+}
+
+.spacer {
+    height: 15px;
+}
+
+header table {
+    float: left;
+    width: 80%
+}
+
+header th, td {
+    padding: 0 3% 0 3%
+}
+
+header th {
+    font-family: AvenirNext-Bold;
+}
+
+header tr {
+    font-family: AvenirNext-Regular;
+}
+
+.img-circle {
+    width: 100px;
+    height: 100px;
+    float: right;
+    border-radius: 50%;
+    border: 3px solid white;
+    position: absolute;
+}
+
+.intro {
+    font-family: AvenirNext-Regular;
+    color: rgb(87, 87, 87);
+    margin-top: 7%
+}
+
+#content {
+    padding: 3% 3% 0 0;
+    margin-left: 25px;
+    font-size: 22px;
+}
+
+.title {
+    width: 100%;
+}
+
+.colored-bullet {
+    float: left;
+    background-color: rgb(255, 95, 64);
+    width: 5px;
+    height: 120px;
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.title p {
+    padding-top: 0;
+    display: inline-block;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 40px;
+    width: 250px;
+    text-align: left;
+    vertical-align: text-bottom;
+}
+
+.vaccines{
+    font-family: AvenirNext-Regular;
+    width: 100%;
+    border-collapse:separate;
+    border-spacing:3em;
+}
+
+.vaccines th {
+    color: rgb(155, 155, 155);
+}
+
+.vaccines-left {
+    font-family: AvenirNext-Bold;
+    padding-left: 0;
+    font-size: 7.5px;
+    text-align: left;
+}
+
+.vaccines-right {
+    padding-right: 0;
+    color: rgb(155, 155, 155);
+    font-size: 20px;
+}
+
+.practice {
+    width: 100%;
+    position: absolute;
+    bottom: 45px;
+    right: 0;
+    height: 130px;
+}
+
+.practice table {
+    float: right;
+}
+
+.practice th {
+    font-family: AvenirNext-Bold;
+    text-align: right;
+    vertical-align: top
+}
+
+.practice td {
+    font-family: AvenirNext-Regular;
+}
+
+.practice .colored-bullet{
+    margin-right: 0;
+    height: 100%;
+    width: 8px;
+    float: right;
+}
+
+footer {
+    font-family: AvenirNext-Regular;
+    color: rgb(155, 155, 155);
+    width: 100%;
+    position: fixed;
+    bottom: 10px;
+}
+
+.footer-left {
+    margin-left: 25px;
+    float: left;
+}
+
+.footer-right {
+    margin-right: 25px;
+    float: right;
+}

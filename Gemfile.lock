@@ -428,6 +428,7 @@ GEM
     whenever-test (1.0.0)
       whenever
     wicked_pdf (1.0.6)
+    wkhtmltopdf-binary (0.12.3)
     zeus (0.15.4)
       method_source (>= 0.6.7)
     zeus-parallel_tests (0.3.1)
@@ -498,6 +499,7 @@ DEPENDENCIES
   squeel
   stripe
   stripe-ruby-mock
+  tilt
   timecop
   turbolinks
   twilio-ruby
@@ -507,6 +509,7 @@ DEPENDENCIES
   whenever
   whenever-test
   wicked_pdf
+  wkhtmltopdf-binary
   zeus-parallel_tests
 
 RUBY VERSION
