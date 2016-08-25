@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset='utf-8' />
+      <%= wicked_pdf_stylesheet_link_tag "vaccines_pdf" %>
+    </head>
+    <body>
+        <% page_total = vaccines.count %>
+        <% count = 1 %>
+        <%while page_total >= 0 do%>
+            <% if count == 1 %>
+                <header>
+                  <div class="name"><%= "#{first_name} #{last_name}" %></div>
+                  <div class="spacer" style="clear: both;"></div>
+                  <table>
+                    <tr>
+                      <th>GUARDIAN</th>
+                      <td><%= "#{family.primary_guardian.first_name} #{family.primary_guardian.last_name}" %></td>
+                      <th>BORN</th>
+                      <td><%= birth_date.strftime("%m/%d/%Y") %></td>
+                    </tr>
+                    <tr>
+                      <th></th>
+                      <td><%= "#{family.primary_guardian.email}" %></td>
+                      <th>SEX</th>
+                      <td><%= sex %></td>
+                    </tr>
+                  </table>
+                  <!--<img class="img-circle"-->
+                  <!--src="https://lh5.googleusercontent.com/-Sv0q6lkSAGM/AAAAAAAAAAI/AAAAAAAAADA/V2au8qwIkVA/s0-c-k-no-ns/photo.jpg"/>-->
+                  <div class="spacer" style="clear: both;"></div>
+                </header>
+
+                <div class="intro">
+                  <div class="colored-bullet"></div>
+                  <p>Immunization History</p>
+                  <div class="spacer" style="clear: both"></div>
+                </div>
+
+                <p class="content">
+                  This record was prepared for <%= "#{first_name} #{last_name}" %> at the date listed below.
+                  It includes all the full vaccination history for <%= "#{first_name} #{last_name}" %>.
+                </p>
+
+                <div id="first-page">
+                    <table class="vaccines">
+                      <tr>
+                        <th class="title-left">vaccine name</th>
+                        <th class="title-right">date administered</th>
+                      </tr>
+                      <% vaccines[0..5].each do |v|%>
+                          <tr>
+                            <td class="vaccines-left"><%= v.vaccine %></td>
+                            <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
+                          </tr>
+                      <%end%>
+                    </table>
+                </div>
+
+                <footer>
+                  <div class="footer-left">Generated on Jan.21, 2018</div>
+                  <div class="footer-right"><%= count %></div>
+                </footer>
+                <% page_total -= 6 %>
+                <% count += 1 %>
+            <% else %>
+                <header>
+                   <div class="name middle-header"><%= "#{first_name} #{last_name}" %></div>
+                   <div class="spacer" style="clear: both;"></div>
+                </header>
+                <div class="middle-pages">
+                    <table class="vaccines">
+                      <tr>
+                        <th class="title-left">vaccine name</th>
+                        <th class="title-right">date administered</th>
+                      </tr>
+                          <% start = vaccines.count - page_total %>
+                          <% vaccines[start-1..start+9].each do |v|%>
+                              <tr>
+                                <td class="vaccines-left"><%= v.vaccine %></td>
+                                <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
+                              </tr>
+                          <%end%>
+                    </table>
+                </div>
+                <%if page_total < 7 %>
+                    <div class="practice-block">
+                      <div class="practice">
+                        <div class="colored-bullet"></div>
+                        <table>
+                          <tr>
+                            <th>PEDIATRICIAN</th>
+                            <td>Dr. Victoria Riese</td>
+                            <th></th>
+                            <td>231-312-2312</td>
+                          </tr>
+                          <tr>
+                            <th>PRACTICE</th>
+                            <td>Flatiron Pediatrics</td>
+                            <th></th>
+                            <td>27 E 22nd Street</td>
+                            <th></th>
+                            <td>New York, NY 10010</td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                <%end%>
+                <footer>
+                  <div class="footer-right"><img></div>
+                  <div class="footer-middle">Generated on Jan.21, 2018</div>
+                  <div class="footer-right"><%= count %></div>
+                </footer>
+                <% page_total -= 10 %>
+                <% count += 1%>
+            <% end %>
+        <% end %>
+    </body>
+</html>

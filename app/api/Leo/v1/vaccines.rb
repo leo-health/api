@@ -7,10 +7,10 @@ module Leo
           # TIMESTAMP_Jain_Leo_Flatiron Pediatrics_Immunization_History.pdf
           header['Content-Disposition'] = "attachment; filename={}"
           env['api.format'] = :binary
-          template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines.html.erb'))
+          template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'vaccines.html.erb'))
           p = Patient.last
           output = template.render(p)
-          pdf = WickedPdf.new.pdf_from_string(output)
+          pdf = WickedPdf.new.pdf_from_string(output, {page_size: 'Letter'})
           save_path = Rails.root.join('app', 'views', 'tmp.pdf')
           File.open(save_path, 'wb'){|file| file << pdf }
         end
