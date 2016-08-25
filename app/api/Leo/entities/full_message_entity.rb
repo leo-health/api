@@ -7,6 +7,7 @@ module Leo
       expose :message_type
       expose :note
       expose :escalated_to, with: Leo::Entities::ShortUserEntity
+      expose :closure_reason, with: Leo::Entities::ClosureReasonEntity, safe: true
       expose :created_by, with: Leo::Entities::ShortUserEntity
       expose :created_at
       expose :conversation_id, unless: Proc.new {|g|g.class.name == 'Message'}

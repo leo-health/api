@@ -9,7 +9,7 @@ namespace :backfill do
         if user.update_attributes(vendor_id: enrollment.vendor_id)
           puts "*"
         else
-          print "failed to set vendor if for user #{user.id}"
+          print "failed to set vendor id for user #{user.id}"
         end
       end
     end
