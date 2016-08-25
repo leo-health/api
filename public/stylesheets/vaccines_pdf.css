@@ -1,110 +1,130 @@
+body {
+    font-family: AvenirNext-Regular;
+    max-width: 612pt;
+    margin: 0;
+}
+
 header {
     background-color: rgb(255, 95, 64);
-    padding: 0 4% 0 4%;
     color: white;
+    padding: 7pt 21pt 18pt 17pt;
 }
 
 .name {
     font-family: AvenirNext-Medium;
-    float: right
-}
-
-.spacer {
-    height: 15px;
+    font-size: 30pt;
+    float: right;
+    height: 41pt;
+    padding-bottom: 6pt;
 }
 
 header table {
     float: left;
-    width: 80%
-}
-
-header th, td {
-    padding: 0 3% 0 3%
+    width: 450pt
 }
 
 header th {
+    display: inline-block;
+    text-align: left;
     font-family: AvenirNext-Bold;
 }
 
-header tr {
-    font-family: AvenirNext-Regular;
-}
-
 .img-circle {
-    width: 100px;
-    height: 100px;
+    width: 99pt;
+    height: 99pt;
     float: right;
     border-radius: 50%;
-    border: 3px solid white;
+    border: 4pt solid white;
     position: absolute;
 }
 
 .intro {
-    font-family: AvenirNext-Regular;
+    font-size: 30pt;
     color: rgb(87, 87, 87);
-    margin-top: 7%
+    margin-top: 49pt;
+    padding: 4pt 0 3pt 0;
 }
 
-#content {
-    padding: 3% 3% 0 0;
-    margin-left: 25px;
-    font-size: 22px;
-}
-
-.title {
-    width: 100%;
+.intro p{
+    margin: 0;
+    display: inline-block;
+    width: 186pt;
+    height: 82pt;
 }
 
 .colored-bullet {
     float: left;
     background-color: rgb(255, 95, 64);
-    width: 5px;
-    height: 120px;
+    width: 10pt;
+    height: 75pt;
     display: inline-block;
-    margin-right: 20px;
+    margin-right: 21pt;
 }
 
-.title p {
-    padding-top: 0;
-    display: inline-block;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-size: 40px;
-    width: 250px;
-    text-align: left;
-    vertical-align: text-bottom;
+.content {
+    padding: 0 31pt 0 31pt;
+    margin-top: 29pt;
+    font-size: 15pt;
+    color: rgb(155, 155, 155);
 }
 
 .vaccines{
-    font-family: AvenirNext-Regular;
-    width: 100%;
+    padding: 35pt 31pt 0 31pt;
+    font-size: 15pt;
     border-collapse:separate;
-    border-spacing:3em;
-}
-
-.vaccines th {
     color: rgb(155, 155, 155);
 }
 
-.vaccines-left {
-    font-family: AvenirNext-Bold;
-    padding-left: 0;
-    font-size: 7.5px;
+.vaccines th{
+    font: inherit;
+    font-size: 15pt;
+    padding-bottom: 28pt;
+}
+
+.vaccines .title-left{
     text-align: left;
+    width: 424pt;
 }
 
-.vaccines-right {
-    padding-right: 0;
-    color: rgb(155, 155, 155);
-    font-size: 20px;
+.vaccines .title-right{
+    text-align: right;
+    width: 126pt;
 }
 
-.practice {
-    width: 100%;
+.vaccines td{
+    padding-bottom: 14pt;
+}
+
+.vaccines-left{
+    font-family: AvenirNext-Bold;
+    text-align: left;
+    color: rgb(87, 87, 87);
+}
+
+.vaccines-right{
+    font-size: 12pt;
+    text-align: right;
+}
+
+#first-page{
+    height: 380pt;
+}
+
+.middle-pages{
+    height: 630pt;
+}
+
+.middle-header{
+    padding-bottom: 0;
+}
+
+.practice-block {
+    height: 705pt;
+}
+
+.practice{
     position: absolute;
-    bottom: 45px;
-    right: 0;
-    height: 130px;
+    bottom: 0
 }
 
 .practice table {
@@ -117,31 +137,28 @@ header tr {
     vertical-align: top
 }
 
-.practice td {
-    font-family: AvenirNext-Regular;
+.practice th {
+    text-align: left;
+    vertical-align: top
 }
 
 .practice .colored-bullet{
     margin-right: 0;
     height: 100%;
-    width: 8px;
+    width: 10pt;
     float: right;
 }
 
 footer {
-    font-family: AvenirNext-Regular;
     color: rgb(155, 155, 155);
-    width: 100%;
-    position: fixed;
-    bottom: 10px;
+    padding: 0 31pt 0 31pt;
+    page-break-after: always;
 }
 
-.footer-left {
-    margin-left: 25px;
-    float: left;
+footer div{
+    display: inline-block;
 }
 
 .footer-right {
-    margin-right: 25px;
     float: right;
 }
