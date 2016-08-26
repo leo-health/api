@@ -164,6 +164,7 @@ ActiveRecord::Schema.define(version: 20160908151023) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "deleted_at"
+    t.string   "category"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
