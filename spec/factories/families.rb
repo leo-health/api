@@ -15,6 +15,7 @@ FactoryGirl.define do
 				create(:patient, family: instance)
 				create(:patient, family: instance)
 				create(:patient, family: instance)
+				instance.reload
 			end
 		end
 	end

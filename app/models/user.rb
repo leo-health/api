@@ -213,5 +213,6 @@ class User < ActiveRecord::Base
     WelcomeToPracticeJob.send(id)
     send_confirmation_instructions unless confirmed?
     Conversation.create(family: family) unless Conversation.find_by_family_id(family.id)
+    family.patients.each(&:ensure_current_milestone_link_preview)
   end
 end

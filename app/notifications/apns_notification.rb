@@ -21,7 +21,7 @@ class ApnsNotification
     pusher.push(new_message_notification)
   end
 
-  def notify_new_visit_content(device_token, deep_link_path, notification_message)
+  def notify_new_content_card(device_token, deep_link_path, notification_message)
     new_content_notification = Grocer::Notification.new(
       device_token:      device_token,
       alert:             notification_message,

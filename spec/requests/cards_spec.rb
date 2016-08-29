@@ -15,7 +15,7 @@ describe Leo::V1::Cards do
     let(:serializer){ Leo::Entities::CardEntity }
     let(:response_data){[
       {id: user_link_preview.id, deep_link_card_data: link_preview, priority: 0, type: 'deep_link', type_id: 2},
-      {conversation_card_data: user.family.conversation, priority: 1, type: 'conversation', type_id: 1},
+      {conversation_card_data: user.reload.family.conversation, priority: 1, type: 'conversation', type_id: 1},
       {appointment_card_data: upcoming_appointment.reload, priority: 2, type: 'appointment', type_id: 0},
       {appointment_card_data: updated_upcoming_appointment.reload, priority: 3, type: 'appointment', type_id: 0}]}
 
@@ -39,7 +39,10 @@ describe Leo::V1::Cards do
       do_request
       expect(response.status).to eq(200)
       body = JSON.parse(response.body, symbolize_names: true )
-      expect(body[:data].as_json.to_json).to eq(serializer.represent(response_data).as_json.to_json)
+
+      body_json = body[:data].as_json.to_json
+      expected_json = serializer.represent(response_data).as_json.to_json
+      expect(body_json).to eq(expected_json)
     end
   end
 
