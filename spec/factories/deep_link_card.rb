@@ -7,5 +7,6 @@ FactoryGirl.define do
     dismiss_button_text "DISMISS"
     deep_link_button_text "REFER A FRIEND"
     deep_link "referral"
+    category "referral"
   end
 end

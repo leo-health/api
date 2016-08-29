@@ -819,6 +819,7 @@ puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
 
 DeepLinkCard.update_or_create!(:id, {
     :id => 1,
+    :category => "referral"
     :title => "Help us grow",
     :body => "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
     :tint_color_hex => "#FF5F40",

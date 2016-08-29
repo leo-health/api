@@ -9,6 +9,7 @@ module Leo
       expose :tinted_header_text
       expose :dismiss_button_text
       expose :deep_link_button_text
+      expose :category
 
       def deep_link
         "#{ENV['DEEPLINK_SCHEME']}://#{object.deep_link}"
