@@ -8,7 +8,7 @@ module Leo
           header['Content-Disposition'] = "attachment; filename={}"
           env['api.format'] = :binary
           template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'vaccines.html.erb'))
-          p = Patient.last
+          p = Patient.all[1]
           output = template.render(p)
           pdf = WickedPdf.new.pdf_from_string(output, {page_size: 'Letter'})
           save_path = Rails.root.join('app', 'views', 'tmp.pdf')
