@@ -1,0 +1,57 @@
+<header>
+  <!--<div class="name"><%= "#{first_name} #{last_name}" %></div>-->
+  <div class="name">Wuan Kale</div>
+  <div class="spacer" style="clear: both;"></div>
+  <table>
+    <tr>
+      <th>GUARDIAN</th>
+      <td><%= "#{family.primary_guardian.first_name} #{family.primary_guardian.last_name}" %></td>
+      <th>BORN</th>
+      <td><%= birth_date.strftime("%m/%d/%Y") %></td>
+    </tr>
+    <tr>
+      <th></th>
+      <td><%= "#{family.primary_guardian.email}" %></td>
+      <th>SEX</th>
+      <td><%= sex %></td>
+    </tr>
+  </table>
+  <img class="img-circle"
+       src="https://lh5.googleusercontent.com/-Sv0q6lkSAGM/AAAAAAAAAAI/AAAAAAAAADA/V2au8qwIkVA/s0-c-k-no-ns/photo.jpg"/>
+  <div class="spacer" style="clear: both;"></div>
+</header>
+
+<div class="intro">
+  <div class="colored-bullet"></div>
+  <p>Immunization History</p>
+  <div class="spacer" style="clear: both"></div>
+</div>
+
+<p class="content">
+  This record was prepared for <%= "#{first_name} #{last_name}" %> at the date listed below.
+  It includes all the full vaccination history for <%= "#{first_name} #{last_name}" %>.
+</p>
+
+<div id="first-page">
+  <table class="vaccines">
+    <tr>
+      <th class="title-left">vaccine name</th>
+      <th class="title-right">date administered</th>
+    </tr>
+    <% vaccines[0..5].each do |v|%>
+        <tr>
+          <td class="vaccines-left"><%= v.vaccine %></td>
+          <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
+        </tr>
+        <tr>
+          <td class="vaccines-left-second">Varvax, active</td>
+        </tr>
+    <%end%>
+  </table>
+</div>
+
+<footer>
+  <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
+  <div class="right"><%= count %></div>
+  <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
+</footer>
