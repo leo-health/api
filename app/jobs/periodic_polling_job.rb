@@ -8,23 +8,27 @@ class PeriodicPollingJob < LeoDelayedJob
   def initialize(
     interval: nil,
     owner: nil,
-    priority: IMMEDIATE_PRIORITY,
-    scheduler_proc: nil) # overrides interval
-
+    priority: IMMEDIATE_PRIORITY)
     @interval = interval
     @owner = owner
     @priority = priority
-    @scheduler_proc = scheduler_proc
   end
 
   def subscribe(**args)
-    if run_at = @scheduler_proc.try(:call) || @interval.try(:from_now) || args[:run_at]
-      self.start(**args.reverse_merge(run_at: run_at, owner: @owner, priority: @priority))
+    if run_at = args[:run_at] || self.try(:schedule_time) || @interval.try(:from_now)
+      self.start(**args.reverse_merge(
+        run_at: run_at,
+        owner: @owner,
+        priority: @priority
+      ))
     end
   end
 
   def subscribe_if_needed(**args)
-    Delayed::Job.find_by(owner: @owner, queue: self.queue_name) || subscribe(**args) # subclass implementation
+    Delayed::Job.find_by(
+      owner: @owner,
+      queue: self.queue_name
+    ) || subscribe(**args) # subclass implementation
   end
 
   def success(completed_job)

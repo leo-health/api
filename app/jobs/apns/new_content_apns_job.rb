@@ -4,7 +4,9 @@ class NewContentApnsJob < Struct.new(:device_token, :card_id, :notification_mess
   end
 
   def perform
-    ApnsNotification.new.notify_new_visit_content(device_token, card_id, notification_message)
+    ApnsNotification.new.notify_new_content_card(
+      device_token, card_id, notification_message
+    )
   end
 
   def queue_name

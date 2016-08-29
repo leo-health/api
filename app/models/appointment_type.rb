@@ -10,6 +10,7 @@ class AppointmentType < ActiveRecord::Base
   BLOCK_TYPE_ATHENA_IDS = [14, 16] # map both block types
 
   WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE = {
+    0.2 => WELL_VISIT_TYPES[0],
     0.5 => WELL_VISIT_TYPES[3],
     1 => WELL_VISIT_TYPES[4],
     2 => WELL_VISIT_TYPES[5],
@@ -63,11 +64,13 @@ class AppointmentType < ActiveRecord::Base
     # try the given type
     appt_type = find_by(
       hidden: false,
-      athena_id: athena_id)
+      athena_id: athena_id
+    )
     # try to map the type
     appt_type ||= find_by(
       hidden: false,
-      athena_id: self.APPOINTMENT_TYPE_MAP[athena_id])
+      athena_id: self.APPOINTMENT_TYPE_MAP[athena_id]
+    )
     # default to "Other"
     appt_type ||= other
   end

@@ -280,7 +280,7 @@ ActiveRecord::Schema.define(version: 20160908151023) do
     t.string   "external_link"
     t.string   "notification_message"
     t.string   "category"
-    t.integer  "age_of_patient_in_months"
+    t.float    "age_of_patient_in_months"
   end
 
   create_table "medications", force: :cascade do |t|

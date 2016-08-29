@@ -10,8 +10,10 @@ module Leo
         get do
           family = Family.includes(:guardians).find(current_user.family_id)
           deep_link_notifications = UserLinkPreview.where(user: current_user)
-          appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id)).where.not(appointment_type: AppointmentType.blocked)
-                           .where("start_datetime > ?", Time.now).order("updated_at DESC")
+          appointments = Appointment.booked
+          .where(patient_id: current_user.family.patients.pluck(:id))
+          .where.not(appointment_type: AppointmentType.blocked)
+          .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
           cards = sort_cards(deep_link_notifications + appointments + [family.conversation])
           sorted_cards = cards.each_with_index.inject([]) do |cards, (card, index)|
