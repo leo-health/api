@@ -8,6 +8,7 @@ describe Leo::V1::Conversations do
   let!(:bot){ create(:user, :bot) }
   let(:serializer){ Leo::Entities::ConversationEntity }
   let(:short_serializer){ Leo::Entities::ShortConversationEntity }
+  let(:reason_serializer) { Leo::Entities::ClosureReasonEntity }
 
   describe "Get /api/v1/staff/:staff_id/conversations" do
     let(:session){ customer_service.sessions.create }
@@ -49,6 +50,23 @@ describe Leo::V1::Conversations do
     end
   end
 
+  describe "Get /api/v1/conversations/closure_reasons" do
+    let(:clinical_user){ create(:user, :clinical) }
+    let(:session){ clinical_user.sessions.create }
+    let!(:reason){ create(:closure_reason) }
+
+    def do_request
+      get "/api/v1/conversations/closure_reasons", { authentication_token: session.authentication_token }
+    end
+
+    it "should return the closure reasons" do
+      do_request
+      expect(response.status).to eq(200)
+      body = JSON.parse(response.body, symbolize_names: true )
+      expect(body[:data][:reasons].as_json.to_json).to eq(reason_serializer.represent([reason]).as_json.to_json)
+    end
+  end
+
   describe "Put /api/v1/conversations/:id/close" do
     let(:clinical_user){create(:user, :clinical)}
     let!(:session){ clinical_user.sessions.create }
@@ -59,7 +77,7 @@ describe Leo::V1::Conversations do
     end
 
     def do_request
-      put "/api/v1/conversations/#{conversation.id}/close", {authentication_token: session.authentication_token, note: "close conversation"}
+      put "/api/v1/conversations/#{conversation.id}/close", {authentication_token: session.authentication_token, userInput: true, note: "close conversation", reasonId: 1}
     end
 
     it "should update the specific conversation" do

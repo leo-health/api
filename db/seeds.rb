@@ -46,6 +46,69 @@ AppointmentType.update_or_create!(:name, {
   hidden: true
 })
 
+closure_reasons_seed = [
+  {
+    id: 0,
+    user_input: false,
+    short_description: "appointment",
+    long_description: "scheduled appointment"
+  },
+
+  {
+    id: 1,
+    user_input: false,
+    short_description: "phone",
+    long_description: "resolved over the phone"
+  },
+
+  {
+    id: 2,
+    user_input: false,
+    short_description: "clinical",
+    long_description: "clinical issue"
+  },
+
+  {
+    id: 3,
+    user_input: false,
+    short_description: "administrative",
+    long_description: "administrative"
+  },
+
+  {
+    id: 4,
+    user_input: false,
+    short_description: "billing",
+    long_description: "billing"
+  },
+
+  {
+    id: 5,
+    user_input: false,
+    short_description: "previous",
+    long_description: "related to previous"
+  },
+
+  {
+    id: 6,
+    user_input: true,
+    short_description: "other",
+    long_description: "other (provide explanation)"
+  },
+]
+
+closure_reasons_seed.each_with_index do |reason, index|
+  ClosureReason.update_or_create!(:id, {
+                        id: reason[:id],
+                        reason_order: index,
+                        user_input: reason[:user_input],
+                        short_description: reason[:short_description],
+                        long_description: reason[:long_description]
+                        })
+end
+
+puts "Finished seeding #{closure_reasons_seed.count} ClosureReason records"
+
 appointment_statuses_seed = [
   {
     description: "Checked In",
@@ -323,8 +386,6 @@ else
     time_zone: "Eastern Time (US & Canada)"
   })
 end
-
-
 
 staff = [{
   first_name: "Leo",
