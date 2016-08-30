@@ -131,9 +131,9 @@ ActiveRecord::Schema.define(version: 20160811184524) do
     t.integer  "conversation_id",   null: false
     t.integer  "closed_by_id",      null: false
     t.string   "note"
-    t.integer  "closure_reason_id", null: false
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.integer  "closure_reason_id", null: false
   end
 
   create_table "closure_reasons", force: :cascade do |t|

@@ -7,107 +7,16 @@
     <body>
         <% page_total = vaccines.count %>
         <% count = 1 %>
-        <% add_footer = false %>
         <%while page_total >= 0 do%>
             <% if count == 1 %>
-                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'first_page.html.erb')).render(self)%>
+                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'first_page.html.erb')).render(self, count: 1)%>
                 <% page_total -= 6 %>
                 <% count += 1 %>
             <% else %>
-                <header>
-                   <div class="name middle-header"><%= "#{first_name} #{last_name}" %></div>
-                   <div class="spacer" style="clear: both;"></div>
-                </header>
-                <div class="middle-pages">
-                    <table class="vaccines">
-                      <tr>
-                        <th class="title-left">vaccine name</th>
-                        <th class="title-right">date administered</th>
-                      </tr>
-                          <% start = vaccines.count - page_total %>
-                          <% vaccines[start..start+9].each do |v|%>
-                              <tr>
-                                <td class="vaccines-left"><%= v.vaccine %></td>
-                                <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
-                              </tr>
-                              <tr>
-                                <td class="vaccines-left-second">Varvax, active</td>
-                              </tr>
-                          <%end%>
-                    </table>
-                    <%if page_total < 7 %>
-                      <div class="practice">
-                          <table>
-                            <tr>
-                              <th>PEDIATRICIAN</th>
-                              <td>Dr. Victoria Riese</td>
-                            </tr>
-                            <tr>
-                              <th></th>
-                              <td>231-312-2312</td>
-                            </tr>
-                            <tr>
-                              <th>PRACTICE</th>
-                              <td>Flatiron Pediatrics</td>
-                            </tr>
-                            <tr>
-                              <th></th>
-                              <td>27 E 22nd Street</td>
-                            </tr>
-                            <tr>
-                              <th></th>
-                              <td>New York, NY 10010</td>
-                            </tr>
-                          </table>
-                        </div>
-                    <%end%>
-                </div>
-                <% add_footer = true if (page_total >=7 && page_total < 11) %>
-                <footer>
-                  <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
-                  <div class="right"><%= count %></div>
-                  <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
-                </footer>
+                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'middle_page.html.erb')).render(self, count: 2)%>
                 <% page_total -= 10 %>
                 <% count += 1%>
             <% end %>
         <% end %>
-        <% if add_footer %>
-            <header>
-              <div class="name middle-header"><%= "#{first_name} #{last_name}" %></div>
-              <div class="spacer" style="clear: both;"></div>
-            </header>
-            <div class="middle-pages">
-              <div class="practice">
-                <table>
-                    <tr>
-                      <th>PEDIATRICIAN</th>
-                      <td>Dr. Victoria Riese</td>
-                    </tr>
-                    <tr>
-                      <th></th>
-                      <td>231-312-2312</td>
-                    </tr>
-                    <tr>
-                      <th>PRACTICE</th>
-                      <td>Flatiron Pediatrics</td>
-                    </tr>
-                    <tr>
-                      <th></th>
-                      <td>27 E 22nd Street</td>
-                    </tr>
-                    <tr>
-                      <th></th>
-                      <td>New York, NY 10010</td>
-                    </tr>
-                </table>
-              </div>
-            </div>
-            <footer>
-              <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
-              <div class="right"><%= count %></div>
-              <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
-            </footer>
-        <%end%>
     </body>
 </html>
