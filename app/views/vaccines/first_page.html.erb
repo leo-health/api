@@ -1,6 +1,5 @@
 <header>
-  <!--<div class="name"><%= "#{first_name} #{last_name}" %></div>-->
-  <div class="name">Wuan Kale</div>
+  <div class="name"><%= "#{first_name} #{last_name}" %></div>
   <div class="spacer" style="clear: both;"></div>
   <table>
     <tr>
@@ -39,12 +38,13 @@
       <th class="title-right">date administered</th>
     </tr>
     <% vaccines[0..5].each do |v|%>
+        <!--limit is 60 characters-->
         <tr>
-          <td class="vaccines-left"><%= v.vaccine %></td>
+          <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] %></td>
           <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
         </tr>
         <tr>
-          <td class="vaccines-left-second">Varvax, active</td>
+          <td class="vaccines-left-second"><%=v.vaccine%></td>
         </tr>
     <%end%>
   </table>
