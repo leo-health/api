@@ -10,12 +10,12 @@ class UserLinkPreview < ActiveRecord::Base
   validates :link_preview, presence: true
 
   def actions_after_content_shared
-    send_new_content_notification if link_preview.try(:category) == :milestone_content
+    send_new_content_notification if link_preview.try(:category).try(:to_sym) == :milestone_content
   end
 
   def send_new_content_notification
     user.collect_device_tokens.each do |device_token|
-      NewContentApnsJob.send(device_token, link_preview.id, link_preview.notification_message)
+      NewContentApnsJob.send(device_token, link_preview.id)
     end
   end
 end
