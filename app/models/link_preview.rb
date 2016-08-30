@@ -17,6 +17,7 @@ class LinkPreview < ActiveRecord::Base
 
   def self.current_milestone_index_for_age(age)
     ages = ages_for_milestone_content
+    return nil if ages.size == 0
     closest_milestone_age = GenericHelper.closest_item(age, ages)
     i = ages.index(closest_milestone_age) #closest milestone
     i -= closest_milestone_age > age ? 1 : 0 # current milestone

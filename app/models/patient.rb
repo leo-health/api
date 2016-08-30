@@ -58,7 +58,7 @@ class Patient < ActiveRecord::Base
     dob = birth_date
     now = Time.zone.now.to_date
     months = now.month - dob.month - ((now.day >= dob.day) ? 0 : 1)
-    years = now.year - dob.year - ((now.month > dob.month || (now.month == dob.month && now.day >= dob.day)) ? 0 : 1)
+    years = now.year - dob.year
     years * 12 + months
   end
 
@@ -88,7 +88,7 @@ class Patient < ActiveRecord::Base
     current_age = LinkPreview.ages_for_milestone_content[index]
     UserLinkPreview.where(
       owner: self
-    ).each do |ulp|
+    ).find_each do |ulp|
       if ulp.link_preview.category.to_sym == :milestone_content
         ulp.destroy unless ulp.link_preview.age_of_patient_in_months == current_age
       end

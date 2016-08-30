@@ -4,8 +4,11 @@ require 'rails_helper'
 describe Leo::V1::Cards do
   let(:user){ create(:user, :guardian) }
   let(:session){ user.sessions.create }
-  let!(:link_preview){create(:link_preview)}
-  let!(:user_link_preview){create(:user_link_preview, user: user)}
+  let!(:link_preview){create(:link_preview, :referral)}
+  let!(:user_link_preview){create(:user_link_preview,
+    user: user,
+    link_preview: link_preview
+  )}
 
   describe "Get /api/v1/cards" do
     let!(:upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 1.day)}

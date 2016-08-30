@@ -128,7 +128,7 @@ class User < ActiveRecord::Base
   end
 
   def collect_device_tokens
-    sessions.map{|session| session.device_token}.compact.uniq
+    sessions.map(&:device_token).compact.uniq
   end
 
   def confirm_secondary_guardian
