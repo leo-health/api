@@ -8,6 +8,7 @@ module Leo
       expose :last_message_created_at
       expose :state
       expose :last_message
+      expose :escalated_to, with: Leo::Entities::ShortUserEntity, if: Proc.new{ |c| c.escalated? }
 
       private
 
@@ -25,6 +26,10 @@ module Leo
 
       def last_message
         object.messages.order('created_at DESC').first.try(:body) || '[image]'
+      end
+
+      def escalated_to
+        EscalationNote.where(conversation: object).order('created_at ASC').last.try(:escalated_to)
       end
     end
   end

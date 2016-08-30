@@ -39,7 +39,7 @@ RSpec.describe EscalationNote, type: :model do
   end
 
   describe "#active?" do
-    let!(:closure_params){ { closed_by: clinical, note: 'closure note'} }
+    let!(:closure_params){ { closed_by: clinical, note: 'closure note', closure_reason_id: 1} }
 
     before do
       conversation.escalate(escalation_params)
