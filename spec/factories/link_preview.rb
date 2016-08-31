@@ -7,6 +7,10 @@ FactoryGirl.define do
     dismiss_button_text "DISMISS"
     deep_link_button_text "SOME LINK"
 
+    trait :notification do
+      notification_message "get notified!"
+    end
+
     trait :referral do
       title "Sharing is caring!"
       body "Invite your friends to a private consult at Flatiron Pediatrics"

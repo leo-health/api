@@ -612,6 +612,7 @@ ActiveRecord::Schema.define(version: 20160908151023) do
     t.datetime "deleted_at"
     t.integer  "owner_id"
     t.string   "owner_type"
+    t.datetime "dismissed_at"
   end
 
   create_table "users", force: :cascade do |t|
