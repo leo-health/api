@@ -13,4 +13,8 @@ class NewContentApnsJob < Struct.new(:device_token, :link_preview_id)
   def queue_name
     'apns_notification'
   end
+  
+  def self.queue_name
+    'apns_notification'
+  end
 end
