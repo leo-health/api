@@ -17,18 +17,36 @@ module Leo
           put do
             conversation = Conversation.find(params[:id])
             authorize! :update, conversation
-            close_params = {closed_by: current_user, note: params[:note]}
-            if conversation.close!(close_params)
+            userInput = (params[:userInput] == "true")
+            note = params[:note]
+            close_params = {closed_by: current_user, note: note, closure_reason_id: params[:reasonId]}
+            if ((userInput && note.blank?) || (!userInput && !note.blank?))
+              error!({error_code: 422, user_message: "can't close the conversation due to invalid input" }, 422)
+            elsif conversation.close!(close_params)
               close_params[:conversation_id] = conversation.id
               closure_note = ClosureNote.where(close_params).order('created_at DESC').first
               present :conversation_id, closure_note.conversation_id
               present :created_by, current_user
+              present :closure_reason_id, params[:reasonId]
               present :note, closure_note.note
               present :message_type, :close
               present :id, closure_note.id
             else
               error!({error_code: 422, user_message: "can't close the conversation" }, 422)
             end
+          end
+        end
+
+        desc 'return all closure reasons (Get /api/v1/closure_reasons)'
+        namespace :closure_reasons do
+          before do
+            authenticated
+          end
+
+          get do
+            reasons = ClosureReason.all
+            error!('403 Forbidden', 403) if current_user.guardian?
+            present :reasons, reasons.order('reason_order ASC'), with: Leo::Entities::ClosureReasonEntity
           end
         end
 
@@ -68,7 +86,13 @@ module Leo
         end
 
         get do
-          conversations = params[:state] ? Conversation.where(state: params[:state]).order('updated_at desc') : Conversation.order("updated_at desc")
+          if params[:state].blank?
+            conversations = Conversation.order("updated_at desc")
+          elsif params[:state] == "escalated" || params[:state] == "open"
+            conversations = Conversation.where(state: [:escalated, :open]).order('updated_at desc')
+          else
+            conversations = Conversation.where(state: 'closed').order('updated_at desc')
+          end
           max_page = (conversations.count / 10.to_f).ceil
           authorize! :read, Conversation
           present :max_page, max_page

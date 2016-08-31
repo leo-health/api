@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160811184524) do
+ActiveRecord::Schema.define(version: 20160830183857) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -128,11 +128,19 @@ ActiveRecord::Schema.define(version: 20160811184524) do
   end
 
   create_table "closure_notes", force: :cascade do |t|
-    t.integer  "conversation_id", null: false
-    t.integer  "closed_by_id",    null: false
+    t.integer  "conversation_id",   null: false
+    t.integer  "closed_by_id",      null: false
     t.string   "note"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.integer  "closure_reason_id", null: false
+  end
+
+  create_table "closure_reasons", force: :cascade do |t|
+    t.integer "reason_order"
+    t.boolean "user_input"
+    t.string  "short_description"
+    t.string  "long_description"
   end
 
   create_table "conversations", force: :cascade do |t|
