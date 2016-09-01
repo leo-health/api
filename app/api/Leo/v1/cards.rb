@@ -8,22 +8,25 @@ module Leo
         end
 
         get do
-          family = Family.includes(:guardians).find(current_user.family_id)
-          deep_link_notifications = UserLinkPreview.where(user: current_user)
+          conversations = [Family.includes(:guardians).find(current_user.family_id).conversation]
+          user_link_previews = UserLinkPreview.where(user: current_user).published
           appointments = Appointment.booked
           .where(patient_id: current_user.family.patients.pluck(:id))
           .where.not(appointment_type: AppointmentType.blocked)
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
-          cards = sort_cards(deep_link_notifications + appointments + [family.conversation])
-          sorted_cards = cards.each_with_index.inject([]) do |cards, (card, index)|
+          card_objects = conversations + user_link_previews + appointments
+          sorted_cards = card_objects
+          .sort_by(&:updated_at).reverse
+          .each_with_index
+          .map do |card, index|
             case card
             when UserLinkPreview
-              cards << {id: card.id, deep_link_card_data: card.link_preview, priority: index, type: 'deep_link', type_id: 2}
+              {id: card.id, deep_link_card_data: card.link_preview, priority: index, type: 'deep_link', type_id: 2}
             when Conversation
-              cards << {conversation_card_data: card, priority: index, type: 'conversation', type_id: 1}
+              {conversation_card_data: card, priority: index, type: 'conversation', type_id: 1}
             when Appointment
-              cards << {appointment_card_data: card, priority: index, type: 'appointment', type_id: 0}
+              {appointment_card_data: card, priority: index, type: 'appointment', type_id: 0}
             end
           end
 
@@ -35,29 +38,8 @@ module Leo
         end
 
         delete do
-          UserLinkPreview.where(id: params[:id]).destroy_all
-        end
-      end
-
-      helpers do
-        def sort_cards(cards)
-          count = cards.count
-          return cards if cards.count < 2
-          left, right = cards.take(count/2), cards.drop(count/2)
-          sorted_left, sorted_right = sort_cards(left), sort_cards(right)
-          merge(sorted_left, sorted_right)
-        end
-
-        def merge(left, right)
-          result = []
-          while left.count > 0 && right.count > 0
-            if left.first.updated_at >= right.first.updated_at
-              result << left.shift
-            else
-              result << right.shift
-            end
-          end
-          result + left + right
+          UserLinkPreview.where(id: params[:id])
+          .update_all(dismissed_at: Time.now)
         end
       end
     end

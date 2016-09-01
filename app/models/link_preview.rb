@@ -31,4 +31,20 @@ class LinkPreview < ActiveRecord::Base
       category: :milestone_content
     )
   end
+
+  def send_with_30_day_expiry(users, **options)
+    send_to(users, options.reverse_merge(dismissed_at: 30.days.from_now))
+  end
+
+  def send_to(users, **options)
+    _users = users.respond_to?(:each) ? users : [users]
+    _users.map do |u|
+      UserLinkPreview.create(
+        user: u,
+        owner: u,
+        link_preview: self,
+        **options
+      )
+    end
+  end
 end

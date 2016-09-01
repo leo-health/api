@@ -9,6 +9,11 @@ describe Leo::V1::Cards do
     user: user,
     link_preview: link_preview
   )}
+  let!(:dismissed_user_link_preview){create(:user_link_preview,
+    user: user,
+    link_preview: link_preview,
+    dismissed_at: 1.hour.ago
+  )}
 
   describe "Get /api/v1/cards" do
     let!(:upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 1.day)}
@@ -53,7 +58,7 @@ describe Leo::V1::Cards do
     it "deletes the specified card" do
       delete "/api/v1/cards", {authentication_token: session.authentication_token, id: user_link_preview.id}
       expect(response.status).to eq(200)
-      expect(UserLinkPreview.count).to eq(0)
+      expect(UserLinkPreview.published.count).to eq(0)
     end
   end
 end
