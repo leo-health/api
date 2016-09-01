@@ -43,7 +43,6 @@ gem 'newrelic_rpm'
 gem 'useragent'
 gem "delayed_job_web"
 gem 'stripe'
-gem 'grape-erb'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 gem 'tilt'
