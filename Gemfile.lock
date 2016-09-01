@@ -157,11 +157,6 @@ GEM
     grape-entity-matchers (1.0.1)
       grape-entity (~> 0.4.0)
       rspec (>= 3.2.0)
-    grape-erb (0.0.1)
-      erubis
-      grape
-      i18n
-      tilt
     grape-kaminari (0.1.8)
       grape
       kaminari
@@ -463,7 +458,6 @@ DEPENDENCIES
   grape-cancan
   grape-entity
   grape-entity-matchers
-  grape-erb
   grape-kaminari
   grocer
   haml-rails (~> 0.8)
