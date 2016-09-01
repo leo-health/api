@@ -1,5 +1,5 @@
 <header>
-  <div class="name"><%= "#{first_name} #{last_name}" %></div>
+  <div class="name"><%= "#{first_name.upcase} #{last_name.upcase}" %></div>
   <div class="spacer" style="clear: both;"></div>
   <table>
     <tr>
@@ -15,8 +15,7 @@
       <td><%= sex %></td>
     </tr>
   </table>
-  <!--<img class="img-circle"-->
-       <!--src="https://lh5.googleusercontent.com/-Sv0q6lkSAGM/AAAAAAAAAAI/AAAAAAAAADA/V2au8qwIkVA/s0-c-k-no-ns/photo.jpg"/>-->
+  <div class="round" style="background-image: url(<%= current_avatar.avatar.url %>)"></div>
   <div class="spacer" style="clear: both;"></div>
 </header>
 
@@ -37,8 +36,7 @@
       <th class="title-left">vaccine name</th>
       <th class="title-right">date administered</th>
     </tr>
-    <% vaccines[0..5].each do |v|%>
-        <!--limit is 60 characters-->
+    <% records.each do |v|%>
         <tr>
           <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] %></td>
           <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
@@ -55,3 +53,5 @@
   <div class="right"><%= count %></div>
   <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
 </footer>
+
+<% p current_avatar.avatar.url %>
