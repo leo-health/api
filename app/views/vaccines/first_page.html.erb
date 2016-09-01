@@ -15,7 +15,14 @@
       <td><%= sex %></td>
     </tr>
   </table>
-  <div class="round" style="background-image: url(<%= current_avatar.avatar.url %>)"></div>
+  <% if current_avatar && current_avatar.avatar %>
+      <%p "I am here"%>
+      <div class="round" style="background-image: url(<%= current_avatar.avatar.url %>)"></div>
+  <% elsif sex == "M"%>
+      <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Son.png') %>)"></div>
+  <% else %>
+      <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Daughter.png') %>)"></div>
+  <% end %>
   <div class="spacer" style="clear: both;"></div>
 </header>
 
@@ -53,5 +60,3 @@
   <div class="right"><%= count %></div>
   <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
 </footer>
-
-<% p current_avatar.avatar.url %>
