@@ -4,11 +4,13 @@
 </header>
 <div class="middle-pages">
   <table class="vaccines">
-    <tr>
-      <th class="title-left">vaccine name</th>
-      <th class="title-right">date administered</th>
-    </tr>
-    <% vaccines[start..start+9].each do |v|%>
+    <% if records.length > 0 %>
+        <tr>
+          <th class="title-left">vaccine name</th>
+          <th class="title-right">date administered</th>
+        </tr>
+    <% end %>
+    <% records.each do |v|%>
         <tr>
           <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] %></td>
           <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
@@ -18,8 +20,7 @@
         </tr>
     <%end%>
   </table>
-</div>
-<div class="middle-pages">
+
   <div class="practice">
     <table>
       <tr>
@@ -45,6 +46,7 @@
     </table>
   </div>
 </div>
+
 <footer>
   <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
   <div class="right"><%= count %></div>
