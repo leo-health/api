@@ -154,9 +154,28 @@ module Leo
 
           # get "patients/{patient_id}/immunizations"
           desc "get immunizations"
+          params do
+            requires :response_type, type: String, values: ['pdf', 'json']
+          end
+
           get 'immunizations' do
-            imunizations = Vaccine.where(patient: @patient).order(:administered_at)
-            present :immunizations, imunizations, with: Leo::Entities::VaccineEntity
+            immunizations = @patient.vaccines.order(:administered_at)
+            if params[:response_type] == 'json'
+              present :immunizations, immunizations, with: Leo::Entities::VaccineEntity
+            else
+              content_type "application/pdf"
+              env['api.format'] = :binary
+              template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'vaccines.html.erb'))
+              if immunizations.count > 0
+                output = template.render(@patient)
+                WickedPdf.new.pdf_from_string(output, {page_size: 'Letter'})
+                # pdf = WickedPdf.new.pdf_from_string(output, {page_size: 'Letter'})
+                # save_path = Rails.root.join('app', 'views', 'tmp.pdf')
+                # File.open(save_path, 'wb'){|file| file << pdf }
+              else
+                error!({error_code: 422, user_message: "Sorry, looks like you don't have any vaccines to export. Check back after your child's first visit" }, 422)
+              end
+            end
           end
 
           # get "patients/{patient_id}/vitals/medications"

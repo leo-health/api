@@ -297,7 +297,7 @@ class AthenaPatientSyncService < AthenaSyncService
     #create and/or update the vaccine records in Leo
     vaccs.each do | vacc |
       if vacc[:status.to_s] == 'ADMINISTERED'
-        leo_vacc = Vaccine.find_or_create_by(athena_id: vacc[:vaccineid.to_s])
+        leo_vacc = Vaccine.find_or_initialize_by(athena_id: vacc[:vaccineid.to_s])
         leo_vacc.patient_id = leo_patient.id
         leo_vacc.athena_id = vacc[:vaccineid.to_s]
         leo_vacc.vaccine = vacc[:description.to_s]

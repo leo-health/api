@@ -94,7 +94,7 @@ module Leo
                      patient_enrollments avatars health_records notes pushers
                      subscriptions appointment_statuses forms patient_insurances
                      deep_links ios_configuration validated_json payments_listener
-                     subscriptions staff_profiles vaccines)
+                     subscriptions staff_profiles)
 
       ENDPOINTS.each do |endpoint|
         require_relative endpoint

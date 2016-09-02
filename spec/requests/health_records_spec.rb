@@ -231,26 +231,33 @@ describe Leo::V1::HealthRecords do
   end
 
   describe "GET /api/v1/patients/:id/immunizations" do
-    let!(:medications) {
-      [
-        create(:vaccine, patient_id: patient.id),
-        create(:vaccine, patient_id: patient.id),
-        create(:vaccine, patient_id: patient.id),
-        create(:vaccine, patient_id: patient.id)
-      ]
-    }
-
-    def do_request
-      get "/api/v1/patients/#{patient.id}/immunizations", { authentication_token: session.authentication_token }, format: :json
+    before do
+      4.times{create(:vaccine, patient: patient)}
     end
 
-    it "should return a list of immunizations" do
-      do_request
-      expect(response.status).to eq(200)
-      resp = JSON.parse(response.body)
-      expect(resp["status"]).to eq("ok")
-      expect(resp["data"].size).to eq(1)
-      expect(resp["data"]["immunizations"].size).to eq(4)
+    context 'when request json format response' do
+      def do_request
+        get "/api/v1/patients/#{patient.id}/immunizations", { authentication_token: session.authentication_token,  response_type: 'json'}
+      end
+
+      it "should return a list of immunizations" do
+        do_request
+        expect(response.status).to eq(200)
+        resp = JSON.parse(response.body)
+        expect(resp["data"]["immunizations"].size).to eq(4)
+      end
+    end
+
+    context 'when request pdf format response' do
+      def do_request
+        get "/api/v1/patients/#{patient.id}/immunizations", { authentication_token: session.authentication_token,  response_type: 'pdf'}
+      end
+
+      it "should return a list of immunizations" do
+        do_request
+        expect(response.status).to eq(200)
+        expect(response.body.class).to eq(String)
+      end
     end
   end
 
