@@ -169,9 +169,6 @@ module Leo
               if immunizations.count > 0
                 output = template.render(@patient)
                 WickedPdf.new.pdf_from_string(output, {page_size: 'Letter'})
-                # pdf = WickedPdf.new.pdf_from_string(output, {page_size: 'Letter'})
-                # save_path = Rails.root.join('app', 'views', 'tmp.pdf')
-                # File.open(save_path, 'wb'){|file| file << pdf }
               else
                 error!({error_code: 422, user_message: "Sorry, looks like you don't have any vaccines to export. Check back after your child's first visit" }, 422)
               end
