@@ -64,6 +64,7 @@ namespace :notification do
 
   desc "send pusher message to notify practice availabilty at open and close time of a practice"
   task practice_availability_change: :environment do
+    next if (Date.today.saturday? || Date.today.sunday?)
     Practice.all.each do |practice|
       if schedule = practice.active_schedule
         practice.delay(run_at: schedule.start_time_for_date(Date.today)).start_in_office_hours
