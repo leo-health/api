@@ -22,6 +22,7 @@
   </table>
 
   <div class="practice">
+    <% practice = family.primary_guardian.practice %>
     <table>
       <tr>
         <th>PEDIATRICIAN</th>
@@ -33,15 +34,15 @@
       </tr>
       <tr>
         <th>PRACTICE</th>
-        <td>Flatiron Pediatrics</td>
+        <td><%= practice.name %></td>
       </tr>
       <tr>
         <th></th>
-        <td>27 E 22nd Street</td>
+        <td><%= practice.address_line_1 %>, <%= practice.address_line_2 %></td>
       </tr>
       <tr>
         <th></th>
-        <td>New York, NY 10010</td>
+        <td><%= practice.city %>, <%= practice.state %> <%= practice.zip %></td>
       </tr>
     </table>
   </div>
