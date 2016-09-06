@@ -12,7 +12,11 @@
       <th></th>
       <td><%= "#{family.primary_guardian.email}" %></td>
       <th>SEX</th>
-      <td><%= sex %></td>
+      <% if sex == 'M' %>
+        <td>Male</td>
+      <% else %>
+        <td>Female</td>
+      <%end%>
     </tr>
   </table>
   <% if current_avatar && current_avatar.avatar %>
