@@ -1,5 +1,6 @@
 body {
-    font-family:'Avenir Next Cyr W00 Regular';
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 12pt;
     max-width: 612pt;
     margin: 0;
 }
@@ -11,7 +12,6 @@ header {
 }
 
 .name {
-    /*font-family: AvenirNext-Medium;*/
     font-size: 30pt;
     float: right;
     height: 41pt;
@@ -26,7 +26,7 @@ header table {
 header th {
     display: inline-block;
     text-align: left;
-    /*font-family: AvenirNext-Bold;*/
+    font-weight: 600;
 }
 
 .round{
@@ -68,19 +68,17 @@ header th {
 .content {
     padding: 0 31pt 0 31pt;
     margin-top: 29pt;
-    font-size: 15pt;
+    font-size: 12pt;
     color: rgb(155, 155, 155);
 }
 
 .vaccines{
     padding: 35pt 31pt 0 31pt;
-    font-size: 15pt;
     border-collapse:separate;
     color: rgb(155, 155, 155);
 }
 
 .vaccines th{
-    font: inherit;
     max-height: 52pt;
     padding-bottom: 32pt;
 }
@@ -97,19 +95,17 @@ header th {
 
 .vaccines .vaccines-left{
     padding-bottom: 1pt;
-    /*font-family: AvenirNext-DemiBold;*/
+    font-weight: 400;
     text-align: left;
     color: rgb(87, 87, 87);
 }
 
 .vaccines .vaccines-left-second{
     padding-bottom: 15pt;
-    font-size: 12pt;
     color: rgb(155, 155, 155);
 }
 
 .vaccines .vaccines-right{
-    font-size: 12pt;
     text-align: right;
 }
 
@@ -133,7 +129,7 @@ header th {
 }
 
 .practice th {
-    /*font-family: AvenirNext-Bold;*/
+    font-weight: 600;
     text-align: right;
     padding-right: 22pt;
 }
@@ -145,7 +141,6 @@ header th {
 footer {
     color: rgb(155, 155, 155);
     padding: 0 31pt 0 31pt;
-    font-size: 12pt;
     page-break-after: always;
 }
 

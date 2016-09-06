@@ -48,7 +48,7 @@
     </tr>
     <% records.each do |v|%>
         <tr>
-          <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] %></td>
+          <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] || 'Unspecified' %></td>
           <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
         </tr>
         <tr>
