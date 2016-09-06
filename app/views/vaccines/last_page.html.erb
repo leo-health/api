@@ -40,7 +40,7 @@
         <th></th>
         <td><%= practice.address_line_1 %></td>
       </tr>
-      <% if practice.address_line_2.length > 0 %>
+      <% if practice.address_line_2 && practice.address_line_2.length > 0 %>
           <tr>
             <th></th>
             <td><%= practice.address_line_2 %></td>
