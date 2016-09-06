@@ -237,7 +237,7 @@ describe Leo::V1::HealthRecords do
 
     context 'when request json format response' do
       def do_request
-        get "/api/v1/patients/#{patient.id}/immunizations", { authentication_token: session.authentication_token,  response_type: 'json'}
+        get "/api/v1/patients/#{patient.id}/immunizations", { authentication_token: session.authentication_token}
       end
 
       it "should return a list of immunizations" do

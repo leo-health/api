@@ -155,12 +155,12 @@ module Leo
           # get "patients/{patient_id}/immunizations"
           desc "get immunizations"
           params do
-            requires :response_type, type: String, values: ['pdf', 'json']
+            optional :response_type, type: String, values: ['pdf', 'json']
           end
 
           get 'immunizations' do
             immunizations = @patient.vaccines.order(:administered_at)
-            if params[:response_type] == 'json'
+            if params[:response_type].nil? || params[:response_type] == 'json'
               present :immunizations, immunizations, with: Leo::Entities::VaccineEntity
             else
               content_type "application/pdf"

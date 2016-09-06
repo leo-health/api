@@ -199,7 +199,7 @@ resource "HealthRecords" do
 
   get "/api/v1/patients/:id/immunizations" do
     parameter :authentication_token, required: true
-    parameter :response_type, 'pdf or json', required: true
+    parameter :response_type, 'pdf or json'
     parameter :id, "Patient Id", required: true
 
     let(:authentication_token) { session.authentication_token }
