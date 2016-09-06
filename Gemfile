@@ -43,6 +43,7 @@ gem 'newrelic_rpm'
 gem 'useragent'
 gem "delayed_job_web"
 gem 'stripe'
+gem 'holidays'
 
 group :development, :test do
   gem 'parallel_tests'
