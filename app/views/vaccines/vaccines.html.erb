@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset='utf-8' />
+      <%= wicked_pdf_stylesheet_link_tag "vaccines_pdf" %>
+    </head>
+
+    <body>
+        <% page_heights, start, page_count, vaccines_left, end_flag = 400, 0, 1, vaccines, true %>
+        <% vaccines_left.each_with_index do |el, idx|%>
+          <% page_heights -= 16*(el.vaccine.length/60 + 1) + 41 %>
+          <% if idx == vaccines_left.length - 1 %>
+            <% if page_count == 1 %>
+                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'first_page.html.erb')).render(self, count: page_count, records: vaccines_left[start..idx])%>
+                <% page_count += 1 %>
+                <%next%>
+            <% end %>
+
+            <% if page_heights > 260 %>
+                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'last_page.html.erb')).render(self, count: page_count, records: vaccines_left[start..idx])%>
+                <% end_flag = false %>
+            <% else %>
+                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'middle_page.html.erb')).render(self, count: page_count, records: vaccines_left[start..idx])%>
+                <% page_count += 1 %>
+            <% end %>
+          <% end %>
+
+          <% if page_heights < 0 %>
+            <% if page_count == 1 %>
+                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'first_page.html.erb')).render(self, count: page_count, records: vaccines_left[start..idx - 1])%>
+            <% else %>
+                <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'middle_page.html.erb')).render(self, count: page_count, records: vaccines_left[start..idx - 1])%>
+            <% end %>
+            <% page_count += 1; page_heights, start = 600, idx %>
+          <% end %>
+        <% end %>
+
+        <% if end_flag %>
+            <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'last_page.html.erb')).render(self, count: page_count, records: [])%>
+        <% end %>
+    </body>
+</html>
