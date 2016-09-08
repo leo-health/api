@@ -1,7 +1,7 @@
 class LinkPreview < ActiveRecord::Base
   acts_as_paranoid
 
-  has_many :user_link_previews, as: :card
+  has_many :user_link_previews
   has_many :users, through: :user_link_previews
   mount_uploader :icon, CardIconUploader
 

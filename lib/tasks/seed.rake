@@ -1,3 +1,10 @@
+namespace :send do
+  desc "Send referral cards to anyone who hasn't yet received one"
+  task referral_cards: :environment do
+    GenerateUserReferralCards.new.update_or_create_referral_user_link_preview_for_all_guardians
+  end
+end
+
 namespace :load do
   desc 'Seed test data'
   task all: :environment do
