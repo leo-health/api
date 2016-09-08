@@ -10,7 +10,7 @@
     </tr>
     <tr>
       <th></th>
-      <td><%= "#{family.primary_guardian.email}" %></td>
+      <td><%= "#{number_to_phone(family.primary_guardian.phone,  area_code: true)}" %></td>
       <th>SEX</th>
       <% if sex == 'M' %>
         <td>Male</td>
@@ -36,8 +36,8 @@
 </div>
 
 <p class="content">
-  This record was prepared for <%= "#{first_name} #{last_name}" %> at the date listed below.
-  It includes all the full vaccination history for <%= "#{first_name} #{last_name}" %>.
+  This Immunization History was prepared for <%= "#{first_name} #{last_name}" %> as of the date listed below.
+  It includes <%= "#{first_name} #{last_name}" %>'s full vaccination history per our records.
 </p>
 
 <div id="first-page">
