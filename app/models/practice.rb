@@ -57,10 +57,8 @@ class Practice < ActiveRecord::Base
     Pusher.trigger("practice", :practice_hour, { practice_id: id, status: 'open' })
   end
 
-  def holiday?
-    false
-    # date = Date.today
-    # date.saturday? || date.sunday? || date.holiday?(name.gsub(/\s+/, '').underscore.to_sym)
+  def holiday?(date)
+    date.saturday? || date.sunday? || holidays.include?(date.holidays(:us).first.try(:[], :name))
   end
 
   private

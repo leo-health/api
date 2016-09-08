@@ -432,7 +432,7 @@ ActiveRecord::Schema.define(version: 20160908151023) do
     t.datetime "updated_at",                  null: false
     t.string   "time_zone"
     t.integer  "athena_id",      default: 0,  null: false
-    t.string   "holidays",       default: [],              array: true
+    t.text     "holidays",       default: [],              array: true
   end
 
   add_index "practices", ["holidays"], name: "index_practices_on_holidays", using: :gin
