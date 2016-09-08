@@ -15,7 +15,7 @@ class LinkPreview < ActiveRecord::Base
     .pluck(:age_of_patient_in_months)
   end
 
-  def self.current_milestone_index_for_age(age)
+  def self.milestone_index_for_age(age)
     ages = ages_for_milestone_content
     return nil if ages.size == 0
     closest_milestone_age = GenericHelper.closest_item(age, ages)
@@ -32,12 +32,8 @@ class LinkPreview < ActiveRecord::Base
     )
   end
 
-  def send_with_30_day_expiry(users, **options)
-    send_to(users, options.reverse_merge(dismissed_at: 30.days.from_now))
-  end
-
   def send_to(users, **options)
-    _users = users.respond_to?(:each) ? users : [users]
+    _users = users.respond_to?(:map) ? users : [users]
     _users.map do |u|
       UserLinkPreview.create(
         user: u,
@@ -46,5 +42,9 @@ class LinkPreview < ActiveRecord::Base
         **options
       )
     end
+  end
+
+  def send_to_with_30_day_expiry(users, **options)
+    send_to(users, options.reverse_merge(dismissed_at: 30.days.from_now))
   end
 end

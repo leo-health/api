@@ -8,7 +8,7 @@ describe "LinkPreview" do
   let!(:link_preview){ create(:link_preview, :notification) }
 
   describe ".send_to" do
-    context "single user" do
+    context "single guardian" do
       it "creates and publishes UserLinkPreview" do
         user_link_previews = link_preview.send_to(user1)
         expect(user_link_previews.count).to eq(1)
@@ -17,7 +17,7 @@ describe "LinkPreview" do
       end
     end
 
-    context "many users" do
+    context "multiple guardians" do
       it "creates many UserLinkPreviews" do
         user_link_previews = link_preview.send_to([user1, user2])
         expect(user_link_previews.count).to eq(2)
@@ -37,10 +37,10 @@ describe "LinkPreview" do
     end
   end
 
-  describe ".send_with_30_day_expiry" do
+  describe ".send_to_with_30_day_expiry" do
     it "creates a UserLinkPreview with dismissed_at 30 days from now" do
       Timecop.freeze
-      user_link_previews = link_preview.send_with_30_day_expiry(user1)
+      user_link_previews = link_preview.send_to_with_30_day_expiry(user1)
       expect(user_link_previews.count).to eq(1)
       expect(user_link_previews.first.dismissed_at).to eq(30.days.from_now)
       expect(user_link_previews.first.published?).to be(true)
