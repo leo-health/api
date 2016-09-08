@@ -125,7 +125,11 @@ header th {
 .practice{
     position: absolute;
     bottom: 10pt;
-    right: 31pt;
+    right: 0pt;
+}
+
+.practice table{
+    padding-right: 10pt;
 }
 
 .practice th {
@@ -138,6 +142,12 @@ header th {
     color: rgb(155, 155, 155);
 }
 
+.practice .colored-bullet{
+    float: right;
+    height: 85pt;
+    margin-right: 0;
+}
+
 footer {
     color: rgb(155, 155, 155);
     padding: 0 31pt 0 31pt;
@@ -146,7 +156,7 @@ footer {
 
 footer .left {
     width: 59.8pt;
-    height: 24.8pt;
+    height: 26pt;
     float: left;
 }
 
