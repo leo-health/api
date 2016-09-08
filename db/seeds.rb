@@ -1,4 +1,5 @@
 require 'csv'
+require File.expand_path('../seeds/seed_milestone_content', __FILE__)
 
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
@@ -819,8 +820,7 @@ end
 
 puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
 
-LinkPreview.update_or_create!(:id, {
-    id: 1,
+LinkPreview.update_or_create!([:category, :title], {
     title: "Help us grow",
     body: "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
     tint_color_hex: "#FF5F40",
@@ -834,24 +834,8 @@ LinkPreview.update_or_create!(:id, {
   }
 )
 
-# initialize with fake data until actual content is ready
-AGES_FOR_MILESTONE_CONTENT = [1, 2, 3, 4, 5, 6, 9, 12, 15, 18, 24, 30, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 168, 180, 216, 228, 264]
-AGES_FOR_MILESTONE_CONTENT.each_with_index do |age, index|
-  LinkPreview.update_or_create!(:id, {
-      id: index + 1,
-      title: "#{age} Year Well Visit",
-      body: "See the details provided by your doctor",
-      tint_color_hex: "#FF5F40",
-      tinted_header_text: "WELL VISIT DOC",
-      dismiss_button_text: "DISMISS",
-      deep_link_button_text: "READ MORE",
-      external_link: "http://fuckingblocksyntax.com",
-      icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png')),
-      age_of_patient_in_months: age,
-      notification_message: "This is a notification message. Click me.",
-      category: :milestone_content
-    }
-  )
-end
+SeedMilestoneContent.seed
+count = LinkPreview.where(category: :milestone_content).count
+puts "Finished seeding #{count} milestone content"
 
 puts "Finished seeding all data"
