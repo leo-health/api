@@ -54,14 +54,15 @@ ActiveRecord::Schema.define(version: 20160830183857) do
   end
 
   create_table "appointment_types", force: :cascade do |t|
-    t.integer  "athena_id",         default: 0,     null: false
-    t.integer  "duration",                          null: false
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.integer  "athena_id",                       default: 0,     null: false
+    t.integer  "duration",                                        null: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.string   "short_description"
     t.string   "long_description"
-    t.string   "name",                              null: false
-    t.boolean  "hidden",            default: false
+    t.string   "name",                                            null: false
+    t.boolean  "hidden",                          default: false
+    t.integer  "user_facing_appointment_type_id"
   end
 
   add_index "appointment_types", ["athena_id"], name: "index_appointment_types_on_athena_id", using: :btree
@@ -118,15 +119,6 @@ ActiveRecord::Schema.define(version: 20160830183857) do
   add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
   add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
 
-  create_table "card_notifications", force: :cascade do |t|
-    t.integer  "user_id"
-    t.integer  "card_id"
-    t.string   "card_type"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "deleted_at"
-  end
-
   create_table "closure_notes", force: :cascade do |t|
     t.integer  "conversation_id",   null: false
     t.integer  "closed_by_id",      null: false
@@ -150,20 +142,6 @@ ActiveRecord::Schema.define(version: 20160830183857) do
     t.datetime "last_message_created_at"
     t.datetime "deleted_at"
     t.string   "state",                   default: "closed"
-  end
-
-  create_table "deep_link_cards", force: :cascade do |t|
-    t.string   "title"
-    t.string   "body"
-    t.string   "icon"
-    t.string   "tint_color_hex"
-    t.string   "tinted_header_text"
-    t.string   "dismiss_button_text"
-    t.string   "deep_link_button_text"
-    t.string   "deep_link"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "deleted_at"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
@@ -285,6 +263,24 @@ ActiveRecord::Schema.define(version: 20160830183857) do
     t.string   "fax"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
+  end
+
+  create_table "link_previews", force: :cascade do |t|
+    t.string   "title"
+    t.string   "body"
+    t.string   "icon"
+    t.string   "tint_color_hex"
+    t.string   "tinted_header_text"
+    t.string   "dismiss_button_text"
+    t.string   "deep_link_button_text"
+    t.string   "deep_link"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "deleted_at"
+    t.string   "external_link"
+    t.string   "notification_message"
+    t.string   "category"
+    t.integer  "age_of_patient_in_months"
   end
 
   create_table "medications", force: :cascade do |t|
@@ -603,6 +599,17 @@ ActiveRecord::Schema.define(version: 20160830183857) do
   add_index "user_generated_health_records", ["deleted_at"], name: "index_user_generated_health_records_on_deleted_at", using: :btree
   add_index "user_generated_health_records", ["patient_id"], name: "index_user_generated_health_records_on_patient_id", using: :btree
   add_index "user_generated_health_records", ["user_id"], name: "index_user_generated_health_records_on_user_id", using: :btree
+
+  create_table "user_link_previews", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "link_preview_id"
+    t.string   "link_preview_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "deleted_at"
+    t.integer  "owner_id"
+    t.string   "owner_type"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "title"

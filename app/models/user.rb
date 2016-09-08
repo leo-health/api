@@ -128,7 +128,7 @@ class User < ActiveRecord::Base
   end
 
   def collect_device_tokens
-    sessions.map{|session| session.device_token}.compact.uniq
+    sessions.map(&:device_token).compact.uniq
   end
 
   def confirm_secondary_guardian
@@ -213,5 +213,6 @@ class User < ActiveRecord::Base
     WelcomeToPracticeJob.send(id)
     send_confirmation_instructions unless confirmed?
     Conversation.create(family: family) unless Conversation.find_by_family_id(family.id)
+    family.patients.each(&:ensure_current_milestone_link_preview)
   end
 end

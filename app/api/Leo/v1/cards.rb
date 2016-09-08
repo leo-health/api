@@ -9,15 +9,17 @@ module Leo
 
         get do
           family = Family.includes(:guardians).find(current_user.family_id)
-          deep_link_notifications = CardNotification.where(user: current_user)
-          appointments = Appointment.booked.where(patient_id: current_user.family.patients.pluck(:id)).where.not(appointment_type: AppointmentType.blocked)
-                           .where("start_datetime > ?", Time.now).order("updated_at DESC")
+          deep_link_notifications = UserLinkPreview.where(user: current_user)
+          appointments = Appointment.booked
+          .where(patient_id: current_user.family.patients.pluck(:id))
+          .where.not(appointment_type: AppointmentType.blocked)
+          .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
           cards = sort_cards(deep_link_notifications + appointments + [family.conversation])
           sorted_cards = cards.each_with_index.inject([]) do |cards, (card, index)|
             case card
-            when CardNotification
-              cards << {id: card.id, deep_link_card_data: card.card, priority: index, type: 'deep_link', type_id: 2}
+            when UserLinkPreview
+              cards << {id: card.id, deep_link_card_data: card.link_preview, priority: index, type: 'deep_link', type_id: 2}
             when Conversation
               cards << {conversation_card_data: card, priority: index, type: 'conversation', type_id: 1}
             when Appointment
@@ -33,7 +35,7 @@ module Leo
         end
 
         delete do
-          CardNotification.where(id: params[:id]).destroy_all
+          UserLinkPreview.where(id: params[:id]).destroy_all
         end
       end
 

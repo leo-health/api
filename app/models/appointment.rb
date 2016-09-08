@@ -1,4 +1,6 @@
 class Appointment < ActiveRecord::Base
+  include StartDateTimeBetween
+
   MIN_INTERVAL_TO_SCHEDULE = 15.minutes
 
   acts_as_paranoid
@@ -24,7 +26,7 @@ class Appointment < ActiveRecord::Base
 
   def mark_slots_as_busy
     Slot.free.where(provider: provider)
-    .start_datetime_between(start_datetime, end_datetime)
+    .start_date_time_between(start_datetime, end_datetime)
     .update_all(
       free_busy_type: :busy,
       appointment_id: id
