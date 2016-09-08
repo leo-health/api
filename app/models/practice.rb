@@ -58,8 +58,9 @@ class Practice < ActiveRecord::Base
   end
 
   def holiday?
-    date = Date.today
-    date.saturday? || date.sunday? || date.holiday?(name.gsub(/\s+/, '').underscore.to_sym)
+    false
+    # date = Date.today
+    # date.saturday? || date.sunday? || date.holiday?(name.gsub(/\s+/, '').underscore.to_sym)
   end
 
   private

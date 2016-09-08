@@ -818,17 +818,16 @@ end
 puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
 
 DeepLinkCard.update_or_create!(:id, {
-    :id => 1,
-    :title => "Help us grow",
-    :body => "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
-    :tint_color_hex => "#FF5F40",
-    :tinted_header_text => "SHARE THE LOVE",
-    :dismiss_button_text => "DISMISS",
-    :deep_link_button_text => "SHARE WITH FRIENDS",
-    :deep_link => "referral",
-    :icon => Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
+    id: 1,
+    title: "Help us grow",
+    body: "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
+    tint_color_hex: "#FF5F40",
+    tinted_header_text: "SHARE THE LOVE",
+    dismiss_button_text: "DISMISS",
+    deep_link_button_text: "SHARE WITH FRIENDS",
+    deep_link: "referral",
+    icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
   }
 )
-
 
 puts "Finished seeding all data"
