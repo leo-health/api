@@ -1,4 +1,5 @@
 class Patient < ActiveRecord::Base
+  include ActionView::Helpers
   acts_as_paranoid
   include Syncable
   include PgSearch
