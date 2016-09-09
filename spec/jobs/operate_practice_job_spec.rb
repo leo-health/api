@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe OperatePracticeJob do
-  let(:practice){ create(:practice) }
+  let!(:practice){ create(:practice) }
 
   describe '.start' do
     it "should enqueue open office job and close office job and switch-off victoria and erin" do
