@@ -66,10 +66,7 @@ namespace :notification do
   task practice_availability_change: :environment do
     next if (Date.today.saturday? || Date.today.sunday? || Practice::HOLIDAYS.include?(Date.today))
     Practice.all.each do |practice|
-      if schedule = practice.active_schedule
-        practice.delay(run_at: schedule.start_time_for_date(Date.today)).start_in_office_hours
-        practice.delay(run_at: schedule.end_time_for_date(Date.today)).start_after_office_hours
-      end
+      OperatePracticeJob.start(practice.id)
     end
   end
 end
