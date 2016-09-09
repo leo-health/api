@@ -69,9 +69,6 @@ namespace :notification do
       if schedule = practice.active_schedule
         practice.delay(run_at: schedule.start_time_for_date(Date.today)).start_in_office_hours
         practice.delay(run_at: schedule.end_time_for_date(Date.today)).start_after_office_hours
-        print "*"
-      else
-        print "x"
       end
     end
   end
