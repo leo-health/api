@@ -7,7 +7,7 @@ class MilestoneContentJob < PeriodicPollingJob
   end
 
   def schedule_time
-    @owner.time_of_next_milestone + 11.hours
+    @owner.time_of_next_milestone.try(:+, 11.hours)
   end
 
   def perform

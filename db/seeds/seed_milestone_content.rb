@@ -4,8 +4,7 @@ class SeedMilestoneContent
 
     milestone_content_seeds = ages_for_milestone_content.map do |months|
       {
-        age_of_patient_in_months: months,
-        external_link: "http://www.leohealth.com/clinical/#{months}-month"
+        age_of_patient_in_months: months
       }
     end
 
@@ -15,11 +14,13 @@ class SeedMilestoneContent
         years = months/12
         plural_s = years > 1 ? "s" : ""
         seed[:notification_message] = "Your child is #{years} year#{plural_s} old today. Happy birthday! Here are some suggestions that could be helpful at this milestone."
-        seed[:title] = "#{years} year#{plural_s} old today!"
+        seed[:title] = "Your #{years} year old"
+        seed[:external_link] = "http://www.leohealth.com/clinical/#{years}-year#{plural_s}"
       else
         plural_s = months > 1 ? "s" : ""
         seed[:notification_message] = "Your child is #{months} month#{plural_s} old today. Here are some suggestions that could be helpful at this milestone."
-        seed[:title] = "#{months} month#{plural_s} old today!"
+        seed[:title] = "Your #{months} month old"
+        seed[:external_link] = "http://www.leohealth.com/clinical/#{months}-month#{plural_s}"
       end
     end
 
@@ -32,7 +33,7 @@ class SeedMilestoneContent
       LinkPreview.update_or_create!([:category, :title], {
         title: seed[:title],
         body: "Here are some suggestions that could be helpful at this milestone.",
-        tint_color_hex: "#ED8CF9",
+        tint_color_hex: "#CB6FD7",
         tinted_header_text: "Milestones",
         dismiss_button_text: "DISMISS",
         deep_link_button_text: "READ MORE",
