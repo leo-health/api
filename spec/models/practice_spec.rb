@@ -94,19 +94,5 @@ RSpec.describe Practice, type: :model do
         expect(practice.available?).to eq(true)
       end
     end
-
-    describe "#start_after_office_hours" do
-      it "should update sms_enabled to true and on_call to false, then broadcast the changes" do
-        expect(practice).to receive(:broadcast_practice_availability)
-        practice.start_after_office_hours
-      end
-    end
-
-    describe "#start_in_office_hours" do
-      it "should update sms_enabled to false and on_call to true, then broadcast the changes" do
-        expect(practice).to receive(:broadcast_practice_availability)
-        practice.start_in_office_hours
-      end
-    end
   end
 end

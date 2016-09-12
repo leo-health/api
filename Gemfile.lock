@@ -174,6 +174,7 @@ GEM
       hashie (>= 3.0)
     health_check (1.5.1)
       rails (>= 2.3.0)
+    holidays (4.6.0)
     html2haml (2.0.0)
       erubis (~> 2.7.0)
       haml (~> 4.0.0)
@@ -422,6 +423,8 @@ GEM
       chronic (>= 0.6.3)
     whenever-test (1.0.0)
       whenever
+    wicked_pdf (1.0.6)
+    wkhtmltopdf-binary (0.12.3)
     zeus (0.15.4)
       method_source (>= 0.6.7)
     zeus-parallel_tests (0.3.1)
@@ -461,6 +464,7 @@ DEPENDENCIES
   haml-rails (~> 0.8)
   hashie-forbidden_attributes
   health_check
+  holidays
   jquery-rails
   lograge
   mandrill_mailer
@@ -491,6 +495,7 @@ DEPENDENCIES
   squeel
   stripe
   stripe-ruby-mock
+  tilt
   timecop
   turbolinks
   twilio-ruby
@@ -499,7 +504,12 @@ DEPENDENCIES
   useragent
   whenever
   whenever-test
+  wicked_pdf
+  wkhtmltopdf-binary
   zeus-parallel_tests
 
+RUBY VERSION
+   ruby 2.2.2p95
+
 BUNDLED WITH
-   1.11.2
+   1.12.5

@@ -1,0 +1,62 @@
+<header>
+  <div class="name middle-header"><%= "#{first_name.upcase} #{last_name.upcase}" %></div>
+  <div class="spacer" style="clear: both;"></div>
+</header>
+<div class="middle-pages">
+  <table class="vaccines">
+    <% if records.length > 0 %>
+        <tr>
+          <th class="title-left">vaccine name</th>
+          <th class="title-right">date administered</th>
+        </tr>
+    <% end %>
+    <% records.each do |v|%>
+        <tr>
+          <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] || 'Unspecified' %></td>
+          <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
+        </tr>
+        <tr>
+          <td class="vaccines-left-second"><%=v.vaccine%></td>
+        </tr>
+    <%end%>
+  </table>
+
+  <div class="practice">
+    <% practice = family.primary_guardian.practice %>
+    <div class="colored-bullet"></div>
+    <table>
+      <tr>
+        <th>PEDIATRICIAN</th>
+        <td>Dr. Victoria Riese</td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>231-312-2312</td>
+      </tr>
+      <tr>
+        <th>PRACTICE</th>
+        <td><%= practice.name %></td>
+      </tr>
+      <tr>
+        <th></th>
+        <td><%= practice.address_line_1 %></td>
+      </tr>
+      <% if practice.address_line_2 && practice.address_line_2.length > 0 %>
+          <tr>
+            <th></th>
+            <td><%= practice.address_line_2 %></td>
+          </tr>
+      <% end %>
+      <tr>
+        <th></th>
+        <td><%= practice.city %>, <%= practice.state %> <%= practice.zip %></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<footer>
+  <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
+  <div class="right"><%= count %></div>
+  <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
+</footer>

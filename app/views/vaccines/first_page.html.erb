@@ -1,0 +1,65 @@
+<header>
+  <div class="name"><%= "#{first_name.upcase} #{last_name.upcase}" %></div>
+  <div class="spacer" style="clear: both;"></div>
+  <table>
+    <tr>
+      <th>GUARDIAN</th>
+      <td><%= "#{family.primary_guardian.first_name} #{family.primary_guardian.last_name}" %></td>
+      <th>BORN</th>
+      <td><%= birth_date.strftime("%m/%d/%Y") %></td>
+    </tr>
+    <tr>
+      <th></th>
+      <td><%= "#{number_to_phone(family.primary_guardian.phone,  area_code: true)}" %></td>
+      <th>SEX</th>
+      <% if sex == 'M' %>
+        <td>Male</td>
+      <% else %>
+        <td>Female</td>
+      <%end%>
+    </tr>
+  </table>
+  <% if current_avatar && current_avatar.avatar %>
+      <div class="round" style="background-image: url(<%= current_avatar.avatar.url %>)"></div>
+  <% elsif sex == "M"%>
+      <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Son.png') %>)"></div>
+  <% else %>
+      <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Daughter.png') %>)"></div>
+  <% end %>
+  <div class="spacer" style="clear: both;"></div>
+</header>
+
+<div class="intro">
+  <div class="colored-bullet"></div>
+  <p>Immunization History</p>
+  <div class="spacer" style="clear: both"></div>
+</div>
+
+<p class="content">
+  This Immunization History was prepared for <%= "#{first_name} #{last_name}" %> as of the date listed below.
+  It includes <%= "#{first_name} #{last_name}" %>'s full vaccination history per our records.
+</p>
+
+<div id="first-page">
+  <table class="vaccines">
+    <tr>
+      <th class="title-left">vaccine name</th>
+      <th class="title-right">date administered</th>
+    </tr>
+    <% records.each do |v|%>
+        <tr>
+          <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] || 'Unspecified' %></td>
+          <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
+        </tr>
+        <tr>
+          <td class="vaccines-left-second"><%=v.vaccine%></td>
+        </tr>
+    <%end%>
+  </table>
+</div>
+
+<footer>
+  <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
+  <div class="right"><%= count %></div>
+  <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
+</footer>

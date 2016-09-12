@@ -1,0 +1,172 @@
+body {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 12pt;
+    max-width: 612pt;
+    margin: 0;
+}
+
+header {
+    background-color: rgb(255, 95, 64);
+    color: white;
+    padding: 7pt 21pt 18pt 17pt;
+}
+
+.name {
+    font-size: 30pt;
+    float: right;
+    height: 41pt;
+    padding-bottom: 6pt;
+}
+
+header table {
+    float: left;
+    width: 450pt
+}
+
+header th {
+    display: inline-block;
+    text-align: left;
+    font-weight: 600;
+}
+
+.round{
+    right: 22pt;
+    top: 63pt;
+    width: 99pt;
+    height: 99pt;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 4pt solid white;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: absolute;
+}
+
+.intro {
+    font-size: 30pt;
+    color: rgb(87, 87, 87);
+    margin-top: 49pt;
+    padding: 4pt 0 3pt 0;
+}
+
+.intro p{
+    margin: 0;
+    display: inline-block;
+    width: 186pt;
+    height: 82pt;
+}
+
+.colored-bullet {
+    float: left;
+    background-color: rgb(255, 95, 64);
+    width: 10pt;
+    height: 75pt;
+    display: inline-block;
+    margin-right: 21pt;
+}
+
+.content {
+    padding: 0 31pt 0 31pt;
+    margin-top: 29pt;
+    font-size: 12pt;
+    color: rgb(155, 155, 155);
+}
+
+.vaccines{
+    padding: 35pt 31pt 0 31pt;
+    border-collapse:separate;
+    color: rgb(155, 155, 155);
+}
+
+.vaccines th{
+    max-height: 52pt;
+    padding-bottom: 32pt;
+}
+
+.vaccines .title-left{
+    text-align: left;
+    width: 424pt;
+}
+
+.vaccines .title-right{
+    text-align: right;
+    width: 126pt;
+}
+
+.vaccines .vaccines-left{
+    padding-bottom: 1pt;
+    font-weight: 400;
+    text-align: left;
+    color: rgb(87, 87, 87);
+}
+
+.vaccines .vaccines-left-second{
+    padding-bottom: 15pt;
+    color: rgb(155, 155, 155);
+}
+
+.vaccines .vaccines-right{
+    text-align: right;
+}
+
+#first-page{
+    height: 400pt;
+}
+
+.middle-pages{
+    height: 660pt;
+    position: relative;
+}
+
+.middle-header{
+    padding-bottom: 0;
+}
+
+.practice{
+    position: absolute;
+    bottom: 10pt;
+    right: 0pt;
+}
+
+.practice table{
+    padding-right: 10pt;
+}
+
+.practice th {
+    font-weight: 600;
+    text-align: right;
+    padding-right: 22pt;
+}
+
+.practice td {
+    color: rgb(155, 155, 155);
+}
+
+.practice .colored-bullet{
+    float: right;
+    height: 85pt;
+    margin-right: 0;
+}
+
+footer {
+    color: rgb(155, 155, 155);
+    padding: 0 31pt 0 31pt;
+    page-break-after: always;
+}
+
+footer .left {
+    width: 59.8pt;
+    height: 26pt;
+    float: left;
+}
+
+footer .right {
+    padding-top: 14pt;
+    float: right;
+}
+
+footer .middle {
+    padding-top: 14pt;
+    display: inline-block;
+    margin-left: 131pt;
+}
