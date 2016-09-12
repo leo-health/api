@@ -108,5 +108,22 @@ RSpec.describe Practice, type: :model do
         practice.start_in_office_hours
       end
     end
+
+    describe "#holiday?" do
+      let(:practice){ build(:practice) }
+      let!(:today) { Date.today }
+      let!(:holidays){ practice.holidays }
+
+      before do
+        allow(Date).to receive(:today).and_return(today)
+        allow(today).to receive(:saturday?).and_return(false)
+        allow(today).to receive(:sunday?).and_return(false)
+        allow(holidays).to receive(:include?).and_return(false)
+      end
+
+      it "should check if today is weekend or holiday" do
+        expect(practice.holiday?(today)).to eq(false)
+      end
+    end
   end
 end

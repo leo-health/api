@@ -8,8 +8,6 @@ class Practice < ActiveRecord::Base
   validates :name, presence: true
   after_commit :subscribe_to_athena, on: :create
 
-  HOLIDAYS = ["05/09/2016", "24/11/2016", "25/12/2016"].map{|date| Date.parse(date)}
-
   def self.flatiron_pediatrics
     self.find_by(athena_id: 1)
   end
@@ -55,6 +53,10 @@ class Practice < ActiveRecord::Base
       broadcast_practice_availability
     end
     Pusher.trigger("practice", :practice_hour, { practice_id: id, status: 'open' })
+  end
+
+  def holiday?(date)
+    date.saturday? || date.sunday? || holidays.include?(date.holidays(:us).first.try(:[], :name))
   end
 
   private
