@@ -64,8 +64,8 @@ namespace :notification do
 
   desc "send pusher message to notify practice availabilty at open and close time of a practice"
   task practice_availability_change: :environment do
-    next if (Date.today.saturday? || Date.today.sunday? || Practice::HOLIDAYS.include?(Date.today))
     Practice.all.each do |practice|
+      next if practice.holiday?(Date.today)
       OperatePracticeJob.start(practice.id)
     end
   end

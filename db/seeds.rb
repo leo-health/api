@@ -371,7 +371,8 @@ if should_seed_flatiron
     zip: "10011",
     phone: "212-460-5600",
     email: "info@leohealth.com",
-    time_zone: "Eastern Time (US & Canada)"
+    time_zone: "Eastern Time (US & Canada)",
+    holidays: ["New Year's Day", "Memorial Day", "Independence Day", "Labor Day", "Thanksgiving", "Christmas Day"]
   })
 else
   Practice.update_or_create!(:athena_id, {
@@ -383,7 +384,8 @@ else
     zip: "04097",
     phone: "555-482-2453",
     email: "info@leohealth.com",
-    time_zone: "Eastern Time (US & Canada)"
+    time_zone: "Eastern Time (US & Canada)",
+    holidays: ["New Year's Day", "Memorial Day", "Independence Day", "Labor Day", "Thanksgiving", "Christmas Day"]
   })
 end
 
@@ -792,7 +794,7 @@ end
 
 puts "Finished seeding #{practice_schedules.count} PracticeSchedule records"
 
-practice_holidays = [
+provider_leaves = [
   "01/01/2016", #New Year's Day
   "05/30/2016", #Memorial Day
   "07/04/2016", #Independence Day
@@ -804,7 +806,7 @@ practice_holidays = [
 ProviderLeave.where(athena_id: 0).delete_all
 
 Provider.all.each do |provider|
-  practice_holidays.each do | holiday |
+  provider_leaves.each do | holiday |
     ProviderLeave.create(
       athena_id: 0,
       athena_provider_id: provider.athena_id,
@@ -818,17 +820,16 @@ end
 puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
 
 DeepLinkCard.update_or_create!(:id, {
-    :id => 1,
-    :title => "Help us grow",
-    :body => "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
-    :tint_color_hex => "#FF5F40",
-    :tinted_header_text => "SHARE THE LOVE",
-    :dismiss_button_text => "DISMISS",
-    :deep_link_button_text => "SHARE WITH FRIENDS",
-    :deep_link => "referral",
-    :icon => Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
+    id: 1,
+    title: "Help us grow",
+    body: "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
+    tint_color_hex: "#FF5F40",
+    tinted_header_text: "SHARE THE LOVE",
+    dismiss_button_text: "DISMISS",
+    deep_link_button_text: "SHARE WITH FRIENDS",
+    deep_link: "referral",
+    icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
   }
 )
-
 
 puts "Finished seeding all data"
