@@ -41,19 +41,6 @@ class Practice < ActiveRecord::Base
     practice_schedules.where(active: true).first
   end
 
-  def start_after_office_hours
-    if StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: false) > 0
-      broadcast_practice_availability
-    end
-    Pusher.trigger("practice", :practice_hour, { practice_id: id, status: 'closed' })
-  end
-
-  def start_in_office_hours
-    if StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: true) > 0
-      broadcast_practice_availability
-    end
-    Pusher.trigger("practice", :practice_hour, { practice_id: id, status: 'open' })
-  end
 
   def holiday?(date)
     date.saturday? || date.sunday? || holidays.include?(date.holidays(:us).first.try(:[], :name))
