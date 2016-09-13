@@ -255,4 +255,37 @@ describe User do
       expect(user.invitation_token_expired?).to eq(true)
     end
   end
+
+  describe "#invitation_url" do
+    context "secondary" do
+      let(:onboarding_group){ create(:onboarding_group, :invited_secondary_guardian) }
+      let(:invited_user){ create(:user, onboarding_group: onboarding_group) }
+
+      it "should return a secondary invite link" do
+        expected_group = "secondary"
+        expected_url = "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=#{expected_group}&token=#{invited_user.invitation_token}"
+        expect(invited_user.invitation_url).to eq(expected_url)
+      end
+    end
+
+    context "else exempted" do
+      let(:user){ create(:user, :guardian) }
+
+      let(:onboarding_group){ create(:onboarding_group, :generated_from_athena) }
+      let(:exempted_user){ create(:user, onboarding_group: onboarding_group) }
+
+      def expected_url(user)
+        expected_group = "primary"
+        "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=#{expected_group}&token=#{user.invitation_token}"
+      end
+
+      it "should return a primary invite link for an exempted_user" do
+        expect(exempted_user.invitation_url).to eq(expected_url(exempted_user))
+      end
+
+      it "should return a primary invite link for any other user" do
+        expect(user.invitation_url).to eq(expected_url(user))
+      end
+    end
+  end
 end
