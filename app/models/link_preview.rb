@@ -18,6 +18,8 @@ class LinkPreview < ActiveRecord::Base
   def self.milestone_index_for_age(age)
     ages = ages_for_milestone_content
     return nil if ages.size == 0
+    return ages.count if ages.last + 12 < age # last milestone should only be valid for 12 months
+
     closest_milestone_age = GenericHelper.closest_item(age, ages)
     i = ages.index(closest_milestone_age) #closest milestone
     i -= closest_milestone_age > age ? 1 : 0 # current milestone
@@ -44,7 +46,7 @@ class LinkPreview < ActiveRecord::Base
     end
   end
 
-  def send_to_with_30_day_expiry(users, **options)
-    send_to(users, options.reverse_merge(dismissed_at: 30.days.from_now))
+  def send_to_with_n_day_expiry(users, n_days, **options)
+    send_to(users, options.reverse_merge(dismissed_at: n_days.days.from_now))
   end
 end

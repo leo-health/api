@@ -37,10 +37,10 @@ describe "LinkPreview" do
     end
   end
 
-  describe ".send_to_with_30_day_expiry" do
+  describe ".send_to_with_n_day_expiry" do
     it "creates a UserLinkPreview with dismissed_at 30 days from now" do
       Timecop.freeze
-      user_link_previews = link_preview.send_to_with_30_day_expiry(user1)
+      user_link_previews = link_preview.send_to_with_n_day_expiry(user1, 30)
       expect(user_link_previews.count).to eq(1)
       expect(user_link_previews.first.dismissed_at).to eq(30.days.from_now)
       expect(user_link_previews.first.published?).to be(true)

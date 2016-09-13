@@ -16,17 +16,14 @@ class SeedMilestoneContent
         seed[:notification_message] = "Your child is #{years} year#{plural_s} old today. Happy birthday! Here are some suggestions that could be helpful at this milestone."
         seed[:title] = "Your #{years} year old"
         seed[:external_link] = "http://www.leohealth.com/clinical/#{years}-year#{plural_s}"
+        seed[:icon] = Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', "icon-#{years}-year#{plural_s}.png"))
       else
         plural_s = months > 1 ? "s" : ""
         seed[:notification_message] = "Your child is #{months} month#{plural_s} old today. Here are some suggestions that could be helpful at this milestone."
         seed[:title] = "Your #{months} month old"
         seed[:external_link] = "http://www.leohealth.com/clinical/#{months}-month#{plural_s}"
+        seed[:icon] = Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', "icon-#{months}-month#{plural_s}.png"))
       end
-    end
-
-    icon = Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
-    milestone_content_seeds.each do |seed|
-      seed[:icon] = icon
     end
 
     milestone_content_seeds.map do |seed|
