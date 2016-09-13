@@ -153,7 +153,7 @@ class User < ActiveRecord::Base
   end
 
   def invitation_url
-    onboarding_group_string = if onboarding_group.try(:invited_user?)
+    onboarding_group_string = if invited_user?
       "secondary"
     else
       "primary"
