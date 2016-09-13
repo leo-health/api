@@ -21,6 +21,11 @@ module Leo
             error!({error_code: 403, user_message: "Invalid Email or Password."}, 422)
           end
 
+          # destroy stale sessions for the same device - in case users log out while offline
+          if params[:platform].try(:to_sym) == :ios && params[:device_token]
+            Session.where(params.slice(:device_token, :platform)).destroy_all
+          end
+
           session_params = params.slice(:device_token, :device_type, :os_version, :platform, :client_version)
           session = user.sessions.create(session_params)
           if session.valid?
