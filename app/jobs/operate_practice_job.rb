@@ -30,7 +30,7 @@ class OperatePracticeJob < Struct.new(:practice_id)
 
   def close_vi_and_er
     [v, e].each do |provider|
-      staff_profile.update_attributes(sms_enabled: false, on_call: false) if staff_profile = provider.staff_profile
+      provider.staff_profile.try(:update_attributes, {sms_enabled: false, on_call: false})
     end
   end
 
