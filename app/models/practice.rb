@@ -13,6 +13,9 @@ class Practice < ActiveRecord::Base
   end
 
   def in_office_hours?
+    if open_status = $redis.get("practice_open?")
+      return open_status == "true"
+    end
     start_time, end_time = convert_time
     (start_time..end_time).cover?(Time.current)
   end

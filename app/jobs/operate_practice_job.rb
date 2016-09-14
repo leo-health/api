@@ -35,15 +35,15 @@ class OperatePracticeJob < Struct.new(:practice_id)
   end
 
   def start_after_office_hours
+    $redis.set("practice_open?", "false")
     staff = practice.staff - [v, e]
     StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: false)
-    Pusher.trigger("practice", :practice_hour, { practice_id: practice.id, status: 'closed' })
   end
 
   def start_in_office_hours
+    $redis.set("practice_open?", "true")
     if StaffProfile.where(staff: practice.staff).update_all(sms_enabled: false, on_call: true) > 0
       practice.broadcast_practice_availability
     end
-    Pusher.trigger("practice", :practice_hour, { practice_id: practice.id, status: 'open' })
   end
 end
