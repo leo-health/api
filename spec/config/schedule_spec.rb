@@ -8,7 +8,7 @@ describe 'Whenever Schedule' do
   end
 
   it 'makes sure `runner` statements exist' do
-    expect(schedule.jobs[:rake].count).to eq(6)
+    expect(schedule.jobs[:rake].count).to eq(5)
   end
 
   it 'makes sure `rake` statements exist' do
