@@ -109,4 +109,174 @@ RSpec.describe Patient, type: :model do
       end
     end
   end
+
+  describe ".enqueue_milestone_content_delivery_job" do
+    before :each do
+      @patient = create(:patient)
+    end
+
+    it "gets called on create" do
+      expect(@patient).to callback(:enqueue_milestone_content_delivery_job).after(:commit).on(:create)
+    end
+
+    it "enqueues a MilestoneContentJob" do
+      expect(Delayed::Job.where(queue: "send_milestone_link_preview").count).to be(1)
+    end
+  end
+
+  describe "milestone content" do
+    before do
+      ages_for_milestone_content = [1, 2, 3, 4, 5, 6, 9, 12, 15, 18, 24, 30, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 168, 180, 216, 228, 264]
+      ages_for_milestone_content.each_with_index do |age, index|
+        create(:link_preview, :milestone_content,
+          id: index + 2,
+          age_of_patient_in_months: age,
+          title: "#{age} month milestone"
+        )
+      end
+
+      @family = create(:family_with_members)
+      @patient = @family.patients.first
+    end
+
+    describe ".ensure_current_milestone_link_preview" do
+      context "patient was just born" do
+        before do
+          @patient.update_attributes(birth_date: Date.today)
+        end
+
+        it "does not send a UserLinkPreview" do
+          @patient.ensure_current_milestone_link_preview
+          expect(UserLinkPreview.count).to eq(0)
+        end
+      end
+
+      context "patient has a milestone today" do
+        before do
+          @patient.update_attributes(birth_date: 1.year.ago)
+        end
+
+        context "UserLinkPreview exists" do
+          it "changes nothing" do
+            @family.guardians.each do |guardian|
+              create(:user_link_preview,
+                user: guardian,
+                owner: @patient,
+                link_preview: LinkPreview.find_by(age_of_patient_in_months: 12)
+              )
+            end
+            expect(UserLinkPreview.count).to eq(2)
+            @patient.ensure_current_milestone_link_preview
+            expect(UserLinkPreview.count).to eq(2)
+          end
+        end
+
+        context "UserLinkPreview does not exist" do
+          it "creates one" do
+            expect(UserLinkPreview.count).to eq(0)
+            @patient.ensure_current_milestone_link_preview
+            expect(UserLinkPreview.count).to eq(2)
+          end
+        end
+      end
+
+      context "patient had a milestone last week" do
+        before do
+          @patient.update_attributes(birth_date: 105.weeks.ago)
+        end
+
+        context "UserLinkPreview exists" do
+          it "changes nothing" do
+            @family.guardians.each do |guardian|
+              create(:user_link_preview,
+                user: guardian,
+                owner: @patient,
+                link_preview: LinkPreview.find_by(age_of_patient_in_months: 24)
+              )
+            end
+            expect(UserLinkPreview.count).to eq(2)
+            @patient.ensure_current_milestone_link_preview
+            expect(UserLinkPreview.count).to eq(2)
+          end
+        end
+
+        context "old UserLinkPreview exists" do
+          it "deletes the old ones and creates new ones" do
+            @family.guardians.each do |guardian|
+              create(:user_link_preview,
+                user: guardian,
+                owner: @patient,
+                link_preview: LinkPreview.find_by(age_of_patient_in_months: 12)
+              )
+            end
+            expect(UserLinkPreview.count).to eq(2)
+            @patient.ensure_current_milestone_link_preview
+            expect(UserLinkPreview.count).to eq(2)
+
+            correct_link_preview = LinkPreview.find_by(age_of_patient_in_months: 24)
+            expect(
+              UserLinkPreview.where(owner: @patient).map(&:link_preview)
+            ).to eq([correct_link_preview, correct_link_preview])
+          end
+        end
+      end
+    end
+
+    describe ".time_of_next_milestone" do
+      context "patient is 6 months old" do
+        before do
+          Timecop.freeze(Time.zone.local(2015, 12, 10, 9, 1, 0))
+          @patient.update_attributes(birth_date: 6.months.ago)
+        end
+
+        it "returns 9 months after birth_date" do
+          next_milestone_date = @patient.time_of_next_milestone
+          expected_next_milestone_date = @patient.birth_date + 9.months
+          expect(next_milestone_date).to eq(expected_next_milestone_date)
+        end
+      end
+
+      context "patient was born on a leap day" do
+        before do
+          @patient.update_attributes(birth_date: Date.new(2008, 2, 29))
+        end
+
+        context "second monthiversary" do
+          before do
+            Timecop.freeze(Time.zone.local(2008, 4, 1))
+          end
+
+          it "returns Feb 29" do
+            next_milestone_date = @patient.time_of_next_milestone
+            expected_next_milestone_date = Date.new(2008, 4, 29)
+            expect(next_milestone_date).to eq(expected_next_milestone_date)
+          end
+        end
+
+        context "Today is Feb 1 of next leap year" do
+          before do
+            Timecop.freeze(Time.zone.local(2012, 2, 1))
+          end
+
+          it "returns Feb 29" do
+            next_milestone_date = @patient.time_of_next_milestone
+            expected_next_milestone_date = Date.new(2012, 2, 29)
+            expect(next_milestone_date).to eq(expected_next_milestone_date)
+          end
+        end
+
+        context "Today is Feb 1 of a non-leap year" do
+          before do
+            Timecop.freeze(Time.zone.local(2013, 2, 1))
+          end
+
+          it "returns Feb 29" do
+            next_milestone_date = @patient.time_of_next_milestone
+            expected_next_milestone_date = Date.new(2013, 2, 28)
+            expect(next_milestone_date).to eq(expected_next_milestone_date)
+          end
+        end
+      end
+    end
+  end
 end

@@ -11,6 +11,30 @@ module GenericHelper
     result + left + right
   end
 
+  # @param array - assumes a sorted, homogeneous array of comparable types
+  # @param value - assumes to be comparable with array elements
+  # @return item in `array` with min distance to `value`
+  # @return larger item in the equidistant case
+  # @return nil if `value` is nil
+  def self.closest_item(value, array)
+
+    return array.first if array.count <= 1
+    return nil if value == nil
+
+    left = array[0...array.count/2]
+    right = array[array.count/2...array.count]
+
+    if value < left.last
+      closest_item(value,left)
+    elsif value > right.first
+      closest_item(value,right)
+    else
+      distanceFromLeft = (value - left.last).abs
+      distanceFromRight = (value - right.first).abs
+      distanceFromLeft < distanceFromRight ? left.last : right.first
+    end
+  end
+
   def self.generate_token(token_name)
     loop do
       random_token = SecureRandom.urlsafe_base64(nil, false)

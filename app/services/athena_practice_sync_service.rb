@@ -36,12 +36,19 @@ class AthenaPracticeSyncService < AthenaSyncService
   def sync_appointment_types(practice)
     athena_appointment_types = @connector.get_appointment_types
     athena_appointment_types.map { |athena_appointment_type|
+      athena_id = athena_appointment_type["appointmenttypeid"].try(:to_i)
+
+      # Assumes that user_facing_appointment_types and the mapping are seeded
+      user_facing_appointment_type = AppointmentType.user_facing_appointment_type_for_athena_id(athena_id)
+
+      # only updates the hidden ones - creates a hidden one for each athena_id regardless if a visible one is already seeded
       AppointmentType.update_or_create!([:athena_id, :hidden], {
-        athena_id: athena_appointment_type["appointmenttypeid"].try(:to_i),
+        athena_id: athena_id,
         duration: athena_appointment_type["duration"].try(:to_i),
         short_description: athena_appointment_type["name"],
         long_description: athena_appointment_type["name"],
         name: athena_appointment_type["name"],
+        user_facing_appointment_type: user_facing_appointment_type,
         hidden: true
       })
     }

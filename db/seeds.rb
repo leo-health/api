@@ -1,4 +1,5 @@
 require 'csv'
+require File.expand_path('../seeds/seed_milestone_content', __FILE__)
 
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
@@ -819,17 +820,22 @@ end
 
 puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
 
-DeepLinkCard.update_or_create!(:id, {
-    id: 1,
+LinkPreview.update_or_create!([:category, :title], {
     title: "Help us grow",
     body: "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
     tint_color_hex: "#FF5F40",
-    tinted_header_text: "SHARE THE LOVE",
+    tinted_header_text: "Share the love",
     dismiss_button_text: "DISMISS",
     deep_link_button_text: "SHARE WITH FRIENDS",
     deep_link: "referral",
-    icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
+    icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png')),
+    notification_message: "This is a notification_message. Click me.",
+    category: :referral
   }
 )
+
+SeedMilestoneContent.seed
+count = LinkPreview.where(category: :milestone_content).count
+puts "Finished seeding #{count} milestone content"
 
 puts "Finished seeding all data"
