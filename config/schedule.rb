@@ -3,7 +3,6 @@ set :output, nil
 
 every 1.day, :at => '12:01pm' do
   rake 'notification:complete_user_two_day_prior_appointment'
-  rake 'notification:patient_birthday'
   rake 'notification:account_confirmation_reminder'
   rake 'notification:escalated_conversation_email_digest'
   rake 'notification:escalated_conversation_email_digest'

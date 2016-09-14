@@ -17,21 +17,6 @@ namespace :notification do
       end
   end
 
-  desc "send guardian email on their children birthday"
-  task patient_birthday: :environment do
-    in_one_day = Time.now.utc..1.day.from_now.utc
-    Patient.includes(family: :guardians).where(birth_date: in_one_day).find_each do |patient|
-      patient.family.guardians.each do |guardian|
-        created_job = PatientBirthdayJob.send(guardian.id. patient.id)
-        if created_job.valid?
-          print "*"
-        else
-          print "x"
-        end
-      end
-    end
-  end
-
   desc "send guardian account confirmation reminder one day before expiration"
   task account_confirmation_reminder: :environment do
     in_five_days = Time.now.utc - 6.days..Time.now.utc - 5.days
