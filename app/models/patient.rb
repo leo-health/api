@@ -28,6 +28,17 @@ class Patient < ActiveRecord::Base
   after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, if: :did_successfully_sync?
+  after_commit :enqueue_milestone_content_delivery_job, on: :create
+
+
+  # Getters
+
+  def current_avatar
+    avatars.order("created_at DESC").first
+  end
+
+
+  # Sync
 
   def did_successfully_sync?
     attribute = :athena_id
@@ -49,7 +60,56 @@ class Patient < ActiveRecord::Base
     end
   end
 
-  def current_avatar
-    avatars.order("created_at DESC").first
+
+  # Milestone Content
+
+  def enqueue_milestone_content_delivery_job
+    MilestoneContentJob.new(patient: self).subscribe_if_needed(run_at: Time.now)
+  end
+
+  def ensure_current_milestone_link_preview
+    # do nothing if the patient hasn't hit a milestone yet
+    return nil unless index = LinkPreview.milestone_index_for_age(age_in_months)
+
+    # destroy out of date UserLinkPreviews
+    # case when the patient has no more milestones is handled by the fact that current_age == nil if index out of bounds
+    current_age = LinkPreview.ages_for_milestone_content[index]
+    UserLinkPreview.where(owner: self).find_each do |user_link_preview|
+      link_is_milestone_content = user_link_preview.link_preview.category.to_sym == :milestone_content
+      link_is_out_of_date = user_link_preview.link_preview.age_of_patient_in_months != current_age
+
+      if link_is_milestone_content && link_is_out_of_date
+        user_link_preview.destroy
+      end
+    end
+
+    # find or create up to date UserLinkPreviews
+    LinkPreview.milestone_content_for_age(current_age).each do |link_preview|
+      family.guardians.each do |guardian|
+        UserLinkPreview.find_or_create_by(
+          link_preview: link_preview,
+          owner: self,
+          user: guardian
+        )
+      end
+    end
+  end
+
+  def time_of_next_milestone
+    current_milestone_index = LinkPreview.milestone_index_for_age(age_in_months)
+    current_milestone_index ||= 0
+    return nil unless next_milestone_age = LinkPreview.ages_for_milestone_content[
+      current_milestone_index + 1
+    ]
+    birth_date + next_milestone_age.months
+  end
+
+  # Modified from original solution: http://stackoverflow.com/questions/819263/get-persons-age-in-ruby
+  def age_in_months
+    dob = birth_date
+    now = Time.zone.now.to_date
+    months = now.month - dob.month - ((now.day >= dob.day) ? 0 : 1)
+    years = now.year - dob.year
+    years * 12 + months
   end
 end

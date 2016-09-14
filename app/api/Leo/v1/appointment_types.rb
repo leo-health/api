@@ -11,6 +11,8 @@ module Leo
 
         get do
           appointment_types = AppointmentType.where(hidden: false)
+
+          # if no appointment types are marked as visible, display all appointment types
           if appointment_types.count == 0
             appointment_types = AppointmentType.all
           end

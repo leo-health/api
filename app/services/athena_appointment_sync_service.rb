@@ -127,7 +127,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
     # TODO: refactor to end early based on validations to minimize db calls
     patient = appt.patientid ? Patient.find_by(athena_id: appt.patientid.to_i) : nil
     provider = appt.providerid ? Provider.find_by(athena_id: appt.providerid.to_i) : nil
-    appointment_type = AppointmentType.find_by_athena_id_with_mapping_if_needed(appt.appointmenttypeid.try(:to_i))
+    appointment_type = AppointmentType.find_by_athena_id(appt.appointmenttypeid.try(:to_i))
     appointment_status = AppointmentStatus.find_by(status: appt.appointmentstatus)
     practice = appt.departmentid ? Practice.find_by(athena_id: appt.departmentid) : nil
     appointment_params = {

@@ -11,6 +11,20 @@ describe Leo::V1::Sessions do
     end
 
     context 'user has correct email and password' do
+      context "a session for that device_token already exists" do
+        it "should destroy the existing session and create a new one" do
+          user.sessions.create(device_token: "my_device_token", platform: :ios)
+          do_request({
+            email: user.email,
+            password: 'password',
+            device_token: "my_device_token",
+            device_type: "iPhone 6",
+            platform: :ios
+          })
+          expect(user.reload.sessions.count).to eq(1)
+        end
+      end
+
       it 'should create a session for the user and return the session infomation' do
         expect{ do_request({email: user.email, password: 'password' }) }.to change{Session.count}.from(0).to(1)
         expect(response.status).to eq(201)
