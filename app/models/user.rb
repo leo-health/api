@@ -145,6 +145,7 @@ class User < ActiveRecord::Base
 
   def reset_invitation_token
     self.invitation_token = GenericHelper.generate_token(:invitation_token)
+    self.invitation_sent_at = Time.now
     save
   end
 
