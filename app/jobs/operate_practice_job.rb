@@ -30,20 +30,31 @@ class OperatePracticeJob < Struct.new(:practice_id)
 
   def close_vi_and_er
     [v, e].each do |provider|
-      provider.staff_profile.try(:update_attributes, {sms_enabled: false, on_call: false})
+      if provider.staff_profile.try(:update_attributes, {sms_enabled: false, on_call: false})
+        broadcast_oncall_change([provider.id], 'off-call')
+      end
     end
   end
 
   def start_after_office_hours
-    $redis.set("practice_open?", "false")
     staff = practice.staff - [v, e]
-    StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: false)
+    if StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: false) > 0
+      broadcast_oncall_change(staff.map(&:id), 'off-call')
+    end
   end
 
   def start_in_office_hours
-    $redis.set("practice_open?", "true")
     if StaffProfile.where(staff: practice.staff).update_all(sms_enabled: false, on_call: true) > 0
       practice.broadcast_practice_availability
+      broadcast_oncall_change(practice.staff.map(&:id), 'on-call')
+    end
+  end
+
+  def broadcast_oncall_change(ids, event)
+    begin
+      Pusher.trigger("staff", :oncall_change, { staff_ids:  ids, event: event })
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
     end
   end
 end
