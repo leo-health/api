@@ -81,19 +81,6 @@ describe UserMailer do
     end
   end
 
-  describe "#patient_birthday" do
-    let(:patient){ build :patient }
-
-    it "should send the guardian a email" do
-      UserMailer.patient_birthday(user, patient).deliver
-      email = MandrillMailer::deliveries.detect do |mail|
-        mail.template_name == 'Leo - Patient Birthday' &&
-            mail.message['to'].any? { |to| to[:email] = "test@leohealth.com" }
-      end
-      expect(email).to_not be_nil
-    end
-  end
-
   describe "#account_confirmation_reminder" do
     it "should send user a reminder" do
       UserMailer.account_confirmation_reminder(user).deliver
