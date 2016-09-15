@@ -124,18 +124,6 @@ class UserMailer < MandrillMailer::TemplateMailer
     )
   end
 
-  def patient_birthday(guardian, patient)
-    mandrill_mail(
-      template: 'Leo - Patient Birthday',
-      inline_css: true,
-      subject: 'Happy Birthday!',
-      to: guardian.email,
-      vars: {
-        'PATIENT_FIRST_NAME': patient.first_name.capitalize
-      }
-    )
-  end
-
   def account_confirmation_reminder(user)
     mandrill_mail(
       template: 'Leo - Account Confirmation Reminder',

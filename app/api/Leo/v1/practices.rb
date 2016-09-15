@@ -12,8 +12,13 @@ module Leo
         end
 
         desc "Return the practice by id"
+        params do
+          optional :schedule_check, type: String
+        end
+
         get ":id" do
           practice = Practice.find_by(id: params[:id])
+          present :is_practice_open, practice.try(:in_office_hours?) and return if params[:schedule_check]
           present :practice, practice, with: Leo::Entities::PracticeEntity
         end
       end
