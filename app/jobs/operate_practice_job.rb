@@ -13,7 +13,7 @@ class OperatePracticeJob < Struct.new(:practice_id)
     return unless practice = open_job.practice
     Delayed::Job.enqueue open_job, run_at: practice.active_schedule.start_time_for_date(Date.today)
     Delayed::Job.enqueue close_job, run_at: practice.active_schedule.end_time_for_date(Date.today)
-    Delayed::Job.enqueue switch_v_e_off_job, run_at: DateTime.now.change(hour: 21)
+    Delayed::Job.enqueue switch_v_e_off_job, run_at: DateTime.current.change(hour: 21)
   end
 
   def perform
