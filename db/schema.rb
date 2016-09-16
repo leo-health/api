@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160908151023) do
+ActiveRecord::Schema.define(version: 20160916173331) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -613,6 +613,7 @@ ActiveRecord::Schema.define(version: 20160908151023) do
     t.integer  "owner_id"
     t.string   "owner_type"
     t.datetime "dismissed_at"
+    t.boolean  "sends_push_notification_on_publish"
   end
 
   create_table "users", force: :cascade do |t|

@@ -829,7 +829,7 @@ LinkPreview.update_or_create!([:category, :title], {
     deep_link_button_text: "SHARE WITH FRIENDS",
     deep_link: "referral",
     icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png')),
-    notification_message: "This is a notification_message. Click me.",
+    notification_message: nil,
     category: :referral
   }
 )
