@@ -356,7 +356,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
         patient = connector.get_patient(patientid: 5031)
         expect(patient).not_to be_nil
-        expect(patient.patientid).to eq ("5031")
+        expect(patient["patientid"]).to eq ("5031")
       end
     end
 

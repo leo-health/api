@@ -18,7 +18,8 @@ describe "UserLinkPreview" do
         expect { UserLinkPreview.create(
           user: guardian,
           owner: family.patients.first,
-          link_preview: link
+          link_preview: link,
+          sends_push_notification_on_publish: true
         )}.to change {
           Delayed::Job.where(queue: NewContentApnsJob.queue_name).count
         }.by(1)
@@ -31,7 +32,8 @@ describe "UserLinkPreview" do
           user: guardian,
           owner: family.patients.first,
           link_preview: link,
-          dismissed_at: 1.hour.ago
+          dismissed_at: 1.hour.ago,
+          sends_push_notification_on_publish: true
         )}.to change {
           Delayed::Job.where(queue: NewContentApnsJob.queue_name).count
         }.by(0)
@@ -44,7 +46,8 @@ describe "UserLinkPreview" do
           user: guardian,
           owner: family.patients.first,
           link_preview: link,
-          dismissed_at: 1.hour.ago
+          dismissed_at: 1.hour.ago,
+          sends_push_notification_on_publish: true
         )
 
         expect{ ulp.update_attributes(dismissed_at: 1.hour.from_now) }.to change {
