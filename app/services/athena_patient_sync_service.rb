@@ -1,4 +1,12 @@
 class AthenaPatientSyncService < AthenaSyncService
+
+  def get_patients_with_guarantor_email(practice:, email:)
+    @connector.get_patients(
+      departmentid: practice.athena_id,
+      guarantoremail: email
+    )
+  end
+
   def get_all_patients(practice, verbose: false)
     puts "Getting all patients with departmentid #{practice.athena_id}" if verbose
     all_athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
@@ -38,7 +46,8 @@ class AthenaPatientSyncService < AthenaSyncService
       rescue StopIteration
       end
 
-      if get_athena_id(athena_patient) == next_existing_athena_id
+      patient_already_exists = get_athena_id(athena_patient) == next_existing_athena_id
+      if patient_already_exists
         next_existing_athena_id = nil
       elsif created_patient = create_exempt_patient(athena_patient, verbose: verbose)
         created_patients << created_patient

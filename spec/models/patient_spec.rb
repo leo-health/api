@@ -111,16 +111,21 @@ RSpec.describe Patient, type: :model do
   end
 
   describe ".enqueue_milestone_content_delivery_job" do
-    before :each do
-      @patient = create(:patient)
-    end
-
     it "gets called on create" do
+      @patient = create(:patient)
       expect(@patient).to callback(:enqueue_milestone_content_delivery_job).after(:commit).on(:create)
     end
 
-    it "enqueues a MilestoneContentJob" do
+    it "enqueues a MilestoneContentJob when feature flag on" do
+      ENV["FEATURE_FLAG_MILESTONE_CONTENT"] = "THIS CAN BE ANY TRUTHY VALUE"
+      create(:patient)
       expect(Delayed::Job.where(queue: "send_milestone_link_preview").count).to be(1)
+    end
+
+    it "does not enqueues a MilestoneContentJob when feature flag off" do
+      ENV["FEATURE_FLAG_MILESTONE_CONTENT"] = nil
+      create(:patient)
+      expect(Delayed::Job.where(queue: "send_milestone_link_preview").count).to be(0)
     end
   end
 

@@ -64,12 +64,17 @@ class Patient < ActiveRecord::Base
   # Milestone Content
 
   def enqueue_milestone_content_delivery_job
-    MilestoneContentJob.new(patient: self).subscribe_if_needed(run_at: Time.now)
+    if ENV['FEATURE_FLAG_MILESTONE_CONTENT']
+      MilestoneContentJob.new(patient: self).subscribe_if_needed(run_at: Time.now)
+    end
   end
 
   def ensure_current_milestone_link_preview
     # do nothing if the patient hasn't hit a milestone yet
     return nil unless index = LinkPreview.milestone_index_for_age(age_in_months)
+
+    # only send push notification when the milestone changes - not the initial one
+    sends_push_notification_on_publish = false
 
     # destroy out of date UserLinkPreviews
     # case when the patient has no more milestones is handled by the fact that current_age == nil if index out of bounds
@@ -80,17 +85,23 @@ class Patient < ActiveRecord::Base
 
       if link_is_milestone_content && link_is_out_of_date
         user_link_preview.destroy
+        sends_push_notification_on_publish = true
       end
     end
 
     # find or create up to date UserLinkPreviews
     LinkPreview.milestone_content_for_age(current_age).each do |link_preview|
-      family.guardians.each do |guardian|
-        UserLinkPreview.find_or_create_by(
-          link_preview: link_preview,
-          owner: self,
-          user: guardian
-        )
+      last_milestone_date = birth_date + link_preview.age_of_patient_in_months.months
+      if last_milestone_date + 30.days > Date.today
+        family.guardians.each do |guardian|
+          UserLinkPreview.create_with(
+            sends_push_notification_on_publish: sends_push_notification_on_publish
+          ).find_or_create_by(
+            link_preview: link_preview,
+            owner: self,
+            user: guardian
+          )
+        end
       end
     end
   end
