@@ -289,6 +289,17 @@ module AthenaHealthApiHelper
       entries
     end
 
+    #Get a patient: GET /preview1/:practiceid/patients/:patientid
+    #returns null if patient does not exist
+    def get_patient(patientid: )
+      endpoint = "patients/#{patientid}"
+      response = @connection.GET(endpoint, {}, common_headers)
+      #404 means the patient does not exist
+      return nil if response.code.to_i == 404
+      raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
+      return JSON.parse(response.body).first
+    end
+
     #Create a patient: POST /preview1/:practiceid/patients
     #returns patient id
     #TODO: Doesn't seem to create a new patient when some of the records are the same.  Investigate.
@@ -299,17 +310,6 @@ module AthenaHealthApiHelper
       val = JSON.parse(response.body)
       raise "unexpected patient list len: #{val.length}" unless val.length == 1
       return val[0][:patientid.to_s].to_i
-    end
-
-    #Get a patient: GET /preview1/:practiceid/patients/:patientid
-    #returns null if patient does not exist
-    def get_patient(patientid: )
-      endpoint = "patients/#{patientid}"
-      response = @connection.GET(endpoint, {}, common_headers)
-      #404 means the patient does not exist
-      return nil if response.code.to_i == 404
-      raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
-      return AthenaStruct.new(JSON.parse(response.body)[0])
     end
 
     def get_best_match_patient(anyfirstname: nil, anyphone: nil, appointmentdepartmentid: nil, appointmentproviderid: nil,

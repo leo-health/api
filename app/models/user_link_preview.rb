@@ -22,6 +22,8 @@ class UserLinkPreview < ActiveRecord::Base
   end
 
   def actions_after_content_shared
+    return nil unless sends_push_notification_on_publish
+    
     if link_preview.try(:notification_message)
 
       on_create = self.previous_changes.key?(:id)

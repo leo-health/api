@@ -36,7 +36,7 @@ class UserMailer < MandrillMailer::TemplateMailer
         'LINK': user.invitation_url
       }
     ).delay(queue: 'exempt_registration_email', owner: user).deliver
-   end
+  end
 
   def confirmation_instructions(user, token, opts={})
     mandrill_mail(
