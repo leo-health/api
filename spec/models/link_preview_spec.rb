@@ -9,17 +9,17 @@ describe "LinkPreview" do
 
   describe ".send_to" do
     context "single guardian" do
-      it "creates and publishes UserLinkPreview" do
+      it "creates and publishes UserLinkPreview without notification" do
         user_link_previews = link_preview.send_to(user1)
         expect(user_link_previews.count).to eq(1)
         expect(user_link_previews.first.published?).to be(true)
-        expect(Delayed::Job.where(queue: NewContentApnsJob.queue_name).count).to eq(1)
+        expect(Delayed::Job.where(queue: NewContentApnsJob.queue_name).count).to eq(0)
       end
     end
 
     context "multiple guardians" do
-      it "creates many UserLinkPreviews" do
-        user_link_previews = link_preview.send_to([user1, user2])
+      it "creates many UserLinkPreviews with notification" do
+        user_link_previews = link_preview.send_to([user1, user2], sends_push_notification_on_publish: true)
         expect(user_link_previews.count).to eq(2)
         expect(user_link_previews.first.published?).to be(true)
         expect(user_link_previews.second.published?).to be(true)
@@ -40,7 +40,7 @@ describe "LinkPreview" do
   describe ".send_to_with_n_day_expiry" do
     it "creates a UserLinkPreview with dismissed_at 30 days from now" do
       Timecop.freeze
-      user_link_previews = link_preview.send_to_with_n_day_expiry(user1, 30)
+      user_link_previews = link_preview.send_to_with_n_day_expiry(user1, 30, sends_push_notification_on_publish: true)
       expect(user_link_previews.count).to eq(1)
       expect(user_link_previews.first.dismissed_at).to eq(30.days.from_now)
       expect(user_link_previews.first.published?).to be(true)
