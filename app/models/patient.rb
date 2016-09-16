@@ -71,6 +71,9 @@ class Patient < ActiveRecord::Base
     # do nothing if the patient hasn't hit a milestone yet
     return nil unless index = LinkPreview.milestone_index_for_age(age_in_months)
 
+    # only send push notification when the milestone changes - not the initial one
+    sends_push_notification_on_publish = false
+
     # destroy out of date UserLinkPreviews
     # case when the patient has no more milestones is handled by the fact that current_age == nil if index out of bounds
     current_age = LinkPreview.ages_for_milestone_content[index]
@@ -80,17 +83,22 @@ class Patient < ActiveRecord::Base
 
       if link_is_milestone_content && link_is_out_of_date
         user_link_preview.destroy
+        sends_push_notification_on_publish = true
       end
     end
 
     # find or create up to date UserLinkPreviews
     LinkPreview.milestone_content_for_age(current_age).each do |link_preview|
-      family.guardians.each do |guardian|
-        UserLinkPreview.find_or_create_by(
-          link_preview: link_preview,
-          owner: self,
-          user: guardian
-        )
+      last_milestone_date = birth_date + link_preview.age_of_patient_in_months.months
+      if last_milestone_date + 30.days < Date.today
+        family.guardians.each do |guardian|
+          UserLinkPreview.find_or_create_by(
+            sends_push_notification_on_publish: sends_push_notification_on_publish,
+            link_preview: link_preview,
+            owner: self,
+            user: guardian
+          )
+        end
       end
     end
   end
