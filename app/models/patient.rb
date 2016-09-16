@@ -90,10 +90,11 @@ class Patient < ActiveRecord::Base
     # find or create up to date UserLinkPreviews
     LinkPreview.milestone_content_for_age(current_age).each do |link_preview|
       last_milestone_date = birth_date + link_preview.age_of_patient_in_months.months
-      if last_milestone_date + 30.days < Date.today
+      if last_milestone_date + 30.days > Date.today
         family.guardians.each do |guardian|
-          UserLinkPreview.find_or_create_by(
-            sends_push_notification_on_publish: sends_push_notification_on_publish,
+          UserLinkPreview.create_with(
+            sends_push_notification_on_publish: sends_push_notification_on_publish
+          ).find_or_create_by(
             link_preview: link_preview,
             owner: self,
             user: guardian
