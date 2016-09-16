@@ -64,7 +64,9 @@ class Patient < ActiveRecord::Base
   # Milestone Content
 
   def enqueue_milestone_content_delivery_job
-    MilestoneContentJob.new(patient: self).subscribe_if_needed(run_at: Time.now)
+    if ENV['FEATURE_FLAG_MILESTONE_CONTENT']
+      MilestoneContentJob.new(patient: self).subscribe_if_needed(run_at: Time.now)
+    end
   end
 
   def ensure_current_milestone_link_preview
