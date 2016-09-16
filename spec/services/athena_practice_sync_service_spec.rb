@@ -9,10 +9,10 @@ describe AthenaPracticeSyncService do
     before do
       @practice = create(:practice, athena_id: 1)
     end
-    it "creates users with clinical role" do
+    it "creates providers for valid athena_providers" do
       allow(@connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200,IO.read("spec/mock_json/mock_providers.json")))
       @service.sync_providers @practice
-      expect(Provider.count).to be(3)
+      expect(Provider.count).to be(2)
     end
   end
 end
