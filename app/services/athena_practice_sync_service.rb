@@ -42,7 +42,7 @@ class AthenaPracticeSyncService < AthenaSyncService
       user_facing_appointment_type = AppointmentType.user_facing_appointment_type_for_athena_id(athena_id)
 
       # only updates the hidden ones - creates a hidden one for each athena_id regardless if a visible one is already seeded
-      AppointmentType.update_or_create!([:athena_id, :hidden], {
+      AppointmentType.update_or_create([:athena_id, :hidden], {
         athena_id: athena_id,
         duration: athena_appointment_type["duration"].try(:to_i),
         short_description: athena_appointment_type["name"],
@@ -75,7 +75,7 @@ class AthenaPracticeSyncService < AthenaSyncService
     attributes = parse_athena_provider_json(athena_provider).merge(practice: practice)
     provider = nil
     ActiveRecord::Base.transaction do
-      provider = Provider.create!(attributes.merge(athena_department_id: practice.athena_id))
+      provider = Provider.create(attributes.merge(athena_department_id: practice.athena_id))
       StaffProfile.create_with_provider!(provider)
       ProviderSchedule.create_default_with_provider!(provider)
     end

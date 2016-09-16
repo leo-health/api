@@ -431,6 +431,8 @@ if should_seed_flatiron
       },
 
       provider_attributes: {
+        first_name: "Victoria",
+        last_name: "Riese",
         athena_id: 1,
         athena_department_id: 1
       },
@@ -458,6 +460,8 @@ if should_seed_flatiron
       },
 
       provider_attributes: {
+        first_name: "Erin",
+        last_name: "Gold",
         athena_id: 3,
         athena_department_id: 1
       },

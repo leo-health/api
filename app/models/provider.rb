@@ -2,6 +2,7 @@ class Provider < ActiveRecord::Base
   include RoleCheckable
   belongs_to :user, ->{ provider }
   belongs_to :practice
+  validates :first_name, :last_name, presence: true
   validates_uniqueness_of :athena_id, conditions: ->{ where.not(athena_id: 0) }
   after_commit :subscribe_to_athena, on: :create
 
