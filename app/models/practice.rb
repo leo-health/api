@@ -13,8 +13,14 @@ class Practice < ActiveRecord::Base
   end
 
   def in_office_hours?
-    start_time, end_time = convert_time
-    (start_time..end_time).cover?(Time.current)
+    unless $redis.get('start_time') || $redis.get('end_time')
+      start_time, end_time = convert_time
+      next_day = Date.tomorrow.to_datetime.to_i
+      $redis.set('start_time', start_time.to_i); $redis.expireat('start_time', next_day)
+      $redis.set('end_time', end_time.to_i); $redis.expireat('end_time', next_day)
+    end
+    start_time, end_time = $redis.get('start_time').to_i, $redis.get('end_time').to_i
+    start_time <= Time.current.to_i && end_time >= Time.current.to_i
   end
 
   def subscribe_to_athena

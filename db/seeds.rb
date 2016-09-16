@@ -1,4 +1,5 @@
 require 'csv'
+require File.expand_path('../seeds/seed_milestone_content', __FILE__)
 
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
@@ -624,7 +625,7 @@ if should_seed_flatiron
       name: "Sick Visit",
       duration: 10,
       short_description: "New symptom",
-      long_description: "A visit to address new symptoms like cough, cold, ear pain, fever, diarrhea, or rash.",
+      long_description: "Child has a new symptom and needs to be examined by Doctor or Nurse Practitioner.",
       hidden: false
     },
 
@@ -633,7 +634,7 @@ if should_seed_flatiron
       name: "Follow Up Visit",
       duration: 10,
       short_description: "Unresolved illness or chronic condition",
-      long_description: "A visit to follow up on a known condition like asthma, ADHD, or eczema.",
+      long_description: "Unresolved illness or chronic condition that the care team is aware of.",
       hidden: false
     },
 
@@ -642,7 +643,7 @@ if should_seed_flatiron
       name: "Immunization / Lab Visit",
       duration: 10,
       short_description: "Flu shot or scheduled vaccine",
-      long_description: "A visit with a nurse to get one or more immunizations.",
+      long_description: "Vaccines administered, this is a nurse visit only.",
       hidden: false
     },
 
@@ -651,7 +652,7 @@ if should_seed_flatiron
       name: "Well Visit",
       duration: 20,
       short_description: "Regular check-up",
-      long_description: "A regular check-up that is typically scheduled every few months up until age 2 and annually thereafter.",
+      long_description: "Regular check-up with the Doctor or Nurse Practitioner.",
       hidden: false
     },
 
@@ -819,17 +820,22 @@ end
 
 puts "Finished seeding #{ProviderLeave.count} ProviderLeave records"
 
-DeepLinkCard.update_or_create!(:id, {
-    id: 1,
+LinkPreview.update_or_create!([:category, :title], {
     title: "Help us grow",
     body: "Know anyone looking for a new pediatric practice?  Invite them to an Open House to meet the Leo + Flatiron Pediatrics team and learn more.",
     tint_color_hex: "#FF5F40",
-    tinted_header_text: "SHARE THE LOVE",
+    tinted_header_text: "Share the love",
     dismiss_button_text: "DISMISS",
     deep_link_button_text: "SHARE WITH FRIENDS",
     deep_link: "referral",
-    icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png'))
+    icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'Icon-Referral.png')),
+    notification_message: "This is a notification_message. Click me.",
+    category: :referral
   }
 )
+
+SeedMilestoneContent.seed
+count = LinkPreview.where(category: :milestone_content).count
+puts "Finished seeding #{count} milestone content"
 
 puts "Finished seeding all data"

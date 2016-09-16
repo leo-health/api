@@ -13,7 +13,7 @@ class OperatePracticeJob < Struct.new(:practice_id)
     return unless practice = open_job.practice
     Delayed::Job.enqueue open_job, run_at: practice.active_schedule.start_time_for_date(Date.today)
     Delayed::Job.enqueue close_job, run_at: practice.active_schedule.end_time_for_date(Date.today)
-    Delayed::Job.enqueue switch_v_e_off_job, run_at: DateTime.now.change(hour: 21)
+    Delayed::Job.enqueue switch_v_e_off_job, run_at: DateTime.current.change(hour: 21)
   end
 
   def perform
@@ -30,20 +30,31 @@ class OperatePracticeJob < Struct.new(:practice_id)
 
   def close_vi_and_er
     [v, e].each do |provider|
-      provider.staff_profile.try(:update_attributes, {sms_enabled: false, on_call: false})
+      if provider.staff_profile.try(:update_attributes, {sms_enabled: false, on_call: false})
+        broadcast_oncall_change([provider.id], 'off-call')
+      end
     end
   end
 
   def start_after_office_hours
     staff = practice.staff - [v, e]
-    StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: false)
-    Pusher.trigger("practice", :practice_hour, { practice_id: practice.id, status: 'closed' })
+    if StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: false) > 0
+      broadcast_oncall_change(staff.map(&:id), 'off-call')
+    end
   end
 
   def start_in_office_hours
     if StaffProfile.where(staff: practice.staff).update_all(sms_enabled: false, on_call: true) > 0
       practice.broadcast_practice_availability
+      broadcast_oncall_change(practice.staff.map(&:id), 'on-call')
     end
-    Pusher.trigger("practice", :practice_hour, { practice_id: practice.id, status: 'open' })
+  end
+
+  def broadcast_oncall_change(ids, event)
+    begin
+      Pusher.trigger("staff", :oncall_change, { staff_ids:  ids, event: event })
+    rescue Pusher::Error => e
+      Rails.logger.error "Pusher error: #{e.message}"
+    end
   end
 end
