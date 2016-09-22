@@ -97,12 +97,12 @@ describe Leo::V1::Sessions do
     end
   end
 
-  describe "PUT /api/v1/sessions" do
+  describe "POST /api/v1/sessions" do
     let(:user){ create(:user, :guardian) }
     let(:session){ user.sessions.create }
 
     def do_request(params)
-      put "/api/v1/sessions", params, format: :json
+      post "/api/v1/sessions", params, format: :json
     end
 
     it "should delete old session and create new session" do

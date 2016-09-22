@@ -11,7 +11,8 @@ module Leo
           optional :client_version, type: String
         end
 
-        put do
+        desc 'creates new session without logging the user out. Deletes the existing session if successful'
+        post do
           unless existing_session = Session.find_by(authentication_token: params[:authentication_token])
             error!('401 Unauthorized', 401)
           end
