@@ -18,16 +18,17 @@ module Leo
           end
 
           user = existing_session.user
+          session_params = params.slice(:device_token, :device_type, :os_version, :platform, :client_version, :authentication_token)
 
-          session_params = params.slice(:device_token, :device_type, :os_version, :platform, :client_version)
-          next_session = user.sessions.create(session_params)
-
-          if next_session.valid?
-            existing_session.try(:destroy)
-            present :user, user, with: Leo::Entities::UserEntity
-            present :session, next_session, with: Leo::Entities::SessionEntity
-          else
-            error!({error_code: 422, user_message: session.errors.full_messages.first }, 422)
+          begin
+            Session.transaction do
+              existing_session.try(:destroy)
+              next_session = user.sessions.create!(session_params)
+              present :user, user, with: Leo::Entities::UserEntity
+              present :session, next_session, with: Leo::Entities::SessionEntity
+            end
+          rescue ActiveRecord::RecordInvalid => invalid
+            error!({error_code: 422, user_message: invalid.record.errors.full_messages.first }, 422)
           end
         end
       end
