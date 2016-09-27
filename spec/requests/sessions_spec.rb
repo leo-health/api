@@ -116,7 +116,7 @@ describe Leo::V1::Sessions do
       })
       expect(Session.count).to eq(1)
       expect(Session.where(id: old_session_id).count).to eq(0)
-      expect(Session.first.authentication_token).not_to eq(authentication_token)
+      expect(Session.first.authentication_token).to eq(authentication_token)
     end
   end
 end
