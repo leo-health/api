@@ -20,18 +20,20 @@ namespace :backfill do
 
       if slot.created_at > slot_to_keep.created_at
         Slot.destroy(prev_slot.id)
-        c = counts[prev_slot.athena_id] || 0
+        slot_to_keep = slot
+        c = counts[slot.athena_id] || 0
         c += 1
-        counts[prev_slot.athena_id] = c
-        puts "destroyed #{c} duplicate slots for athena_id: #{prev_slot.athena_id}"
+        counts[slot.athena_id] = c
+        puts "athena_id: #{slot.athena_id} - destroyed #{prev_slot.id} - keeping #{slot_to_keep.id} - n_duplicates_destroyed: #{c}"
       else
-        puts "keeping slot #{slot_to_keep.id} for athena_id: #{slot.athena_id}"
+        puts "athena_id: #{slot.athena_id} - keeping #{slot_to_keep.id}"
       end
 
       slots_to_keep[slot.athena_id] = slot_to_keep
       slots_to_keep
     }
 
-    puts "finished destroying duplicate slots #{c}"
+    puts "finished destroying duplicate slots - n_duplicates_destroyed: #{counts}"
+    puts "slot_counts: #{Slot.group(:athena_id).count.values.uniq}"
   end
 end
