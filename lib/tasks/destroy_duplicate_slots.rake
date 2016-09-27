@@ -24,9 +24,9 @@ namespace :backfill do
         c = counts[slot.athena_id] || 0
         c += 1
         counts[slot.athena_id] = c
-        puts "athena_id: #{slot.athena_id} - destroyed #{prev_slot.id} - keeping #{slot_to_keep.id} - n_duplicates_destroyed: #{c}"
+        # puts "athena_id: #{slot.athena_id} - destroyed #{prev_slot.id} - keeping #{slot_to_keep.id} - n_duplicates_destroyed: #{c}"
       else
-        puts "athena_id: #{slot.athena_id} - keeping #{slot_to_keep.id}"
+        # puts "athena_id: #{slot.athena_id} - keeping #{slot_to_keep.id}"
       end
 
       slots_to_keep[slot.athena_id] = slot_to_keep
