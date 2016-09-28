@@ -51,6 +51,10 @@ module Leo
           @session.try(:user)
         end
 
+        def current_session
+          @session
+        end
+
         def create_success object, device_type=nil
           if object.save
             present object.class.name.downcase.to_sym, object, with: "Leo::Entities::#{object.class.name}Entity".constantize, device_type: device_type

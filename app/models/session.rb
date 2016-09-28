@@ -8,8 +8,8 @@ class Session < ActiveRecord::Base
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
 
   MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE = {
-    'ios' => { 'ContentCards' => "1.4.1" },
-    'android' => { 'ContentCards' => "1.4.1" }
+    'ios' => { 'ContentCards' => '1.4.1' },
+    'android' => { 'ContentCards' => '1.4.1' }
   }
 
   def feature_available?(feature_name)

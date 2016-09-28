@@ -40,9 +40,8 @@ class UserLinkPreview < ActiveRecord::Base
   end
 
   def send_new_content_notification
-      user.collect_device_tokens(:ContentCards).map do |device_token|
-        NewContentApnsJob.send(device_token, link_preview.id)
-      end
+    user.collect_device_tokens(:ContentCards).map do |device_token|
+      NewContentApnsJob.send(device_token, link_preview.id)
     end
   end
 end
