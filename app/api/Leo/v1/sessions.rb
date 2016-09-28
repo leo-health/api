@@ -1,7 +1,37 @@
 module Leo
   module V1
     class Sessions < Grape::API
-      resource :sessions
+      resource :sessions do
+        params do
+          requires :authentication_token, type: String, allow_blank: false
+          optional :device_type, type: String
+          optional :device_token, type: String
+          optional :os_version, type: String
+          optional :platform, type: String
+          optional :client_version, type: String
+        end
+
+        desc 'creates new session without logging the user out. Deletes the existing session if successful'
+        post do
+          unless existing_session = Session.find_by(authentication_token: params[:authentication_token])
+            error!('401 Unauthorized', 401)
+          end
+
+          user = existing_session.user
+          session_params = params.slice(:device_token, :device_type, :os_version, :platform, :client_version, :authentication_token)
+
+          begin
+            Session.transaction do
+              existing_session.try(:destroy)
+              next_session = user.sessions.create!(session_params)
+              present :user, user, with: Leo::Entities::UserEntity
+              present :session, next_session, with: Leo::Entities::SessionEntity
+            end
+          rescue ActiveRecord::RecordInvalid => invalid
+            error!({error_code: 422, user_message: invalid.record.errors.full_messages.first }, 422)
+          end
+        end
+      end
 
       namespace :login do
         params do
@@ -28,6 +58,7 @@ module Leo
 
           session_params = params.slice(:device_token, :device_type, :os_version, :platform, :client_version)
           session = user.sessions.create(session_params)
+
           if session.valid?
             present :user, user, with: Leo::Entities::UserEntity
             present :session, session, with: Leo::Entities::SessionEntity
