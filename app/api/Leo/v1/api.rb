@@ -83,6 +83,7 @@ module Leo
           data
         end
 
+        #TODO:REMOVE ME AND CHECK REFERENCES
         def session_device_type
           @session.device_type.gsub(/\s+/, "").to_sym if @session.device_type
         end

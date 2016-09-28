@@ -7,6 +7,16 @@ class Session < ActiveRecord::Base
   validates :device_type, presence: true, if: :mobile?
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
 
+  MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE = {
+    'ios' => { 'ContentCards' => "1.4.1" },
+    'android' => { 'ContentCards' => "1.4.1" }
+  }
+
+  def feature_available?(feature_name)
+    supported_platforms = MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE.keys
+    supported_platforms.include?(platform.try(:to_s)) && MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.try(:to_s)][feature_name.try(:to_s)] <= client_version.try(:to_s)
+  end
+
   private
 
   def mobile?

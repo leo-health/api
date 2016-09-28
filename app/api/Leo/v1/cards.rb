@@ -9,7 +9,7 @@ module Leo
 
         get do
           conversations = [Family.includes(:guardians).find(current_user.family_id).conversation]
-          user_link_previews = UserLinkPreview.where(user: current_user).published
+          user_link_previews = UserLinkPreview.where(user: current_user).published if user.sessions.last.feature_available(:ContentCards)
           appointments = Appointment.booked
           .where(patient_id: current_user.family.patients.pluck(:id))
           .where.not(appointment_type: AppointmentType.blocked)

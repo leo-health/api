@@ -127,8 +127,12 @@ class User < ActiveRecord::Base
     "#{first_name.capitalize} #{last_name.capitalize}"
   end
 
-  def collect_device_tokens
-    sessions.map(&:device_token).compact.uniq
+  def collect_device_tokens(feature=nil)
+    if(feature)
+      sessions.select{ |s| s.feature_available?(feature) }.map(&:device_token).compact.uniq
+    else
+      sessions.map(&:device_token).compact.uniq
+    end
   end
 
   def confirm_secondary_guardian
