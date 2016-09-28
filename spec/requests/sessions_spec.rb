@@ -96,4 +96,27 @@ describe Leo::V1::Sessions do
       end
     end
   end
+
+  describe "POST /api/v1/sessions" do
+    let(:user){ create(:user, :guardian) }
+    let(:session){ user.sessions.create }
+
+    def do_request(params)
+      post "/api/v1/sessions", params, format: :json
+    end
+
+    it "should delete old session and create new session" do
+      old_session_id = session.id
+      authentication_token = session.authentication_token
+      do_request({
+        authentication_token: authentication_token,
+        device_token: "my_device_token",
+        device_type: "iPhone 6",
+        platform: :ios
+      })
+      expect(Session.count).to eq(1)
+      expect(Session.where(id: old_session_id).count).to eq(0)
+      expect(Session.first.authentication_token).to eq(authentication_token)
+    end
+  end
 end
