@@ -47,12 +47,11 @@ module Leo
         end
 
         def current_user
-          @session = Session.find_by_authentication_token(params[:authentication_token])
-          @session.try(:user)
+          current_session.try(:user)
         end
 
         def current_session
-          @session
+          @session = Session.find_by_authentication_token(params[:authentication_token])
         end
 
         def create_success object, device_type=nil

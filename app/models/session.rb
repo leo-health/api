@@ -13,8 +13,19 @@ class Session < ActiveRecord::Base
   }
 
   def feature_available?(feature_name)
+
     supported_platforms = MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE.keys
-    supported_platforms.include?(platform.try(:to_s)) && MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.try(:to_s)][feature_name.try(:to_s)] <= client_version.try(:to_s)
+
+    if supported_platforms.include?(platform.try(:to_s)) && MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.to_s].has_key?(feature_name.try(:to_s))
+      if client_version.try(:to_s) && (MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.to_s][feature_name.to_s] <= client_version)
+        true
+      else
+        false
+      end
+    else
+      MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.to_s].has_key?(feature_name.try(:to_s)) ? false : true
+    end
+
   end
 
   private
