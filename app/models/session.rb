@@ -8,24 +8,18 @@ class Session < ActiveRecord::Base
   validates_uniqueness_of :authentication_token, conditions: -> { where(deleted_at: nil) }
 
   MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE = {
-    'ios' => { 'ContentCards' => '1.4.1' },
-    'android' => { 'ContentCards' => '1.4.1' }
+    ContentCards: {
+      ios: '1.4.1',
+      android: '1.4.1'
+    }
   }
 
   def feature_available?(feature_name)
-
-    supported_platforms = MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE.keys
-
-    if supported_platforms.include?(platform.try(:to_s)) && MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.to_s].has_key?(feature_name.try(:to_s))
-      if client_version.try(:to_s) && (MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.to_s][feature_name.to_s] <= client_version)
-        true
-      else
-        false
-      end
-    else
-      MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[platform.to_s].has_key?(feature_name.try(:to_s)) ? false : true
-    end
-
+    versioned_feature = MIN_SUPPORTED_VERSION_BY_PLATFORM_AND_FEATURE[feature_name.to_sym]
+    return true unless versioned_feature
+    return false unless client_version && platform
+    return false unless min_version = versioned_feature[platform.to_sym]
+    min_version <= client_version
   end
 
   private
