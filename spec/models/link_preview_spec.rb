@@ -2,9 +2,9 @@ require 'rails_helper'
 
 describe "LinkPreview" do
   let!(:user1){ create(:user, :guardian) }
-  let!(:session1){ user1.sessions.create(device_type: "iPhone 6", device_token: "user1_device_token")}
+  let!(:session1){ user1.sessions.create(device_type: "iPhone 6", device_token: "user1_device_token", platform: "ios", client_version: "1.4.1")}
   let!(:user2){ create(:user, :guardian) }
-  let!(:session2){ user2.sessions.create(device_type: "iPhone 6", device_token: "user2_device_token")}
+  let!(:session2){ user2.sessions.create(device_type: "iPhone 6", device_token: "user2_device_token", platform: "ios", client_version: "1.4.1")}
   let!(:link_preview){ create(:link_preview, :notification) }
 
   describe ".send_to" do
