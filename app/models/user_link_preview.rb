@@ -23,7 +23,7 @@ class UserLinkPreview < ActiveRecord::Base
 
   def actions_after_content_shared
     return nil unless sends_push_notification_on_publish
-    
+
     if link_preview.try(:notification_message)
 
       on_create = self.previous_changes.key?(:id)
@@ -40,7 +40,7 @@ class UserLinkPreview < ActiveRecord::Base
   end
 
   def send_new_content_notification
-    user.collect_device_tokens.map do |device_token|
+    user.collect_device_tokens(:ContentCards).map do |device_token|
       NewContentApnsJob.send(device_token, link_preview.id)
     end
   end
