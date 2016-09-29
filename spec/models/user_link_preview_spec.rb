@@ -10,7 +10,7 @@ describe "UserLinkPreview" do
     )}
 
     before do
-      guardian.sessions.create(device_type: "iPhone 6", device_token: "token")
+      guardian.sessions.create(device_type: "iPhone 6", device_token: "token", platform: "ios", client_version: "1.4.1")
     end
 
     context "dismissed_at initialized as nil" do
