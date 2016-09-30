@@ -307,9 +307,7 @@ module AthenaHealthApiHelper
       endpoint = "patients"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
-      val = JSON.parse(response.body)
-      raise "unexpected patient list len: #{val.length}" unless val.length == 1
-      return val[0][:patientid.to_s].to_i
+      JSON.parse(response.body).first
     end
 
     def get_best_match_patient(anyfirstname: nil, anyphone: nil, appointmentdepartmentid: nil, appointmentproviderid: nil,
