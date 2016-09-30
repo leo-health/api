@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe Leo::V1::Cards do
   let(:user){ create(:user, :guardian) }
-  let(:session){ user.sessions.create }
+  let(:session){ user.sessions.create(device_type: "iPhone 6", device_token: "user2_device_token", platform: "ios", client_version: "1.4.1") }
   let!(:link_preview){create(:link_preview, :referral)}
   let!(:user_link_preview){create(:user_link_preview,
     user: user,
