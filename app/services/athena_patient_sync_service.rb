@@ -1,322 +1,43 @@
 class AthenaPatientSyncService < AthenaSyncService
-
-  def get_patients_with_guarantor_email(practice:, email:)
-    @connector.get_patients(
-      departmentid: practice.athena_id,
-      guarantoremail: email
-    )
-  end
-
-  def get_all_patients(practice, verbose: false)
-    puts "Getting all patients with departmentid #{practice.athena_id}" if verbose
-    all_athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
-    puts "Athena returned #{all_athena_patients.count} patients" if verbose
-
-    # only sync patients whose guardian is included in the list
-    guardian_emails = File.readlines('lib/assets/exempt_guardian_emails.txt').map(&:strip).map(&:downcase)
-    athena_patients = all_athena_patients.select do |patient|
-      should_select = guardian_emails.include? patient["guarantoremail"].try(:downcase)
-      should_select &&= dob_s = patient["dob"]
-      should_select &&= dob = Time.strptime(dob_s, "%m/%d/%Y")
-      should_select &&= (Time.now - dob) < 13.years
+  def sync_patient(leo_patient)
+    patient = leo_patient
+    if leo_patient.athena_id == 0
+      patient = initial_patient_sync(leo_patient)
+    else
+      @connector.update_patient(to_athena_json(leo_patient))
     end
-
-    # athena_emails = all_athena_patients.map { |patient| {guarantoremail: patient["guarantoremail"].try(:downcase), patientemail: patient["email"].try(:downcase), lastemail: patient["lastemail"].try(:downcase) } }
-    # guarantoremails = athena_emails.map { |emails| emails[:guarantoremail] }.select(&:itself)
-    # guardian_emails_not_found = guardian_emails.reject { |email| guarantoremails.include? email }
-    # all_emails_for_missing_guarantoremail = athena_emails.select{ |emails| guardian_emails_not_found.include?(emails[:guarantoremail]) || guardian_emails_not_found.include?(emails[:patientemail]) || guardian_emails_not_found.include?(emails[:lastemail]) }
-    athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
-    existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id).to_enum
-    puts "Of which we already have #{existing_athena_ids.count} in Leo" if verbose
-    puts "Will create #{athena_ids.count - existing_athena_ids.count} patients in Leo" if verbose
-
-    {athena_patients: athena_patients, guardian_emails: guardian_emails, all_athena_patients: all_athena_patients}
-  end
-
-  def sync_all_patients(athena_patients, verbose: false)
-    athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
-    existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id).to_enum
-    puts "Of which we already have #{existing_athena_ids.count} in Leo" if verbose
-    puts "Will create #{athena_ids.count - existing_athena_ids.count} patients in Leo" if verbose
-
-    next_existing_athena_id = nil
-    patients = athena_patients.reduce([]) { |created_patients, athena_patient|
-      begin
-        next_existing_athena_id ||= existing_athena_ids.next
-      rescue StopIteration
-      end
-
-      patient_already_exists = get_athena_id(athena_patient) == next_existing_athena_id
-      if patient_already_exists
-        next_existing_athena_id = nil
-      elsif created_patient = create_exempt_patient(athena_patient, verbose: verbose)
-        created_patients << created_patient
-      end
-
-      created_patients
-    }
-    puts "Created #{patients.count} patients" if verbose
-    patients
-  end
-
-  def get_athena_id(athena_patient)
-    athena_patient["patientid"].try(:to_i)
-  end
-
-  def create_exempt_patient(athena_patient, verbose: false)
-    user_params = parse_athena_patient_json_to_guardian(athena_patient)
-
-    guardian = User.find_by_email(user_params[:email])
-    unless guardian
-      User.transaction do
-        guardian = User.create!(user_params)
-        guardian.family.exempt_membership!
-      end
-    end
-    return nil unless guardian
-
-    patient = Patient.create({family: guardian.family}.merge(parse_athena_patient_json_to_patient(athena_patient)))
-    puts "Created patient leo_id: #{patient.id}, athena_id: #{patient.athena_id}" if verbose
+    sync_insurance(patient)
+    patient.update(patient_updated_at: DateTime.now.utc)
     patient
   end
 
-  def parse_athena_patient_json_to_guardian(athena_patient)
-    {
-      email: athena_patient["guarantoremail"],
-      role: Role.guardian,
-      onboarding_group: OnboardingGroup.generated_from_athena
-    }
+  def associate_patient_with_athena_id(athena_id, leo_patient)
+    patient = leo_patient
+    if existing_leo_patient = Patient.find_by_athena_id(athena_id)
+
+      fam = leo_patient.family
+      existing_leo_patient.family = fam
+      leo_patient.destroy
+      # TODO: dependent destroy family if needed
+
+      if fam.patients.count == 0
+        fam.destroy
+      end
+
+      patient = existing_leo_patient
+    end
+    patient.update(athena_id: athena_id)
+    patient
   end
 
-  def parse_athena_patient_json_to_patient(athena_patient)
-    {
-      first_name: athena_patient["firstname"],
-      last_name: athena_patient["lastname"],
-      birth_date: Date.strptime(athena_patient["dob"], "%m/%d/%Y"),
-      sex: athena_patient["sex"],
-      athena_id: get_athena_id(athena_patient)
-    }
-  end
 
-  def to_athena_json(patient)
-    parent = patient.family.primary_guardian
-    patient_birth_date = patient.birth_date.strftime("%m/%d/%Y") if patient.birth_date
-    parent_birth_date = parent.birth_date.strftime("%m/%d/%Y") if parent.birth_date
+  private
 
-    guardians = patient.family.guardians.order('created_at ASC')
-    contactname = nil
-    contactrelationship = nil
-    contactmobilephone = nil
-    if guardians.size > 1
-      contactname = "#{guardians[1].first_name} #{guardians[1].last_name}"
-      contactrelationship = "GUARDIAN"
-      contactmobilephone = guardians[1].phone
-    end
-    params = patient.athena_id > 0 ? { patientid: patient.athena_id } : {}
-    params.merge({
-      departmentid: parent.practice.athena_id,
-      firstname: patient.first_name,
-      middlename: patient.middle_initial.to_s,
-      lastname: patient.last_name,
-      sex: patient.sex,
-      dob: patient_birth_date,
-      mobilephone: parent.phone,
-      guarantorfirstname: parent.first_name,
-      guarantormiddlename: parent.middle_initial.to_s,
-      guarantorlastname: parent.last_name,
-      guarantordob: parent_birth_date,
-      guarantoremail: parent.email,
-      guarantorrelationshiptopatient: 3, #3==child
-      guarantorphone: parent.phone,
-      contactname: contactname,
-      contactrelationship: contactrelationship,
-      contactmobilephone: contactmobilephone
-    })
-  end
 
-  def sync_allergies(leo_patient)
-    if leo_patient.athena_id == 0
-      post_patient(leo_patient)
-
-      if leo_patient.athena_id == 0
-        @logger.info("Skipping sync for allergies due to patient #{leo_patient.id} sync failure")
-        return
-      end
-    end
-
-    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
-
-    leo_parent = leo_patient.family.primary_guardian
-
-    #get list of allergies for this patients
-    allergies = @connector.get_patient_allergies(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
-
-    #remove existing allergies for the user
-    Allergy.destroy_all(patient_id: leo_patient.id)
-
-    #create and/or update the allergy records in Leo
-    allergies.each do | allergy |
-      leo_allergy = Allergy.find_or_create_by!(patient_id: leo_patient.id, athena_id: allergy[:allergenid.to_s].to_i)
-
-      leo_allergy.patient_id = leo_patient.id
-      leo_allergy.athena_id = allergy[:allergenid.to_s].to_i
-      leo_allergy.allergen = allergy[:allergenname.to_s]
-      leo_allergy.onset_at = Date.strptime(allergy[:onsetdate.to_s], "%m/%d/%Y") if allergy[:onsetdate.to_s]
-
-      reactions = []
-      reactions = allergy[:reactions.to_s] if allergy[:reactions.to_s]
-      leo_allergy.severity = reactions[0][:severity.to_s] if (reactions.size > 0 && reactions[0][:severity.to_s])
-
-      leo_allergy.note = allergy[:note.to_s] if allergy[:note.to_s]
-
-      leo_allergy.save!
-    end
-
-    leo_patient.allergies_updated_at = DateTime.now.utc
-    leo_patient.save!
-  end
-
-  def sync_medications(leo_patient)
-    if leo_patient.athena_id == 0
-      post_patient(leo_patient)
-      if leo_patient.athena_id == 0
-        @logger.info("Skipping sync for medications due to patient #{leo_patient.id} sync failure")
-        return
-      end
-    end
-    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
-
-    leo_parent = leo_patient.family.primary_guardian
-
-    #get list of medications for this patients
-    meds = @connector.get_patient_medications(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
-
-    #remove existing medications for the user
-    Medication.destroy_all(patient_id: leo_patient.id)
-
-    #create and/or update the medication records in Leo
-    meds.each do | med |
-
-      unless med[:medicationid.to_s]
-        @logger.error("ERROR: medicationid is null! #{med}")
-      else
-        leo_med = Medication.find_or_create_by!(athena_id: med[:medicationid.to_s])
-
-        leo_med.patient_id = leo_patient.id
-        leo_med.athena_id = med[:medicationid.to_s]
-        leo_med.medication = med[:medication.to_s]
-        leo_med.sig = med[:unstructuredsig.to_s]
-        leo_med.sig ||= ''
-        leo_med.note = med[:patientnote.to_s]
-        leo_med.note ||= ''
-
-        structured_sig = {}
-        structured_sig = med[:structuredsig.to_s]
-
-        if structured_sig
-          leo_med.dose = "#{structured_sig[:dosagequantityvalue.to_s]} #{structured_sig[:dosagequantityunit.to_s]} #{structured_sig[:dosagefrequencyvalue.to_s]} #{structured_sig[:dosagefrequencyunit.to_s]}"
-        end
-        leo_med.dose ||= ''
-        leo_med.route = structured_sig[:dosageroute.to_s] if (structured_sig && structured_sig[:dosageroute.to_s])
-        leo_med.route ||= ''
-        leo_med.frequency = structured_sig[:dosagefrequencydescription.to_s] if (structured_sig && structured_sig[:dosagefrequencydescription.to_s])
-        leo_med.frequency ||= ''
-        leo_med.started_at = nil
-        leo_med.ended_at = nil
-        leo_med.ordered_at = nil
-        leo_med.filled_at = nil
-        leo_med.entered_at = nil
-        leo_med.hidden_at = nil
-
-        med[:events.to_s].each do | evt |
-          leo_med.started_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'START'.to_sym)
-          leo_med.ended_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'END'.to_sym)
-          leo_med.ordered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ORDER'.to_sym)
-          leo_med.filled_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'FILL'.to_sym)
-          leo_med.entered_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'ENTER'.to_sym)
-          leo_med.hidden_at = Date.strptime(evt[:eventdate.to_s], "%m/%d/%Y") if (evt[:type.to_s].to_sym == 'HIDE'.to_sym)
-        end
-
-        leo_med.save!
-      end
-    end
-
-    leo_patient.medications_updated_at = DateTime.now.utc
-    leo_patient.save!
-  end
-
-  def sync_vitals(leo_patient)
-    if leo_patient.athena_id == 0
-      post_patient(leo_patient)
-      if leo_patient.athena_id == 0
-        @logger.info("Skipping sync for vitals due to patient #{leo_patient.id} sync failure")
-        return
-      end
-    end
-
-    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
-
-    leo_parent = leo_patient.family.primary_guardian
-
-    #get list of vitals for this patients
-    vitals = @connector.get_patient_vitals(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
-
-    #remove existing vitals for the user
-    Vital.destroy_all(patient_id: leo_patient.id)
-
-    #create and/or update the vitals records in Leo
-    vitals.each do | vital |
-      vital[:readings.to_s].each do | reading_arr |
-        reading = reading_arr[0]
-
-        leo_vital = Vital.find_or_create_by!(athena_id: reading[:vitalid.to_s].to_i)
-
-        leo_vital.patient_id = leo_patient.id
-        leo_vital.athena_id = reading[:vitalid.to_s].to_i
-        leo_vital.measurement = reading[:clinicalelementid.to_s]
-        leo_vital.value = reading[:value.to_s]
-        leo_vital.taken_at = Date.strptime(reading[:readingtaken.to_s], "%m/%d/%Y") if reading[:readingtaken.to_s]
-
-        leo_vital.save!
-      end
-    end
-    leo_patient.vitals_updated_at = DateTime.now.utc
-    leo_patient.save!
-  end
-
-  def sync_vaccines(leo_patient)
-    if leo_patient.athena_id == 0
-      post_patient(leo_patient)
-      if leo_patient.athena_id == 0
-        @logger.info("Skipping sync for vaccines due to patient #{leo_patient.id} sync failure")
-        return
-      end
-    end
-
-    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
-
-    leo_parent = leo_patient.family.primary_guardian
-
-    #get list of vaccines for this patients
-    vaccs = @connector.get_patient_vaccines(patientid: leo_patient.athena_id, departmentid: leo_parent.practice.athena_id)
-
-    #remove existing vaccines for the user
-    Vaccine.destroy_all(patient_id: leo_patient.id)
-
-    #create and/or update the vaccine records in Leo
-    vaccs.each do | vacc |
-      if vacc[:status.to_s] == 'ADMINISTERED'
-        leo_vacc = Vaccine.find_or_initialize_by(athena_id: vacc[:vaccineid.to_s])
-        leo_vacc.patient_id = leo_patient.id
-        leo_vacc.athena_id = vacc[:vaccineid.to_s]
-        leo_vacc.vaccine = vacc[:description.to_s]
-        leo_vacc.administered_at = Date.strptime(vacc[:administerdate.to_s], "%m/%d/%Y") if vacc[:administerdate.to_s]
-        leo_vacc.save!
-      end
-    end
-
-    leo_patient.vaccines_updated_at = DateTime.now.utc
-    leo_patient.save!
+  def initial_patient_sync(leo_patient)
+    athena_patient = get_best_match_patient(leo_patient) || @connector.create_patient(to_athena_json(leo_patient))
+    raise "Failed to create patient #{leo_patient.id} in athena" unless athena_patient
+    associate_patient_with_athena_id(athena_patient.patientid.to_i, leo_patient)
   end
 
   def get_best_match_patient(leo_patient)
@@ -342,43 +63,7 @@ class AthenaPatientSyncService < AthenaSyncService
     athena_patient
   end
 
-  def put_patient(patient)
-    @connector.update_patient(to_athena_json patient)
-  end
-
-  def post_patient(leo_patient)
-
-    @logger.info("Syncer: synching patient=#{leo_patient.to_json}")
-
-    raise "patient.id #{leo_patient.id} has no associated family" unless leo_patient.family
-    raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
-    raise "patient.id #{leo_patient.id} has a primary guardian that is not associated with a practice" unless leo_patient.family.primary_guardian.practice
-
-    athena_patient_exists = leo_patient.athena_id > 0
-    should_update_athena_patient = true
-
-    unless athena_patient_exists
-      athena_patient_exists = best_matched_patient = get_best_match_patient(leo_patient)
-
-      if athena_patient_exists
-        raise "patient.id #{leo_patient.id} has a best match in Athena (athena_id: #{best_matched_patient.patientid}), but that match is already connected to another patient" unless Patient.where(athena_id: best_matched_patient.patientid.to_i).empty?
-        @logger.info("Syncer: connecting patient.id=#{leo_patient.id} to athena patient.id=#{best_matched_patient.patientid}")
-        leo_patient.update(athena_id: best_matched_patient.patientid.to_i)
-      else
-        @logger.info("Syncer: creating new Athena patient for leo patient.id=#{leo_patient.id}")
-        should_update_athena_patient = false
-        athena_patient_exists = leo_patient.athena_id = @connector.create_patient(to_athena_json leo_patient).to_i
-
-        raise "Patient #{patient.id} failed to sync" unless athena_patient_exists
-
-        leo_patient.save!
-      end
-    end
-
-    if should_update_athena_patient
-      put_patient(leo_patient)
-    end
-
+  def sync_insurance(leo_patient)
     # TODO: remove this if we can
     #create insurance if not entered yet
     insurances = @connector.get_patient_insurances(patientid: leo_patient.athena_id)
@@ -401,15 +86,6 @@ class AthenaPatientSyncService < AthenaSyncService
       sequencenumber: 1.to_s
       )
     end
-
-    leo_patient.patient_updated_at = DateTime.now.utc
-    leo_patient.save!
-  end
-
-  private
-
-  def get_athena_id(athena_patient)
-    athena_patient["patientid"].try(:to_i)
   end
 
   def to_athena_json(patient)
@@ -421,7 +97,7 @@ class AthenaPatientSyncService < AthenaSyncService
     contactname = nil
     contactrelationship = nil
     contactmobilephone = nil
-    if guardians.size >= 2
+    if guardians.size > 1
       contactname = "#{guardians[1].first_name} #{guardians[1].last_name}"
       contactrelationship = "GUARDIAN"
       contactmobilephone = guardians[1].phone

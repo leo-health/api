@@ -8,7 +8,7 @@ class PostPatientJob < LeoDelayedJob
   end
 
   def perform
-    AthenaPatientSyncService.new.post_patient @patient
+    AthenaPatientSyncService.new.sync_patient @patient
   end
 
   def self.queue_name

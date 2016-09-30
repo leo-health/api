@@ -4,10 +4,7 @@ class SyncPatientJob < PeriodicPollingJob
   end
 
   def perform
-    service = AthenaPatientSyncService.new
-    [:vitals, :medications, :vaccines, :allergies].each do |s|
-      service.send "sync_#{s.to_s}".to_sym, @owner
-    end
+    AthenaHealthRecordSyncService.new.sync_health_record(@owner)
   end
 
   def self.queue_name
