@@ -42,7 +42,7 @@ describe AthenaPatientSyncService do
     context "best match fails" do
       context "insurances exist" do
         it "creates a patient in athena" do
-          expect(@connector).to receive(:create_patient).with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
+          expect(@connector).to receive(:create_patient).with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return({"patientid" => 1000})
           expect(@connector).to receive(:get_best_match_patient).and_return(nil)
           expect(@connector).to receive(:get_patient_insurances).and_return(insurance_response)
           @service.sync_patient patient
@@ -52,7 +52,7 @@ describe AthenaPatientSyncService do
 
       context "insurances do not exist" do
         it "creates a patient and insurance in athena" do
-          expect(@connector).to receive(:create_patient).with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return(1000)
+          expect(@connector).to receive(:create_patient).with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y"))).and_return({"patientid" => 1000})
           expect(@connector).to receive(:get_best_match_patient).and_return(nil)
           expect(@connector).to receive(:get_patient_insurances).and_return([])
           expect(@connector).to receive(:create_patient_insurance).with(hash_including(insurancepackageid: insurance_plan.athena_id))
@@ -63,85 +63,81 @@ describe AthenaPatientSyncService do
 
     context "best match succeeds" do
       it "updates the existing athena patient" do
-        expect(@connector).to receive(:get_best_match_patient).and_return(
-          AthenaHealthApiHelper::AthenaStruct.new(
+        expect(@connector).to receive(:get_best_match_patient).and_return({
+          "racename" => "White",
+          "occupationcode" => nil,
+          "homephone" => "5555173402",
+          "guarantorstate" => "MA",
+          "portalaccessgiven" => "true",
+          "driverslicense" => "false",
+          "contactpreference_appointment_email" => "true",
+          "contactpreference_appointment_sms" => "false",
+          "contactpreference_billing_phone" => "true",
+          "ethnicitycode" => nil,
+          "contactpreference_announcement_phone" => "true",
+          "industrycode" => nil,
+          "contacthomephone" => "8885551241",
+          "guarantorssn" => nil,
+          "contactpreference_lab_sms" => "false",
+          "zip" => "02539",
+          "guarantoraddresssameaspatient" => "true",
+          "employerphone" => nil,
+          "contactmobilephone" => nil,
+          "nextkinphone" => nil,
+          "portaltermsonfile" => "true",
+          "status" => "active",
+          "lastname" => "Jones",
+          "guarantorfirstname" => "Donald",
+          "city" => "EDGARTOWN",
+          "ssn" => "*****5954",
+          "guarantorcity" => "EDGARTOWN",
+          "guarantorzip" => "02539",
+          "sex" => "F",
+          "privacyinformationverified" => "true",
+          "primarydepartmentid" => "1",
+          "contactpreference_lab_email" => "true",
+          "balances" => [
             {
-              "racename": "White",
-              "occupationcode": nil,
-              "homephone": "5555173402",
-              "guarantorstate": "MA",
-              "portalaccessgiven": "true",
-              "driverslicense": "false",
-              "contactpreference_appointment_email": "true",
-              "contactpreference_appointment_sms": "false",
-              "contactpreference_billing_phone": "true",
-              "ethnicitycode": nil,
-              "contactpreference_announcement_phone": "true",
-              "industrycode": nil,
-              "contacthomephone": "8885551241",
-              "guarantorssn": nil,
-              "contactpreference_lab_sms": "false",
-              "zip": "02539",
-              "guarantoraddresssameaspatient": "true",
-              "employerphone": nil,
-              "contactmobilephone": nil,
-              "nextkinphone": nil,
-              "portaltermsonfile": "true",
-              "status": "active",
-              "lastname": "Jones",
-              "guarantorfirstname": "Donald",
-              "city": "EDGARTOWN",
-              "ssn": "*****5954",
-              "guarantorcity": "EDGARTOWN",
-              "guarantorzip": "02539",
-              "sex": "F",
-              "privacyinformationverified": "true",
-              "primarydepartmentid": "1",
-              "contactpreference_lab_email": "true",
-              "balances": [
-                {
-                  "balance": 0,
-                  "departmentlist": "1,21,102,145,148,150,157,162",
-                  "providergroupid": "1",
-                  "cleanbalance": "true"
-                },
-                {
-                  "balance": 0,
-                  "departmentlist": "62,142,164",
-                  "providergroupid": "2",
-                  "cleanbalance": "true"
-                }
-              ],
-              "contactpreference_announcement_sms": "false",
-              "race": ["2106-3"],
-              "language6392code": "eng",
-              "primaryproviderid": "74",
-              "patientphoto": "false",
-              "contactpreference_billing_email": "true",
-              "contactpreference_announcement_email": "true",
-              "caresummarydeliverypreference": "PORTAL",
-              "guarantorlastname": "Jones",
-              "firstname": "Ariana",
-              "guarantorcountrycode": "USA",
-              "state": "MA",
-              "contactpreference_appointment_phone": "true",
-              "patientid": "1978",
-              "dob": "10\/13\/1951",
-              "guarantorrelationshiptopatient": "3",
-              "address1": "8762 Stoneridge Ct",
-              "contactpreference_billing_sms": "false",
-              "guarantorphone": nil,
-              "maritalstatus": "S",
-              "countrycode": "USA",
-              "guarantoraddress1": "8762 Stoneridge Ct",
-              "maritalstatusname": "SINGLE",
-              "consenttotext": "false",
-              "countrycode3166": "US",
-              "contactpreference_lab_phone": "true",
-              "guarantorcountrycode3166": "US"
+              "balance" => 0,
+              "departmentlist" => "1,21,102,145,148,150,157,162",
+              "providergroupid" => "1",
+              "cleanbalance" => "true"
+            },
+            {
+              "balance" => 0,
+              "departmentlist" => "62,142,164",
+              "providergroupid" => "2",
+              "cleanbalance" => "true"
             }
-          )
-        )
+          ],
+          "contactpreference_announcement_sms" => "false",
+          "race" => ["2106-3"],
+          "language6392code" => "eng",
+          "primaryproviderid" => "74",
+          "patientphoto" => "false",
+          "contactpreference_billing_email" => "true",
+          "contactpreference_announcement_email" => "true",
+          "caresummarydeliverypreference" => "PORTAL",
+          "guarantorlastname" => "Jones",
+          "firstname" => "Ariana",
+          "guarantorcountrycode" => "USA",
+          "state" => "MA",
+          "contactpreference_appointment_phone" => "true",
+          "patientid" => "1978",
+          "dob" => "10\/13\/1951",
+          "guarantorrelationshiptopatient" => "3",
+          "address1" => "8762 Stoneridge Ct",
+          "contactpreference_billing_sms" => "false",
+          "guarantorphone" => nil,
+          "maritalstatus" => "S",
+          "countrycode" => "USA",
+          "guarantoraddress1" => "8762 Stoneridge Ct",
+          "maritalstatusname" => "SINGLE",
+          "consenttotext" => "false",
+          "countrycode3166" => "US",
+          "contactpreference_lab_phone" => "true",
+          "guarantorcountrycode3166" => "US"
+        })
         expect(@connector).to receive(:get_patient_insurances).and_return(insurance_response)
         expect(@connector).to receive(:update_patient).with(hash_including(dob: patient.birth_date.strftime("%m/%d/%Y")))
         @service.sync_patient patient

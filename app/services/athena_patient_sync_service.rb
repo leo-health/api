@@ -1,14 +1,9 @@
 class AthenaPatientSyncService < AthenaSyncService
-  def sync_patient(leo_patient)
-    patient = leo_patient
-    if leo_patient.athena_id == 0
-      patient = initial_patient_sync(leo_patient)
-    else
-      @connector.update_patient(to_athena_json(leo_patient))
-    end
-    sync_insurance(patient)
-    patient.update(patient_updated_at: DateTime.now.utc)
-    patient
+  def sync_patient(_leo_patient)
+    leo_patient = match_update_or_create_in_athena(_leo_patient)
+    sync_insurance(leo_patient)
+    leo_patient.update(patient_updated_at: DateTime.now.utc)
+    leo_patient
   end
 
   def associate_patient_with_athena_id(athena_id, leo_patient)
@@ -33,11 +28,24 @@ class AthenaPatientSyncService < AthenaSyncService
 
   private
 
+  def match_update_or_create_in_athena(_leo_patient)
+    leo_patient = _leo_patient
+    
+    athena_patient_needs_update = true
+    if leo_patient.athena_id == 0
+      # try to best match
+      athena_patient = get_best_match_patient(leo_patient)
+      unless athena_patient
+        # if it fails, create patient
+        athena_patient = @connector.create_patient(to_athena_json(leo_patient))
+        raise "Failed to create patient #{leo_patient.id} in athena" unless athena_patient && athena_patient["patientid"]
+        athena_patient_needs_update = false
+      end
+      leo_patient = associate_patient_with_athena_id(athena_patient["patientid"].to_i, leo_patient)
+    end
 
-  def initial_patient_sync(leo_patient)
-    athena_patient = get_best_match_patient(leo_patient) || @connector.create_patient(to_athena_json(leo_patient))
-    raise "Failed to create patient #{leo_patient.id} in athena" unless athena_patient
-    associate_patient_with_athena_id(athena_patient.patientid.to_i, leo_patient)
+    @connector.update_patient(to_athena_json(leo_patient)) if athena_patient_needs_update
+    leo_patient
   end
 
   def get_best_match_patient(leo_patient)

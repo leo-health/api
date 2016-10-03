@@ -14,8 +14,6 @@ class AthenaHealthRecordSyncService < AthenaSyncService
     end
   end
 
-  private
-
   def sync_allergies(leo_patient)
     raise "patient.id #{leo_patient.id} has no primary_guardian in his family" unless leo_patient.family.primary_guardian
 

@@ -304,7 +304,7 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
           )))
 
         patient = connector.create_patient(firstname: "First", lastname: "Last", dob: "01/01/2001", guarantoremail: "g@g.com", departmentid: 1)
-        expect(patient).to eq (5031)
+        expect(patient).to eq ({"patientid" => "5031"})
       end
     end
 
@@ -362,7 +362,8 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
 
     describe "get_best_match_patient" do
       it "should return a patient" do
-        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, %q(
+
+        athena_patient_json = %q(
           [{
               "racename": "White",
               "occupationcode": null,
@@ -435,11 +436,12 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
               "contactpreference_lab_phone": "true",
               "guarantorcountrycode3166": "US"
           }]
-          )))
+          )
 
+        allow(connector.connection).to receive("GET").and_return(Struct.new(:code, :body).new(200, athena_patient_json))
         patient = connector.get_best_match_patient(firstname: "Ariana" , lastname: "Jones", dob: "10/13/1951", anyphone: "8885551241")
         expect(patient).not_to be_nil
-        expect(patient.patientid).to eq ("1978")
+        expect(patient).to eq(JSON.parse(athena_patient_json).first)
       end
     end
 
