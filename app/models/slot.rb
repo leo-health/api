@@ -5,6 +5,7 @@ class Slot < ActiveRecord::Base
   belongs_to :provider
   belongs_to :appointment_type
   belongs_to :appointment
+  validates_uniqueness_of :athena_id
   scope :free, -> { where(free_busy_type: :free) }
 
   def duration

@@ -13,8 +13,7 @@ class AthenaPatientSyncService < AthenaSyncService
       fam = leo_patient.family
       existing_leo_patient.family = fam
       leo_patient.destroy
-      # TODO: dependent destroy family if needed
-
+      
       if fam.patients.count == 0
         fam.destroy
       end
@@ -30,7 +29,7 @@ class AthenaPatientSyncService < AthenaSyncService
 
   def match_update_or_create_in_athena(_leo_patient)
     leo_patient = _leo_patient
-    
+
     athena_patient_needs_update = true
     if leo_patient.athena_id == 0
       # try to best match

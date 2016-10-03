@@ -26,9 +26,9 @@ describe Leo::V1::AppointmentSlots do
       @num_slots.times do |i|
         start_datetime = first_start_datetime + (i*duration).minutes
         end_datetime = start_datetime + duration.minutes
-        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider: provider)
-        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider: second_provider)
-        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider: third_provider)
+        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider: provider, athena_id: i)
+        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider: second_provider, athena_id: @num_slots + i)
+        create(:slot, start_datetime: start_datetime, end_datetime: end_datetime, provider: third_provider, athena_id: @num_slots*2 + i)
       end
     end
 
