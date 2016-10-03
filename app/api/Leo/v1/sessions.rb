@@ -46,9 +46,17 @@ module Leo
 
         desc "create a session when user login"
         post do
-          user = User.complete.find_by_email(params[:email].downcase)
-          unless user && user.has_role?(:guardian) && user.valid_password?(params[:password])
-            error!({error_code: 403, user_message: "Invalid Email or Password."}, 422)
+          user = User.find_by_email(params[:email].downcase)
+          unless user && user.complete? && user.has_role?(:guardian) && user.valid_password?(params[:password])
+            if user.invited_user?
+              user_message = "We are waiting on the primary guardian on your family's account to confirm you as part of
+                              their family. They received an email and once they confirm you on the account you'll be
+                              able to log in."
+            else
+              user_message = "Invalid Email or Password."
+            end
+
+            error!({error_code: 403, user_message: user_message}, 422)
           end
 
           # destroy stale sessions for the same device - in case users log out while offline
