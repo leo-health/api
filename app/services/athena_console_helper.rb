@@ -7,7 +7,7 @@ class AthenaConsoleHelper < AthenaSyncService
     )
   end
 
-  def get_all_patients(practice, verbose: false, exempt: false)
+  def get_all_patients(practice, verbose: false)
     puts "Getting all patients with departmentid #{practice.athena_id}" if verbose
     all_athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
     puts "Athena returned #{all_athena_patients.count} patients" if verbose
@@ -29,7 +29,7 @@ class AthenaConsoleHelper < AthenaSyncService
     {athena_patients: athena_patients, guardian_emails: guardian_emails, all_athena_patients: all_athena_patients}
   end
 
-  def sync_all_patients(athena_patients, verbose: false)
+  def sync_all_patients(athena_patients, verbose: false, exempt: false)
     athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
     existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id).to_enum
     puts "Of which we already have #{existing_athena_ids.count} in Leo" if verbose
