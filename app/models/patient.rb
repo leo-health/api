@@ -25,6 +25,7 @@ class Patient < ActiveRecord::Base
   has_many :forms
 
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
+  validates :athena_id, presence: true, if: Proc.new { |patient| patient.athena_id > 0 }
   after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, if: :did_successfully_sync?
