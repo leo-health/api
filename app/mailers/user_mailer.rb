@@ -1,6 +1,7 @@
 class UserMailer < MandrillMailer::TemplateMailer
   default from: 'info@leohealth.com'
 
+  # NOTE: Used from console
   def any_template(user:, **params)
     mandrill_mail(params.reverse_merge(
       inline_css: true,
