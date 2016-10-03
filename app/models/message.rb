@@ -28,7 +28,7 @@ class Message < ActiveRecord::Base
     type_name == 'text'
   end
 
-  def broadcast_message(sender)
+  def broadcast_message(sender = nil)
     participants = conversation.family.guardians.to_a
     participants.delete(sender)
     if participants.count > 0
