@@ -281,7 +281,7 @@ module AthenaHealthApiHelper
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients
-    def get_patients(departmentid:, limit: nil)
+    def get_patients(departmentid:, limit: nil, guarantoremail: nil)
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       start = Time.now
       entries = get_paged(

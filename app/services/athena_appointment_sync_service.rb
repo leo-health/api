@@ -11,7 +11,7 @@ class AthenaAppointmentSyncService < AthenaSyncService
       raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
       slots = Slot.where(appointment: leo_appt)
-      raise "No slot associated with appointment #{leo_appt}" unless slots.first
+      raise "No slot associated with appointment #{leo_appt.id}" unless slots.first
 
       attempt_athena_id = slots.first.athena_id
       booked_appointment = @connector.book_appointment(

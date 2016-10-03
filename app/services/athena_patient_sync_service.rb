@@ -1,4 +1,5 @@
 class AthenaPatientSyncService < AthenaSyncService
+  
   def sync_patient(_leo_patient)
     leo_patient = match_update_or_create_in_athena(_leo_patient)
     sync_insurance(leo_patient)
@@ -13,17 +14,14 @@ class AthenaPatientSyncService < AthenaSyncService
       fam = leo_patient.family
       existing_leo_patient.family = fam
       leo_patient.destroy
-      
-      if fam.patients.count == 0
-        fam.destroy
-      end
+
+      fam.destroy if fam.patients.count == 0
 
       patient = existing_leo_patient
     end
     patient.update(athena_id: athena_id)
     patient
   end
-
 
   private
 

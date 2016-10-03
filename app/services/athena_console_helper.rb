@@ -2,12 +2,12 @@
 class AthenaConsoleHelper < AthenaSyncService
   def get_patients_with_guarantor_email(practice:, email:)
     @connector.get_patients(
-    departmentid: practice.athena_id,
-    guarantoremail: email
+      departmentid: practice.athena_id,
+      guarantoremail: email
     )
   end
 
-  def get_all_patients(practice, verbose: false)
+  def get_all_patients(practice, verbose: false, exempt: false)
     puts "Getting all patients with departmentid #{practice.athena_id}" if verbose
     all_athena_patients = @connector.get_patients(departmentid: practice.athena_id).sort_by { |athena_patient| get_athena_id(athena_patient) }
     puts "Athena returned #{all_athena_patients.count} patients" if verbose
@@ -21,10 +21,6 @@ class AthenaConsoleHelper < AthenaSyncService
       should_select &&= (Time.now - dob) < 13.years
     end
 
-    # athena_emails = all_athena_patients.map { |patient| {guarantoremail: patient["guarantoremail"].try(:downcase), patientemail: patient["email"].try(:downcase), lastemail: patient["lastemail"].try(:downcase) } }
-    # guarantoremails = athena_emails.map { |emails| emails[:guarantoremail] }.select(&:itself)
-    # guardian_emails_not_found = guardian_emails.reject { |email| guarantoremails.include? email }
-    # all_emails_for_missing_guarantoremail = athena_emails.select{ |emails| guardian_emails_not_found.include?(emails[:guarantoremail]) || guardian_emails_not_found.include?(emails[:patientemail]) || guardian_emails_not_found.include?(emails[:lastemail]) }
     athena_ids = athena_patients.map { |athena_patient| get_athena_id(athena_patient) }
     existing_athena_ids = Patient.where(athena_id: athena_ids).order(:athena_id).pluck(:athena_id).to_enum
     puts "Of which we already have #{existing_athena_ids.count} in Leo" if verbose
@@ -49,7 +45,7 @@ class AthenaConsoleHelper < AthenaSyncService
       patient_already_exists = get_athena_id(athena_patient) == next_existing_athena_id
       if patient_already_exists
         next_existing_athena_id = nil
-      elsif created_patient = create_exempt_patient(athena_patient, verbose: verbose)
+      elsif created_patient = create_leo_patient_from_athena_patient(athena_patient, verbose: verbose, exempt: exempt)
         created_patients << created_patient
       end
 
@@ -65,14 +61,14 @@ class AthenaConsoleHelper < AthenaSyncService
     athena_patient["patientid"].try(:to_i)
   end
 
-  def create_exempt_patient(athena_patient, verbose: false)
+  def create_leo_patient_from_athena_patient(athena_patient, verbose: false, exempt: false)
     user_params = parse_athena_patient_json_to_guardian(athena_patient)
 
     guardian = User.find_by_email(user_params[:email])
     unless guardian
       User.transaction do
         guardian = User.create!(user_params)
-        guardian.family.exempt_membership!
+        guardian.family.exempt_membership! if exempt
       end
     end
     return nil unless guardian
