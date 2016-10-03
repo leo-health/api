@@ -115,7 +115,7 @@ class User < ActiveRecord::Base
   end
 
   def exempted_user?
-    onboarding_group.try(:generated_from_athena?)
+    onboarding_group.try(:generated_from_athena?) && family.exempted?
   end
 
   def primary_guardian?
@@ -156,8 +156,10 @@ class User < ActiveRecord::Base
   def invitation_url
     onboarding_group_string = if invited_user?
       "secondary"
-    else
+    elsif exempted_user?
       "primary"
+    else
+      raise "User #{id} is not invited or exempt. They should sign up through normal onboarding"
     end
     "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=#{onboarding_group_string}&token=#{invitation_token}"
   end
