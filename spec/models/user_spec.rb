@@ -65,16 +65,6 @@ describe User do
         expect(User.provider).to match_array([clinical])
       end
     end
-
-    context "completed_or_athena" do
-      let(:generated_from_athena){ create(:onboarding_group, :generated_from_athena) }
-      let!(:completed){ create(:user, complete_status: :complete) }
-      let!(:athena){ create(:user, onboarding_group: generated_from_athena) }
-
-      it "should return all the user with complete status and generated_from_athena onboarding group" do
-        expect(User.completed_or_athena).to match_array([athena, completed])
-      end
-    end
   end
 
   describe "before validations" do
