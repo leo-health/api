@@ -3,7 +3,8 @@ require 'mandrill_mailer/offline'
 
 describe InviteParentJob do
   let!(:user){create(:user)}
-  let!(:secondary_guardian){create(:user, family: user.family)}
+  let(:secondary_onboarding_group){create(:onboarding_group, :invited_secondary_guardian)}
+  let!(:secondary_guardian){create(:user, family: user.family, onboarding_group: secondary_onboarding_group)}
   let(:invite_parent_job){InviteParentJob.new(secondary_guardian.id, user.id)}
 
   describe "#perform" do
