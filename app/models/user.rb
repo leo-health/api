@@ -17,8 +17,7 @@ class User < ActiveRecord::Base
   scope :guardians, -> { where(role: Role.guardian_roles, complete_status: :complete) }
   scope :staff, -> { where(role: Role.staff_roles, complete_status: :complete) }
   scope :provider, -> { where(role: Role.provider_roles, complete_status: :complete) }
-  scope :completed_or_athena, ->{ self.joins('LEFT OUTER JOIN onboarding_groups on users.onboarding_group_id = onboarding_groups.id')
-                                      .where('complete_status=? OR onboarding_groups.group_name=?', 'complete', 'generated_from_athena') }
+
   belongs_to :family
   belongs_to :role
   belongs_to :practice
@@ -45,7 +44,7 @@ class User < ActiveRecord::Base
   before_validation :format_phone_number
   before_validation :set_up_guardian, if: :guardian?
   validates_presence_of :email
-  validates_uniqueness_of :email, conditions: -> { completed_or_athena }
+  validates_uniqueness_of :email, conditions: -> { complete }
   validates_format_of :email, with: Devise.email_regexp
   validates_presence_of :password, if: :password_required?
   validates_confirmation_of :password
