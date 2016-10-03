@@ -838,6 +838,18 @@ LinkPreview.update_or_create!([:category, :title], {
   }
 )
 
+LinkPreview.update_or_create!([:category, :title], {
+    title: "Get your Flu Shot",
+    body: "Schedule a visit for you, your family members and/or caregivers to get a flu shot. The CDC recommends getting flu shots at soon as they are available.",
+    tint_color_hex: "#FF5F40",
+    tinted_header_text: "Vaccine",
+    dismiss_button_text: "Got it, thanks!",
+    icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', 'icon-flu-shot.png')),
+    notification_message: nil,
+    category: :vaccine_reminder
+  }
+)
+
 SeedMilestoneContent.seed
 count = LinkPreview.where(category: :milestone_content).count
 puts "Finished seeding #{count} milestone content"
