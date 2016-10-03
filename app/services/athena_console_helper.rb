@@ -1,5 +1,5 @@
 # NOTE: These methods are currently not used in code, but meant to be run manually from rails console
-class AthenaConsoleHelpers < AthenaSyncService
+class AthenaConsoleHelper < AthenaSyncService
   def get_patients_with_guarantor_email(practice:, email:)
     @connector.get_patients(
     departmentid: practice.athena_id,
