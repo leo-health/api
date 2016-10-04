@@ -18,28 +18,36 @@ class User < ActiveRecord::Base
   scope :staff, -> { where(role: Role.staff_roles, complete_status: :complete) }
   scope :provider, -> { where(role: Role.provider_roles, complete_status: :complete) }
 
-  belongs_to :family
   belongs_to :role
+  belongs_to :family
   belongs_to :practice
   belongs_to :onboarding_group
   belongs_to :insurance_plan
-  has_one :avatar, as: :owner
-  has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff
+
+  # Guardians
+  has_many :sessions, dependent: :destroy
+  has_many :user_generated_health_records, dependent: :nullify
+  has_many :user_link_previews, dependent: :destroy
+  has_many :forms, foreign_key: "submitted_by_id", dependent: :nullify
+
+  # Profiles
+  has_one :avatar, as: :owner, dependent: :destroy
+  has_one :staff_profile, foreign_key: "staff_id", inverse_of: :staff, dependent: :destroy
   accepts_nested_attributes_for :staff_profile
-  has_one :provider, inverse_of: :user
+  has_one :provider, inverse_of: :user, dependent: :destroy
   accepts_nested_attributes_for :provider
-  has_many :forms, foreign_key: "submitted_by_id"
-  has_many :user_conversations
+
+  # Conversations
+  has_many :user_conversations, dependent: :destroy
   has_many :conversations, through: :user_conversations
   has_many :read_receipts, foreign_key: "reader_id"
   has_many :escalated_notes, foreign_key: "escalated_by_id"
   has_many :escalation_notes, foreign_key: "escalated_to_id"
   has_many :closure_notes, foreign_key: "closed_by_id"
   has_many :read_messages, class_name: 'Message', through: :read_receipts
-  has_many :sessions
   has_many :sent_messages, foreign_key: "sender_id", class_name: "Message"
-  has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment"
-  has_many :user_generated_health_records
+
+  has_many :booked_appointments, -> { Appointment.booked }, foreign_key: "booked_by_id", class_name: "Appointment", dependent: :nullify
 
   before_validation :format_phone_number
   before_validation :set_up_guardian, if: :guardian?
