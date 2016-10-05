@@ -2,11 +2,11 @@ class Conversation < ActiveRecord::Base
   include AASM
   acts_as_paranoid
 
-  has_many :messages
-  has_many :user_conversations
+  has_many :messages, dependent: :destroy
+  has_many :user_conversations, dependent: :destroy
   has_many :staff, class_name: "User", through: :user_conversations
-  has_many :closure_notes
-  has_many :escalation_notes
+  has_many :closure_notes, dependent: :destroy
+  has_many :escalation_notes, dependent: :destroy
   belongs_to :family
 
   validates :family, :state, presence: true

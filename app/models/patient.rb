@@ -13,18 +13,20 @@ class Patient < ActiveRecord::Base
   )
 
   belongs_to :family
-  has_many :appointments, -> { Appointment.booked }
-  has_many :medications
-  has_many :allergies
-  has_many :photos
-  has_many :vaccines
-  has_many :vitals
-  has_many :insurances
-  has_many :avatars, as: :owner
-  has_many :user_generated_health_records
-  has_many :forms
+
+  has_many :appointments, -> { Appointment.booked }, dependent: :nullify
+  has_many :medications, dependent: :destroy
+  has_many :allergies, dependent: :destroy
+  has_many :photos, dependent: :destroy
+  has_many :vaccines, dependent: :destroy
+  has_many :vitals, dependent: :destroy
+  has_many :insurances, dependent: :destroy
+  has_many :avatars, as: :owner, dependent: :destroy
+  has_many :user_generated_health_records, dependent: :destroy
+  has_many :forms, dependent: :destroy
 
   validates :first_name, :last_name, :birth_date, :sex, :family, presence: true
+  validates :athena_id, presence: true, if: Proc.new { |patient| patient.athena_id > 0 }
   after_commit :post_to_athena, if: -> { sync_status.should_attempt_sync && athena_id == 0 }
   # subscribe_to_athena only the first time after the patient has been posted to athena
   after_commit :subscribe_to_athena, if: :did_successfully_sync?

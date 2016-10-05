@@ -65,16 +65,6 @@ describe User do
         expect(User.provider).to match_array([clinical])
       end
     end
-
-    context "completed_or_athena" do
-      let(:generated_from_athena){ create(:onboarding_group, :generated_from_athena) }
-      let!(:completed){ create(:user, complete_status: :complete) }
-      let!(:athena){ create(:user, onboarding_group: generated_from_athena) }
-
-      it "should return all the user with complete status and generated_from_athena onboarding group" do
-        expect(User.completed_or_athena).to match_array([athena, completed])
-      end
-    end
   end
 
   describe "before validations" do
@@ -233,6 +223,9 @@ describe User do
   describe "#exempted_user?" do
     let(:onboarding_group){ create(:onboarding_group, :generated_from_athena) }
     let(:exempted_user){ create(:user, onboarding_group: onboarding_group) }
+    before do
+      exempted_user.family.exempt_membership!
+    end
 
     it "should return true if a user is being invited" do
       expect(exempted_user.exempted_user?).to eq(true)
@@ -274,6 +267,10 @@ describe User do
       let(:onboarding_group){ create(:onboarding_group, :generated_from_athena) }
       let(:exempted_user){ create(:user, onboarding_group: onboarding_group) }
 
+      before do
+        exempted_user.family.exempt_membership!
+      end
+
       def expected_url(user)
         expected_group = "primary"
         "#{ENV['PROVIDER_APP_HOST']}/registration/invited?onboarding_group=#{expected_group}&token=#{user.invitation_token}"
@@ -283,8 +280,8 @@ describe User do
         expect(exempted_user.invitation_url).to eq(expected_url(exempted_user))
       end
 
-      it "should return a primary invite link for any other user" do
-        expect(user.invitation_url).to eq(expected_url(user))
+      it "should raise error if user isn't generated_from_athena or secondary" do
+        expect{ user.invitation_url }.to raise_error(RuntimeError, "User #{user.id} is not invited or exempt. They should sign up through normal onboarding")
       end
     end
   end

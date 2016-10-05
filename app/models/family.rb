@@ -2,9 +2,9 @@ class Family < ActiveRecord::Base
   include AASM
 
   has_many :guardians, -> { complete }, class_name: 'User'
-  has_many :all_guardians, class_name: 'User'
-  has_many :patients
-  has_one :conversation
+  has_many :all_guardians, class_name: 'User', dependent: :destroy
+  has_many :patients, dependent: :destroy
+  has_one :conversation, dependent: :destroy
   store :stripe_customer, coder: JSON
 
   validates_presence_of :membership_type

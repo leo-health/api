@@ -8,6 +8,13 @@ module AthenaHealthApiHelper
     Time.zone.parse("#{date.to_s} #{athena_time}").to_datetime
   end
 
+  # TODO: refactor this. These should be helper methods for appointment sync service. We shouldn't be modifying the api response at this level
+  # Currently used in
+  # get_appointment
+  # book_appointment
+  # get_paged(structize: true)
+  #   - get_open_appointments
+  #   - get_booked_appointments
   class AthenaStruct
     def initialize(args)
       args.each do |k,v|
@@ -274,7 +281,7 @@ module AthenaHealthApiHelper
     end
 
     #Get list of all patients: GET /preview1/:practiceid/patients
-    def get_patients(departmentid:, limit: nil)
+    def get_patients(departmentid:, limit: nil, guarantoremail: nil)
       params = Hash[method(__callee__).parameters.select{|param| eval(param.last.to_s) }.collect{|param| [param.last, eval(param.last.to_s)]}]
       start = Time.now
       entries = get_paged(
@@ -307,9 +314,7 @@ module AthenaHealthApiHelper
       endpoint = "patients"
       response = @connection.POST(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
-      val = JSON.parse(response.body)
-      raise "unexpected patient list len: #{val.length}" unless val.length == 1
-      return val[0][:patientid.to_s].to_i
+      JSON.parse(response.body).first
     end
 
     def get_best_match_patient(anyfirstname: nil, anyphone: nil, appointmentdepartmentid: nil, appointmentproviderid: nil,
@@ -322,9 +327,7 @@ module AthenaHealthApiHelper
       endpoint = "patients/bestmatch"
       response = @connection.GET(endpoint, params, common_headers)
       raise "HTTP error for endpoint #{endpoint} code encountered: #{response.code}" unless response.code.to_i == 200
-      result = JSON.parse(response.body)
-      return nil if result.empty?
-      return AthenaStruct.new(result[0])
+      JSON.parse(response.body).first
     end
 
     # NOTE: need to be careful using **kwargs. patientid: is not included in params. Here it's ok since patientid is in the url, not in the query params

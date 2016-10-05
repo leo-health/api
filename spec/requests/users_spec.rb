@@ -68,6 +68,10 @@ describe Leo::V1::Users do
       let(:exempted_onboarding_group){ create(:onboarding_group, :generated_from_athena) }
       let!(:exempted_user){ create(:user, :valid_incomplete, invitation_token: "token", onboarding_group: exempted_onboarding_group)}
 
+      before do
+        exempted_user.family.exempt_membership!
+      end
+
       def do_request
         put "/api/v1/convert_user", { invitation_token: exempted_user.invitation_token, first_name: "modified", password: "password" }
       end

@@ -31,8 +31,9 @@ describe UserMailer do
   end
 
   describe "#invite_secondary_parent" do
-    let(:secondary_guardian){ build(:user, family: user.family) }
-
+    let(:secondary_onboarding_group){create(:onboarding_group, :invited_secondary_guardian)}
+    let!(:secondary_guardian){create(:user, family: user.family, onboarding_group: secondary_onboarding_group)}
+    
     it "should send the secondary parent a invite" do
       UserMailer.invite_secondary_parent(secondary_guardian, user).deliver
       email = MandrillMailer::deliveries.detect do |mail|
