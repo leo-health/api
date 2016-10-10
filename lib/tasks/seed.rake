@@ -54,6 +54,38 @@ namespace :load do
     )
   end
 
+  desc "Seed Simon Brief family"
+  task brief: :environment do
+    family = Family.create!
+    family.exempt_membership!
+    user = User.create!(
+      first_name: "Simon",
+      last_name: "Brief",
+      family: family,
+      email: "ben+21@leohealth.com",
+      password: "bbbbbbbb",
+      role: Role.guardian,
+      practice_id: 1,
+      phone: "2352352358",
+      vendor_id: "brief_vendor_id"
+    )
+    user.set_complete!
+    Delayed::Job.where(queue: "registration_email").order("created_at DESC").first.try(:destroy)
+    Delayed::Job.where(queue: "notification_email").order("created_at DESC").first.try(:destroy)
+    family.patients.create!(
+      first_name: "Coco",
+      last_name: "Brief",
+      sex: "F",
+      birth_date: Date.new(2011,7,25)
+    )
+    family.patients.create!(
+      first_name: "Cooper",
+      last_name: "Brief",
+      sex: "M",
+      birth_date: Date.new(2016,7,25)
+    )
+  end
+
   desc "Seed sample guardian users with conversations."
   task seed_guardians: :environment do
     last_names = ['Einstein', 'Turing', 'Lovelace', 'Tesla', 'Curie', 'Planck', 'Faraday', 'Brown', 'Hopper', 'Galilei', 'Wright', 'Pasteur', 'Euler', 'Braun', 'Darwin']

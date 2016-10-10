@@ -10,7 +10,16 @@ class AthenaAppointmentSyncService < AthenaSyncService
       raise "Appointment appt.id=#{leo_appt.id} is booked for a provider that does not have an athena_department_id" if leo_appt.provider.athena_department_id == 0
       raise "Appointment appt.id=#{leo_appt.id} has an appointment type with invalid athena_id" if leo_appt.appointment_type.athena_id == 0
 
-      slots = Slot.where(appointment: leo_appt)
+      slots = Slot.where(appointment: leo_appt).order(:start_datetime)
+
+      # TODO: Remove me when bug is fixed
+      unless slots.first
+        @logger.error("FAIL: No slot with appt_id #{leo_appt.id}")
+        n_provider_slots = Slot.where(provider: leo_appt.provider).count
+        time_slots = Slot.where(provider: leo_appt.provider).start_date_time_between(leo_appt.start_datetime, leo_appt.end_datetime)
+        @logger.error("additional info: n_provider_slots:#{n_provider_slots.inspect}, time_slots:#{time_slots.inspect}")
+      end
+
       raise "No slot associated with appointment #{leo_appt}" unless slots.first
 
       attempt_athena_id = slots.first.athena_id
