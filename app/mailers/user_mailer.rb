@@ -1,6 +1,13 @@
 class UserMailer < MandrillMailer::TemplateMailer
   default from: 'info@leohealth.com'
 
+  def any_template(user:, **params)
+    mandrill_mail(params.reverse_merge(
+      inline_css: true,
+      to: user.unconfirmed_email || user.email
+    ))
+  end
+
   def invite_all_exempt_synced_users
     onboarding_group = OnboardingGroup.generated_from_athena
     onboarding_group.users.find_each do |guardian|
