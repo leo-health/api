@@ -1,4 +1,5 @@
 class AthenaProviderSyncService < AthenaSyncService
+  SyncSlotsPair = Struct.new(:athena, :leo)
   def sync_open_slots(provider, start_date = nil, end_date = nil)
 
     beginning_of_today = (start_date || Date.today).beginning_of_day
@@ -25,21 +26,21 @@ class AthenaProviderSyncService < AthenaSyncService
 
     athena_map = athena_slots.reduce({}) { |athena_id_map_to_athena_pair, slot|
       athena_id = slot.appointmentid.to_i
-      athena_pair = {athena: slot, leo: nil}
+      athena_pair = SyncSlotsPair.new(slot, nil)
       athena_id_map_to_athena_pair[athena_id] = athena_pair
       athena_id_map_to_athena_pair
     }
 
     leo_map = leo_slots.reduce({}) { |athena_id_map_to_leo_pair, slot|
       athena_id = slot.athena_id
-      leo_pair = {athena: nil, leo: slot}
+      leo_pair = SyncSlotsPair.new(nil, slot)
       athena_id_map_to_leo_pair[athena_id] = leo_pair
       athena_id_map_to_leo_pair
     }
 
     # Merge the hashes to associate the athena_res with the leo_res
     merged_map = athena_map.merge(leo_map) { |athena_id, athena_pair, leo_pair|
-      merged_pair = {athena: athena_pair[:athena], leo: leo_pair[:leo]}
+      merged_pair = SyncSlotsPair.new(athena_pair.athena, leo_pair.leo)
       merged_pair
     }
 
