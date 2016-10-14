@@ -6,6 +6,7 @@ class AppointmentType < ActiveRecord::Base
   validates_uniqueness_of :name
 
   WELL_VISIT_TYPES = [9, 21, 41, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105]
+  ANY_10_TYPE_ATHENA_ID = 21 # able to be scheduled as any visit type. Only display these slots
   WELL_VISIT_TYPE_ATHENA_ID =  11 # map everything else to well visits
   BLOCK_TYPE_ATHENA_IDS = [14, 16] # map both block types
 
