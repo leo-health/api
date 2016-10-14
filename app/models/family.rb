@@ -127,12 +127,13 @@ class Family < ActiveRecord::Base
     stripe_customer
   end
 
-  def update_stripe_plan(plan_id)
+  def update_stripe_plan!(plan_id)
     return unless stripe_customer_id
     subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
     subscription.plan = plan_id
     subscription.save
     self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
+    save!
   end
 
   private
