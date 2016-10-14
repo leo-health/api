@@ -15,7 +15,7 @@ class Practice < ActiveRecord::Base
   def in_office_hours?
     unless $redis.get('start_time') || $redis.get('end_time')
       start_time, end_time = convert_time
-      next_day = Date.tomorrow.to_datetime.to_i
+      next_day = Date.tomorrow.to_time(:local).to_i
       $redis.set('start_time', start_time.to_i); $redis.expireat('start_time', next_day)
       $redis.set('end_time', end_time.to_i); $redis.expireat('end_time', next_day)
     end
