@@ -41,6 +41,7 @@ class OperatePracticeJob < Struct.new(:practice_id)
     if StaffProfile.where(staff: staff).update_all(sms_enabled: false, on_call: false) > 0
       broadcast_oncall_change(staff.map(&:id), 'off-call')
     end
+    [v, e].each{|provider| provider.staff_profile.update_attributes(sms_enabled: true, on_call: true)}
   end
 
   def start_in_office_hours
