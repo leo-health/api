@@ -6,7 +6,7 @@ module GenericHelper
   # side effects: writes to a file
   # TODO: write to any stream (file, network, log, string, etc...)
   # require 'csv'
-  def hashes_to_csv(hashes: , csv_out_filename:)
+  def self.hashes_to_csv(hashes: , csv_out_filename:)
     CSV.open(csv_out_filename, "wb") do |csv|
       csv.add_row(hashes.first.keys) # adds the attributes name on the first line
       hashes.each do |hash|
