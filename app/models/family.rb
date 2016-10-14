@@ -127,13 +127,21 @@ class Family < ActiveRecord::Base
     stripe_customer
   end
 
+  def update_stripe_plan(plan_id)
+    return unless stripe_customer_id
+    subscription = Stripe::Customer.retrieve(stripe_customer_id).subscriptions.data.first
+    subscription.plan = plan_id
+    subscription.save
+    self.stripe_customer = Stripe::Customer.retrieve(stripe_customer_id).to_hash
+  end
+
   private
 
   def create_stripe_customer(credit_card_token, coupon)
     customer_params = {
       email: primary_guardian.email,
       source: credit_card_token,
-      plan: STRIPE_PLAN,
+      plan: STRIPE_PLAN_HALF_PRICE,
       quantity: patients.count,
       coupon: coupon
     }

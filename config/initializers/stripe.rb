@@ -1,9 +1,10 @@
 Stripe.api_key = ENV['STRIPE_API_KEY']
-STRIPE_PLAN = "com.leohealth.standard"
+STRIPE_PLAN_HALF_PRICE = "com.leohealth.halfprice"
+# STRIPE_PLAN = "com.leohealth.standard" # CURRENTLY NOT BEING USED
 STRIPE_PLAN_PARAMS_MOCK = {
-                  :id => "com.leohealth.standard",
+                  :id => STRIPE_PLAN_HALF_PRICE,
               :object => "plan",
-              :amount => 2000,
+              :amount => 1000,
              :created => 1464723959,
             :currency => "usd",
             :interval => "month",
