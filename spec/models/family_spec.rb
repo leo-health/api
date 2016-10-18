@@ -49,8 +49,8 @@ describe Family, type: :model do
                 "id"=>"test_su_4",
                 "quantity"=>2,
                 "plan"=>{
-                  "id"=>"com.leohealth.standard",
-                  "amount"=>2000
+                  "id"=>"com.leohealth.halfprice",
+                  "amount"=>1000
                 }
               }
             ]
