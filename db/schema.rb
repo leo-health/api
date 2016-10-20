@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161020180827) do
+ActiveRecord::Schema.define(version: 20161020185527) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,16 @@ ActiveRecord::Schema.define(version: 20161020180827) do
 
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
+
+  create_table "answers", force: :cascade do |t|
+    t.integer  "user_id",    null: false
+    t.integer  "choice_id",  null: false
+    t.text     "text"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "answers", ["user_id", "choice_id"], name: "index_answers_on_user_id_and_choice_id", unique: true, using: :btree
 
   create_table "appointment_statuses", force: :cascade do |t|
     t.string "description"
@@ -118,6 +128,17 @@ ActiveRecord::Schema.define(version: 20161020180827) do
 
   add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
   add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
+
+  create_table "choices", force: :cascade do |t|
+    t.string   "media"
+    t.integer  "question_id",                             null: false
+    t.string   "type",             default: "structured", null: false
+    t.integer  "next_question_id"
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+  end
+
+  add_index "choices", ["question_id"], name: "index_choices_on_question_id", using: :btree
 
   create_table "closure_notes", force: :cascade do |t|
     t.integer  "conversation_id",   null: false
