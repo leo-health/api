@@ -46,6 +46,10 @@ module Leo
 
         desc "create a session when user login"
         post do
+
+          Rails.logger.info("POST /sessions/login #{params}")
+
+          
           user = User.complete.find_by_email(params[:email].downcase)
           unless user && user.has_role?(:guardian) && user.valid_password?(params[:password])
             error!({error_code: 403, user_message: "Invalid Email or Password."}, 422)
