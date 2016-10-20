@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160916173331) do
+ActiveRecord::Schema.define(version: 20161020151130) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -570,6 +570,21 @@ ActiveRecord::Schema.define(version: 20160916173331) do
   end
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
+
+  create_table "surveys", force: :cascade do |t|
+    t.string   "name",                               null: false
+    t.string   "type",                               null: false
+    t.text     "description"
+    t.text     "prompt"
+    t.text     "instruction"
+    t.string   "media"
+    t.boolean  "private",             default: true, null: false
+    t.boolean  "required",            default: true, null: false
+    t.string   "reason",                             null: false
+    t.datetime "expiration_datetime"
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+  end
 
   create_table "sync_statuses", force: :cascade do |t|
     t.boolean "should_attempt_sync", default: true
