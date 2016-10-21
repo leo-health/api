@@ -28,7 +28,7 @@ class Message < ActiveRecord::Base
     type_name == 'text'
   end
 
-  def broadcast_message(sender)
+  def broadcast_message(sender = nil)
     participants = conversation.family.guardians.to_a
     participants.delete(sender)
     if participants.count > 0
@@ -46,9 +46,10 @@ class Message < ActiveRecord::Base
   def actions_after_message_sent
     set_last_message_created_at
     broadcast_message_by_conversation
-    return if ( sender.has_role?(:bot) || initial_welcome_message? )
-    update_conversation_after_message_sent
+    return if initial_welcome_message?
     send_new_message_notification
+    return if sender.has_role?(:bot)
+    update_conversation_after_message_sent
     unread_message_reminder_email
   end
 

@@ -25,6 +25,10 @@ class Appointment < ActiveRecord::Base
   after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
 
   def mark_slots_as_busy
+
+    # TODO: Remove me when bug is fixed
+    Rails.logger.warn("booking appointment not yet saved to db patient_id:#{patient_id}, start_datetime:#{start_datetime}") unless id
+
     Slot.free.where(provider: provider)
     .start_date_time_between(start_datetime, end_datetime)
     .update_all(

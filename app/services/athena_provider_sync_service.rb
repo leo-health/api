@@ -1,35 +1,50 @@
 class AthenaProviderSyncService < AthenaSyncService
   def sync_open_slots(provider, start_date = nil, end_date = nil)
 
-    query_start = (start_date || Date.today).beginning_of_day
-    query_end = (end_date || (query_start + 6.months)).end_of_day
-    format_date = Proc.new { |d| d.strftime("%m/%d/%Y") }
+    beginning_of_today = (start_date || Date.today).beginning_of_day
+    eod_six_months_from_now = (end_date || (beginning_of_today + 6.months)).end_of_day
 
-    # TODO: Make Generic to handle any Syncable type
+    format_date = Proc.new { |d| d.strftime("%m/%d/%Y") }
 
     # Clean any unusable slots
     Slot.start_date_time_between(nil, Time.now).destroy_all
 
-    # Get athena resources and leo resources
-    athena_res = @connector.get_open_appointments(
+    # Get athena slots and leo slots
+    athena_slots = @connector.get_open_appointments(
       departmentid: provider.athena_department_id,
       appointmenttypeid: 0,
       providerid: provider.athena_id,
       showfrozenslots: true,
-      startdate: format_date.call(query_start),
-      enddate: format_date.call(query_end)
-    )
+      startdate: format_date.call(beginning_of_today),
+      enddate: format_date.call(eod_six_months_from_now)
+    ).select { |slot|
+      slot.appointmenttypeid.try(:to_i) == AppointmentType::ANY_10_TYPE_ATHENA_ID
+    }
 
-    leo_res = Slot.where(provider: provider).start_date_time_between(query_start, query_end)
-    # Map key = athena_id, value = [athena_res, leo_res]
-    athena_map = Hash[athena_res.map {|r| [r.appointmentid.to_i, [r, nil]] }]
-    leo_map = Hash[leo_res.map {|r| [r.athena_id, [nil, r]]}]
+    leo_slots = Slot.where(provider: provider).start_date_time_between(beginning_of_today, eod_six_months_from_now)
+
+    athena_map = athena_slots.reduce({}) { |athena_id_map_to_athena_pair, slot|
+      athena_id = slot.appointmentid.to_i
+      athena_pair = {athena: slot, leo: nil}
+      athena_id_map_to_athena_pair[athena_id] = athena_pair
+      athena_id_map_to_athena_pair
+    }
+
+    leo_map = leo_slots.reduce({}) { |athena_id_map_to_leo_pair, slot|
+      athena_id = slot.athena_id
+      leo_pair = {athena: nil, leo: slot}
+      athena_id_map_to_leo_pair[athena_id] = leo_pair
+      athena_id_map_to_leo_pair
+    }
 
     # Merge the hashes to associate the athena_res with the leo_res
-    merged_map = athena_map.merge(leo_map) { |athena_id, athena_r, leo_r| [athena_r[0], leo_r[1]] }
+    merged_map = athena_map.merge(leo_map) { |athena_id, athena_pair, leo_pair|
+      merged_pair = {athena: athena_pair[:athena], leo: leo_pair[:leo]}
+      merged_pair
+    }
 
     # Create or update in leo
-    merged_map.values.map { |merged_r| create_or_update_slot(*merged_r, provider) }
+    merged_map.values.map { |merged_pair| create_or_update_slot(*merged_pair.values, provider) }
   end
 
   def create_or_update_slot(athena_slot, leo_slot, provider)

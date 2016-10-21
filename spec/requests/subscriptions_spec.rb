@@ -39,8 +39,8 @@ describe Leo::V1::Subscriptions do
               id: "test_su_4",
               quantity: 1,
               plan: {
-                id: "com.leohealth.standard",
-                amount: 2000
+                id: "com.leohealth.halfprice",
+                amount: 1000
               }
             }
           ]
@@ -91,8 +91,8 @@ describe Leo::V1::Subscriptions do
                 id: "test_su_4",
                 quantity: 1,
                 plan: {
-                  id: "com.leohealth.standard",
-                  amount: 2000
+                  id: "com.leohealth.halfprice",
+                  amount: 1000
                 }
               }
             ]
