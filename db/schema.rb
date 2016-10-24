@@ -49,14 +49,17 @@ ActiveRecord::Schema.define(version: 20161020185954) do
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
 
   create_table "answers", force: :cascade do |t|
-    t.integer  "user_id",    null: false
-    t.integer  "choice_id",  null: false
+    t.integer  "user_id",     null: false
+    t.integer  "choice_id"
+    t.integer  "question_id", null: false
     t.text     "text"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
-  add_index "answers", ["user_id", "choice_id"], name: "index_answers_on_user_id_and_choice_id", unique: true, using: :btree
+  add_index "answers", ["choice_id"], name: "index_answers_on_choice_id", using: :btree
+  add_index "answers", ["question_id"], name: "index_answers_on_question_id", using: :btree
+  add_index "answers", ["user_id", "question_id"], name: "index_answers_on_user_id_and_question_id", unique: true, using: :btree
 
   create_table "appointment_statuses", force: :cascade do |t|
     t.string "description"

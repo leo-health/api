@@ -1,5 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe Answer, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe "relations" do
+    it{ is_expected.to belongs_to(:user) }
+    it{ is_expected.to belongs_to(:choice) }
+    it{ is_expected.to belongs_to(:question) }
+  end
+
+  describe "validations" do
+    it { is_expected.to validate_presence_of(:user) }
+    it { is_expected.to validate_presence_of(:question) }
+  end
 end
