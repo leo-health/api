@@ -2,7 +2,7 @@ class CreateSurveys < ActiveRecord::Migration
   def change
     create_table :surveys do |t|
       t.string :name, null: false
-      t.string :type, null: false
+      t.string :survey_type, null: false
       t.text :description
       t.text :prompt
       t.text :instruction

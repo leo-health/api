@@ -135,7 +135,7 @@ ActiveRecord::Schema.define(version: 20161020185954) do
   create_table "choices", force: :cascade do |t|
     t.string   "media"
     t.integer  "question_id",                             null: false
-    t.string   "type",             default: "structured", null: false
+    t.string   "choice_type",      default: "structured", null: false
     t.integer  "next_question_id"
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
@@ -609,7 +609,7 @@ ActiveRecord::Schema.define(version: 20161020185954) do
 
   create_table "surveys", force: :cascade do |t|
     t.string   "name",                               null: false
-    t.string   "type",                               null: false
+    t.string   "survey_type",                        null: false
     t.text     "description"
     t.text     "prompt"
     t.text     "instruction"

@@ -12,5 +12,6 @@ describe Survey do
     it { is_expected.to validate_presence_of(:private) }
     it { is_expected.to validate_presence_of(:required) }
     it { is_expected.to validate_presence_of(:reason) }
+    it { is_expected.to validate_presence_of(:survey_type) }
   end
 end
