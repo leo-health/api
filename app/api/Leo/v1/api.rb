@@ -7,7 +7,7 @@ module Leo
       include Grape::Kaminari
 
       ENTITIES = %w(image avatar role provider insurance_plan insurer user
-                    escalation_note system appointment_status closure_reason
+                    escalation_note system appointment_status closure_reason question
                     appointment_type message short_user full_message patient conversation practice_schedule
                     provider_leave practice appointment short_patient short_conversation link_preview card family session
                     vital allergy medication vaccine user_generated_health_record form patient_insurance phr)
@@ -98,7 +98,7 @@ module Leo
                      patient_enrollments avatars health_records notes pushers
                      subscriptions appointment_statuses forms patient_insurances
                      deep_links ios_configuration validated_json payments_listener
-                     subscriptions staff_profiles)
+                     subscriptions staff_profiles surveys)
 
       ENDPOINTS.each do |endpoint|
         require_relative endpoint
