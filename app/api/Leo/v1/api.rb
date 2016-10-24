@@ -3,7 +3,6 @@ module Leo
     class API < Grape::API
       version 'v1', using: :path, vendor: 'leo-health'
       format :json
-
       include Grape::Kaminari
 
       ENTITIES = %w(image avatar role provider insurance_plan insurer user

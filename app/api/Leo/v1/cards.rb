@@ -15,7 +15,8 @@ module Leo
           .where.not(appointment_type: AppointmentType.blocked)
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
-          card_objects = conversations + user_link_previews + appointments
+          surveys = Survey.joins(:user_surveys).where(user_surveys: {user: current_user, completed: false})
+          card_objects = surveys + conversations + user_link_previews + appointments
           sorted_cards = card_objects
           .sort_by(&:updated_at).reverse
           .each_with_index
@@ -27,6 +28,8 @@ module Leo
               {conversation_card_data: card, priority: index, type: 'conversation', type_id: 1}
             when Appointment
               {appointment_card_data: card, priority: index, type: 'appointment', type_id: 0}
+            when Survey
+              {survey_card_data: card, priority: index, type: 'survey', type_id: 3}
             end
           end
 

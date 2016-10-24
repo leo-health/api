@@ -669,9 +669,14 @@ ActiveRecord::Schema.define(version: 20161020185954) do
     t.integer  "patient_id",                 null: false
     t.integer  "survey_id",                  null: false
     t.boolean  "dismissed",  default: false
+    t.boolean  "completed",  default: false
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
   end
+
+  add_index "user_surveys", ["patient_id", "survey_id"], name: "index_user_surveys_on_patient_id_and_survey_id", unique: true, using: :btree
+  add_index "user_surveys", ["survey_id"], name: "index_user_surveys_on_survey_id", using: :btree
+  add_index "user_surveys", ["user_id", "survey_id"], name: "index_user_surveys_on_user_id_and_survey_id", unique: true, using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "title"
