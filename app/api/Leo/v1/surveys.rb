@@ -8,13 +8,9 @@ module Leo
           end
 
           desc "get a survey"
-          params do
-            requires :patient_id, type: Integer, allow_blank: false
-            requires :avatar, type: String, allow_blank: false
-          end
-
           get  do
-
+            survey = Survey.find(params[:id])
+            present :survey, survey, with: Leo::Entities::SurveyEntity
           end
         end
       end

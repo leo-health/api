@@ -5,7 +5,6 @@ module Leo
       expose :survey
       expose :question_type
       expose :media
-      expose :answers
     end
   end
 end

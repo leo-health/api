@@ -15,7 +15,7 @@ module Leo
           .where.not(appointment_type: AppointmentType.blocked)
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
-          surveys = Survey.joins(:user_surveys).where(user_surveys: {user: current_user, completed: false})
+          surveys = Survey.joins(:user_surveys).where(user_surveys: {user: current_user, completed: false, dismissed: false})
           card_objects = surveys + conversations + user_link_previews + appointments
           sorted_cards = card_objects
           .sort_by(&:updated_at).reverse

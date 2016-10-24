@@ -1,6 +1,6 @@
 module Leo
   module Entities
-    class SurveyEntity < Grape::Entity
+    class ShortSurveyEntity < Grape::Entity
       expose :name
       expose :description
       expose :survey_type
@@ -12,7 +12,6 @@ module Leo
       expose :reason
       expose :expiration_datetime
       expose :user_surveys
-      expose :questions, with: Leo::Entities::QuestionEntity
     end
   end
 end
