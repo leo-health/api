@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'mandrill_mailer/offline'
 
 describe Survey do
   describe "relations" do
