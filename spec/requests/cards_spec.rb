@@ -15,6 +15,22 @@ describe Leo::V1::Cards do
     dismissed_at: 1.hour.ago
   )}
 
+  describe "GET /api/v1/route_cards" do
+    let!(:upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 1.day)}
+
+    def do_request
+      get "/api/v1/route_cards", {authentication_token: session.authentication_token}
+    end
+
+    it "returns route cards" do
+      do_request
+      body = JSON.parse(response.body, symbolize_names: true)[:data]
+
+      expect(body[:associated_data][:appointment].count).to eq(1)
+      expect(body[:cards].count).to eq(3)
+    end
+  end
+
   describe "Get /api/v1/cards" do
     let!(:upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 1.day)}
     let!(:updated_upcoming_appointment){create(:appointment, :future, booked_by: user, start_datetime: Time.now + 1.day, updated_at: Time.now - 2.day)}

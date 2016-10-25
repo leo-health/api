@@ -2,6 +2,33 @@ module Leo
   module V1
     class Cards < Grape::API
       desc "Return all cards of a user"
+
+      resource :route_cards do
+        before do
+          authenticated_and_complete
+        end
+
+        get do
+          appointments = Appointment.booked
+          .where(patient_id: current_user.family.patients.pluck(:id))
+          .where.not(appointment_type: AppointmentType.blocked)
+          .where("start_datetime > ?", Time.now).order("updated_at DESC")
+
+          appointment_card_states = appointments.map{|appointment|
+            AppointmentCardPresenter.new(appointment).present
+          }.flatten
+
+          cards = appointment_card_states # + conversation_card_states + content_card_states...
+          
+          {
+            cards: cards,
+            associated_data: {
+              appointment: Leo::Entities::AppointmentEntity.represent(appointments)
+            }
+          }
+        end
+      end
+
       namespace "cards" do
         before do
           authenticated_and_complete
