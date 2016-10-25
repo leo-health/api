@@ -14,7 +14,6 @@ describe User do
     it{ is_expected.to have_one(:provider) }
 
     it{ is_expected.to have_many(:forms) }
-    it{ is_expected.to have_many(:answers) }
     it{ is_expected.to have_many(:user_surveys) }
     it{ is_expected.to have_many(:surveys).through(:user_surveys) }
     it{ is_expected.to have_many(:user_conversations) }

@@ -8,11 +8,9 @@ module Leo
 
         desc "create an answer"
         params do
-          requires :user_id, type: String, allow_blank: false
+          requires :user_survey_id, type: String, allow_blank: false
           requires :question_id, type: String, allow_blank: false
-          optional :choice_id, type: String
-          optional :text, type: String
-          at_least_one_of :choice_id, :text
+          requires :text, type: String
         end
 
         post do

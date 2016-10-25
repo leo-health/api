@@ -30,7 +30,6 @@ class User < ActiveRecord::Base
   has_one :provider, inverse_of: :user
   accepts_nested_attributes_for :provider
   has_many :forms, foreign_key: "submitted_by_id"
-  has_many :answers
   has_many :user_surveys
   has_many :surveys, through: :user_surveys
   has_many :user_conversations

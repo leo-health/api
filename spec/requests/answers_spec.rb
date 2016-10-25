@@ -8,9 +8,12 @@ describe Leo::V1::Answers do
 
   describe "POST /api/v1/answers" do
     let(:question){ create(:question) }
+    let(:survey){ question.survey }
+    let(:patient){create(:patient, family: user.family)}
+    let(:user_survey){ UserSurvey.create(survey: survey, user: user, patient: patient) }
 
     def do_request
-      params = {user_id: user.id, question_id: question.id, text: "test", authentication_token: session.authentication_token}
+      params = {user_survey_id: user_survey.id, question_id: question.id, text: "test", authentication_token: session.authentication_token}
       post "/api/v1/answers", params
     end
 

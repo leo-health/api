@@ -15,12 +15,10 @@ module Leo
           .where.not(appointment_type: AppointmentType.blocked)
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
-          surveys = Survey.joins(:user_surveys).where(user_surveys: {user: current_user, completed: false, dismissed: false})
-          card_objects = surveys + conversations + user_link_previews + appointments
-          sorted_cards = card_objects
-          .sort_by(&:updated_at).reverse
-          .each_with_index
-          .map do |card, index|
+          user_surveys = UserSurvey.where(user: current_user, completed: false, dismissed: false)
+          cards = conversations + user_link_previews + appointments
+          sorted_cards = user_surveys + cards.sort_by(&:updated_at).reverse
+          cards = sorted_cards.each_with_index.map do |card, index|
             case card
             when UserLinkPreview
               {id: card.id, deep_link_card_data: card.link_preview, priority: index, type: 'deep_link', type_id: 2}
@@ -28,12 +26,12 @@ module Leo
               {conversation_card_data: card, priority: index, type: 'conversation', type_id: 1}
             when Appointment
               {appointment_card_data: card, priority: index, type: 'appointment', type_id: 0}
-            when Survey
+            when UserSurvey
               {survey_card_data: card, priority: index, type: 'survey', type_id: 3}
             end
           end
 
-          present sorted_cards, with: Leo::Entities::CardEntity
+          present cards, with: Leo::Entities::CardEntity
         end
 
         params do

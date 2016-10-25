@@ -25,7 +25,7 @@ describe Leo::V1::Cards do
     let!(:user_survey){ UserSurvey.create(survey: survey, user: user, patient: patient) }
     let(:serializer){ Leo::Entities::CardEntity }
     let(:response_data){[
-      {survey_card_data: survey, priority: 0, type: 'survey', type_id: 3},
+      {survey_card_data: user_survey.reload, priority: 0, type: 'survey', type_id: 3},
       {id: user_link_preview.id, deep_link_card_data: link_preview, priority: 1, type: 'deep_link', type_id: 2},
       {conversation_card_data: user.reload.family.conversation, priority: 2, type: 'conversation', type_id: 1},
       {appointment_card_data: upcoming_appointment.reload, priority: 3, type: 'appointment', type_id: 0},
@@ -50,8 +50,8 @@ describe Leo::V1::Cards do
     context "user is complete" do
       it "should return the cards of current user" do
         do_request
-        expect(response.status).to eq(200)
         body = JSON.parse(response.body, symbolize_names: true )
+        expect(response.status).to eq(200)
         body_json = body[:data].as_json.to_json
         expected_json = serializer.represent(response_data).as_json.to_json
         expect(body_json).to eq(expected_json)

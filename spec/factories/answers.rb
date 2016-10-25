@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :answer do
-    association :user
+    association :user_survey
     association :question
   end
 end

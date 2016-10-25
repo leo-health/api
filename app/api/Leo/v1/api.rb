@@ -5,7 +5,7 @@ module Leo
       format :json
       include Grape::Kaminari
 
-      ENTITIES = %w(image avatar role provider insurance_plan insurer user short_survey
+      ENTITIES = %w(image avatar role provider insurance_plan insurer user user_survey
                     escalation_note system appointment_status closure_reason question survey
                     appointment_type message short_user full_message patient conversation practice_schedule
                     provider_leave practice appointment short_patient short_conversation link_preview card family session
