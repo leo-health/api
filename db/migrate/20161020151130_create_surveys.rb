@@ -10,7 +10,6 @@ class CreateSurveys < ActiveRecord::Migration
       t.boolean :private, null: false, default: true
       t.boolean :required, null: false, default: true
       t.string :reason, null: false
-      t.datetime :expiration_datetime
       t.timestamps null: false
     end
   end

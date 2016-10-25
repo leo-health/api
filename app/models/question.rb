@@ -3,4 +3,5 @@ class Question < ActiveRecord::Base
   has_many :choices
 
   validates_presence_of :survey, :body, :order, :question_type
+  validates_inclusion_of :question_type, in: %w(single\ select multi\ select single\ line multi\ line rating/numerical)
 end

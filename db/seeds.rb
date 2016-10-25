@@ -4,7 +4,6 @@ require File.expand_path('../seeds/seed_milestone_content', __FILE__)
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
 # First seed necessary data for all practices
-
 roles_seed = [
   { name: :financial },
   { name: :clinical_support },
@@ -853,5 +852,151 @@ LinkPreview.update_or_create!([:category, :title], {
 SeedMilestoneContent.seed
 count = LinkPreview.where(category: :milestone_content).count
 puts "Finished seeding #{count} milestone content"
+
+
+surveys = [{
+  survey:{
+    name: 'MCHAT',
+    description: 'This is description',
+    prompt:'This is prompt',
+    instruction: 'This is instruction'
+  },
+  questions: [
+  { body: (<<-EOT),
+If you point at something across the room, does your child look at it?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, if you point at a toy or an animal, does your child look at the toy or animal?
+    EOT
+  },
+  { body: (<<-EOT),
+Have you ever wondered if your child might be deaf?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child play pretend or make-believe?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, pretend to drink from an empty cup, pretend to talk on a phone, or pretend to feed a doll or stuffed
+animal?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child like climbing on things?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, furniture, playground equipment, or stairs
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child make unusual finger movements near his or her eyes?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, does your child wiggle his or her fingers close to his or her eyes?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child point with one finger to ask for something or to get help?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, pointing to a snack or toy that is out of reach
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child point with one finger to show you something interesting?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, pointing to an airplane in the sky or a big truck in the road
+    EOT
+  },
+  { body: (<<-EOT),
+Is your child interested in other children?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, does your child watch other children, smile at them, or go to them?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child show you things by bringing them to you or holding them up for you to see – not to get help, but just
+to share?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, showing you a flower, a stuffed animal, or a toy truck
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child respond when you call his or her name?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, does he or she look up, talk or babble, or stop what he or she is doing when you call his or her name?
+    EOT
+  },
+  { body: (<<-EOT),
+When you smile at your child, does he or she smile back at you?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child get upset by everyday noises?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, does your child scream or cry to noise such as a vacuum cleaner or loud music?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child walk?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child look you in the eye when you are talking to him or her, playing with him Yes No or her, or dressing
+him or her?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child try to copy what you do?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, wave bye-bye, clap, or make a funny noise when you do
+    EOT
+  },
+  { body: (<<-EOT),
+If you turn your head to look at something, does your child look around to see what you are looking at?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child try to get you to watch him or her?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, does your child look at you for praise, or say “look” or “watch me”?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child understand when you tell him or her to do something?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, if you don’t point, can your child understand “put the bookon the chair” or “bring me the blanket”?
+    EOT
+  },
+  { body: (<<-EOT),
+If something new happens, does your child look at your face to see how you feel about it?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, if he or she hears a strange or funny noise, or sees a new toy, willhe or she look at your face?
+    EOT
+  },
+  { body: (<<-EOT),
+Does your child like movement activities?
+    EOT
+    secondary: (<<-EOT)
+FOR EXAMPLE, being swung or bounced on your knee
+    EOT
+  }
+]
+}]
+
+# update_or_create!
+
+surveys.each do |survey|
+  survey[:survey]
+end
 
 puts "Finished seeding all data"
