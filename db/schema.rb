@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160916173331) do
+ActiveRecord::Schema.define(version: 20161021192837) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -525,6 +525,8 @@ ActiveRecord::Schema.define(version: 20160916173331) do
     t.string   "device_token"
     t.string   "device_type"
     t.string   "client_version"
+    t.boolean  "has_apns_permissions"
+    t.datetime "authenticated_at"
   end
 
   add_index "sessions", ["authentication_token"], name: "index_sessions_on_authentication_token", where: "(deleted_at IS NULL)", using: :btree
