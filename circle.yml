@@ -5,7 +5,6 @@ machine:
     ATHENA_DAY_RATE: "50000"
     ATHENA_KEY: "fake_key"
     ATHENA_SECOND_RATE: "5"
-    CODECLIMATE_REPO_TOKEN: "xxxx3469"
     DEEPLINK_SCHEME: "leo-local-consumer"
     MANDRILL_API_KEY: "r0D8STwnRJmJ9LiHrazMlw"
     PROVIDER_APP_HOST: "http://localhost:8888"

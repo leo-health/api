@@ -111,12 +111,12 @@ module Leo
           optional :platform, type: String
           optional :client_version, type: String
           optional :device_token, type: String
-          optional :apns_permissions, type: Boolean
+          optional :has_apns_permissions, type: Boolean
         end
 
         post do
           declared_params = declared params, include_missing: false
-          session_keys = [:device_token, :apns_permissions, :device_type, :os_version, :platform, :client_version]
+          session_keys = [:device_token, :has_apns_permissions, :device_type, :os_version, :platform, :client_version]
           user_params = declared_params.except(*session_keys)
           user_params = user_params.merge(
             role: Role.guardian,

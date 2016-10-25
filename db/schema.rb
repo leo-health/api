@@ -525,7 +525,7 @@ ActiveRecord::Schema.define(version: 20161021192837) do
     t.string   "device_token"
     t.string   "device_type"
     t.string   "client_version"
-    t.boolean  "apns_permissions"
+    t.boolean  "has_apns_permissions"
     t.datetime "authenticated_at"
   end
 
