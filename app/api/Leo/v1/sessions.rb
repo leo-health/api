@@ -6,6 +6,7 @@ module Leo
           requires :authentication_token, type: String, allow_blank: false
           optional :device_type, type: String
           optional :device_token, type: String
+          optional :has_apns_permissions, type: Boolean
           optional :os_version, type: String
           optional :platform, type: String
           optional :client_version, type: String
@@ -18,7 +19,7 @@ module Leo
           end
 
           user = existing_session.user
-          session_params = params.slice(:device_token, :device_type, :os_version, :platform, :client_version, :authentication_token)
+          session_params = params.slice(:device_token, :has_apns_permissions, :device_type, :os_version, :platform, :client_version, :authentication_token)
 
           begin
             Session.transaction do
@@ -40,6 +41,7 @@ module Leo
           optional :platform, type: String
           optional :device_type, type: String
           optional :device_token, type: String
+          optional :has_apns_permissions, type: Boolean
           optional :os_version, type: String
           optional :client_version, type: String
         end
@@ -56,7 +58,7 @@ module Leo
             Session.where(params.slice(:device_token, :platform)).destroy_all
           end
 
-          session_params = params.slice(:device_token, :device_type, :os_version, :platform, :client_version)
+          session_params = params.slice(:device_token, :has_apns_permissions, :device_type, :os_version, :platform, :client_version)
           session = user.sessions.create(session_params)
 
           if session.valid?
