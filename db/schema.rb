@@ -521,6 +521,7 @@ ActiveRecord::Schema.define(version: 20161020185954) do
 
   create_table "questions", force: :cascade do |t|
     t.text     "body",          null: false
+    t.text     "secondary"
     t.integer  "survey_id",     null: false
     t.integer  "order",         null: false
     t.string   "question_type", null: false
