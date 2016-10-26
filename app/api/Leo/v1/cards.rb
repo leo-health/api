@@ -14,17 +14,8 @@ module Leo
           .where.not(appointment_type: AppointmentType.blocked)
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
-          appointment_card_states = appointments.map{|appointment|
+          appointments.map{|appointment|
             AppointmentCardPresenter.new(appointment).present
-          }.flatten
-
-          cards = appointment_card_states # + conversation_card_states + content_card_states...
-          
-          {
-            cards: cards,
-            associated_data: {
-              appointment: Leo::Entities::AppointmentEntity.represent(appointments)
-            }
           }
         end
       end
