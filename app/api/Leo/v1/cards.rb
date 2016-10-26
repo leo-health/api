@@ -15,10 +15,12 @@ module Leo
           .where.not(appointment_type: AppointmentType.blocked)
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
-          user_surveys = UserSurvey.where(user: current_user, completed: false, dismissed: false)
           cards = conversations + user_link_previews + appointments
-          sorted_cards = user_surveys + cards.sort_by(&:updated_at).reverse
-          cards = sorted_cards.each_with_index.map do |card, index|
+          if current_user.primary_guardian?
+            user_surveys = UserSurvey.where(user: current_user, completed: false, dismissed: false)
+            cards = user_surveys + cards.sort_by(&:updated_at).reverse
+          end
+          cards = cards.each_with_index.map do |card, index|
             case card
             when UserLinkPreview
               {id: card.id, deep_link_card_data: card.link_preview, priority: index, type: 'deep_link', type_id: 2}

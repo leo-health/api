@@ -22,7 +22,7 @@ class Appointment < ActiveRecord::Base
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
-  after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
+  after_commit :mark_slots_as_busy, :create_mchat, on: :create, if: ->{ booked? }
 
   def mark_slots_as_busy
 
@@ -84,5 +84,20 @@ class Appointment < ActiveRecord::Base
 
   def charge_entered?
     appointment_status.try(:status) == AppointmentStatus::STATUS_CHARGE_ENTERED
+  end
+
+  private
+
+  def create_mchat
+    unless UserSurvey.includes(:survey).where(patient: p, survey:{name: "mchat"}).length > 0
+      time_to_apppointment = (Time.now - start_datetime)
+      primary_guardian = patient.family.primary_guardian
+      if time_to_apppointment < 3.days && time_to_apppointment > 0 && survey = Survey.find_by(name: 'MCHAT')
+        UserSurvey.delay.create_survey(primary_guardian, patient, survey)
+      else
+        minutes_to_send_apns = (time_to_apppointment - 3.days).to_i/60
+        UserSurvey.delay(run_at: minutes_to_send_apns.minutes.from_now).create_survey(primary_guardian, patient, survey)
+      end
+    end
   end
 end
