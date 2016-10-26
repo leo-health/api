@@ -10,8 +10,6 @@ module Leo
       expose :private
       expose :required
       expose :reason
-      expose :expiration_datetime
-      expose :user_surveys
       expose :questions, with: Leo::Entities::QuestionEntity
     end
   end
