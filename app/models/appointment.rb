@@ -98,21 +98,17 @@ class Appointment < ActiveRecord::Base
   def mchat_name
     return 'MCHAT18' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[18]
     return 'MCHAT24' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[24]
-    return 'MCHAT18' if in_eighteen_month?
-    return 'MCHAT24' if in_twenty_four_month?
+    return 'MCHAT18' if milestone_from_birth?(18, 1)
+    return 'MCHAT24' if milestone_from_birth?(24, 1)
   end
 
-  def in_eighteen_month?
-    (start_datetime - patient.birth_date.to_datetime - 18.months).abs < 1.months
-  end
-
-  def in_twenty_four_month?
-    (start_datetime - patient.birth_date.to_datetime - 24.months).abs < 1.months
+  def milestone_from_birth?(time, buffer)
+    (start_datetime - patient.birth_date.to_datetime - time.months).abs < buffer.months
   end
 
   def create_mchat(name)
     return if  UserSurvey.includes(:survey).where(patient: patient, survey:{name: name}).length > 0
-    time_to_apppointment = (Time.now - start_datetime)
+    time_to_apppointment = (Time.current - start_datetime)
     primary_guardian = patient.family.primary_guardian
     if time_to_apppointment < 3.days && time_to_apppointment > 0 && survey = Survey.find_by(name: name)
       UserSurvey.create_and_notify(primary_guardian, patient, survey)

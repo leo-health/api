@@ -59,19 +59,6 @@ RSpec.describe Appointment, type: :model do
             expect{ appointment.save }.to change(UserSurvey, :count).by(1)
           end
         end
-
-        context 'start_time within one-month of patient 18 month or 24 month birth date' do
-          let(:appointment) { build(:appointment, appointment_type: create(:appointment_type, :well_visit)) }
-          let!(:survey){ create(:survey, name: 'MCHAT18') }
-
-          before do
-            appointment.start_datetime = appointment.patient.birth_date + 18.months
-          end
-
-          it "should create mchat survey" do
-            expect{ appointment.save }.to change(UserSurvey, :count).by(1)
-          end
-        end
       end
     end
   end
