@@ -58,8 +58,6 @@ class AppointmentCardPresenter
     practice_address = @appointment.practice.address_line_1
 
     {
-      associated_data_id: appointment_id,
-      associated_data_type: "appointment",
       card_state_type: "CANCEL_UNCONFIRMED",
       title: "Cancel Appointment?",
       tinted_header: first_name,
