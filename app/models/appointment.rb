@@ -90,27 +90,35 @@ class Appointment < ActiveRecord::Base
 
   def create_surveys
     if appointment_type.name == "Well Visit"
-      if appointment_type.athena_id == 92 || appointment_type.athena_id == 93 || in_mchat_time?
-        create_mchat
+      if name = mchat_name
+        create_mchat(name)
       end
     end
   end
 
-  def in_mchat_time?
-    age = start_datetime - patient.birth_date.to_datetime
-    (age - 18.months).abs < 1.months || (age - 24.months).abs < 1.months
+  def mchat_name
+    return 'MCHAT18' if appointment_type.athena_id == WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[18]
+    return 'MCHAT24' if appointment_type.athena_id == WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[24]
+    return 'MCHAT18' if in_eighteen_month?
+    return 'MCHAT24' if in_twenty_four_month?
   end
 
-  def create_mchat
-    unless UserSurvey.includes(:survey).where(patient: p, survey:{name: "mchat"}).length > 0
-      time_to_apppointment = (Time.now - start_datetime)
-      primary_guardian = patient.family.primary_guardian
-      if time_to_apppointment < 3.days && time_to_apppointment > 0 && survey = Survey.find_by(name: 'MCHAT')
-        UserSurvey.delay.create_survey(primary_guardian, patient, survey)
-      else
-        minutes_to_send_apns = (time_to_apppointment - 3.days).to_i/60
-        UserSurvey.delay(run_at: minutes_to_send_apns.minutes.from_now).create_survey(primary_guardian, patient, survey)
-      end
+  def in_eighteen_month?
+    (start_datetime - patient.birth_date.to_datetime - 18.months).abs < 1.months
+  end
+
+  def in_twenty_four_month?
+    (start_datetime - patient.birth_date.to_datetime - 24.months).abs < 1.months
+  end
+
+  def create_mchat(name)
+    return if  UserSurvey.includes(:survey).where(patient: patient, survey:{name: name}).length > 0
+    time_to_apppointment = (Time.now - start_datetime)
+    primary_guardian = patient.family.primary_guardian
+    if time_to_apppointment < 3.days && time_to_apppointment > 0 && survey = Survey.find_by(name: name)
+      UserSurvey.create_and_notify(primary_guardian, patient, survey)
+    else
+      UserSurvey.delay(run_at: time_to_apppointment - 3.days).create_and_notify(primary_guardian, patient, survey)
     end
   end
 end

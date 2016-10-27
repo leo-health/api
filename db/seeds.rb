@@ -854,8 +854,8 @@ count = LinkPreview.where(category: :milestone_content).count
 puts "Finished seeding #{count} milestone content"
 
 SURVEYS.each do |item|
-  survey = Survey.update_or_create!(item[:survey].keys, item[:survey])
-  item[:questions].each do |question|
+  survey = Survey.update_or_create!(item.keys, item)
+  QUESTIONS[:mchat].each do |question|
     Question.update_or_create!(question.keys, question.merge(survey_id: survey.id))
   end
 end

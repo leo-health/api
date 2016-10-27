@@ -1,13 +1,23 @@
-SURVEYS = [{
-   survey:{
-       name: 'MCHAT',
-       description: 'This is description',
-       prompt:'This is prompt',
-       instruction: 'This is instruction',
-       reason: 'This is reason',
-       survey_type: 'clinical'
-   },
-   questions: [
+SURVEYS = [
+  {
+    name: 'MCHAT18',
+    description: 'This is description',
+    prompt:'This is prompt',
+    instruction: 'This is instruction',
+    reason: 'This is reason',
+    survey_type: 'clinical'
+  },
+  {
+    name: 'MCHAT24',
+    description: 'This is description',
+    prompt:'This is prompt',
+    instruction: 'This is instruction',
+    reason: 'This is reason',
+    survey_type: 'clinical'
+  }
+]
+
+QUESTIONS = { mchat: [
      { body: (<<-EOT),
 If you point at something across the room, does your child look at it?
        EOT
@@ -174,6 +184,5 @@ FOR EXAMPLE, being swung or bounced on your knee
        EOT
        question_type: 'single select',
        order: 20
-     }
-   ]
-}]
+    }
+]}

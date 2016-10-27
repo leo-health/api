@@ -13,7 +13,7 @@ RSpec.describe UserSurvey, type: :model do
     it { is_expected.to validate_presence_of(:survey) }
   end
 
-  describe ".create_survey" do
+  describe ".create_and_notify" do
     let(:user){ create(:user) }
     let!(:session){ user.sessions.create(
       client_version: '1.5.1',
@@ -24,11 +24,11 @@ RSpec.describe UserSurvey, type: :model do
     let(:patient){ create(:patient) }
 
     it "should create a survey the specific patient and user" do
-       expect{ UserSurvey.create_survey(user, patient, survey) }.to change(UserSurvey, :count).by(1)
+       expect{ UserSurvey.create_and_notify(user, patient, survey) }.to change(UserSurvey, :count).by(1)
     end
 
     it "should create a notification for user" do
-      expect{ UserSurvey.create_survey(user, patient, survey) }.to change(Delayed::Job.where(queue: 'apns_notification'), :count).by(1)
+      expect{ UserSurvey.create_and_notify(user, patient, survey) }.to change(Delayed::Job.where(queue: 'apns_notification'), :count).by(1)
     end
   end
 end
