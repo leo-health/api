@@ -22,7 +22,7 @@ class Appointment < ActiveRecord::Base
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
-  after_commit :mark_slots_as_busy, :create_mchat, on: :create, if: ->{ booked? }
+  after_commit :mark_slots_as_busy, :create_surveys, on: :create, if: ->{ booked? }
 
   def mark_slots_as_busy
 
@@ -87,6 +87,19 @@ class Appointment < ActiveRecord::Base
   end
 
   private
+
+  def create_surveys
+    if appointment_type.name == "Well Visit"
+      if appointment_type.athena_id == 92 || appointment_type.athena_id == 93 || in_mchat_time?
+        create_mchat
+      end
+    end
+  end
+
+  def in_mchat_time?
+    age = start_datetime - patient.birth_date.to_datetime
+    (age - 18.months).abs < 1.months || (age - 24.months).abs < 1.months
+  end
 
   def create_mchat
     unless UserSurvey.includes(:survey).where(patient: p, survey:{name: "mchat"}).length > 0
