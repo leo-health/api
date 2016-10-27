@@ -35,6 +35,14 @@ describe Leo::V1::Cards do
       get "/api/v1/cards", {authentication_token: session.authentication_token}
     end
 
+    context "invalid auth token" do
+      it "should return an authentication error" do
+        session.authentication_token = "garbage_token"
+        do_request
+        expect(response.status).to eq(401)
+      end
+    end
+
     context "user is incomplete" do
       before do
         user.first_name = nil

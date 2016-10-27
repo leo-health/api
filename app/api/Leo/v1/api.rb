@@ -51,7 +51,7 @@ module Leo
 
         def current_session
           @session ||= Session.find_by_authentication_token(params[:authentication_token])
-          @session.update(authenticated_at: Time.now)
+          @session.try(:update, authenticated_at: Time.now)
           @session
         end
 
