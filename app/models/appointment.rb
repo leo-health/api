@@ -25,7 +25,6 @@ class Appointment < ActiveRecord::Base
   after_commit :mark_slots_as_busy, :create_surveys, on: :create, if: ->{ booked? }
 
   def mark_slots_as_busy
-
     # TODO: Remove me when bug is fixed
     Rails.logger.warn("booking appointment not yet saved to db patient_id:#{patient_id}, start_datetime:#{start_datetime}") unless id
 
@@ -89,7 +88,7 @@ class Appointment < ActiveRecord::Base
   private
 
   def create_surveys
-    if appointment_type.name == "Well Visit"
+    if appointment_type.name == "well visit"
       if name = mchat_name
         create_mchat(name)
       end
@@ -97,8 +96,8 @@ class Appointment < ActiveRecord::Base
   end
 
   def mchat_name
-    return 'MCHAT18' if appointment_type.athena_id == WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[18]
-    return 'MCHAT24' if appointment_type.athena_id == WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[24]
+    return 'MCHAT18' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[18]
+    return 'MCHAT24' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[24]
     return 'MCHAT18' if in_eighteen_month?
     return 'MCHAT24' if in_twenty_four_month?
   end

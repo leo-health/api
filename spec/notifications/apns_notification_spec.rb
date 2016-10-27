@@ -22,16 +22,4 @@ describe ApnsNotification do
       }
     end
   end
-
-  describe "#notify_new_mchat_survey" do
-    let(:device_token){"devicetoken"}
-
-    it "should send new mchat reminder to user's device" do
-      ApnsNotification.new.notify_new_mchat_survey(device_token)
-      Timeout.timeout(3) {
-        notification = @server.notifications.pop
-        expect(notification.alert).to eq("You have a new survey")
-      }
-    end
-  end
 end
