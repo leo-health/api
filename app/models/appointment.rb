@@ -88,18 +88,16 @@ class Appointment < ActiveRecord::Base
   private
 
   def create_surveys
-    if appointment_type.name == "well visit"
-      if name = mchat_name
-        create_mchat(name)
-      end
+    if name = mchat_name
+      create_mchat(name)
     end
   end
 
   def mchat_name
     return 'MCHAT18' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[18]
     return 'MCHAT24' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[24]
-    return 'MCHAT18' if milestone_from_birth?(18, 1)
-    return 'MCHAT24' if milestone_from_birth?(24, 1)
+    return 'MCHAT18' if (milestone_from_birth?(18, 1) && appointment_type.athena_id == AppointmentType::WELL_VISIT_TYPE_ATHENA_ID)
+    return 'MCHAT24' if (milestone_from_birth?(24, 1) && appointment_type.athena_id == AppointmentType::WELL_VISIT_TYPE_ATHENA_ID)
   end
 
   def milestone_from_birth?(time, buffer)
@@ -113,7 +111,7 @@ class Appointment < ActiveRecord::Base
     if time_to_apppointment < 3.days && time_to_apppointment > 0 && survey = Survey.find_by(name: name)
       UserSurvey.create_and_notify(primary_guardian, patient, survey)
     else
-      UserSurvey.delay(run_at: time_to_apppointment - 3.days).create_and_notify(primary_guardian, patient, survey)
+      UserSurvey.delay(run_at: time_to_apppointment - 3.days, queue: 'survey', owner: primary_guardian).create_and_notify(primary_guardian, patient, survey)
     end
   end
 end
