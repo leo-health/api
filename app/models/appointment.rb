@@ -85,6 +85,10 @@ class Appointment < ActiveRecord::Base
     appointment_status.try(:status) == AppointmentStatus::STATUS_CHARGE_ENTERED
   end
 
+  def milestone_from_birth?(time, buffer)
+    (start_datetime - patient.birth_date.to_datetime - time.months).abs < buffer.months
+  end
+
   private
 
   def create_surveys
@@ -98,10 +102,6 @@ class Appointment < ActiveRecord::Base
     return 'MCHAT24' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[24]
     return 'MCHAT18' if (milestone_from_birth?(18, 1) && appointment_type.athena_id == AppointmentType::WELL_VISIT_TYPE_ATHENA_ID)
     return 'MCHAT24' if (milestone_from_birth?(24, 1) && appointment_type.athena_id == AppointmentType::WELL_VISIT_TYPE_ATHENA_ID)
-  end
-
-  def milestone_from_birth?(time, buffer)
-    (start_datetime - patient.birth_date.to_datetime - time.months).abs < buffer.months
   end
 
   def create_mchat(name)

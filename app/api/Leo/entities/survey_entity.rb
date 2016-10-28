@@ -5,7 +5,7 @@ module Leo
       expose :description
       expose :survey_type
       expose :prompt
-      expose :instruction, as: :instructions
+      expose :instructions
       expose :media
       expose :private
       expose :required

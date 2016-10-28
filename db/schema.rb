@@ -609,17 +609,17 @@ ActiveRecord::Schema.define(version: 20161021192837) do
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
 
   create_table "surveys", force: :cascade do |t|
-    t.string   "name",                       null: false
-    t.string   "survey_type",                null: false
+    t.string   "name",                        null: false
+    t.string   "survey_type",                 null: false
     t.text     "description"
     t.text     "prompt"
-    t.text     "instruction"
+    t.text     "instructions"
     t.string   "media"
-    t.boolean  "private",     default: true, null: false
-    t.boolean  "required",    default: true, null: false
-    t.string   "reason",                     null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.boolean  "private",      default: true, null: false
+    t.boolean  "required",     default: true, null: false
+    t.string   "reason",                      null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   create_table "sync_statuses", force: :cascade do |t|

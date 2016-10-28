@@ -5,8 +5,7 @@ namespace :backfill do
     well_visits = Appointment.joins(:appointment_type).where(appointment_type: {athena_id: appointment_types})
     general_well_visits = Appointment.joins(:appointment_type).where(appointment_type: {athena_id: AppointmentType::WELL_VISIT_TYPE_ATHENA_ID})
     total = general_well_visits.includes(:patient).select do |appt|
-      time_to_start =(appt.start_datetime - appt.patient.birth_date.to_datetime - 1.months).abs
-      time_to_start < 18.months || time_to_start < 24.months
+      appt.milestone_from_birth?(18, 1) || appt.milestone_from_birth?(24, 1)
     end + well_visits
     puts "#{total.count} surveys needs to be generated"
   end

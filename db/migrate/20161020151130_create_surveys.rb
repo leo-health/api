@@ -5,7 +5,7 @@ class CreateSurveys < ActiveRecord::Migration
       t.string :survey_type, null: false
       t.text :description
       t.text :prompt
-      t.text :instruction
+      t.text :instructions
       t.string :media
       t.boolean :private, null: false, default: true
       t.boolean :required, null: false, default: true
