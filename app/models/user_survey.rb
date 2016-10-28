@@ -5,12 +5,21 @@ class UserSurvey < ActiveRecord::Base
   has_many :answers
 
   validates_presence_of :user, :survey
+  after_update :upload_survey_to_athena
 
   def self.create_and_notify(user, patient, survey)
     if UserSurvey.create(user: user, patient: patient, survey: survey).valid?
       user.collect_device_tokens(:SurveyCards).map do |device_token|
         NewSurveyApnsJob.send(device_token)
       end
+    end
+  end
+
+  def upload_survey_to_athena
+    if completed_changed?(from: false, to: true)
+      pdf = generate_survey_pdf
+      connector = AthenaHealthApiHelper::AthenaHealthApiConnector.instance
+
     end
   end
 end

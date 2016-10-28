@@ -83,6 +83,12 @@ module AthenaHealthApiHelper
       connection.DELETE(path, params, common_headers)
     end
 
+    def post_survey
+      params = {showinsurance: showinsurance}
+      endpoint = "#{practice_athena_id}/patients/#{patient_athena_id}/documents"
+
+    end
+
     # obtain information on an athena appointment
     # returns an instance of AthenaStruct, nil of not found
     # raises exceptions if anything goes wrong
