@@ -14,8 +14,10 @@ module Leo
           .where.not(appointment_type: AppointmentType.blocked)
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
-          appointments.map{|appointment|
-            AppointmentCardPresenter.new(appointment).present
+          {
+            cards: appointments.map{|appointment|
+              AppointmentCardPresenter.new(appointment).present
+            }
           }
         end
       end
