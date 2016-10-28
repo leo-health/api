@@ -88,4 +88,18 @@ RSpec.describe Appointment, type: :model do
       end
     end
   end
+
+  describe "#milestone_from_birth?" do
+    let(:appt){ create(:appointment) }
+    let(:patient){ appt.patient }
+
+    before do
+      @milestone = (appt.start_datetime.year * 12 + appt.start_datetime.month) -
+          (patient.birth_date.to_datetime.year * 12 + patient.birth_date.to_datetime.month) - 2
+    end
+
+    it "should return true if the milestone is within buffer" do
+      expect( appt.milestone_from_birth?(@milestone, 1) ).to eq(false)
+    end
+  end
 end
