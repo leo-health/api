@@ -15,8 +15,11 @@ module Leo
           .where("start_datetime > ?", Time.now).order("updated_at DESC")
 
           {
-            cards: appointments.map{|appointment|
-              AppointmentCardPresenter.new(appointment).present
+            cards: appointments.each_with_index.map{|appointment, index|
+              AppointmentCardPresenter.new(
+                appointment: appointment,
+                card_id: index
+              ).present
             }
           }
         end
