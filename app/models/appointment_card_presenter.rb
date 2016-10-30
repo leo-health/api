@@ -1,12 +1,17 @@
 class AppointmentCardPresenter
-  def initialize(appointment)
-    @appointment = appointment
+  def initialize(appointment:, card_id:)
     @color = "#5BD998"
+
+    @appointment = appointment
+    @card_id = card_id
   end
 
   def present
+    card_id = @card_id
     current_state = present_appointment_reminder
+
     {
+      card_id: card_id,
       card_type: "appointment",
       associated_data: Leo::Entities::AppointmentEntity.represent(@appointment),
       current_state: current_state,
@@ -21,6 +26,7 @@ class AppointmentCardPresenter
   def present_appointment_reminder
     appointment_id = @appointment.id
     color = @color
+    card_id = @card_id
     first_name = @appointment.patient.first_name.capitalize
     visit_type = @appointment.appointment_type.name.downcase
     formatted_date = @appointment.start_datetime.strftime("%A, %B %e at %l:%M%P")
@@ -39,7 +45,7 @@ class AppointmentCardPresenter
           display_name: "CANCEL",
           action_type: "CHANGE_CARD_STATE",
           payload: {
-            card_id: 0,
+            card_id: card_id,
             next_state_id: "CANCEL_UNCONFIRMED",
             appointment_id: appointment_id
           }
@@ -58,6 +64,7 @@ class AppointmentCardPresenter
   def present_appointment_cancel_unconfirmed
     appointment_id = @appointment.id
     color = @color
+    card_id = @card_id
     first_name = @appointment.patient.first_name.capitalize
     practice_name = @appointment.practice.name
     practice_address = @appointment.practice.address_line_1
@@ -74,7 +81,7 @@ class AppointmentCardPresenter
           display_name: "NO",
           action_type: "CHANGE_CARD_STATE",
           payload: {
-            card_id: 0,
+            card_id: card_id,
             next_state_id: "CANCEL_CONFIRMED"
           }
         },
@@ -93,6 +100,7 @@ class AppointmentCardPresenter
 
   def present_appointment_cancel_confirmed
     color = @color
+    card_id = @card_id
     first_name = @appointment.patient.first_name.capitalize
     practice_name = @appointment.practice.name
     practice_address = @appointment.practice.address_line_1
@@ -109,7 +117,7 @@ class AppointmentCardPresenter
           display_name: "DISMISS",
           action_type: "DISMISS_CARD",
           payload: {
-            card_id: 0
+            card_id: card_id
           }
         }
       ]
