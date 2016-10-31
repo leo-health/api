@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <%= wicked_pdf_stylesheet_link_tag "vaccines_pdf" %>
+    </head>
+
+    <body>
+        <header>
+            <div class="name"><%= "#{patient.first_name.upcase} #{patient.last_name.upcase}" %></div>
+            <div class="spacer" style="clear: both;"></div>
+            <table>
+                <tr>
+                    <th>GUARDIAN</th>
+                    <td><%= "#{user.first_name} #{user.last_name}" %></td>
+                    <th>BORN</th>
+                    <td><%= patient.birth_date.strftime("%m/%d/%Y") %></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td><%= "#{number_to_phone(user.phone,  area_code: true)}" %></td>
+                    <th>SEX</th>
+                    <% if sex == 'M' %>
+                        <td>Male</td>
+                    <% else %>
+                        <td>Female</td>
+                    <%end%>
+                </tr>
+            </table>
+            <% if patient.current_avatar && patient.current_avatar.avatar %>
+                <div class="round" style="background-image: url(<%= current_avatar.avatar.url %>)"></div>
+            <% elsif patient.sex == "M"%>
+                <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Son.png') %>)"></div>
+            <% else %>
+                <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Daughter.png') %>)"></div>
+            <% end %>
+            <div class="spacer" style="clear: both;"></div>
+        </header>
+
+        <div class="intro">
+        <div class="colored-bullet"></div>
+        <p><%= "#{survey.name}" %></p>
+        <div class="spacer" style="clear: both"></div>
+        </div>
+
+        <p class="content"><%= "#{survey.description}" %></p>
+
+        <div id="first-page">
+            <table class="vaccines">
+                <tr>
+                    <th class="title-left">Question</th>
+                    <th class="title-right">Answer</th>
+                </tr>
+                <% survey.questions.each do |q|%>
+                    <tr>
+                        <td class="vaccines-left"><%= q.body %></td>
+                        <td class="vaccines-right"><%= q.answer %></td>
+                    </tr>
+                <%end%>
+            </table>
+        </div>
+    </body>
+</html>

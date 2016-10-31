@@ -15,6 +15,13 @@ class UserSurvey < ActiveRecord::Base
     end
   end
 
+  def generate_survey_pdf
+    template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat.html.erb'))
+    p = WickedPdf.new.pdf_from_string(template.render(self), {page_size: 'Letter'})
+    debugger
+  end
+
+
   def upload_survey_to_athena
     if completed_changed?(from: false, to: true)
       pdf = generate_survey_pdf
@@ -23,3 +30,9 @@ class UserSurvey < ActiveRecord::Base
     end
   end
 end
+
+
+# template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'vaccines.html.erb'))
+# if immunizations.count > 0
+#   output = template.render(@patient)
+#   WickedPdf.new.pdf_from_string(output, {page_size: 'Letter'})
