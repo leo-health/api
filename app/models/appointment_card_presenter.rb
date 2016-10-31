@@ -45,18 +45,18 @@ class AppointmentCardPresenter
       footer: "#{practice_name} • #{practice_address}",
       button_actions: [
         {
+          display_name: "RESCHEDULE",
+          action_type: "RESCHEDULE",
+          payload: {
+            appointment_id: appointment_id
+          }
+        },
+        {
           display_name: "CANCEL",
           action_type: "CHANGE_CARD_STATE",
           payload: {
             card_id: card_id,
             next_state_id: "CANCEL_UNCONFIRMED",
-            appointment_id: appointment_id
-          }
-        },
-        {
-          display_name: "RESCHEDULE",
-          action_type: "RESCHEDULE",
-          payload: {
             appointment_id: appointment_id
           }
         }
