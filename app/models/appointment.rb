@@ -22,10 +22,9 @@ class Appointment < ActiveRecord::Base
 
   scope :booked, -> { where(appointment_status: AppointmentStatus.booked)}
 
-  after_commit :mark_slots_as_busy, on: :create, if: ->{ booked? }
+  after_commit :mark_slots_as_busy, :create_surveys, on: :create, if: ->{ booked? }
 
   def mark_slots_as_busy
-
     # TODO: Remove me when bug is fixed
     Rails.logger.warn("booking appointment not yet saved to db patient_id:#{patient_id}, start_datetime:#{start_datetime}") unless id
 
@@ -84,5 +83,35 @@ class Appointment < ActiveRecord::Base
 
   def charge_entered?
     appointment_status.try(:status) == AppointmentStatus::STATUS_CHARGE_ENTERED
+  end
+
+  def milestone_from_birth?(time, buffer)
+    (start_datetime - patient.birth_date.to_datetime - time.months).abs < buffer.months
+  end
+
+  private
+
+  def create_surveys
+    if name = mchat_name
+      create_mchat(name)
+    end
+  end
+
+  def mchat_name
+    return 'MCHAT18' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[18]
+    return 'MCHAT24' if appointment_type.athena_id == AppointmentType::WELL_VISIT_ATHENA_ID_FOR_VISIT_AGE[24]
+    return 'MCHAT18' if (milestone_from_birth?(18, 1) && appointment_type.athena_id == AppointmentType::WELL_VISIT_TYPE_ATHENA_ID)
+    return 'MCHAT24' if (milestone_from_birth?(24, 1) && appointment_type.athena_id == AppointmentType::WELL_VISIT_TYPE_ATHENA_ID)
+  end
+
+  def create_mchat(name)
+    return if  UserSurvey.includes(:survey).where(patient: patient, survey:{name: name}).length > 0
+    time_to_apppointment = (Time.current - start_datetime)
+    primary_guardian = patient.family.primary_guardian
+    if time_to_apppointment < 3.days && time_to_apppointment > 0 && survey = Survey.find_by(name: name)
+      UserSurvey.create_and_notify(primary_guardian, patient, survey)
+    else
+      UserSurvey.delay(run_at: time_to_apppointment - 3.days, queue: 'survey', owner: primary_guardian).create_and_notify(primary_guardian, patient, survey)
+    end
   end
 end

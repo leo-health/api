@@ -11,6 +11,11 @@ class Session < ActiveRecord::Base
     ContentCards: {
       ios: '1.4.1',
       android: '1.4.1'
+    },
+
+    SurveyCards: {
+      ios: '1.5.1',
+      android: '1.5.1'
     }
   }
 

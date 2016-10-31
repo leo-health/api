@@ -1,10 +1,9 @@
 require 'csv'
 require File.expand_path('../seeds/seed_milestone_content', __FILE__)
-
+require File.expand_path('../seeds/seed_surveys', __FILE__)
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
 # First seed necessary data for all practices
-
 roles_seed = [
   { name: :financial },
   { name: :clinical_support },
@@ -100,12 +99,12 @@ closure_reasons_seed = [
 
 closure_reasons_seed.each_with_index do |reason, index|
   ClosureReason.update_or_create!(:id, {
-                        id: reason[:id],
-                        reason_order: index,
-                        user_input: reason[:user_input],
-                        short_description: reason[:short_description],
-                        long_description: reason[:long_description]
-                        })
+    id: reason[:id],
+    reason_order: index,
+    user_input: reason[:user_input],
+    short_description: reason[:short_description],
+    long_description: reason[:long_description]
+  })
 end
 
 puts "Finished seeding #{closure_reasons_seed.count} ClosureReason records"
@@ -853,5 +852,13 @@ LinkPreview.update_or_create!([:category, :title], {
 SeedMilestoneContent.seed
 count = LinkPreview.where(category: :milestone_content).count
 puts "Finished seeding #{count} milestone content"
+
+SURVEYS.each do |item|
+  survey = Survey.update_or_create!(item.keys, item)
+  QUESTIONS[:mchat].each do |question|
+    Question.update_or_create!(question.keys, question.merge(survey_id: survey.id))
+  end
+end
+puts "Finished seeding surveys and questions"
 
 puts "Finished seeding all data"

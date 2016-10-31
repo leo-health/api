@@ -34,6 +34,19 @@ class ApnsNotification
     pusher.push(new_content_notification)
   end
 
+  def notify_new_mchat_survey(device_token)
+    new_mchat_notification = Grocer::Notification.new(
+        device_token:      device_token,
+        alert:             "You have a new survey",
+        custom:            { url_host: "feed", url_path: 0 },
+        badge:             1,
+        sound:             "siren.aiff",         # optional
+        expiry:            Time.now + 60*60*24,     # optional; 0 is default, meaning the message is not stored
+        content_available: false
+    )
+    pusher.push(new_mchat_notification)
+  end
+
   private
 
   attr_reader :pusher

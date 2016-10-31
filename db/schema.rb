@@ -48,6 +48,17 @@ ActiveRecord::Schema.define(version: 20161021192837) do
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
 
+  create_table "answers", force: :cascade do |t|
+    t.integer  "user_survey_id", null: false
+    t.integer  "question_id",    null: false
+    t.text     "text"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "answers", ["question_id"], name: "index_answers_on_question_id", using: :btree
+  add_index "answers", ["user_survey_id", "question_id"], name: "index_answers_on_user_survey_id_and_question_id", unique: true, using: :btree
+
   create_table "appointment_statuses", force: :cascade do |t|
     t.string "description"
     t.string "status"
@@ -118,6 +129,17 @@ ActiveRecord::Schema.define(version: 20161021192837) do
 
   add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
   add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
+
+  create_table "choices", force: :cascade do |t|
+    t.string   "media"
+    t.integer  "question_id",                             null: false
+    t.string   "choice_type",      default: "structured", null: false
+    t.integer  "next_question_id"
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+  end
+
+  add_index "choices", ["question_id"], name: "index_choices_on_question_id", using: :btree
 
   create_table "closure_notes", force: :cascade do |t|
     t.integer  "conversation_id",   null: false
@@ -497,6 +519,19 @@ ActiveRecord::Schema.define(version: 20161021192837) do
     t.integer  "avatar_id"
   end
 
+  create_table "questions", force: :cascade do |t|
+    t.text     "body",          null: false
+    t.text     "secondary"
+    t.integer  "survey_id",     null: false
+    t.integer  "order",         null: false
+    t.string   "question_type", null: false
+    t.string   "media"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "questions", ["survey_id"], name: "index_questions_on_survey_id", using: :btree
+
   create_table "read_receipts", force: :cascade do |t|
     t.integer  "message_id"
     t.string   "reader_id"
@@ -573,6 +608,20 @@ ActiveRecord::Schema.define(version: 20161021192837) do
 
   add_index "staff_profiles", ["staff_id"], name: "index_staff_profiles_on_staff_id", unique: true, using: :btree
 
+  create_table "surveys", force: :cascade do |t|
+    t.string   "name",                        null: false
+    t.string   "survey_type",                 null: false
+    t.text     "description"
+    t.text     "prompt"
+    t.text     "instructions"
+    t.string   "media"
+    t.boolean  "private",      default: true, null: false
+    t.boolean  "required",     default: true, null: false
+    t.string   "reason",                      null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
   create_table "sync_statuses", force: :cascade do |t|
     t.boolean "should_attempt_sync", default: true
     t.integer "owner_id"
@@ -617,6 +666,21 @@ ActiveRecord::Schema.define(version: 20161021192837) do
     t.datetime "dismissed_at"
     t.boolean  "sends_push_notification_on_publish"
   end
+
+  create_table "user_surveys", force: :cascade do |t|
+    t.integer  "user_id",                             null: false
+    t.integer  "patient_id"
+    t.integer  "survey_id",                           null: false
+    t.boolean  "dismissed",           default: false
+    t.boolean  "completed",           default: false
+    t.datetime "expiration_datetime"
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
+  add_index "user_surveys", ["patient_id"], name: "index_user_surveys_on_patient_id", using: :btree
+  add_index "user_surveys", ["survey_id", "user_id", "patient_id"], name: "index_user_surveys_on_survey_id_and_user_id_and_patient_id", unique: true, using: :btree
+  add_index "user_surveys", ["user_id"], name: "index_user_surveys_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "title"

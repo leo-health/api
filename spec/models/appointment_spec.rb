@@ -47,6 +47,22 @@ RSpec.describe Appointment, type: :model do
     end
   end
 
+  describe 'callbacks' do
+    describe 'after_commit' do
+      context 'well visit' do
+        let!(:survey){ create(:survey, name: 'MCHAT18') }
+
+        context '18 month or 24 month visit' do
+          let(:appointment) { build(:appointment, appointment_type: create(:appointment_type, :well_visit, athena_id: 91)) }
+
+          it "should create mchat survey" do
+            expect{ appointment.save }.to change(UserSurvey, :count).by(1)
+          end
+        end
+      end
+    end
+  end
+
   describe '#same_family?' do
     let(:first_family){create(:family)}
     let(:patient){create(:patient, family: first_family)}
@@ -70,6 +86,20 @@ RSpec.describe Appointment, type: :model do
         appointment.valid?
         expect(appointment.errors[:patient_id]).to eq([])
       end
+    end
+  end
+
+  describe "#milestone_from_birth?" do
+    let(:appt){ create(:appointment) }
+    let(:patient){ appt.patient }
+
+    before do
+      @milestone = (appt.start_datetime.year * 12 + appt.start_datetime.month) -
+          (patient.birth_date.to_datetime.year * 12 + patient.birth_date.to_datetime.month) - 2
+    end
+
+    it "should return true if the milestone is within buffer" do
+      expect( appt.milestone_from_birth?(@milestone, 1) ).to eq(false)
     end
   end
 end
