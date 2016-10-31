@@ -2,6 +2,46 @@ module Leo
   module V1
     class Cards < Grape::API
       desc "Return all cards of a user"
+
+      resource :route_cards do
+        before do
+          authenticated_and_complete
+        end
+
+        get do
+          conversations = [Family.includes(:guardians).find(current_user.family_id).conversation]
+          user_link_previews = current_session.feature_available?(:ContentCards) ? UserLinkPreview.where(user: current_user).published : []
+          appointments = Appointment.booked
+          .where(patient_id: current_user.family.patients.pluck(:id))
+          .where.not(appointment_type: AppointmentType.blocked)
+          .where("start_datetime > ?", Time.now).order("updated_at DESC")
+
+          associated_objects = conversations + user_link_previews + appointments
+
+          cards = associated_objects
+          .sort_by(&:updated_at).reverse
+          .each_with_index
+          .map do |associated_object, index|
+            case associated_object
+            when Conversation
+              ConversationCardPresenter.new(
+                conversation: associated_object,
+                card_id: index
+              ).present
+            when Appointment
+              AppointmentCardPresenter.new(
+                appointment: associated_object,
+                card_id: index
+              ).present
+            end
+          end
+
+          {
+            cards: cards
+          }
+        end
+      end
+
       namespace "cards" do
         before do
           authenticated_and_complete
