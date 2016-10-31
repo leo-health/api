@@ -13,4 +13,8 @@ class CardIcon < ActiveRecord::Base
   def self.appointment
     find_by_card_type("appointment")
   end
+
+  def self.survey
+    find_by_card_type("survey")
+  end
 end
