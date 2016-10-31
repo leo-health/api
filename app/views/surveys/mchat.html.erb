@@ -20,29 +20,22 @@
                     <th></th>
                     <td><%= "#{number_to_phone(user.phone,  area_code: true)}" %></td>
                     <th>SEX</th>
-                    <% if sex == 'M' %>
+                    <% if patient.sex == 'M' %>
                         <td>Male</td>
                     <% else %>
                         <td>Female</td>
                     <%end%>
                 </tr>
             </table>
-            <% if patient.current_avatar && patient.current_avatar.avatar %>
-                <div class="round" style="background-image: url(<%= current_avatar.avatar.url %>)"></div>
-            <% elsif patient.sex == "M"%>
-                <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Son.png') %>)"></div>
-            <% else %>
-                <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Daughter.png') %>)"></div>
-            <% end %>
             <div class="spacer" style="clear: both;"></div>
         </header>
 
         <div class="intro">
-        <div class="colored-bullet"></div>
-        <p><%= "#{survey.name}" %></p>
-        <div class="spacer" style="clear: both"></div>
+            <div class="colored-bullet"></div>
+            <p><%= "#{survey.name}" %></p>
+            <div class="spacer" style="clear: both"></div>
         </div>
-
+        <p class="content">Score: 100</p>
         <p class="content"><%= "#{survey.description}" %></p>
 
         <div id="first-page">
@@ -51,10 +44,15 @@
                     <th class="title-left">Question</th>
                     <th class="title-right">Answer</th>
                 </tr>
-                <% survey.questions.each do |q|%>
+                <% survey.questions.each_with_index do |q, idx|%>
                     <tr>
-                        <td class="vaccines-left"><%= q.body %></td>
-                        <td class="vaccines-right"><%= q.answer %></td>
+                        <td class="vaccines-left"><%= idx + 1 %>. <%= q.body %></td>
+                        <% if q.answer %>
+                            <td class="vaccines-right"><%= q.answer.text %></td>
+                        <% end %>
+                    </tr>
+                    <tr>
+                        <td class="vaccines-left-second"><%=q.secondary%></td>
                     </tr>
                 <%end%>
             </table>
