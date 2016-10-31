@@ -1,6 +1,8 @@
 require 'csv'
 require File.expand_path('../seeds/seed_milestone_content', __FILE__)
 require File.expand_path('../seeds/seed_surveys', __FILE__)
+require File.expand_path('../seeds/seed_card_icons', __FILE__)
+
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
 # First seed necessary data for all practices
@@ -860,5 +862,9 @@ SURVEYS.each do |item|
   end
 end
 puts "Finished seeding surveys and questions"
+
+SeedCardIcons.seed
+count = CardIcon.count
+puts "Finished seeding #{count} card icons"
 
 puts "Finished seeding all data"
