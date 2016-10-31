@@ -1,5 +1,6 @@
 require 'csv'
 require File.expand_path('../seeds/seed_milestone_content', __FILE__)
+require File.expand_path('../seeds/seed_card_icons', __FILE__)
 
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
@@ -853,5 +854,9 @@ LinkPreview.update_or_create!([:category, :title], {
 SeedMilestoneContent.seed
 count = LinkPreview.where(category: :milestone_content).count
 puts "Finished seeding #{count} milestone content"
+
+SeedCardIcons.seed
+count = CardIcon.count
+puts "Finished seeding #{count} card icons"
 
 puts "Finished seeding all data"

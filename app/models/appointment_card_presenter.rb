@@ -1,6 +1,7 @@
 class AppointmentCardPresenter
   def initialize(appointment:, card_id:)
     @color = "#5BD998"
+    @icon = Leo::Entities::ImageEntity.represent(CardIcon.appointment.icon)
 
     @appointment = appointment
     @card_id = card_id
@@ -27,6 +28,7 @@ class AppointmentCardPresenter
     appointment_id = @appointment.id
     color = @color
     card_id = @card_id
+    icon = @icon
     first_name = @appointment.patient.first_name.capitalize
     visit_type = @appointment.appointment_type.name.downcase
     formatted_date = @appointment.start_datetime.strftime("%A, %B %e at %l:%M%P")
@@ -36,6 +38,7 @@ class AppointmentCardPresenter
     {
       card_state_type: "REMINDER",
       title: "Upcoming Appointment",
+      icon: icon,
       color: color,
       tinted_header: first_name,
       body: "#{first_name} has a #{visit_type} scheduled for #{formatted_date}",
@@ -65,6 +68,7 @@ class AppointmentCardPresenter
     appointment_id = @appointment.id
     color = @color
     card_id = @card_id
+    icon = @icon
     first_name = @appointment.patient.first_name.capitalize
     practice_name = @appointment.practice.name
     practice_address = @appointment.practice.address_line_1
@@ -72,6 +76,7 @@ class AppointmentCardPresenter
     {
       card_state_type: "CANCEL_UNCONFIRMED",
       title: "Cancel Appointment?",
+      icon: icon,
       color: color,
       tinted_header: first_name,
       body: "Are you sure you want to cancel your appointment?",
@@ -101,6 +106,7 @@ class AppointmentCardPresenter
   def present_appointment_cancel_confirmed
     color = @color
     card_id = @card_id
+    icon = @icon
     first_name = @appointment.patient.first_name.capitalize
     practice_name = @appointment.practice.name
     practice_address = @appointment.practice.address_line_1
@@ -108,6 +114,7 @@ class AppointmentCardPresenter
     {
       card_state_type: "CANCEL_CONFIRMED",
       title: "Appointment Cancelled",
+      icon: icon,
       color: color,
       tinted_header: first_name,
       body: "#{first_name}'s appointment has been cancelled. This card will be automatically dismissed after some time.",
