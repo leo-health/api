@@ -130,6 +130,11 @@ ActiveRecord::Schema.define(version: 20161030235736) do
   add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
   add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
 
+  create_table "card_icons", force: :cascade do |t|
+    t.string "icon",      null: false
+    t.string "card_type", null: false
+  end
+
   create_table "choices", force: :cascade do |t|
     t.string   "media"
     t.integer  "question_id",                             null: false
@@ -140,11 +145,6 @@ ActiveRecord::Schema.define(version: 20161030235736) do
   end
 
   add_index "choices", ["question_id"], name: "index_choices_on_question_id", using: :btree
-
-  create_table "card_icons", force: :cascade do |t|
-    t.string "icon",      null: false
-    t.string "card_type", null: false
-  end
 
   create_table "closure_notes", force: :cascade do |t|
     t.integer  "conversation_id",   null: false
