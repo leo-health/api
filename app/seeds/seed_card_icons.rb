@@ -9,5 +9,8 @@ class SeedCardIcons
         icon: Rack::Test::UploadedFile.new(File.join(Rails.root, 'db', 'seed_images', "icon-Card-#{card_type}.png"))
       })
     end
+
+    count = CardIcon.count
+    puts "Finished seeding #{count} card icons"
   end
 end

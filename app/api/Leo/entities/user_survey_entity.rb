@@ -1,10 +1,10 @@
 module Leo
   module Entities
     class UserSurveyEntity < Grape::Entity
-      expose :patient
-      expose :user
-      expose :survey
-      expose :id, as: :user_survey_id
+      expose :patient_id
+      expose :user_id
+      expose :survey, with: Leo::Entities::SurveyEntity
+      expose :id
     end
   end
 end

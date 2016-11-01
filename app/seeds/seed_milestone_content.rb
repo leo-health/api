@@ -41,5 +41,8 @@ class SeedMilestoneContent
         category: :milestone_content
       })
     end
+
+    count = LinkPreview.where(category: :milestone_content).count
+    puts "Finished seeding #{count} milestone content"
   end
 end

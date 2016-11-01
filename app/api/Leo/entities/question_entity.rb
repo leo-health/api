@@ -3,7 +3,7 @@ module Leo
     class QuestionEntity < Grape::Entity
       expose :body
       expose :secondary
-      expose :survey
+      expose :survey_id
       expose :question_type
       expose :media
     end
