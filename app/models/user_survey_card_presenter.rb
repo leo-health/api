@@ -11,10 +11,15 @@ class UserSurveyCardPresenter
     card_id = @card_id
     current_state = present_begin_survey
 
+    # TODO: figure out how to do with grape entity... why must things be so complicated
+    user_survey_json = Leo::Entities::UserSurveyEntity.represent(@user_survey).as_json.except(:survey)
+    survey_json = Leo::Entities::SurveyEntity.represent(@user_survey.survey).as_json
+    associated_data = user_survey_json.merge(survey_json)
+
     {
       card_id: card_id,
       card_type: "survey",
-      associated_data: Leo::Entities::UserSurveyEntity.represent(@user_survey),
+      associated_data: associated_data,
       current_state: current_state,
       states: [
         current_state

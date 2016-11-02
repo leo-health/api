@@ -12,7 +12,7 @@ module Leo
       expose :category
 
       def deep_link
-        object.external_link || "#{ENV['DEEPLINK_SCHEME']}://#{object.deep_link}"
+        object.full_deep_link_with_scheme
       end
 
       private

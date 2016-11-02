@@ -43,6 +43,11 @@ module Leo
           cancel_appointment
         end
 
+        desc "cancel an appointment"
+        delete do
+          cancel_appointment
+        end
+
         desc "reschedule an appointment"
         params do
           use :appointment_params

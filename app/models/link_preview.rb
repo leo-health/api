@@ -9,6 +9,10 @@ class LinkPreview < ActiveRecord::Base
   validates_processing_of :icon
   validates :title, :body, :tint_color_hex, presence: true
 
+  def full_deep_link_with_scheme
+    external_link || "#{ENV['DEEPLINK_SCHEME']}://#{deep_link}"
+  end
+
   def self.ages_for_milestone_content
     where(category: :milestone_content)
     .order(:age_of_patient_in_months)

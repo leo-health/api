@@ -83,20 +83,20 @@ class AppointmentCardPresenter
       footer: "#{practice_name} • #{practice_address}",
       button_actions: [
         {
+          display_name: "YES",
+          action_type: "CANCEL_APPOINTMENT_CARD",
+          payload: {
+            card_id: card_id,
+            next_state_id: "CANCEL_CONFIRMED",
+            appointment_id: appointment_id
+          }
+        },
+        {
           display_name: "NO",
           action_type: "CHANGE_CARD_STATE",
           payload: {
             card_id: card_id,
-            next_state_id: "CANCEL_CONFIRMED"
-          }
-        },
-        {
-          display_name: "YES",
-          action_type: "CHANGE_CARD_STATE",
-          payload: {
-            card_id: 0,
-            next_state_id: "CANCEL_CONFIRMED",
-            appointment_id: appointment_id
+            next_state_id: "REMINDER"
           }
         }
       ]

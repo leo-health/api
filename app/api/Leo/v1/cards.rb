@@ -28,6 +28,11 @@ module Leo
                 conversation: associated_object,
                 card_id: index
               ).present
+            when UserLinkPreview
+              UserLinkPreviewCardPresenter.new(
+                user_link_preview: associated_object,
+                card_id: index
+              ).present
             when Appointment
               AppointmentCardPresenter.new(
                 appointment: associated_object,
@@ -41,9 +46,9 @@ module Leo
             end
           end
 
-          {
-            cards: cards
-          }
+          return card[index] if index = params[:card_id]
+
+          {cards: cards}
         end
       end
 

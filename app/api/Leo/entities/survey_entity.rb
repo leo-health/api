@@ -2,7 +2,7 @@ module Leo
   module Entities
     class SurveyEntity < Grape::Entity
       expose :name
-      expose :description
+      expose :description, as: :survey_description
       expose :survey_type
       expose :prompt
       expose :instructions
