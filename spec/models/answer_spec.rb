@@ -7,8 +7,11 @@ RSpec.describe Answer, type: :model do
   end
 
   describe "validations" do
+    let!(:answer){ create(:answer) }
+
     it { is_expected.to validate_presence_of(:user_survey) }
     it { is_expected.to validate_presence_of(:question) }
+    it { is_expected.to validate_uniqueness_of(:question_id).scoped_to(:user_survey_id) }
   end
 
   describe "after commit" do

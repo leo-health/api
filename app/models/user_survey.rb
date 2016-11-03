@@ -8,6 +8,8 @@ class UserSurvey < ActiveRecord::Base
   validates_presence_of :user, :survey
   after_update :upload_survey_to_athena
 
+  MCHAT_POSITIVE_QUESTIONS = [2, 5, 12]
+
   def self.create_and_notify(user, patient, survey)
     if UserSurvey.create(user: user, patient: patient, survey: survey).valid?
       user.collect_device_tokens(:SurveyCards).map do |device_token|
@@ -15,22 +17,29 @@ class UserSurvey < ActiveRecord::Base
       end
     end
   end
-  #surveyName+patientName+timestamp
 
   def upload_survey_to_athena
-    if completed_changed?(from: false, to: true)
-      pdf = generate_survey_pdf
-      connector = AthenaHealthApiHelper::AthenaHealthApiConnector.instance
-    end
+    # if completed_changed?(from: false, to: true)
+      AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, user, generate_survey_pdf)
+      File.delete(Rails.root.join("public", "mchat.pdf"))
+    # end
+  end
+
+  def calculate_mchat_score
+    answers = Answer.where(user_survey: self)
+    positive_ans = answers.where(question_id: survey.questions.where(order: MCHAT_POSITIVE_QUESTIONS).pluck(:id))
+    negative_ans = answers.where(question_id: survey.questions.where.not(order: MCHAT_POSITIVE_QUESTIONS).pluck(:id))
+    positive_ans.inject(0){|score, ans| score += 1 if ans.text == 'Yes'} +
+      negative_ans.inject(0){|score, ans| score += 1 if ans.text == 'No'}
   end
 
   private
 
   def generate_survey_pdf
+    #surveyName+patientName+timestamp
     template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat.html.erb'))
     p = WickedPdf.new.pdf_from_string(template.render(self))
-    File.open(Rails.root.join('public','mchat.pdf'), 'wb') do |file|
-      file << p
-    end
+    File.open(Rails.root.join("public", "mchat.pdf"), 'wb'){ |file| file << p }
+    Rails.root.join("public", "mchat.pdf")
   end
 end

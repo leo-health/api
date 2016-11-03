@@ -48,7 +48,7 @@ ActiveRecord::Schema.define(version: 20161021192837) do
   add_index "allergies", ["athena_id"], name: "index_allergies_on_athena_id", using: :btree
   add_index "allergies", ["patient_id"], name: "index_allergies_on_patient_id", using: :btree
 
-  create_table "answers", force: :cascade do |t|
+  create_table "\wers", force: :cascade do |t|
     t.integer  "user_survey_id", null: false
     t.integer  "question_id",    null: false
     t.text     "text"

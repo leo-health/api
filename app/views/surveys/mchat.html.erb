@@ -35,7 +35,7 @@
             <p><%= "#{survey.name}" %></p>
             <div class="spacer" style="clear: both"></div>
         </div>
-        <p class="content">Score: 100</p>
+        <p class="content">Score: <%= "#{calculate_mchat_score}" %></p>
         <p class="content"><%= "#{survey.description}" %></p>
 
         <div id="first-page">
@@ -44,15 +44,15 @@
                     <th class="title-left">Question</th>
                     <th class="title-right">Answer</th>
                 </tr>
-                <% survey.questions.each_with_index do |q, idx|%>
+                <% survey.questions.each_with_index do |question, idx|%>
                     <tr>
-                        <td class="vaccines-left"><%= idx + 1 %>. <%= q.body %></td>
-                        <% if q.answer %>
-                            <td class="vaccines-right"><%= q.answer.text %></td>
+                        <td class="vaccines-left"><%= idx + 1 %>. <%= question.body %></td>
+                        <% if answer = answers.find_by(question_id: question.id) %>
+                            <td class="vaccines-right"><%= answer.text %></td>
                         <% end %>
                     </tr>
                     <tr>
-                        <td class="vaccines-left-second"><%=q.secondary%></td>
+                        <td class="vaccines-left-second"><%=question.secondary%></td>
                     </tr>
                 <%end%>
             </table>

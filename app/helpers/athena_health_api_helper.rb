@@ -83,12 +83,6 @@ module AthenaHealthApiHelper
       connection.DELETE(path, params, common_headers)
     end
 
-    def post_survey
-      params = {showinsurance: showinsurance}
-      endpoint = "#{practice_athena_id}/patients/#{patient_athena_id}/documents"
-
-    end
-
     # obtain information on an athena appointment
     # returns an instance of AthenaStruct, nil of not found
     # raises exceptions if anything goes wrong
@@ -484,6 +478,19 @@ module AthenaHealthApiHelper
     def get_providers(**params)
       endpoint = "providers"
       get_paged(url: endpoint, params: params, field: :providers, headers: @common_headers)
+    end
+
+    require 'net/http/post/multipart'
+
+    def upload_survey(patient, user, pdf_path)
+      @connection.authenticate unless @connection.token
+      params = { attachmentcontents: File.new(pdf_path), departmentid: 1, documentsubclass: 'ENCOUNTERDOCUMENT_IMAGEDOC' }
+      uri = @connection.path_join(@connection.version, @connection.practiceid, "patients/1828/documents")
+      req = Net::HTTP::Post::Multipart.new uri, params
+      req['authorization'] = "Bearer #{@connection.token}"
+      req["accept-encoding"] = "identity"
+      response = @connection.connection.request(req)
+      raise "HTTP error for endpoint #{uri} code encountered: #{response.code}" unless response.code.to_i == 200
     end
   end
 end
