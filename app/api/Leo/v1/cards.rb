@@ -46,7 +46,9 @@ module Leo
             end
           end
 
-          return card[index] if index = params[:card_id]
+          if index = params[:card_id]
+            return card[index]
+          end
 
           {cards: cards}
         end

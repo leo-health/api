@@ -10,12 +10,9 @@ class UserLinkPreviewCardPresenter
     card_id = @card_id
     current_state = present_state
 
-    associated_data = Leo::Entities::LinkPreviewEntity.represent(@user_link_preview.link_preview)
-
     {
       card_id: card_id,
       card_type: "survey",
-      associated_data: associated_data,
       current_state: current_state,
       states: [
         current_state
@@ -27,6 +24,7 @@ class UserLinkPreviewCardPresenter
     card_id = @card_id
     color = @color
     icon = @icon
+    user_link_preview_id = @user_link_preview.id
     link_preview = @user_link_preview.link_preview
 
     {
@@ -36,7 +34,7 @@ class UserLinkPreviewCardPresenter
       color: color,
       tinted_header: link_preview.tinted_header_text,
       body: link_preview.body,
-      footer: nil,
+      footer: "",
       button_actions: [
         {
           display_name: link_preview.deep_link_button_text,
@@ -47,9 +45,10 @@ class UserLinkPreviewCardPresenter
         },
         {
           display_name: link_preview.dismiss_button_text,
-          action_type: "DISMISS_CARD",
+          action_type: "DISMISS_CONTENT_CARD",
           payload: {
-            card_id: card_id
+            card_id: card_id,
+            user_link_preview_id: user_link_preview_id
           }
         }
       ]

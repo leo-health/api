@@ -50,7 +50,8 @@ class UserSurveyCardPresenter
           display_name: "BEGIN SURVEY",
           action_type: "BEGIN_SURVEY",
           payload: {
-            user_survey_id: user_survey_id
+            user_survey_id: user_survey_id,
+            current_question_index: 0
           }
         }
       ]
