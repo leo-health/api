@@ -21,7 +21,7 @@ module Leo
           cards = associated_objects
           .sort_by(&:updated_at).reverse
           .each_with_index
-          .map do |associated_object, index|
+          .map { |associated_object, index|
             case associated_object
             when Conversation
               ConversationCardPresenter.new(
@@ -44,7 +44,7 @@ module Leo
                 card_id: index
               ).present
             end
-          end
+          }.compact
 
           if index = params[:card_id]
             return card[index]

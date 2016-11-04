@@ -28,15 +28,22 @@ class ConversationCardPresenter
     icon = @icon
 
     last_message = @conversation.messages.order(:created_at).last
-
     last_message_author_name = last_message.sender.try(:full_name)
     last_message_body = last_message.body
-    practice_phone = @conversation.family.primary_guardian.practice.phone
+    if last_message.type_name.to_sym == :image
+      sender_name = last_message.sender.full_name.try(:capitalize)
+      last_message_body = "#{sender_name || "Someone"} sent an image."
+    end
+
+    practice = @conversation.family.primary_guardian.practice
+    practice_phone = practice.phone
+    contact_name = practice.name
+
     time_ago = time_ago_in_words(last_message.created_at)
 
     # TODO: think about how to sent templates back and forth. This calculation should be done dynamically on the front end
     date_format = "Sent #{time_ago} ago"
-
+    
     {
       card_state_type: "CONVERSATION",
       title: "Chat with us",
@@ -57,7 +64,8 @@ class ConversationCardPresenter
           display_name: "CALL US",
           action_type: "CALL_PHONE",
           payload: {
-            phone_number: practice_phone
+            phone_number: practice_phone,
+            contact_name: contact_name
           }
         }
       ]
