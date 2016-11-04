@@ -20,7 +20,7 @@ class UserSurvey < ActiveRecord::Base
 
   def upload_survey_to_athena
     # if completed_changed?(from: false, to: true)
-      AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, user, generate_survey_pdf)
+      AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, generate_survey_pdf)
       File.delete(Rails.root.join("public", "mchat.pdf"))
     # end
   end
@@ -36,7 +36,6 @@ class UserSurvey < ActiveRecord::Base
   private
 
   def generate_survey_pdf
-    #surveyName+patientName+timestamp
     template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat.html.erb'))
     p = WickedPdf.new.pdf_from_string(template.render(self))
     File.open(Rails.root.join("public", "mchat.pdf"), 'wb'){ |file| file << p }

@@ -1,4 +1,5 @@
 require "athena_health_api"
+require 'net/http/post/multipart'
 
 # TODO: single responsibility - get paged should not parse json?
 
@@ -480,15 +481,17 @@ module AthenaHealthApiHelper
       get_paged(url: endpoint, params: params, field: :providers, headers: @common_headers)
     end
 
-    require 'net/http/post/multipart'
-
-    def upload_survey(patient, user, pdf_path)
+    def upload_survey(patient, pdf_path)
       @connection.authenticate unless @connection.token
-      params = { attachmentcontents: File.new(pdf_path), departmentid: 1, documentsubclass: 'ENCOUNTERDOCUMENT_IMAGEDOC' }
-      uri = @connection.path_join(@connection.version, @connection.practiceid, "patients/1828/documents")
+      params = {
+        attachmentcontents: UploadIO.new(File.open(pdf_path), "pdf", 'mchat.pdf'),
+        departmentid: 1,
+        documentsubclass: 'ENCOUNTERDOCUMENT_IMAGEDOC'
+      }
+      uri = @connection.path_join(@connection.version, @connection.practiceid, "patients/#{patient.athena_id}/documents")
       req = Net::HTTP::Post::Multipart.new uri, params
       req['authorization'] = "Bearer #{@connection.token}"
-      req["accept-encoding"] = "identity"
+      req["accept-encoding"] = "deflate;q=0.6,identity;q=0.3"
       response = @connection.connection.request(req)
       raise "HTTP error for endpoint #{uri} code encountered: #{response.code}" unless response.code.to_i == 200
     end
