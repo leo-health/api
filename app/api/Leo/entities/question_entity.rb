@@ -8,6 +8,13 @@ module Leo
       expose :body
       expose :secondary
       expose :media
+      expose :image_name
+
+      private
+
+      def image_name
+        "question#{object.order}"
+      end
     end
   end
 end

@@ -43,7 +43,7 @@ class ConversationCardPresenter
 
     # TODO: think about how to sent templates back and forth. This calculation should be done dynamically on the front end
     date_format = "Sent #{time_ago} ago"
-    
+
     {
       card_state_type: "CONVERSATION",
       title: "Chat with us",

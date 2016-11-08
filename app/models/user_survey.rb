@@ -9,7 +9,7 @@ class UserSurvey < ActiveRecord::Base
   def self.create_test
     create(
       user: User.find(13),
-      patient: Patient.find(1), 
+      patient: Patient.find(1),
       survey: Survey.first
     )
   end
@@ -20,5 +20,11 @@ class UserSurvey < ActiveRecord::Base
         NewSurveyApnsJob.send(device_token)
       end
     end
+  end
+
+  def current_question_index
+    last_answer_question_number = answers.joins(:question)
+      .maximum("questions.order") || -1
+    last_answer_question_number + 1
   end
 end
