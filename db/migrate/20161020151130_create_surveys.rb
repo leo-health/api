@@ -3,6 +3,7 @@ class CreateSurveys < ActiveRecord::Migration
     create_table :surveys do |t|
       t.string :name, null: false
       t.string :survey_type, null: false
+      t.string :display_name, null: false
       t.text :description
       t.text :prompt
       t.text :instructions

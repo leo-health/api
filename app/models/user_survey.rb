@@ -8,8 +8,6 @@ class UserSurvey < ActiveRecord::Base
   validates_presence_of :user, :survey
   after_update :upload_survey_to_athena
 
-  MCHAT_POSITIVE_QUESTIONS = [2, 5, 12]
-
   def self.create_and_notify(user, patient, survey)
     if UserSurvey.create(user: user, patient: patient, survey: survey).valid?
       user.collect_device_tokens(:SurveyCards).map do |device_token|
@@ -19,10 +17,10 @@ class UserSurvey < ActiveRecord::Base
   end
 
   def upload_survey_to_athena
-    # if completed_changed?(from: false, to: true)
+    if completed_changed?(from: false, to: true)
       AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, generate_survey_pdf)
       File.delete(Rails.root.join("public", "mchat.pdf"))
-    # end
+    end
   end
 
   def calculate_mchat_score
@@ -33,7 +31,7 @@ class UserSurvey < ActiveRecord::Base
       negative_ans.inject(0){|score, ans| score += 1 if ans.text == 'No'}
   end
 
-  private
+  # private
 
   def generate_survey_pdf
     template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat.html.erb'))

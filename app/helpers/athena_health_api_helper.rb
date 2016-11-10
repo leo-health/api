@@ -486,7 +486,7 @@ module AthenaHealthApiHelper
       params = {
         attachmentcontents: UploadIO.new(File.open(pdf_path), "pdf", 'mchat.pdf'),
         departmentid: 1,
-        documentsubclass: 'ENCOUNTERDOCUMENT_IMAGEDOC'
+        documentsubclass: 'CLINICALDOCUMENT'
       }
       uri = @connection.path_join(@connection.version, @connection.practiceid, "patients/#{patient.athena_id}/documents")
       req = Net::HTTP::Post::Multipart.new uri, params

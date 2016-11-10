@@ -5,7 +5,8 @@ SURVEYS = [
     prompt:'This is prompt',
     instructions: 'This is instruction',
     reason: 'This is reason',
-    survey_type: 'clinical'
+    survey_type: 'clinical',
+    display_name: 'MCHAT-Clinical Survey 18'
   },
   {
     name: 'MCHAT24',
@@ -13,7 +14,8 @@ SURVEYS = [
     prompt:'This is prompt',
     instructions: 'This is instruction',
     reason: 'This is reason',
-    survey_type: 'clinical'
+    survey_type: 'clinical',
+    display_name: 'MCHAT-Clinical Survey 24'
   }
 ]
 

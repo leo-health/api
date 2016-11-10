@@ -6,6 +6,10 @@ class Answer < ActiveRecord::Base
   validates_uniqueness_of :question_id, scope: :user_survey_id
   after_commit :mark_survey_complete_and_upload, on: :create
 
+  def score_point
+
+  end
+
   private
 
   def mark_survey_complete_and_upload

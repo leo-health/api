@@ -1,61 +1,42 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset='utf-8' />
-        <%= wicked_pdf_stylesheet_link_tag "vaccines_pdf" %>
+      <meta charset='utf-8' />
+      <%= wicked_pdf_stylesheet_link_tag "vaccines_pdf" %>
     </head>
 
     <body>
-        <header>
-            <div class="name"><%= "#{patient.first_name.upcase} #{patient.last_name.upcase}" %></div>
-            <div class="spacer" style="clear: both;"></div>
-            <table>
-                <tr>
-                    <th>GUARDIAN</th>
-                    <td><%= "#{user.first_name} #{user.last_name}" %></td>
-                    <th>BORN</th>
-                    <td><%= patient.birth_date.strftime("%m/%d/%Y") %></td>
-                </tr>
-                <tr>
-                    <th></th>
-                    <td><%= "#{number_to_phone(user.phone,  area_code: true)}" %></td>
-                    <th>SEX</th>
-                    <% if patient.sex == 'M' %>
-                        <td>Male</td>
-                    <% else %>
-                        <td>Female</td>
-                    <%end%>
-                </tr>
-            </table>
-            <div class="spacer" style="clear: both;"></div>
-        </header>
+        <% page_heights, start, page_count, vaccines_left, end_flag = 400, 0, 1, vaccines, true %>
+        <% vaccines_left.each_with_index do |el, idx|%>
+            <% page_heights -= 16*(el.vaccine.length/60 + 1) + 41 %>
+            <% if idx == vaccines_left.length - 1 %>
+                <% if page_count == 1 %>
+                    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'mchat_first_page.erb')).render(self, count: page_count, records: vaccines_left[start..idx])%>
+                    <% page_count += 1 %>
+                    <%next%>
+                <% end %>
 
-        <div class="intro">
-            <div class="colored-bullet"></div>
-            <p><%= "#{survey.name}" %></p>
-            <div class="spacer" style="clear: both"></div>
-        </div>
-        <p class="content">Score: <%= "#{calculate_mchat_score}" %></p>
-        <p class="content"><%= "#{survey.description}" %></p>
+                <% if page_heights > 260 %>
+                    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'last_page.html.erb')).render(self, count: page_count, records: vaccines_left[start..idx])%>
+                    <% end_flag = false %>
+                <% else %>
+                    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'mchat_last_page.erb')).render(self, count: page_count, records: vaccines_left[start..idx])%>
+                    <% page_count += 1 %>
+                <% end %>
+            <% end %>
 
-        <div id="first-page">
-            <table class="vaccines">
-                <tr>
-                    <th class="title-left">Question</th>
-                    <th class="title-right">Answer</th>
-                </tr>
-                <% survey.questions.each_with_index do |question, idx|%>
-                    <tr>
-                        <td class="vaccines-left"><%= idx + 1 %>. <%= question.body %></td>
-                        <% if answer = answers.find_by(question_id: question.id) %>
-                            <td class="vaccines-right"><%= answer.text %></td>
-                        <% end %>
-                    </tr>
-                    <tr>
-                        <td class="vaccines-left-second"><%=question.secondary%></td>
-                    </tr>
-                <%end%>
-            </table>
-        </div>
+            <% if page_heights < 0 %>
+                <% if page_count == 1 %>
+                    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'mchat_first_page.erb')).render(self, count: page_count, records: vaccines_left[start..idx - 1])%>
+                <% else %>
+                    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'mchat_last_page.erb')).render(self, count: page_count, records: vaccines_left[start..idx - 1])%>
+                <% end %>
+                <% page_count += 1; page_heights, start = 600, idx %>
+            <% end %>
+        <% end %>
+
+        <% if end_flag %>
+            <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'vaccines', 'last_page.html.erb')).render(self, count: page_count, records: [])%>
+        <% end %>
     </body>
 </html>

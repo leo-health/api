@@ -11,6 +11,7 @@ describe Survey do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:private) }
     it { is_expected.to validate_presence_of(:required) }
+    it { is_expected.to validate_presence_of(:display_name) }
     it { is_expected.to validate_presence_of(:reason) }
     it { is_expected.to validate_presence_of(:survey_type) }
     it { is_expected.to validate_inclusion_of(:survey_type).in_array(%w(clinical feedback tracking)) }
