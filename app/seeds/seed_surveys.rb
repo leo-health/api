@@ -3,7 +3,7 @@ class SeedSurveys
     surveys.each do |survey_json|
       survey_id = Survey.update_or_create!(:name, survey_json).id
       mchat_questions.each_with_index do |question_json, index|
-        Question.update_or_create!([:survey_id, :order], question_json.merge(survey_id: survey_id, order: index))
+        Question.update_or_create!([:survey_id, :order], question_json.merge(survey_id: survey_id, order: index, question_type: "single select"))
       end
     end
 
@@ -34,172 +34,80 @@ class SeedSurveys
 
   def self.mchat_questions
     [
-         { body: (<<-EOT),
-    If you point at something across the room, does your child look at it?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, if you point at a toy or an animal, does your child look at the toy or animal?
-           EOT
-           question_type: 'single select',
-           order: 1
+         {
+           body: "If you point at something across the room, does your child look at it?",
+           secondary: "FOR EXAMPLE, if you point at a toy or an animal, does your child look at the toy or animal?"
          },
-         { body: (<<-EOT),
-    Have you ever wondered if your child might be deaf?
-           EOT
-           question_type: 'single select',
-           order: 2
+         {
+           body: "Have you ever wondered if your child might be deaf?"
          },
-         { body: (<<-EOT),
-    Does your child play pretend or make-believe?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, pretend to drink from an empty cup, pretend to talk on a phone, or pretend to feed a doll or stuffed animal?
-           EOT
-           question_type: 'single select',
-           order: 3
+         {
+           body: "Does your child play pretend or make-believe?",
+           secondary: "FOR EXAMPLE, pretend to drink from an empty cup, pretend to talk on a phone, or pretend to feed a doll or stuffed animal?"
          },
-         { body: (<<-EOT),
-    Does your child like climbing on things?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, furniture, playground equipment, or stairs
-           EOT
-           question_type: 'single select',
-           order: 4
+         {
+           body: "Does your child like climbing on things?",
+           secondary: "FOR EXAMPLE, furniture, playground equipment, or stairs"
          },
-         { body: (<<-EOT),
-    Does your child make unusual finger movements near his or her eyes?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, does your child wiggle his or her fingers close to his or her eyes?
-           EOT
-           question_type: 'single select',
-           order: 5
+         {
+           body: "Does your child make unusual finger movements near his or her eyes?",
+           secondary: "FOR EXAMPLE, does your child wiggle his or her fingers close to his or her eyes?"
          },
-         { body: (<<-EOT),
-    Does your child point with one finger to ask for something or to get help?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, pointing to a snack or toy that is out of reach
-           EOT
-           question_type: 'single select',
-           order: 6
+         {
+           body: "Does your child point with one finger to ask for something or to get help?",
+           secondary: "FOR EXAMPLE, pointing to a snack or toy that is out of reach"
          },
-         { body: (<<-EOT),
-    Does your child point with one finger to show you something interesting?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, pointing to an airplane in the sky or a big truck in the road
-           EOT
-           question_type: 'single select',
-           order: 7
+         {
+           body: "Does your child point with one finger to show you something interesting?",
+           secondary: "FOR EXAMPLE, pointing to an airplane in the sky or a big truck in the road"
          },
-         { body: (<<-EOT),
-    Is your child interested in other children?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, does your child watch other children, smile at them, or go to them?
-           EOT
-           question_type: 'single select',
-           order: 8
+         {
+           body: "Is your child interested in other children?",
+           secondary: "FOR EXAMPLE, does your child watch other children, smile at them, or go to them?"
          },
-         { body: (<<-EOT),
-    Does your child show you things by bringing them to you or holding them up for you to see – not to get help, but just
-    to share?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, showing you a flower, a stuffed animal, or a toy truck
-           EOT
-           question_type: 'single select',
-           order: 9
+         {
+           body: "Does your child show you things by bringing them to you or holding them up for you to see – not to get help, but just",
+           secondary: "FOR EXAMPLE, showing you a flower, a stuffed animal, or a toy truck"
          },
-         { body: (<<-EOT),
-    Does your child respond when you call his or her name?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, does he or she look up, talk or babble, or stop what he or she is doing when you call his or her name?
-           EOT
-           question_type: 'single select',
-           order: 10
+         {
+           body: "Does your child respond when you call his or her name?",
+           secondary: "FOR EXAMPLE, does he or she look up, talk or babble, or stop what he or she is doing when you call his or her name?"
          },
-         { body: (<<-EOT),
-    When you smile at your child, does he or she smile back at you?
-           EOT
-           question_type: 'single select',
-           order: 11
+         {
+           body: "When you smile at your child, does he or she smile back at you?"
          },
-         { body: (<<-EOT),
-    Does your child get upset by everyday noises?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, does your child scream or cry to noise such as a vacuum cleaner or loud music?
-           EOT
-           question_type: 'single select',
-           order: 12
+         {
+           body: "Does your child get upset by everyday noises?",
+           secondary: "FOR EXAMPLE, does your child scream or cry to noise such as a vacuum cleaner or loud music?"
          },
-         { body: (<<-EOT),
-    Does your child walk?
-           EOT
-           question_type: 'single select',
-           order: 13
+         {
+           body: "Does your child walk?"
          },
-         { body: (<<-EOT),
-    Does your child look you in the eye when you are talking to him or her, playing with him Yes No or her, or dressing
-    him or her?
-           EOT
-           question_type: 'single select',
-           order: 14
+         {
+           body: "Does your child look you in the eye when you are talking to him or her, playing with him Yes No or her, or dressing"
          },
-         { body: (<<-EOT),
-    Does your child try to copy what you do?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, wave bye-bye, clap, or make a funny noise when you do
-           EOT
-           question_type: 'single select',
-           order: 15
+         {
+           body: "Does your child try to copy what you do?",
+           secondary: "FOR EXAMPLE, wave bye-bye, clap, or make a funny noise when you do"
          },
-         { body: (<<-EOT),
-    If you turn your head to look at something, does your child look around to see what you are looking at?
-           EOT
-           question_type: 'single select',
-           order: 16
+         {
+           body: "If you turn your head to look at something, does your child look around to see what you are looking at?"
          },
-         { body: (<<-EOT),
-    Does your child try to get you to watch him or her?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, does your child look at you for praise, or say “look” or “watch me”?
-           EOT
-           question_type: 'single select',
-           order: 17
+         {
+           body: "Does your child try to get you to watch him or her?",
+           secondary: "FOR EXAMPLE, does your child look at you for praise, or say “look” or “watch me”?"
          },
-         { body: (<<-EOT),
-    Does your child understand when you tell him or her to do something?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, if you don’t point, can your child understand “put the bookon the chair” or “bring me the blanket”?
-           EOT
-           question_type: 'single select',
-           order: 18
+         {
+           body: "Does your child understand when you tell him or her to do something?",
+           secondary: "FOR EXAMPLE, if you don’t point, can your child understand “put the bookon the chair” or “bring me the blanket”?"
          },
-         { body: (<<-EOT),
-    If something new happens, does your child look at your face to see how you feel about it?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, if he or she hears a strange or funny noise, or sees a new toy, willhe or she look at your face?
-           EOT
-           question_type: 'single select',
-           order: 19
+         {
+           body: "If something new happens, does your child look at your face to see how you feel about it?",
+           secondary: "FOR EXAMPLE, if he or she hears a strange or funny noise, or sees a new toy, willhe or she look at your face?"
          },
-         { body: (<<-EOT),
-    Does your child like movement activities?
-           EOT
-           secondary: (<<-EOT),
-    FOR EXAMPLE, being swung or bounced on your knee
-           EOT
-           question_type: 'single select',
-           order: 20
+         {
+           body: "Does your child like movement activities?",
+           secondary: "FOR EXAMPLE, being swung or bounced on your knee"
         }
     ]
   end
