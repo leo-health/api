@@ -5,13 +5,13 @@ module Leo
       format :json
       include Grape::Kaminari
 
-      ENTITIES = %w(image avatar role provider insurance_plan insurer user user_survey
+      ENTITIES = %w(image avatar role provider insurance_plan insurer user survey user_survey
                     escalation_note system appointment_status closure_reason question
-                    survey appointment_type message short_user full_message patient
+                    appointment_type message short_user full_message patient
                     conversation practice_schedule provider_leave practice appointment
                     short_patient short_conversation link_preview card family session
                     vital allergy medication vaccine user_generated_health_record form
-                    patient_insurance phr answer)
+                    patient_insurance phr answer )
 
       ENTITIES.each do |entity_name|
         require_relative "../entities/#{entity_name}_entity"
