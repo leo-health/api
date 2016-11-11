@@ -3,7 +3,8 @@ class ConversationCardPresenter
 
   def initialize(conversation:, card_id:)
     @color = "#01C0E4"
-    @icon = Leo::Entities::ImageEntity.represent(CardIcon.conversation.icon)
+    image = CardIcon.conversation.try(:icon)
+    @icon = image.try(:url) ? Leo::Entities::ImageEntity.represent(image) : nil
 
     @conversation = conversation
     @card_id = card_id
@@ -28,6 +29,7 @@ class ConversationCardPresenter
     icon = @icon
 
     last_message = @conversation.messages.order(:created_at).last
+    return nil unless last_message
     last_message_author_name = last_message.sender.try(:full_name)
     last_message_body = last_message.body
     if last_message.type_name.to_sym == :image

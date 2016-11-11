@@ -25,8 +25,6 @@ describe Leo::V1::Cards do
     it "returns route cards" do
       do_request
       body = JSON.parse(response.body, symbolize_names: true)[:data]
-
-      expect(body[:associated_data][:appointment].count).to eq(1)
       expect(body[:cards].count).to eq(3)
     end
   end

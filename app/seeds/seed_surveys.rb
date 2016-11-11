@@ -2,8 +2,8 @@ class SeedSurveys
   def self.seed
     surveys.each do |survey_json|
       survey_id = Survey.update_or_create!(:name, survey_json).id
-      mchat_questions.each do |question_json|
-        Question.update_or_create!([:survey_id, :order], question_json.merge(survey_id: survey_id))
+      mchat_questions.each_with_index do |question_json, index|
+        Question.update_or_create!([:survey_id, :order], question_json.merge(survey_id: survey_id, order: index))
       end
     end
 

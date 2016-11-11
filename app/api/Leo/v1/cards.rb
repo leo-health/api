@@ -47,7 +47,7 @@ module Leo
           }.compact
 
           if index = params[:card_id]
-            return card[index]
+            return cards[index]
           end
 
           {cards: cards}
