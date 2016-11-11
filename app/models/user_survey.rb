@@ -4,9 +4,8 @@ class UserSurvey < ActiveRecord::Base
   belongs_to :survey
   belongs_to :patient
   has_many :answers
-
   validates_presence_of :user, :survey
-  after_update :upload_survey_to_athena
+  after_update :upload_survey_and_email_provider
 
   def self.create_and_notify(user, patient, survey)
     if UserSurvey.create(user: user, patient: patient, survey: survey).valid?
@@ -16,17 +15,16 @@ class UserSurvey < ActiveRecord::Base
     end
   end
 
-  def upload_survey_to_athena
-    if completed_changed?(from: false, to: true)
+  def upload_survey_and_email_provider
+    ActiveRecord::Base.transaction do
+      return unless completed_changed?(from: false, to: true)
       survey_name = "Mchat#{Time.current.to_i}.pdf"
       AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, generate_survey_pdf(survey_name))
+      NotifyCompletedSurveyJob.send(patient_id)
       File.delete(Rails.root.join("public", "#{survey_name}"))
     end
   end
 
-  def notify_provider_survey_uploaded
-
-  end
 
   def calculate_mchat_score
     answers = Answer.where(user_survey: self)
@@ -43,6 +41,7 @@ class UserSurvey < ActiveRecord::Base
     return 'Error Occurred'
   end
 
+  private
 
   def generate_survey_pdf(survey_name)
     template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat.html.erb'))

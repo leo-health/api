@@ -16,7 +16,6 @@ class Answer < ActiveRecord::Base
     false
   end
 
-
   private
 
   def mark_survey_complete_and_upload
