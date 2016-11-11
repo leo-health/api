@@ -1,7 +1,7 @@
 class SeedCardIcons
   def self.seed
 
-    card_types = %w(conversation appointment)
+    card_types = %w(conversation appointment survey)
 
     card_types.map do |card_type|
       CardIcon.update_or_create!(:card_type, {

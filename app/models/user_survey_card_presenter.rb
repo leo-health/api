@@ -1,7 +1,7 @@
 class UserSurveyCardPresenter
   def initialize(user_survey:, card_id:)
     @color = "#FF5F40"
-    @icon = nil #Leo::Entities::ImageEntity.represent(CardIcon.survey.icon)
+    @icon = Leo::Entities::ImageEntity.represent(CardIcon.survey.icon)
 
     @user_survey = user_survey
     @card_id = card_id
