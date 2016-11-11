@@ -66,7 +66,7 @@ class SeedSurveys
            secondary: "FOR EXAMPLE, does your child watch other children, smile at them, or go to them?"
          },
          {
-           body: "Does your child show you things by bringing them to you or holding them up for you to see – not to get help, but just",
+           body: "Does your child show you things by bringing them to you or holding them up for you to see – not to get help, but just to share?",
            secondary: "FOR EXAMPLE, showing you a flower, a stuffed animal, or a toy truck"
          },
          {

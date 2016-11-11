@@ -8,7 +8,7 @@ class Answer < ActiveRecord::Base
   private
 
   def mark_survey_complete
-    if question.order == user_survey.survey.questions.count - 1
+    if user_survey.survey.questions.count == user_survey.answers.count
       user_survey.update_attributes(completed: true)
     end
   end
