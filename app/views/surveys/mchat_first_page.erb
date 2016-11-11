@@ -13,19 +13,19 @@
       <td><%= "#{number_to_phone(user.phone,  area_code: true)}" %></td>
       <th>SEX</th>
       <% if patient.sex == 'M' %>
-          <td>Male</td>
+        <td>Male</td>
       <% else %>
-          <td>Female</td>
+        <td>Female</td>
       <%end%>
     </tr>
   </table>
 
   <% if patient.current_avatar && patient.current_avatar.avatar %>
-      <div class="round" style="background-image: url(<%= patient.current_avatar.avatar.url %>)"></div>
+    <div class="round" style="background-image: url(<%= patient.current_avatar.avatar.url %>)"></div>
   <% elsif patient.sex == "M"%>
-      <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Son.png') %>)"></div>
+    <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Son.png') %>)"></div>
   <% else %>
-      <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Daughter.png') %>)"></div>
+    <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Daughter.png') %>)"></div>
   <% end %>
 
   <div class="spacer" style="clear: both;"></div>
@@ -33,11 +33,12 @@
 
 <div class="intro">
   <div class="colored-bullet"></div>
-  <p><%= "#{survey.name}" %></p>
+  <% score = calculate_mchat_score %>
+  <span class="title"><%= "#{survey.name}" %></span>
+  <span><b><%= "#{calculate_risk_level(score)}" %></b> - Total Score is <%= "#{score}" %></span>
+  <span class="description"><%= "#{survey.description}" %></span>
   <div class="spacer" style="clear: both"></div>
 </div>
-<p class="content">Score: <%= "#{calculate_mchat_score}" %></p>
-<p class="content"><%= "#{survey.description}" %></p>
 
 <div id="first-page">
   <table class="vaccines">
@@ -45,11 +46,11 @@
       <th class="title-left">Question</th>
       <th class="title-right">Answer</th>
     </tr>
-    <% survey.questions.each_with_index do |question, idx|%>
+    <% records.each_with_index do |question, idx|%>
         <tr>
           <td class="vaccines-left"><%= idx + 1 %>. <%= question.body %></td>
           <% if answer = answers.find_by(question_id: question.id) %>
-              <td class="vaccines-right"><%= answer.text %></td>
+            <td class="vaccines-right"><%= answer.text %></td>
           <% end %>
         </tr>
         <tr>

@@ -1,0 +1,28 @@
+.colored-bullet{
+    height: 150pt;
+}
+
+.intro {
+    font-size: 30pt;
+    color: rgb(87, 87, 87);
+    margin-top: 49pt;
+    padding: 4pt 0 3pt 0;
+}
+
+.intro span{
+    font-size: 16pt;
+    display: inline-block;
+    width: 90%;
+}
+
+.intro .title{
+    font-size: 32pt;
+}
+
+.intro .description{
+    color: rgb(155, 155, 155);
+}
+
+#first-page{
+    height: 390pt;
+}

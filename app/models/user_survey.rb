@@ -35,6 +35,13 @@ class UserSurvey < ActiveRecord::Base
       negative_ans.inject(0){|score, ans| score += 1 if ans.text == 'No'}
   end
 
+  def calculate_risk_level(score)
+    return 'Low Risk' if (score <= 2 && 0 <= score)
+    return 'Medium Risk' if score <= 7
+    return 'High Risk' if score <= 20
+    return 'Error Occured'
+  end
+
   # private
 
   def generate_survey_pdf

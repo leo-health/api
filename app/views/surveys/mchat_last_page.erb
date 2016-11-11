@@ -1,24 +1,28 @@
 <header>
-  <div class="name middle-header"><%= "#{first_name.upcase} #{last_name.upcase}" %></div>
+  <div class="name middle-header"><%= "#{patient.first_name.upcase} #{patient.last_name.upcase}" %></div>
   <div class="spacer" style="clear: both;"></div>
 </header>
+
 <div class="middle-pages">
   <table class="vaccines">
     <tr>
-      <th class="title-left">vaccine name</th>
-      <th class="title-right">date administered</th>
+      <th class="title-left">Question</th>
+      <th class="title-right">Answer</th>
     </tr>
-    <% records.each do |v|%>
+    <% records.each_with_index do |question, idx|%>
         <tr>
-          <td class="vaccines-left"><%= HealthRecordHelper::VACCINE_NAME_MAP[v.vaccine] || 'Unspecified' %></td>
-          <td class="vaccines-right"><%= v.administered_at.strftime("%m/%d/%Y") %></td>
+          <td class="vaccines-left"><%= idx + start + 1 %>. <%= question.body %></td>
+          <% if answer = answers.find_by(question_id: question.id) %>
+              <td class="vaccines-right"><%= answer.text %></td>
+          <% end %>
         </tr>
         <tr>
-          <td class="vaccines-left-second"><%=v.vaccine%></td>
+          <td class="vaccines-left-second"><%=question.secondary%></td>
         </tr>
     <%end%>
   </table>
 </div>
+
 <footer>
   <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
   <div class="right"><%= count %></div>
