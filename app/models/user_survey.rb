@@ -18,8 +18,9 @@ class UserSurvey < ActiveRecord::Base
 
   def upload_survey_to_athena
     if completed_changed?(from: false, to: true)
-      AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, generate_survey_pdf)
-      File.delete(Rails.root.join("public", "mchat.pdf"))
+      survey_name = "Mchat#{Time.current.to_i}.pdf"
+      AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, generate_survey_pdf(survey_name))
+      File.delete(Rails.root.join("public", "#{survey_name}"))
     end
   end
 
@@ -31,23 +32,22 @@ class UserSurvey < ActiveRecord::Base
     answers = Answer.where(user_survey: self)
     positive_ans = answers.where(question_id: survey.questions.where(order: MCHAT_POSITIVE_QUESTIONS).pluck(:id))
     negative_ans = answers.where(question_id: survey.questions.where.not(order: MCHAT_POSITIVE_QUESTIONS).pluck(:id))
-    positive_ans.inject(0){|score, ans| score += 1 if ans.text == 'Yes'} +
-      negative_ans.inject(0){|score, ans| score += 1 if ans.text == 'No'}
+    positive_ans.inject(0){|score, ans| score += 1 if ans.text == 'yes'; score} +
+      negative_ans.inject(0){|score, ans| score += 1 if ans.text == 'no'; score}
   end
 
   def calculate_risk_level(score)
     return 'Low Risk' if (score <= 2 && 0 <= score)
     return 'Medium Risk' if score <= 7
     return 'High Risk' if score <= 20
-    return 'Error Occured'
+    return 'Error Occurred'
   end
 
-  # private
 
-  def generate_survey_pdf
+  def generate_survey_pdf(survey_name)
     template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat.html.erb'))
     p = WickedPdf.new.pdf_from_string(template.render(self))
-    File.open(Rails.root.join("public", "mchat.pdf"), 'wb'){ |file| file << p }
-    Rails.root.join("public", "mchat.pdf")
+    File.open(Rails.root.join("public", "#{survey_name}"), 'wb'){ |file| file << p }
+    Rails.root.join("public", "#{survey_name}")
   end
 end

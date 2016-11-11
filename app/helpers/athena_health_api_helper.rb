@@ -484,7 +484,7 @@ module AthenaHealthApiHelper
     def upload_survey(patient, pdf_path)
       @connection.authenticate unless @connection.token
       params = {
-        attachmentcontents: UploadIO.new(File.open(pdf_path), "pdf", 'mchat.pdf'),
+        attachmentcontents: UploadIO.new(File.open(pdf_path), "pdf"),
         departmentid: 1,
         documentsubclass: 'CLINICALDOCUMENT'
       }

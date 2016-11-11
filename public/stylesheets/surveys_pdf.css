@@ -26,3 +26,11 @@
 #first-page{
     height: 390pt;
 }
+
+.red{
+    color: #FF5F40;
+}
+
+.underline{
+    text-decoration: underline;
+}

@@ -6,7 +6,7 @@ SURVEYS = [
     instructions: 'This is instruction',
     reason: 'This is reason',
     survey_type: 'clinical',
-    display_name: 'MCHAT-Clinical Survey 18'
+    display_name: 'MCHAT - Clinical Survey'
   },
   {
     name: 'MCHAT24',
@@ -15,7 +15,7 @@ SURVEYS = [
     instructions: 'This is instruction',
     reason: 'This is reason',
     survey_type: 'clinical',
-    display_name: 'MCHAT-Clinical Survey 24'
+    display_name: 'MCHAT - Clinical Survey'
   }
 ]
 

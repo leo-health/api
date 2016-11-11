@@ -34,8 +34,8 @@
 <div class="intro">
   <div class="colored-bullet"></div>
   <% score = calculate_mchat_score %>
-  <span class="title"><%= "#{survey.name}" %></span>
-  <span><b><%= "#{calculate_risk_level(score)}" %></b> - Total Score is <%= "#{score}" %></span>
+  <span class="title"><%= "#{survey.display_name}" %></span>
+  <span><%= "#{calculate_risk_level(score)}" %> - <h class="underline">Total Score is <%= "#{score}" %></h></span>
   <span class="description"><%= "#{survey.description}" %></span>
   <div class="spacer" style="clear: both"></div>
 </div>
@@ -43,14 +43,14 @@
 <div id="first-page">
   <table class="vaccines">
     <tr>
-      <th class="title-left">Question</th>
-      <th class="title-right">Answer</th>
+      <th class="title-left">question</th>
+      <th class="title-right">answer</th>
     </tr>
     <% records.each_with_index do |question, idx|%>
         <tr>
           <td class="vaccines-left"><%= idx + 1 %>. <%= question.body %></td>
-          <% if answer = answers.find_by(question_id: question.id) %>
-            <td class="vaccines-right"><%= answer.text %></td>
+          <% if answer = Answer.find_by(user_survey: self, question: question) %>
+            <td class="vaccines-right <%= 'red' if answer.paint_mchat_answer_red? %>"><%= answer.text.capitalize %></td>
           <% end %>
         </tr>
         <tr>
@@ -63,5 +63,5 @@
 <footer>
   <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
   <div class="right"><%= count %></div>
-  <div class="middle">Generated on <%= Time.now.strftime("%m/%d/%Y")%></div>
+  <div class="middle">Generated on <%="#{Time.now.strftime("%b")} #{Time.now.strftime("%d")}, #{Time.now.strftime("%Y")}" %></div>
 </footer>
