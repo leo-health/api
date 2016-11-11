@@ -18,6 +18,7 @@ describe Leo::V1::Answers do
     end
 
     it "should create an answers" do
+      debugger
       do_request
       expect(response.status).to eq(201)
       body = JSON.parse(response.body, symbolize_names: true )
