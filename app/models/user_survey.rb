@@ -23,6 +23,10 @@ class UserSurvey < ActiveRecord::Base
     end
   end
 
+  def notify_provider_survey_uploaded
+
+  end
+
   def calculate_mchat_score
     answers = Answer.where(user_survey: self)
     positive_ans = answers.where(question_id: survey.questions.where(order: MCHAT_POSITIVE_QUESTIONS).pluck(:id))
