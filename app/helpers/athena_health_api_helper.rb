@@ -488,12 +488,14 @@ module AthenaHealthApiHelper
         departmentid: 1,
         documentsubclass: 'CLINICALDOCUMENT'
       }
+
       uri = @connection.path_join(@connection.version, @connection.practiceid, "patients/#{patient.athena_id}/documents")
       req = Net::HTTP::Post::Multipart.new uri, params
       req['authorization'] = "Bearer #{@connection.token}"
       req["accept-encoding"] = "deflate;q=0.6,identity;q=0.3"
       response = @connection.connection.request(req)
       raise "HTTP error for endpoint #{uri} code encountered: #{response.code}" unless response.code.to_i == 200
+      response
     end
   end
 end

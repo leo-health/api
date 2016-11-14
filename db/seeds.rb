@@ -2,7 +2,7 @@ require 'csv'
 
 should_seed_flatiron = ENV['ATHENA_PRACTICE_ID'] == "13092"
 
-# First seed necessary data for all practices
+#First seed necessary data for all practices
 roles_seed = [
   { name: :financial },
   { name: :clinical_support },

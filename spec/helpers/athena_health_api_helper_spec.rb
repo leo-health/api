@@ -708,5 +708,19 @@ RSpec.describe AthenaHealthApiHelper, type: :helper do
         expect(providers.count).to eq(3)
       end
     end
+
+    describe ".upload_survey" do
+      let(:patient){ create(:patient) }
+
+      before do
+        allow(connector.connection).to receive("authenticate").and_return('token')
+        allow(connector.connection.connection).to receive("request").and_return(Struct.new(:code).new(200))
+      end
+
+      it "should upload the survey to athena api" do
+        response = connector.upload_survey(patient, Rails.root)
+        expect(response.code).to eq(200)
+      end
+    end
   end
 end

@@ -73,7 +73,7 @@ module AthenaHealthAPI
     @@last_token = nil
     @@last_request = Time.now
 
-    attr_reader :version, :practiceid, :key, :secret, :token, :connection
+    attr_accessor :version, :practiceid, :key, :secret, :token, :connection
 
     # Connects to the host, and authenticates to the specified API version using key and secret.
     #

@@ -16,17 +16,6 @@ class UserSurvey < ActiveRecord::Base
     end
   end
 
-  def upload_survey_and_email_provider
-    ActiveRecord::Base.transaction do
-      return unless completed_changed?(from: false, to: true)
-      survey_name = "Mchat#{Time.current.to_i}.pdf"
-      AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, generate_survey_pdf(survey_name))
-      NotifyCompletedSurveyJob.send(patient_id)
-      File.delete(Rails.root.join("public", "#{survey_name}"))
-    end
-  end
-
-
   def calculate_mchat_score
     answers = Answer.where(user_survey: self)
     positive_ans = answers.where(question_id: survey.questions.where(order: MCHAT_POSITIVE_QUESTIONS).pluck(:id))
@@ -43,6 +32,16 @@ class UserSurvey < ActiveRecord::Base
   end
 
   private
+
+  def upload_survey_and_email_provider
+    ActiveRecord::Base.transaction do
+      return unless completed_changed?(from: false, to: true)
+      survey_name = "Mchat#{Time.current.to_i}.pdf"
+      AthenaHealthApiHelper::AthenaHealthApiConnector.instance.upload_survey(patient, generate_survey_pdf(survey_name))
+      File.delete(Rails.root.join("public", "#{survey_name}"))
+    end
+    NotifyCompletedSurveyJob.send(patient_id)
+  end
 
   def generate_survey_pdf(survey_name)
     template = Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat.html.erb'))

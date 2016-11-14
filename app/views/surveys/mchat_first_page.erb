@@ -46,17 +46,19 @@
       <th class="title-left">question</th>
       <th class="title-right">answer</th>
     </tr>
-    <% records.each_with_index do |question, idx|%>
+    <% if records %>
+      <% records.each_with_index do |question, idx|%>
         <tr>
           <td class="vaccines-left"><%= idx + 1 %>. <%= question.body %></td>
-          <% if answer = Answer.find_by(user_survey: self, question: question) %>
-            <td class="vaccines-right <%= 'red' if answer.paint_mchat_answer_red? %>"><%= answer.text.capitalize %></td>
-          <% end %>
-        </tr>
-        <tr>
-          <td class="vaccines-left-second"><%=question.secondary%></td>
-        </tr>
-    <%end%>
+            <% if answer = Answer.find_by(user_survey: self, question: question) %>
+              <td class="vaccines-right <%= 'red' if answer.paint_mchat_answer_red? %>"><%= answer.text.capitalize if answer.text %></td>
+            <% end %>
+            </tr>
+            <tr>
+              <td class="vaccines-left-second"><%=question.secondary%></td>
+            </tr>
+        <%end%>
+    <% end %>
   </table>
 </div>
 
