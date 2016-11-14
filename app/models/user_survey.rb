@@ -2,7 +2,7 @@ class UserSurvey < ActiveRecord::Base
   belongs_to :user
   belongs_to :survey
   belongs_to :patient
-  has_many :answers
+  has_many :answers, dependent: :destroy
 
   validates_presence_of :user, :survey
 
@@ -12,5 +12,11 @@ class UserSurvey < ActiveRecord::Base
         NewSurveyApnsJob.send(device_token)
       end
     end
+  end
+
+  def current_question_index
+    last_answer_question_number = answers.joins(:question)
+      .maximum("questions.order") || -1
+    last_answer_question_number + 1
   end
 end

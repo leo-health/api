@@ -14,7 +14,10 @@ module Leo
         end
 
         post do
-          answer = Answer.create(params.except(:authentication_token))
+          answer = Answer.update_or_create!(
+            [:user_survey_id, :question_id],
+            params.except(:authentication_token)
+          )
           create_success answer
         end
       end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161021192837) do
+ActiveRecord::Schema.define(version: 20161030235736) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -129,6 +129,11 @@ ActiveRecord::Schema.define(version: 20161021192837) do
 
   add_index "bmi_growth_curves", ["days"], name: "index_bmi_growth_curves_on_days", using: :btree
   add_index "bmi_growth_curves", ["sex"], name: "index_bmi_growth_curves_on_sex", using: :btree
+
+  create_table "card_icons", force: :cascade do |t|
+    t.string "icon",      null: false
+    t.string "card_type", null: false
+  end
 
   create_table "choices", force: :cascade do |t|
     t.string   "media"

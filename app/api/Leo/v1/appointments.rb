@@ -38,8 +38,18 @@ module Leo
           end
         end
 
+        # DEPRECATED - use DELETE /appointment {id} instead
         desc "cancel an appointment"
         delete ":id" do
+          cancel_appointment
+        end
+
+        params do
+          requires :id, type: Integer, allow_blank: false
+        end
+
+        desc "cancel an appointment"
+        delete do
           cancel_appointment
         end
 

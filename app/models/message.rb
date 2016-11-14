@@ -12,6 +12,7 @@ class Message < ActiveRecord::Base
   has_many :readers, class_name: 'User', through: :read_receipts
 
   validates :conversation, :sender, :type_name, presence: true
+  validates_inclusion_of :type_name, in: %w(text image)
   validates :body, presence: true, if: :text_message?
   after_commit :actions_after_message_sent, on: :create
 
