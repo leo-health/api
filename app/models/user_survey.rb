@@ -3,7 +3,8 @@ class UserSurvey < ActiveRecord::Base
   belongs_to :user
   belongs_to :survey
   belongs_to :patient
-  has_many :answers
+  has_many :answers, dependent: :destroy
+
   validates_presence_of :user, :survey
   after_update :upload_survey_and_email_provider
 
@@ -48,5 +49,11 @@ class UserSurvey < ActiveRecord::Base
     p = WickedPdf.new.pdf_from_string(template.render(self))
     File.open(Rails.root.join("public", "#{survey_name}"), 'wb'){ |file| file << p }
     Rails.root.join("public", "#{survey_name}")
+  end
+
+  def current_question_index
+    last_answer_question_number = answers.joins(:question)
+      .maximum("questions.order") || -1
+    last_answer_question_number + 1
   end
 end

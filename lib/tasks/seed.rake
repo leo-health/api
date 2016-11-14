@@ -1,3 +1,21 @@
+namespace :seed do
+  task milestone_content: :environment do
+    SeedMilestoneContent.seed
+  end
+end
+
+namespace :seed do
+  task surveys: :environment do
+    SeedSurveys.seed
+  end
+end
+
+namespace :seed do
+  task card_icons: :environment do
+    SeedCardIcons.seed
+  end
+end
+
 namespace :send do
   desc "Send referral cards to anyone who hasn't yet received one"
   task referral_cards: :environment do
