@@ -47,6 +47,7 @@ gem 'holidays'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 gem 'tilt'
+gem 'multipart-post'
 
 group :development, :test do
   gem 'parallel_tests'

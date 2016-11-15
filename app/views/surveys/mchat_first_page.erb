@@ -1,0 +1,69 @@
+<header>
+  <div class="name"><%= "#{patient.first_name.upcase} #{patient.last_name.upcase}" %></div>
+  <div class="spacer" style="clear: both;"></div>
+  <table>
+    <tr>
+      <th>GUARDIAN</th>
+      <td><%= "#{user.first_name} #{user.last_name}" %></td>
+      <th>BORN</th>
+      <td><%= patient.birth_date.strftime("%m/%d/%Y") %></td>
+    </tr>
+    <tr>
+      <th></th>
+      <td><%= "#{number_to_phone(user.phone,  area_code: true)}" %></td>
+      <th>SEX</th>
+      <% if patient.sex == 'M' %>
+        <td>Male</td>
+      <% else %>
+        <td>Female</td>
+      <%end%>
+    </tr>
+  </table>
+
+  <% if patient.current_avatar && patient.current_avatar.avatar %>
+    <div class="round" style="background-image: url(<%= patient.current_avatar.avatar.url %>)"></div>
+  <% elsif patient.sex == "M"%>
+    <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Son.png') %>)"></div>
+  <% else %>
+    <div class="round" style="background-image: url(<%= WickedPdfHelper.root_path.join('public', 'images', 'Avatar_Patient_Daughter.png') %>)"></div>
+  <% end %>
+
+  <div class="spacer" style="clear: both;"></div>
+</header>
+
+<div class="intro">
+  <div class="colored-bullet"></div>
+  <% score = calculate_mchat_score %>
+  <span class="title"><%= "#{survey.display_name}" %></span>
+  <span><%= "#{calculate_risk_level(score)}" %> - <p class="underline">Total Score is <%= "#{score}" %></p></span>
+  <span class="description"><%= "#{survey.description}" %></span>
+  <div class="spacer" style="clear: both"></div>
+</div>
+
+<div id="first-page">
+  <table class="vaccines">
+    <tr>
+      <th class="title-left">question</th>
+      <th class="title-right">answer</th>
+    </tr>
+    <% if records %>
+      <% records.each_with_index do |question, idx|%>
+        <tr>
+          <td class="vaccines-left"><%= idx + 1 %>. <%= question.body %></td>
+            <% if answer = Answer.find_by(user_survey: self, question: question) %>
+              <td class="vaccines-right <%= 'red' if answer.paint_mchat_answer_red? %>"><%= answer.text.capitalize if answer.text %></td>
+            <% end %>
+            </tr>
+            <tr>
+              <td class="vaccines-left-second"><%=question.secondary%></td>
+            </tr>
+        <%end%>
+    <% end %>
+  </table>
+</div>
+
+<footer>
+  <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
+  <div class="right"><%= count %></div>
+  <div class="middle">Generated on <%="#{Time.now.strftime("%b")} #{Time.now.strftime("%d")}, #{Time.now.strftime("%Y")}" %></div>
+</footer>

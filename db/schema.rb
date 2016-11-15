@@ -616,6 +616,7 @@ ActiveRecord::Schema.define(version: 20161030235736) do
   create_table "surveys", force: :cascade do |t|
     t.string   "name",                        null: false
     t.string   "survey_type",                 null: false
+    t.string   "display_name",                null: false
     t.text     "description"
     t.text     "prompt"
     t.text     "instructions"

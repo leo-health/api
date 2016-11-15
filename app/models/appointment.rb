@@ -105,7 +105,7 @@ class Appointment < ActiveRecord::Base
   end
 
   def create_mchat(name)
-    return if  UserSurvey.includes(:survey).where(patient: patient, survey:{name: name}).length > 0
+    return if UserSurvey.includes(:survey).where(patient: patient, survey:{name: name}).length > 0
     time_to_apppointment = (Time.current - start_datetime)
     primary_guardian = patient.family.primary_guardian
     if time_to_apppointment < 3.days && time_to_apppointment > 0 && survey = Survey.find_by(name: name)

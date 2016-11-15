@@ -224,6 +224,7 @@ GEM
     minitest (5.8.1)
     multi_json (1.11.2)
     multi_xml (0.5.5)
+    multipart-post (2.0.0)
     mustache (0.99.8)
     netrc (0.10.3)
     newrelic_rpm (3.15.0.314)
@@ -469,6 +470,7 @@ DEPENDENCIES
   lograge
   mandrill_mailer
   mini_magick
+  multipart-post
   newrelic_rpm
   parallel_tests
   paranoia (~> 2.0)
@@ -507,6 +509,9 @@ DEPENDENCIES
   wicked_pdf
   wkhtmltopdf-binary
   zeus-parallel_tests
+
+RUBY VERSION
+   ruby 2.2.2p95
 
 BUNDLED WITH
    1.12.5

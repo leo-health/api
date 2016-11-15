@@ -1,0 +1,32 @@
+<header>
+  <div class="name middle-header"><%= "#{patient.first_name.upcase} #{patient.last_name.upcase}" %></div>
+  <div class="spacer" style="clear: both;"></div>
+</header>
+
+<div class="middle-pages">
+  <table class="vaccines">
+    <tr>
+      <th class="title-left">question</th>
+      <th class="title-right">answer</th>
+    </tr>
+    <% if records %>
+        <% records.each_with_index do |question, idx|%>
+            <tr>
+              <td class="vaccines-left"><%= idx + start + 1 %>. <%= question.body %></td>
+              <% if answer = Answer.find_by(user_survey: self, question: question) %>
+                  <td class="vaccines-right <%= 'red' if answer.paint_mchat_answer_red? %>"><%= answer.text.capitalize %></td>
+              <% end %>
+            </tr>
+            <tr>
+              <td class="vaccines-left-second"><%=question.secondary%></td>
+            </tr>
+        <%end%>
+    <% end %>
+  </table>
+</div>
+
+<footer>
+  <img class="left" src=<%= WickedPdfHelper.root_path.join('public', 'images', 'full-leo.png') %>>
+  <div class="right"><%= count %></div>
+  <div class="middle">Generated on <%="#{Time.now.strftime("%b")} #{Time.now.strftime("%d")}, #{Time.now.strftime("%Y")}" %></div>
+</footer>

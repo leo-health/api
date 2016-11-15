@@ -214,4 +214,13 @@ class UserMailer < MandrillMailer::TemplateMailer
       }
     )
   end
+
+  def notify_completed_survey(provider)
+    mandrill_mail(
+      template: 'Leo - Notify Completed Clinical Survey',
+      inline_css: true,
+      subject: "Leo - Please check new completed clinical survey",
+      to: provider.email
+    )
+  end
 end

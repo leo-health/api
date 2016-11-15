@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <%= wicked_pdf_stylesheet_link_tag "vaccines_pdf" %>
+    <%= wicked_pdf_stylesheet_link_tag "surveys_pdf" %>
+  </head>
+
+  <body>
+    <% start, page_count, questions = 1, 1, survey.questions %>
+    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat_first_page.erb')).render(self, count: page_count, records: questions[0..4])%>
+    <% page_count += 1; start += 4 %>
+    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat_last_page.erb')).render(self, count: page_count, start: start, records: questions[5..12])%>
+    <% page_count += 1; start += 8 %>
+    <%= Tilt::ERBTemplate.new(Rails.root.join('app', 'views', 'surveys', 'mchat_last_page.erb')).render(self, count: page_count, start: start, records: questions[13..20])%>
+  </body>
+</html>
