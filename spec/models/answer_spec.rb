@@ -30,7 +30,6 @@ RSpec.describe Answer, type: :model do
     end
 
     it "should mark user survey as compelte if the last question is answered" do
-      allow(connector.connection).to receive("POST").and_return(Struct.new(:code, :body).new(200))
       expect{ answer_last_question }.to change(user_survey, :completed).from(false).to(true)
     end
   end

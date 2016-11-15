@@ -15,16 +15,17 @@ RSpec.describe UserSurvey, type: :model do
 
   describe "callbacks" do
     describe "after update" do
-      it "should generate a survey's answers pdf" do
+      let(:user_survey){ create(:user_survey) }
+      let!(:connector) {AthenaHealthApiHelper::AthenaHealthApiConnector.instance}
 
-      end
-
-      it "should upload survey to athena if the user survey is completed" do
-
+      before do
+        allow(connector.connection).to receive("authenticate").and_return('token')
+        allow(connector.connection.connection).to receive("request").and_return(Struct.new(:code).new(200))
       end
 
       it "should email provider after survey uploaded" do
-
+        user_survey.update_attributes(completed: true)
+        expect( Delayed::Job.where(queue: "notification_email").last.handler.strip.include?('NotifyCompletedSurveyJob')).to eq(true)
       end
     end
   end
